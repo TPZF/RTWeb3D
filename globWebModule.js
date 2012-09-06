@@ -20,8 +20,6 @@
 
 Ext.namespace('sitools.component');
 
-// test comment commit
-
 sitools.component.globWebModule = Ext.extend(Ext.Panel, {
 
     initComponent : function () {
