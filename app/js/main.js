@@ -49,8 +49,6 @@ $(function()
 			canvas.width = window.innerWidth;
 		if ( canvas.height != window.innerHeight )
 			canvas.height = window.innerHeight;
-		console.log("w: "+canvas.width);
-		console.log("h: "+canvas.height);
 	});
 	
 	// jQuery
