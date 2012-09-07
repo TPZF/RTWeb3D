@@ -1,9 +1,26 @@
 RTWeb3D
 =======
 
-Contains the module for Sitools2 using GlobWeb
+Contient le module GlobWeb pour SiTools2 
 
-Add RTWeb3D folder to SiToolsPath/workspace/client-user/js/modules
-Then add it in your Sitools2 "Project modules" with
-	- xtype parameter = "sitools.component.globWebModule"
-	- dependency URL : "/sitools/client-user/js/modules/globWebModule/globWebModule.js"
+Installation :
+ * Installer SiTools2
+ * Récupérer le module et le placer dans SiTools2 :
+    * cd %SITOOLS%/workspace/client-user/js/modules  
+	* git clone https://github.com/TPZF/RTWeb3D.git globWebModule  
+ * Copier %SITOOLS%/workspace/client-user/js/modules/globWebModule/install/int@10.xml vers %SITOOLS%/data/projects_modules  
+ * Copier %SITOOLS%/workspace/client-user/js/modules/globWebModule/install/earth2.png vers %SITOOLS%/data/upload
+ * Rendre visible le module sur le portail utilisateur
+	* Aller sur l'interface d'admin : http://localhost:8182/sitools/client-admin/
+	* Cliquer sur Access Managements/Projects/Projects 
+	* Désactiver le projet, éditer le et activer la visibilité pour le module GlobWeb
+ * Ajouter un proxy
+	 * Aller dans application plugins (interface admin)
+	 * Ajouter ProxyApp et configurer l'application comme ceci :
+          * uri attachment :  /Alasky 
+          * category : USER
+          * useProxy : False
+          * url client : http://alasky.u-strasbg.fr{rr}     // oui, il faut bien ajouter {rr}
+          * mode : 6
+
+	
