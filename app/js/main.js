@@ -38,11 +38,6 @@ $(function()
 	canvas.width = window.innerWidth;
 	canvas.height = window.innerHeight;
 	
-	// JS
-	// window.onresize = onWindowResize;
-	
-	console.log("Main!");
-	
 	// jQuery
 	$(window).resize(function() {
 		if ( canvas.width !=  window.innerWidth ) 
@@ -74,8 +69,8 @@ $(function()
 	var stats = new GlobWeb.Stats( globe, {element: 'fps', verbose: true} );
 
 	// Initialize navigator
-	astroNavigator = new GlobWeb.AstroNavigator(globe);
-	astroNavigator.setupDefaultEventHandlers(1);
+	astroNavigator = new GlobWeb.AstroNavigation(globe);
+// 	astroNavigator.setupDefaultEventHandlers(1);
 	
 	var cdsLayer = new GlobWeb.HEALPixLayer( { baseUrl: "/Alasky/DssColor/"} );
 	globe.setBaseImagery( cdsLayer );
