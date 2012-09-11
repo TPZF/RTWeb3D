@@ -38,14 +38,6 @@ $(function()
 	canvas.width = window.innerWidth;
 	canvas.height = window.innerHeight;
 	
-	// jQuery
-	$(window).resize(function() {
-		if ( canvas.width !=  window.innerWidth ) 
-			canvas.width = window.innerWidth;
-		if ( canvas.height != window.innerHeight )
-			canvas.height = window.innerHeight;
-	});
-	
 	// Initialize webgl
 	try
 	{
@@ -69,6 +61,14 @@ $(function()
 	
 	var cdsLayer = new GlobWeb.HEALPixLayer( { baseUrl: "/Alasky/DssColor/"} );
 	globe.setBaseImagery( cdsLayer );
+	
+	// Event to change canvas dimensions according to the window
+	$(window).resize(function() {
+		if ( canvas.width !=  window.innerWidth ) 
+			canvas.width = window.innerWidth;
+		if ( canvas.height != window.innerHeight )
+			canvas.height = window.innerHeight;
+	});
 	
 	// Event for changing imagery provider
 	$("#ImageriesDiv :input").click(function(event){
@@ -100,17 +100,6 @@ $(function()
 		var result = Math.round(num*Math.pow(10,dec))/Math.pow(10,dec);
 		return result;
 	}
-	
-	var nameRequest = {
-			type: "GET",
-			url: "/plugin/nameResolver/mars/GALACTIC?nameResolver=IMCCE",
-			success: function(response){
-				console.log = response;
-			},
-			error: function (xhr, ajaxOptions, thrownError) {
-				console.error( xhr.responseText );
-			}
-	};
 	
 	// Click event to show equatorial coordinates
 	$("#HEALPixCanvas").click(function(event){
