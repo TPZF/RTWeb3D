@@ -23,26 +23,26 @@ Ext.namespace('sitools.component');
 sitools.component.globWebModule = Ext.extend(Ext.Panel, {
 
     initComponent : function () {
+	
+		// Two methods : either using a ManagedIFrame (ExtJS component) or directly an iframe with autoEl
+		
+		// Using ManagedIFrame
         /*var htmlReaderCfg = {
             defaults : {
                 padding : 10
             },
             layout : 'fit',
             region : 'center',
-			defaultSrc : "../js/modules/globWebModule/index.html"
+			defaultSrc : "../js/modules/globWebModule/app/index.html"
         };
 
         this.htmlReader = new Ext.ux.ManagedIFrame.Panel(htmlReaderCfg);
 
         this.items = [ this.htmlReader ];*/
 		
-		/*this.items = [ { layout: 'fit', 
-				html: '<iframe src="../js/modules/globWebModule/index.html"></iframe>', 
-				xtype: 'panel'} ];*/
-		
+		// Using directly an iframe
 		this.items = [ { layout: 'fit', 
 						 region : 'center',
-						/* html: '<iframe src="../js/modules/globWebModule/index.html"></iframe>',*/
 						 autoEl: { tag: 'iframe',
 								src: '../js/modules/globWebModule/app/index.html'
 						}, 
