@@ -1,116 +1,87 @@
-
 /**
-*	Fill the Points of Interest table
+*	Fill the Points of Interest table and render them in the sky
 */
-function initPOI(globe) {
+function initPOI(globe, astroNavigator) {
 	
+	var namesFile;
+	var catalogueFile;
 		
-	// Initialize vector renderer manager used for stars name rendering
-	var vectorRendererManager = new GlobWeb.VectorRendererManager(globe);
-	var names;
-	var catalogue;
-	var readyCatalogue = false;
-	var readyNames = false;
-		
-	/**
+	/*
 	*	Asynchronous requests to load stars database composed of:
 	*		1) Names.tsv 	 : containing couples between HR and star name
-	*		2) Catalogue.tsv : containing all necessary information about each star
+	*		2) Catalogue.tsv : containing all necessary information(as equatorial coordinates) about each star
 	*/
-	function loadDatabase(){
-		// read names.tsv
-		var req = new XMLHttpRequest();
-		req.crossOrigin = '';
-		if ( req.overrideMimeType ) req.overrideMimeType( "text/xml" );
-		req.onreadystatechange = function() {
-			if( req.readyState == 4 ) {
-				if( req.status == 0 || req.status == 200 ) {
-					if ( req.responseText ) {
-						names = req.responseText;
-						readyNames = true;
-						
-						if( readyNames && readyCatalogue )
-							extractDatabase();
-							
-					} else {
-						console.error( "HEALPixRenderer: Empty or non-existing file (" + url + ")" );
-					}
+	var nameRequest = {
+				type: "GET",
+				url: "data/Names.tsv",
+				success: function(response){
+					namesFile = response;
+				},
+				error: function (xhr, ajaxOptions, thrownError) {
+					console.error( xhr.responseText );
 				}
-			}
-		}
-		
-		req.open( "GET", "data/Names.tsv", true );
-		req.send( null );
+	};
+	
+	var catalogueRequest = {
+				type: "GET",
+				url: "data/Catalogue.tsv",
+				success: function(response){
+				       catalogueFile = response;
+				},
+				error: function (xhr, ajaxOptions, thrownError) {
+					console.error( xhr.responseText );
+				}
+	};
+	
+	// Synchronizing two asynchronious requests with the same callback
+	$.when($.ajax(nameRequest), $.ajax(catalogueRequest))
+		.then(createPOIs,failure);
 
-		// read catalogue.tsv
-		var req2 = new XMLHttpRequest();
-		if ( req2.overrideMimeType ) req2.overrideMimeType( "text/xml" );
-		req2.onreadystatechange = function() {
-			if( req2.readyState == 4 ) {
-				if( req2.status == 0 || req2.status == 200 ) {
-					if ( req2.responseText ) {
-						catalogue = req2.responseText;
-						readyCatalogue = true;
-						
-						if( readyNames && readyCatalogue )
-							extractDatabase();
-						
-					} else {
-						console.error( "HEALPixRenderer: Empty or non-existing file (" + url + ")" );
-					}
-				}
-			}
-		}
 		
-		req2.open( "GET", "data/Catalogue.tsv", true );
-		req2.send( null );
+	function failure(){
+		console.error( "Failed to load files" );
 	}
 	
 	/**
-	*	Appends to the poiTable all known stars
+	* 	Appends to the poiTable all known stars and create the stars names in the sky
 	*/
-	function extractDatabase(){
-		// extract the table data
+	function createPOIs(){
+		// Extract the table data
+		var tmpTab = namesFile.slice(namesFile.indexOf("897;Acamar"), namesFile.indexOf('1231;Zaurak')+11);
+		var namesTab = tmpTab.split("\n");
+		tmpTab = catalogueFile.slice(catalogueFile.indexOf("001."), catalogueFile.indexOf("4.98;K3Ibv")+10);
+		var catalogueTab = tmpTab.split("\n");
 
-		var tab = names.slice(names.indexOf("897;Acamar"), names.indexOf('1231;Zaurak')+11);
-		var namesTab = tab.split("\n");
-		
-		tab = catalogue.slice(catalogue.indexOf("001."), catalogue.indexOf("4.98;K3Ibv")+10);
-		var catalogueTab = tab.split("\n");
-
-		// var oUl = document.getElementById("poiTable");
 		var poiTable = $("#poiTable");
+		// Create style
+		var options = {};
+		options.style = new GlobWeb.FeatureStyle();
+		options.style.label = true;
+		options.style.iconUrl = null;
 		
-		// for each known star
+		// For each known star
 		for(var i=0; i<namesTab.length; i++){
 			var word = namesTab[i].split(";"); // word[0] = HR, word[1] = name;
 			var HR = parseInt(word[0]);
 			var starName = word[1];
 				
-			// search corresponding HR in catalogue
+			// Search corresponding HR in catalogue
 			for(var j=0; j<catalogueTab.length; j++){
 				word = catalogueTab[j].split(";");
 				if(parseInt(word[2]) == HR){
-					// star found in catalogue
+					// Star found in the catalogue
 					
-					var raString = word[6]; // ra format : "hours minutes seconds"
-					var declString = word[7]; // decl format : "degrees minutes seconds"
+					var raString = word[6];   // right ascension format : "hours minutes seconds"
+					var declString = word[7]; // declinaton format : "degrees minutes seconds"
 					
 					var geo = [];
 					GlobWeb.CoordinateSystem.fromEquatorialToGeo([raString, declString], geo);
 					
-					// append new star to the poiTable
-					// *** jQuery ***
+					// Append new star to the poiTable
 					var li = "<li class=\"poi\" RA=\""+raString+"\" Decl=\""+declString+"\" Long="+geo[0]+" Lat="+geo[1]+">"+starName+"</li>";
-					// var li = $('<li class="poi">' + starName + '</li>');
-					// li.attr('RA',raString);
-					// li.attr('Decl',declString);
-					// li.attr('Long',geo[0]);
-					// li.attr('Lat',geo[1]);
 					poiTable.append(li);
 					
-					var style = new GlobWeb.FeatureStyle();
-					
+					// Add poi layer
 					var poi = {
 						geometry: {
 							type: "Point",
@@ -121,33 +92,18 @@ function initPOI(globe) {
 						}
 					};
 					
-					style.label = true;
-					style['iconUrl'] = null;
-					vectorRendererManager.addFeature(poi,style);
+					poiLayer = new GlobWeb.VectorLayer(options);
+					poiLayer.addFeature( poi );
 					
-					// *** JS ***
-					// var oLi = document.createElement("li");
+					globe.addLayer( poiLayer );
 					
-					// oLi.setAttribute("RA",raString);
-					// oLi.setAttribute("Decl",declString);
-
-					// oLi.setAttribute("Long",geo[0]);
-					// oLi.setAttribute("Lat",geo[1]);
-					
-					// var oText = document.createTextNode(starName);
-					
-					// oLi.appendChild(oText);
-					// oUl.appendChild(oLi);
 				}
 			}
 		}
 		
 		// Attach event to created li's
 		$("#poiTable > li").click(function(event){
-			astroNavigator.zoomTo([parseFloat($(this).attr("long")), parseFloat($(this).attr("lat"))], 5000 );
+			astroNavigator.zoomTo([parseFloat($(this).attr("long")), parseFloat($(this).attr("lat"))], 15, 5000 );
 		});
-		
 	}
-	
-	loadDatabase();
 }

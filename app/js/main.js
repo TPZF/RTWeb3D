@@ -3,12 +3,12 @@ var astroNavigator = null;
 
 
 function setImageriesButtonsetLayout(){
-	// make it vertical
+	// Make it vertical
 	$(':radio, :checkbox', '#ImageriesDiv').wrap('<div style="margin: 1px"/>'); 
 	$('label:first', '#ImageriesDiv').removeClass('ui-corner-left').addClass('ui-corner-top');
 	$('label:last', '#ImageriesDiv').removeClass('ui-corner-right').addClass('ui-corner-bottom');
 	
-	// make the same width for all labels
+	// Make the same width for all labels
 	mw = 100; // max witdh
 	$('label', '#ImageriesDiv').each(function(index){
 		w = $(this).width();
@@ -25,16 +25,16 @@ function setImageriesButtonsetLayout(){
 
 $(function()
 {	
-	// create accordeon
+	// Create accordeon
 	$( "#accordion" ).accordion( { autoHeight: false, active: 0, collapsible: true } );
 	
-	// create Imagery button set
+	// Create Imagery button set
 	$( "#ImageriesDiv" ).buttonset();
 	setImageriesButtonsetLayout();
 	
 	var canvas = document.getElementById('HEALPixCanvas');
 
-	// make fullscreen
+	// Make fullscreen
 	canvas.width = window.innerWidth;
 	canvas.height = window.innerHeight;
 	
@@ -46,15 +46,11 @@ $(function()
 			canvas.height = window.innerHeight;
 	});
 	
-	// jQuery
-/*	$(window).unload(function() {
-		globe.dispose();
-	});*/
-	
 	// Initialize webgl
 	try
 	{
-		globe = new GlobWeb.Globe( { canvas: canvas, 
+		globe = new GlobWeb.Globe( { 
+			canvas: canvas, 
 			showWireframe: false, 
 			continuousRendering: true
 		} );
@@ -67,10 +63,9 @@ $(function()
 	
 	// Add stats
 	var stats = new GlobWeb.Stats( globe, {element: 'fps', verbose: true} );
-
+	
 	// Initialize navigator
 	astroNavigator = new GlobWeb.AstroNavigation(globe);
-// 	astroNavigator.setupDefaultEventHandlers(1);
 	
 	var cdsLayer = new GlobWeb.HEALPixLayer( { baseUrl: "/Alasky/DssColor/"} );
 	globe.setBaseImagery( cdsLayer );
@@ -106,6 +101,17 @@ $(function()
 		return result;
 	}
 	
+	var nameRequest = {
+			type: "GET",
+			url: "/plugin/nameResolver/mars/GALACTIC?nameResolver=IMCCE",
+			success: function(response){
+				console.log = response;
+			},
+			error: function (xhr, ajaxOptions, thrownError) {
+				console.error( xhr.responseText );
+			}
+	};
+	
 	// Click event to show equatorial coordinates
 	$("#HEALPixCanvas").click(function(event){
 		if(event.ctrlKey){
@@ -118,9 +124,9 @@ $(function()
 			$("#equatorialCoordinates").html("<em>Right ascension:</em> <br/>&nbsp&nbsp&nbsp&nbsp" + wordRA[0] +"h "+ wordRA[1] +"mn "+ roundNumber(parseFloat(wordRA[2]), 4) +"s<br /><em>Declination :</em> <br/>&nbsp&nbsp&nbsp&nbsp" + wordDecl[0] +"&#186 "+ wordDecl[1] +"' "+ roundNumber(parseFloat(wordDecl[2]), 4) +"\"");
 		}
 	});
-	
-	// Create li's from catalogue
-	initPOI(globe);
+		
+	// Fill poiTable from catalogue and creating POI on canvas
+	initPOI(globe, astroNavigator);
 	
 	// Create constellations from catalogue
 	initConstellations(globe);
