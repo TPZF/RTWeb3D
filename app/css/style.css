@@ -170,6 +170,11 @@
 		#opacity: 0.7;
 	}
 	
+	input:submit
+	{
+		background: rgb(102,128,160);
+	}
+	
 	#radio
 	{
 		margin-right: inherit;

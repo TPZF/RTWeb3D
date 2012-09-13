@@ -49,6 +49,32 @@
 						<input type="checkbox" id="constellation" checked /> Show constellations
 					</span>
 				</div>
+				
+				<h3><a href="#">Name resolver</a></h3>
+				<div id="nameResolverDiv">
+					<span class="ui-widget" style="font-weight:bold;">
+						<form id="nameResolverForm" class="ui-widget">
+							<div> Name resolver :   </div>
+							<select name="nameResolvers">
+								<option value="CADC" selected="selected">CADC</option>
+								<option value="IMCCE">IMCCE</option>
+							</select>
+							
+							<div style="display:block">Object name:</div> <input name="objectName" type="text" size="30" /><br />
+							<div> Coordinate System : </div>
+							<select name="coordSystems">
+								<option value="EQUATORIAL" selected="selected">EQUATORIAL</option>
+								<option value="GALACTIC">GALACTIC</option>
+							</select>
+							
+							<input class="ui-button ui-widget ui-state-default ui-corner-all" role="button" aria-disabled="false" style="display: block; margin-left: auto; margin-right: auto; margin-top: 20px;" type="submit" value="Search" />
+							<div style="margin-top: 20px; text-align: center; display: none" id="equatorialCoordinatesSearchResult">
+								
+							</div>
+						</form>
+					</span>
+				</div>
+
 			</div>
 		</div>
 		
