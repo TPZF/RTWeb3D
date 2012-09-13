@@ -24,3 +24,5 @@ Installation :
           * mode : 6
 
 	
+Installation du résolveur de noms : 
+	Mettre le Jar dans %SITOOLS%\workspace\fr.cnes.sitools.core\ext
