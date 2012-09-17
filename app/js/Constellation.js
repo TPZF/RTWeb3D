@@ -38,7 +38,7 @@ function initConstellations(globe) {
 				}
 	};
 	
-	// Synchronizing two asynchronious requests with the same "addLayers" callback
+	// Synchronizing two asynchronious requests with the same callback
 	$.when($.ajax(nameRequest), $.ajax(catalogueRequest))
 		.then(createConstellations,failure);
 
@@ -50,7 +50,7 @@ function initConstellations(globe) {
 	}
 	
 	/*
-	*	Add layers containing information from loaded database
+	*	Create constellation names and shapes
 	*/
 	function createConstellations(){
 

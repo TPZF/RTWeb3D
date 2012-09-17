@@ -175,7 +175,7 @@
 		background: rgb(102,128,160);
 	}
 	
-	#radio
+	#ImageriesDiv
 	{
 		margin-right: inherit;
 		text-align: center;
@@ -202,4 +202,83 @@
 		#background: white;
 		padding: 6px;
 		opacity: 0.7;
+	}
+	
+	/*** NameResolver Search ***/
+	#searchDiv {
+		position:absolute;
+		top: 18px;
+		right: 3%;
+		margin:-10px 0 -120px 0;
+	}
+	
+	#searchForm {
+		margin-bottom: 0px;
+	}
+	
+	#searchForm fieldset {
+		width:240px;
+		position:relative;
+		display:block;
+		border: none;
+	}
+	
+	div.input {
+		width:200px;
+		padding:5px 15px 7px 15px;
+		border-radius:20px;
+		border:1px solid orange;
+		box-shadow:inset 0 1px 2px rgba(0,0,0,0.08);
+		float:right;
+		background:#e8edf1;
+	}
+	
+	input#searchInput:focus {
+		outline:none
+	}
+	
+	#searchInput {
+		width:100%;
+		border:0;
+		border-radius:20px;
+		background:transparent;
+		height:16px;
+		color:#b4bdc4;
+		text-shadow:0 1px 1px #fff;
+	}
+	
+	input#searchSubmit {
+		width:20px;
+		height:20px;
+		overflow:hidden;
+		background:url(../css/images/searchSubmit-icon.png) no-repeat;
+		border:0;
+		position:absolute;
+		top: 10px;
+		right: 45px;
+		z-index:5;
+		display:none;
+		cursor:pointer;
+	}
+	
+	input#searchClear {
+		width:20px;
+		height:20px;
+		overflow:hidden;
+		background:url(../css/images/searchClear-icon.png) no-repeat;
+		border:0;
+		position:absolute;
+		top: 10px;
+		right: 20px;
+		z-index:5;
+		display:none;
+		cursor:pointer;
+	}
+	
+	#equatorialCoordinatesSearchResult {
+		text-align: center;
+		width: 210px;
+		margin-left: 40px;
+		color: white;
+		height: 100%;
 	}

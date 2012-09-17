@@ -49,33 +49,22 @@
 						<input type="checkbox" id="constellation" checked /> Show constellations
 					</span>
 				</div>
-				
-				<h3><a href="#">Name resolver</a></h3>
-				<div id="nameResolverDiv">
-					<span class="ui-widget" style="font-weight:bold;">
-						<form id="nameResolverForm" class="ui-widget">
-							<div> Name resolver :   </div>
-							<select name="nameResolvers">
-								<option value="CADC" selected="selected">CADC</option>
-								<option value="IMCCE">IMCCE</option>
-							</select>
-							
-							<div style="display:block">Object name:</div> <input name="objectName" type="text" size="30" /><br />
-							<div> Coordinate System : </div>
-							<select name="coordSystems">
-								<option value="EQUATORIAL" selected="selected">EQUATORIAL</option>
-								<option value="GALACTIC">GALACTIC</option>
-							</select>
-							
-							<input class="ui-button ui-widget ui-state-default ui-corner-all" role="button" aria-disabled="false" style="display: block; margin-left: auto; margin-right: auto; margin-top: 20px;" type="submit" value="Search" />
-							<div style="margin-top: 20px; text-align: center; display: none" id="equatorialCoordinatesSearchResult">
-								
-							</div>
-						</form>
-					</span>
-				</div>
-
 			</div>
+		</div>
+
+		<div id="credits"></div>
+		
+		<div id="searchDiv">
+			<form id="searchForm">
+				<fieldset>
+					<div class="input">
+						<input title="Enter an object name (e.g. m31) or coordinate (e.g 23h45mn30.5s -45°30'30)" type="text" name="searchInput" id="searchInput" value="Object name or coordinates" />
+					</div>
+					<input type="submit" id="searchSubmit" value="" style="display: inline-block;" />
+					<input type="button" id="searchClear" value="" style="display: inline-block;"/>
+				</fieldset>
+			</form>
+			<div style="display: none" id="equatorialCoordinatesSearchResult"></div>
 		</div>
 		
 		<!-- <img src="images/logos.png" id="telespazio"></img> -->
@@ -89,11 +78,6 @@
 		
 		
 		<div id="fps" class="fps ui-widget" style="font-weight:bold; left: 20px; bottom: 20px;">FPS : 0</div>
-		<!--<span id="geoCenterCoord" class="fps" style="font-weight:bold; top:740; left : 950;"> GeoX : 0<br/> GeoY : 0<br/> GeoZ : 0</span>
-		<span id="windowCoord" class="fps" style="font-weight:bold; top:750; left : 130;"> X : 0<br/> Y : 0</span>
-		<span id="3DCoord" class="fps" style="font-weight:bold; top:740; left : 200; right: 875"> x3d : 0<br/> y3d : 0<br/> z3d : 0</span>
-		<span id="geoCoord" class="fps" style="font-weight:bold; top:750; left : 420; right: 650"> Long : 0<br/> Lat   : 0</span>
-		<span id="equatorialCoord" class="fps ui-widget" style="font-weight:bold; position: absolute; width: 245px; bottom: 120px; right: 10px;"> RA &nbsp : 0<br/> Decl : 0</span>-->
 
 		
 		<canvas id="HEALPixCanvas" width="1024" height="768"></canvas>

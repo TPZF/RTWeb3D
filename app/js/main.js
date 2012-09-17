@@ -1,8 +1,13 @@
 var globe = null;
 var astroNavigator = null;
 
+function roundNumber(num, dec) {
+	var result = Math.round(num*Math.pow(10,dec))/Math.pow(10,dec);
+	return result;
+}
 
-function setImageriesButtonsetLayout(){
+function setImageriesButtonsetLayout()
+{
 	// Make it vertical
 	$(':radio, :checkbox', '#ImageriesDiv').wrap('<div style="margin: 1px"/>'); 
 	$('label:first', '#ImageriesDiv').removeClass('ui-corner-left').addClass('ui-corner-top');
@@ -23,6 +28,73 @@ function setImageriesButtonsetLayout(){
 	});
 }
 
+function setSearchBehavior()
+{
+	var input = $('#searchInput');
+	var animationDuration = 300;
+	var defaultText = input.val();
+	
+	// Set style animations
+	input.bind('focus', function() {
+		if(input.val() === defaultText) {
+			input.val('');
+		}
+
+		$(this).animate({color: '#000'}, animationDuration).parent().animate({backgroundColor: '#fff'}, animationDuration).addClass('focus');
+	}).bind('blur', function(event) {
+		
+		$('#equatorialCoordinatesSearchResult').fadeOut(animationDuration);
+		$(this).animate({color: '#b4bdc4'}, animationDuration, function() {
+			if(input.val() === '') {
+				input.val(defaultText)
+			}
+		}).parent().animate({backgroundColor: '#e8edf1'}, animationDuration).removeClass('focus');
+	});
+	
+	// Submit event
+	$('#searchForm').submit(function(event){
+		event.preventDefault();
+		var objectName = $("#searchInput").val();
+		var url = "/datasets/headers/plugin/resolverName/" + objectName +"/EQUATORIAL";
+		$('#equatorialCoordinatesSearchResult').fadeOut(animationDuration);
+		$.ajax({
+			type: "GET",
+			url: url,
+			success: function(response){
+				console.log(response);
+				if(response.dec && response.ra)
+				{
+					var equatorial = [];
+					GlobWeb.CoordinateSystem.fromGeoToEquatorial([response.ra, response.dec], equatorial);
+			
+					var wordRA = equatorial[0].split(" ");
+					var wordDecl = equatorial[1].split(" ");
+					$("#equatorialCoordinatesSearchResult").html("<em>Ra:</em> " + wordRA[0] +"h "+ wordRA[1] +"mn "+ roundNumber(parseFloat(wordRA[2]), 4) +"s<br /><em>Dec:</em> " + wordDecl[0] +"&#186 "+ wordDecl[1] +"' "+ roundNumber(parseFloat(wordDecl[2]), 4) +"\"");
+
+					$('#equatorialCoordinatesSearchResult').fadeIn(animationDuration);
+					astroNavigator.zoomTo([response.ra, response.dec], 15, 5000 );
+				} else {
+					$('#equatorialCoordinatesSearchResult').html("Enter object name");
+					$('#equatorialCoordinatesSearchResult').fadeIn(animationDuration);
+				}
+			},
+			error: function (xhr, ajaxOptions, thrownError) {
+				$('#equatorialCoordinatesSearchResult').html("Not found");
+				$('#equatorialCoordinatesSearchResult').fadeIn(animationDuration);
+				console.error( xhr.responseText );
+			}
+		});
+
+	});
+	
+	$('#searchClear').click(function(event){
+		if($('#searchInput').val() !== defaultText) {
+			$('#searchInput').val(defaultText)
+		}
+	});
+
+}
+
 $(function()
 {	
 	// Create accordeon
@@ -31,6 +103,7 @@ $(function()
 	// Create Imagery button set
 	$( "#ImageriesDiv" ).buttonset();
 	setImageriesButtonsetLayout();
+	setSearchBehavior(); 
 	
 	var canvas = document.getElementById('HEALPixCanvas');
 
@@ -96,11 +169,6 @@ $(function()
 		}
 	});
 	
-	function roundNumber(num, dec) {
-		var result = Math.round(num*Math.pow(10,dec))/Math.pow(10,dec);
-		return result;
-	}
-	
 	// Click event to show equatorial coordinates
 	$("#HEALPixCanvas").click(function(event){
 		if(event.ctrlKey){
@@ -112,45 +180,6 @@ $(function()
 			var wordDecl = equatorial[1].split(" ");
 			$("#equatorialCoordinates").html("<em>Right ascension:</em> <br/>&nbsp&nbsp&nbsp&nbsp" + wordRA[0] +"h "+ wordRA[1] +"mn "+ roundNumber(parseFloat(wordRA[2]), 4) +"s<br /><em>Declination :</em> <br/>&nbsp&nbsp&nbsp&nbsp" + wordDecl[0] +"&#186 "+ wordDecl[1] +"' "+ roundNumber(parseFloat(wordDecl[2]), 4) +"\"");
 		}
-	});
-	
-	$("#nameResolverDiv input[type=submit]:hover").addClass('ui-state-hover');
-	$("#nameResolverDiv input[type=submit]").removeClass('ui-state-hover');
-	
-	// Name resolver sumbit event
-	$("#nameResolverForm").submit(function(event) {
-		event.preventDefault();
-		$('#equatorialCoordinatesSearchResult').fadeOut();
-		
-		var objectName = $("#nameResolverDiv input[type=text][name=objectName]").val();
-		var nameResolver = "?nameResolver="+$("#nameResolverDiv select[name=nameResolvers] option:selected").val();
-		var coordSystem = $("#nameResolverDiv select[name=coordSystems] option:selected").val();
-		var url = "/datasets/headers/plugin/resolverName/" + objectName +"/"+coordSystem + nameResolver;
-		
-		$.ajax({
-			type: "GET",
-			url: url,
-			success: function(response){
-				console.log(response);
-				if(response.dec && response.ra)
-				{
-					$('#equatorialCoordinatesSearchResult').fadeIn('fast', function(){
-						$('#equatorialCoordinatesSearchResult').html("Dec : "+response.dec+"\nRa : "+response.ra);
-					});
-					astroNavigator.zoomTo([response.ra, response.dec], 15, 5000 );
-				} else {
-					$('#equatorialCoordinatesSearchResult').fadeIn('fast', function(){
-						$('#equatorialCoordinatesSearchResult').html("Enter object name");
-					});
-				}
-			},
-			error: function (xhr, ajaxOptions, thrownError) {
-				$('#equatorialCoordinatesSearchResult').fadeIn('fast', function(){
-					$('#equatorialCoordinatesSearchResult').html("Not found");
-				});
-				console.error( xhr.responseText );
-			}
-		});
 	});
 	
 	// Fill poiTable from catalogue and creating POI on canvas
