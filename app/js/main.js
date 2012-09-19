@@ -1,31 +1,10 @@
 var globe = null;
 var astroNavigator = null;
+var layerManager = null;
 
 function roundNumber(num, dec) {
 	var result = Math.round(num*Math.pow(10,dec))/Math.pow(10,dec);
 	return result;
-}
-
-function setImageriesButtonsetLayout()
-{
-	// Make it vertical
-	$(':radio, :checkbox', '#ImageriesDiv').wrap('<div style="margin: 1px"/>'); 
-	$('label:first', '#ImageriesDiv').removeClass('ui-corner-left').addClass('ui-corner-top');
-	$('label:last', '#ImageriesDiv').removeClass('ui-corner-right').addClass('ui-corner-bottom');
-	
-	// Make the same width for all labels
-	mw = 100; // max witdh
-	$('label', '#ImageriesDiv').each(function(index){
-		w = $(this).width();
-		if (w > mw) mw = w; 
-	});
-	
-	// Another way to find a max
-	// mw = Math.max.apply(Math, $('label', '#ImageriesDiv').map(function(){ return $(this).width(); }).get());
-	
-	$('label', '#ImageriesDiv').each(function(index){
-		$(this).width(mw);
-	});
 }
 
 function setSearchBehavior()
@@ -88,9 +67,12 @@ function setSearchBehavior()
 	});
 	
 	$('#searchClear').click(function(event){
-		if($('#searchInput').val() !== defaultText) {
-			$('#searchInput').val(defaultText)
+		if(input.val() !== defaultText) {
+			input.val(defaultText);
 		}
+		
+		$('#searchInput').animate({color: '#b4bdc4'}, animationDuration).parent().animate({backgroundColor: '#e8edf1'}, animationDuration).removeClass('focus');
+		
 	});
 
 }
@@ -100,9 +82,6 @@ $(function()
 	// Create accordeon
 	$( "#accordion" ).accordion( { autoHeight: false, active: 0, collapsible: true } );
 	
-	// Create Imagery button set
-	$( "#ImageriesDiv" ).buttonset();
-	setImageriesButtonsetLayout();
 	setSearchBehavior(); 
 	
 	var canvas = document.getElementById('HEALPixCanvas');
@@ -140,23 +119,6 @@ $(function()
 	// Initialize navigator
 	astroNavigator = new GlobWeb.AstroNavigation(globe);
 	
-	var cdsLayer = new GlobWeb.HEALPixLayer( { baseUrl: "/Alasky/DssColor/"} );
-	globe.setBaseImagery( cdsLayer );
-	
-	// Event for changing imagery provider
-	$("#ImageriesDiv :input").click(function(event){
-		var cdsProvider;
-		if( this.value == "SDSS"){
-			cdsProvider = new GlobWeb.HEALPixLayer({ baseUrl: "/Alasky/SDSS/Color"});
-			globe.setBaseImagery( cdsProvider );
-		}
-		
-		if( this.value == "DSS" ){
-			cdsProvider = new GlobWeb.HEALPixLayer({ baseUrl: "/Alasky/DssColor/"});
-			globe.setBaseImagery( cdsProvider );
-		}
-	});
-	
 	// Event to show HEALPix wireframe grid
 	$("#grid").click(function(event){
 		if ($("#grid:checked").length)
@@ -182,10 +144,7 @@ $(function()
 		}
 	});
 	
-	// Fill poiTable from catalogue and creating POI on canvas
-	initPOI(globe, astroNavigator);
-	
-	// Create constellations from catalogue
-	initConstellations(globe);
+	// Create layers from configuration file
+	initLayers(globe);
 	
 });

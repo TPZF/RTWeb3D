@@ -63,12 +63,22 @@
 		height:100%;	
 	}
 	
-	#telespazio
+	#credits
 	{
 		position: absolute;
-		bottom: 20px;
-		right: 10px;
-		opacity: 0.8;
+		right: 0px;
+		bottom: 2px;
+		width: 100px;
+	}
+	
+	#credits img
+	{
+		width: 100%;
+	}
+	
+	#credits object
+	{
+		width: 100%;
 	}
 
 	#header
@@ -175,9 +185,16 @@
 		background: rgb(102,128,160);
 	}
 	
-	#ImageriesDiv
+	#accordion > div
+	{
+		position: relative;
+	}
+	
+	#backgroundLayers
 	{
 		margin-right: inherit;
+		margin-top: 10px;
+		margin-bottom: 20px;
 		text-align: center;
 	}
 	

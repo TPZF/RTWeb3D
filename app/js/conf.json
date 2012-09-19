@@ -1,0 +1,46 @@
+{
+	"layers":
+	[
+		{ 
+			"type": "healpix",
+			"name": "SDSS",
+			"url": "/Alasky/SDSS/Color",
+			"description": "Sloan Digital Sky Survey",
+			"attribution": "<img src=\"http://cdsweb.u-strasbg.fr/img/cds.png\" id=\"cds\" />",
+			"icon": "css/images/search-icon.png",
+			"background": "true",
+			"visible": "false"
+		},
+		{ 
+			"type": "healpix",
+			"name": "DSS",
+			"url": "/Alasky/DssColor/",
+			"description": "Digital Sky Survey",
+			"attribution": "<object data=\"css/images/cds.svg\" type=\"image/svg+xml\"></object>",
+			"visible": "true",
+			"background": "true"
+		},
+		{
+			"type": "star",
+			"name": "Star layer",
+			"description": "The most brighten stars from VizieR Catalogue",
+			"nameUrl": "data/Names.tsv",
+			"catalogueUrl": "data/Catalogue.tsv",
+			"visible": "true"
+		},
+		{
+			"type": "constellation",
+			"name": "Constellation layer",
+			"description": "Constellation shapes from VizieR Catalogue",
+			"nameUrl": "data/ConstellationNames.tsv",
+			"catalogueUrl": "data/bound_20.dat",
+			"visible": "false"
+		},
+		{
+			"type": "grid",
+			"name": "HEALPix grid",
+			"desciption": "",
+			"visible": "false"
+		}
+	]
+}

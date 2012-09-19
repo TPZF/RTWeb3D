@@ -14,6 +14,7 @@
 <script type="text/javascript" src="externals/GlobWeb/src/GlobWeb.js"></script>
 <script type="text/javascript" src="js/Constellation.js"></script>
 <script type="text/javascript" src="js/POI.js"></script>
+<script type="text/javascript" src="js/LayerManager.js"></script>
 <script type="text/javascript" src="js/main.js"></script>
 
 </head>
@@ -25,17 +26,26 @@
 	
 		<div class="sidebar">
 			<div id="accordion">
-				<h3><a href="#">Point of interests</a></h3>
-				<div id="poiMenu">
+<!-- 				<h3><a href="#">Point of interests</a></h3> -->
+<!--				<div id="poiMenu">
 					<ul id="poiTable"></ul>
-				</div>
+				</div>-->
 				
-				<h3><a href="#">Imageries</a></h3>
+<!--				<h3><a href="#">Imageries</a></h3>
 				<div id="ImageriesDiv">					
 						<input type="radio" id="radio1" name="imagery" checked="checked" value="DSS"/><label for="radio1">DSS</label>
 						<input type="radio" id="radio2" name="imagery" value="SDSS"/><label for="radio2">SDSS</label>
-				</div>
+				</div>-->
 				
+				<h3><a href="#">Layer manager</a></h3>
+				<div id="layerManager">
+					<em>Background layers:</em>
+					<div id="backgroundLayers"></div>
+					<em>Additional layers:</em>
+					<div id="additionalLayers">
+					</div>
+				</div>
+
 				<h3><a href="#">Coordinates</a></h3>
 				<div id="coordinates">
 					<span style="font-size: 0.9em;">To show equatorial coordinates Ctrl+click on canvas</span><br/><br/>
@@ -46,9 +56,10 @@
 				<div id="config">
 					<span class="ui-widget" style="font-weight:bold;">
 						<input type="checkbox" id="grid" /> Show HEALPix grid <br />
-						<input type="checkbox" id="constellation" checked /> Show constellations
 					</span>
 				</div>
+
+
 			</div>
 		</div>
 
