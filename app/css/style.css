@@ -63,24 +63,6 @@
 		height:100%;	
 	}
 	
-	#credits
-	{
-		position: absolute;
-		right: 0px;
-		bottom: 2px;
-		width: 100px;
-	}
-	
-	#credits img
-	{
-		width: 100%;
-	}
-	
-	#credits object
-	{
-		width: 100%;
-	}
-
 	#header
 	{	
 		border: solid 1px orange;

@@ -23,6 +23,7 @@
 		{
 			"type": "star",
 			"name": "Star layer",
+			"attribution": "The most brighten stars coming from CDS VizieR catalogue",
 			"description": "The most brighten stars from VizieR Catalogue",
 			"nameUrl": "data/Names.tsv",
 			"catalogueUrl": "data/Catalogue.tsv",
@@ -31,15 +32,10 @@
 		{
 			"type": "constellation",
 			"name": "Constellation layer",
+			"attribution": "Constellation coming from CDS VizieR catalogue",
 			"description": "Constellation shapes from VizieR Catalogue",
 			"nameUrl": "data/ConstellationNames.tsv",
 			"catalogueUrl": "data/bound_20.dat",
-			"visible": "false"
-		},
-		{
-			"type": "grid",
-			"name": "HEALPix grid",
-			"desciption": "",
 			"visible": "false"
 		}
 	]
