@@ -23,10 +23,9 @@ function setBackgroundLayersButtonsetLayout()
 /**
 *	Load files then remplies layers
 * 	@param constellationLayer Layer which will contain constellation features
-* 	@param nameUrl Name data url
-* 	@param nameUrl Catalogue data url
+*	@param layer JSON layer
 */
-function handleConstellationFeature(constellationLayer, nameUrl, catalogueUrl)
+function handleConstellationFeature(constellationLayer, layer )
 {
 	
 	var namesFile;
@@ -39,7 +38,7 @@ function handleConstellationFeature(constellationLayer, nameUrl, catalogueUrl)
 	*/
 	var nameRequest = {
 				type: "GET",
-				url: nameUrl,
+				url: layer.nameUrl,
 				success: function(response){
 					namesFile = response;
 				},
@@ -50,7 +49,7 @@ function handleConstellationFeature(constellationLayer, nameUrl, catalogueUrl)
 	
 	var catalogueRequest = {
 				type: "GET",
-				url: catalogueUrl,
+				url: layer.catalogueUrl,
 				success: function(response){
 				       catalogueFile = response;
 				},
@@ -94,7 +93,8 @@ function handleConstellationFeature(constellationLayer, nameUrl, catalogueUrl)
 			var catalogueTab = catalogueFile.split("\n");
 			
 			// For each constellation point
-			for ( var i=0; i<catalogueTab.length; i++ ){
+			for ( var i=0; i<catalogueTab.length; i++ )
+			{
 				var word = catalogueTab[i].replace("  ", " ");
 				word = word.split(" "); // word = "RA Decl Abbreviation "I"/"O"(Inerpolated/Original(Corner))"
 				var RA = parseFloat(word[0]);
@@ -153,7 +153,8 @@ function handleConstellationFeature(constellationLayer, nameUrl, catalogueUrl)
 		function createFeatures(){
 			
 			// Fill constellationShapes & constellationNames
-			for ( var i in constellations){
+			for ( var i in constellations)
+			{
 				var current = constellations[i];
 				
 				var constellationShape = {
@@ -199,6 +200,7 @@ function handleConstellationFeature(constellationLayer, nameUrl, catalogueUrl)
 			// Add it to the constellationLayer
 			constellationLayer.addFeatureCollection( constellationShapesFeatureCollection );
 			constellationLayer.addFeatureCollection( constellationNameFeatureCollection );
+			globe.addLayer( constellationLayer );
 		}
 	}
 	
@@ -207,10 +209,9 @@ function handleConstellationFeature(constellationLayer, nameUrl, catalogueUrl)
 /**
 *	Load files then add necessary information on layer
 * 	@param layer Layer which will contain the data as FeatureCollection
-* 	@param nameUrl Name data url
-* 	@param nameUrl Catalogue data url
+* 	@param layer JSON layer
 */
-function handleStarFeature(layer, nameUrl, catalogueUrl)
+function handleStarFeature(starLayer, layer)
 {
 	var namesFile;
 	var catalogueFile;
@@ -222,7 +223,7 @@ function handleStarFeature(layer, nameUrl, catalogueUrl)
 	*/
 	var nameRequest = {
 				type: "GET",
-				url: nameUrl,
+				url: layer.nameUrl,
 				success: function(response){
 					namesFile = response;
 				},
@@ -233,7 +234,7 @@ function handleStarFeature(layer, nameUrl, catalogueUrl)
 	
 	var catalogueRequest = {
 				type: "GET",
-				url: catalogueUrl,
+				url: layer.catalogueUrl,
 				success: function(response){
 				       catalogueFile = response;
 				},
@@ -261,13 +262,15 @@ function handleStarFeature(layer, nameUrl, catalogueUrl)
 		var pois = [];
 		
 		// For each known star
-		for ( var i=0; i<namesTab.length; i++ ){
+		for ( var i=0; i<namesTab.length; i++ )
+		{
 			var word = namesTab[i].split(";"); // word[0] = HR, word[1] = name;
 			var HR = parseInt(word[0]);
 			var starName = word[1];
 				
 			// Search corresponding HR in catalogue
-			for ( var j=0; j<catalogueTab.length; j++ ){
+			for ( var j=0; j<catalogueTab.length; j++ )
+			{
 				word = catalogueTab[j].split(";");
 				if (parseInt(word[2]) == HR){
 					// Star found in the catalogue
@@ -299,7 +302,8 @@ function handleStarFeature(layer, nameUrl, catalogueUrl)
 			features : pois
 		};
 		
-		layer.addFeatureCollection( poiFeatureCollection );
+		starLayer.addFeatureCollection( poiFeatureCollection );
+		globe.addLayer( starLayer );
 	}
 }
 
@@ -321,7 +325,7 @@ function initLayers(globe)
 		$.each(data.layers, function(i, layer){
 			switch(layer.type){
 				case "healpix":
-					gwLayer = new GlobWeb.HEALPixLayer( { name: layer.name, baseUrl: layer.url, attribution: layer.attribution} );
+					gwLayer = new GlobWeb.HEALPixLayer( { name: layer.name, baseUrl: layer.url, attribution: layer.attribution, visible: (layer.visible == 'true')} );
 					break;
 				case "star":
 					// Create style
@@ -331,10 +335,11 @@ function initLayers(globe)
 					options.style.iconUrl = null;
 					options.name = layer.name;
 					options.attribution = layer.attribution;
+					options.visible = (layer.visible == 'true');
 					
 					gwLayer = new GlobWeb.VectorLayer(options);
+					handleStarFeature( gwLayer, layer );
 					
-					handleStarFeature( gwLayer, layer.nameUrl, layer.catalogueUrl );
 					break;
 				case "constellation":
 					// Create style
@@ -344,9 +349,10 @@ function initLayers(globe)
 					options.style.iconUrl = null;
 					options.name = layer.name;
 					options.attribution = layer.attribution;
+					options.visible = (layer.visible == 'true');
 					
 					gwLayer = new GlobWeb.VectorLayer(options);
-					handleConstellationFeature( gwLayer, layer.nameUrl, layer.catalogueUrl );
+					handleConstellationFeature( gwLayer, layer );
 					
 					break;
 				case "grid":
@@ -380,10 +386,6 @@ function initLayers(globe)
 				/***Additional layer***/
 				
 				// Add to engine
-				if( layer.visible == 'true' )
-				{
-					globe.addLayer( gwLayer );
-				}
 				gwAdditionalLayers.push( gwLayer );
 				
 				// Add HTML
@@ -400,7 +402,7 @@ function initLayers(globe)
 				layerDiv += 
 						'<label title="'+description+'" for="addLayerInput_'+currentIndex+'">'+layer.name+'</label>\
 						<div><label for="percentInput_'+currentIndex+'">Opacity: </label><input type="text" id="percentInput_'+currentIndex+'" style="border:0; background-color: transparent; width: 40px; color:#f6931f; font-weight:bold; value="20%"" /></div>\
-						<div id="slider_'+currentIndex+'"></div>\
+						<div class="slider" id="slider_'+currentIndex+'"></div>\
 					</div>';
 
 				$(layerDiv)
@@ -410,12 +412,17 @@ function initLayers(globe)
 					
 				// Slider initialisation
 				$('#slider_'+currentIndex).slider({
-					value: 20,
+					value: 100,
 					min: 20,
 					max: 100,
 					step: 20,
 					slide: function( event, ui ) {
+						
 						$( "#percentInput_"+currentIndex ).val( ui.value + "%" );
+						
+						var layerIndex = parseInt( $(this).siblings('input').val() );
+						var layer = gwAdditionalLayers[ layerIndex ];
+						layer.opacity( ui.value/100. );
 					}
 				}).slider( "option", "disabled", ( layer.visible == 'false' ) );
 
@@ -441,14 +448,14 @@ function initLayers(globe)
 			if ( $(this).is(':checked') )
 			{
 				var layer = gwAdditionalLayers[ layerIndex ];
-				globe.addLayer( layer );
+				layer.visible( true );
 				
 				$(this).siblings('.slider').slider("enable");
 			}
 			else
 			{
 				var layer = gwAdditionalLayers[ layerIndex ];
-				globe.removeLayer( layer );
+				layer.visible( false );
 				
 				$(this).siblings('.slider').slider("disable");
 			}
