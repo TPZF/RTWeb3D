@@ -1,7 +1,10 @@
 {
+	"nameResolver": {
+		"baseUrl": "/ExampleProject/plugin/resolverName"
+	},
 	"stats": {
 		"verbose": false,
-		"visible": false
+		"visible": true
 	},
 	"layers":
 	[

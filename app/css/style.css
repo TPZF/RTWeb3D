@@ -1,3 +1,4 @@
+@import url('jquery-ui-1.8.23.custom.css');
 @import url('nameResolver.css');
 @import url('sidebar.css');
    
@@ -6,7 +7,7 @@ em
 	color: #6BCAFF;
 }
 
-.fps
+#fps
 {
 	position: absolute;
 	z-index: 0;
@@ -17,6 +18,9 @@ em
 	border-radius: 10px;
 	padding: 5px;
 	border:solid 1px orange;
+	font-weight:bold;
+	left: 20px;
+	bottom: 20px;
 }
 
 #webGLNotAvailable
@@ -41,6 +45,9 @@ body
 	height:100%;
 }
 
+/**
+ * Small modifications on jQuery UI
+ */
 .ui-widget
 {
 	font-size: 0.9em;
@@ -50,6 +57,9 @@ body
 	font-size: 0.8em;
 }
 
+/**
+ * Stylized scrollbar (only for webkit : chrome and safari)
+ */
 ::-webkit-scrollbar {
 	width: 10px;
 }

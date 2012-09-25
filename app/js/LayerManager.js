@@ -1,9 +1,28 @@
-define( [ "jquery.ui" ],
 
-function($) {
+/**
+ * LayerManager module
+ */
+define( ["jquery.ui" ], function($) {
 
+/**
+ * Private variable for module
+ */
+ 
+ // The globe
 var globe;
+var gwLayer;
+var gwBaseLayers = [];
+var gwAdditionalLayers = [];
+var nbBackgroundLayers = 0;
+var nbAddLayers = 0;
 
+/**
+ * Private functions
+ */
+ 
+/**
+ * Make buttonset vertical for background layers
+ */
 function setBackgroundLayersButtonsetLayout()
 {
 	// Make it vertical
@@ -413,11 +432,6 @@ function createHtmlForLayer(layer,currentIndex) {
 function initLayers(layers) {
 	var tooltipIcon = "css/images/tooltip.png";
 
-	var gwLayer;
-	var gwBaseLayers = [];
-	var gwAdditionalLayers = [];
-	var nbBackgroundLayers = 0;
-	var nbAddLayers = 0;
 	for (var i=0; i<layers.length; i++) {
 		var layer = layers[i];		
 		gwLayer = createLayerFromConf(layer);
