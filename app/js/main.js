@@ -2,14 +2,28 @@ var globe = null;
 var astroNavigator = null;
 var layerManager = null;
 
-function roundNumber(num, dec) {
-	var result = Math.round(num*Math.pow(10,dec))/Math.pow(10,dec);
-	return result;
+/**
+ * 	Function formatting equatorial coordinates
+ * 
+ * 	@param {String[]} equatorialCoordinates Array of equatorial coordinates coming from <CoordinateSystem.fromGeoToEquatorial>
+ * 	@return {String} Contains the HTML string "user-friendly" view of equatorial coordinates
+ */
+function equatorialLayout(equatorialCoordinates)
+{
+	function roundNumber(num, dec) {
+		var result = Math.round(num*Math.pow(10,dec))/Math.pow(10,dec);
+		return result;
+	}
+	
+	var wordRA = equatorialCoordinates[0].split(" ");
+	var wordDecl = equatorialCoordinates[1].split(" ");
+	return [ wordRA[0] +"h "+ wordRA[1] +"mn "+ roundNumber(parseFloat(wordRA[2]), 4) +"s", wordDecl[0] +"&#186 "+ wordDecl[1] +"' "+ roundNumber(parseFloat(wordDecl[2]), 4) ];
 }
 
 function setSearchBehavior()
 {
 	var input = $('#searchInput');
+	var clear = $('#searchClear');
 	var animationDuration = 300;
 	var defaultText = input.val();
 	
@@ -19,7 +33,12 @@ function setSearchBehavior()
 			input.val('');
 		}
 
-		$(this).animate({color: '#000'}, animationDuration).parent().animate({backgroundColor: '#fff'}, animationDuration).addClass('focus');
+		$(this).animate({color: '#000'}, animationDuration).parent().animate({backgroundColor: '#fff'}, animationDuration, function(){
+			if(!(input.val() === '' || input.val() === defaultText)) 
+			{
+				clear.fadeIn(animationDuration);
+			}
+		}).addClass('focus');
 	}).bind('blur', function(event) {
 		
 		$('#equatorialCoordinatesSearchResult').fadeOut(animationDuration);
@@ -28,6 +47,12 @@ function setSearchBehavior()
 				input.val(defaultText)
 			}
 		}).parent().animate({backgroundColor: '#e8edf1'}, animationDuration).removeClass('focus');
+	}).keyup(function() {
+		if(input.val() === '') {
+			clear.fadeOut(animationDuration);
+		} else {
+			clear.fadeIn(animationDuration);
+		}
 	});
 	
 	// Submit event
@@ -70,7 +95,7 @@ function setSearchBehavior()
 		if(input.val() !== defaultText) {
 			input.val(defaultText);
 		}
-		
+		clear.fadeOut(animationDuration);
 		$('#searchInput').animate({color: '#b4bdc4'}, animationDuration).parent().animate({backgroundColor: '#e8edf1'}, animationDuration).removeClass('focus');
 		
 	});
@@ -119,28 +144,14 @@ $(function()
 	// Initialize navigator
 	astroNavigator = new GlobWeb.AstroNavigation(globe);
 	
-	// Event to show HEALPix wireframe grid
-	$("#grid").click(function(event){
-		if ($("#grid:checked").length)
-		{
-			globe.setOption("showWireframe", true);
-		}
-		else
-		{
-			globe.setOption("showWireframe", false);
-		}
-	});
-	
 	// Click event to show equatorial coordinates
 	$("#HEALPixCanvas").click(function(event){
 		if(event.ctrlKey){
 			var equatorial = [];
 			geo = globe.getLonLatFromPixel(event.pageX, event.pageY);		
-			GlobWeb.CoordinateSystem.fromGeoToEquatorial(geo, equatorial);
 			
-			var wordRA = equatorial[0].split(" ");
-			var wordDecl = equatorial[1].split(" ");
-			$("#equatorialCoordinates").html("<em>Right ascension:</em> <br/>&nbsp&nbsp&nbsp&nbsp" + wordRA[0] +"h "+ wordRA[1] +"mn "+ roundNumber(parseFloat(wordRA[2]), 4) +"s<br /><em>Declination :</em> <br/>&nbsp&nbsp&nbsp&nbsp" + wordDecl[0] +"&#186 "+ wordDecl[1] +"' "+ roundNumber(parseFloat(wordDecl[2]), 4) +"\"");
+			var equatorialString = equatorialLayout(equatorial);
+			$("#equatorialCoordinates").html("<em>Right ascension:</em> <br/>&nbsp&nbsp&nbsp&nbsp" + equatorialString[0] +"<br /><em>Declination :</em> <br/>&nbsp&nbsp&nbsp&nbsp" + equatorialString[1] +"\"");
 		}
 	});
 	

@@ -37,6 +37,11 @@
 			"nameUrl": "data/ConstellationNames.tsv",
 			"catalogueUrl": "data/bound_20.dat",
 			"visible": "false"
+		},
+		{
+			"type": "healpixGrid",
+			"name": "Healpix grid layer",
+			"visible": "false"
 		}
 	]
 }
