@@ -71,9 +71,8 @@ function setSearchBehavior()
 					var equatorial = [];
 					GlobWeb.CoordinateSystem.fromGeoToEquatorial([response.ra, response.dec], equatorial);
 			
-					var wordRA = equatorial[0].split(" ");
-					var wordDecl = equatorial[1].split(" ");
-					$("#equatorialCoordinatesSearchResult").html("<em>Ra:</em> " + wordRA[0] +"h "+ wordRA[1] +"mn "+ roundNumber(parseFloat(wordRA[2]), 4) +"s<br /><em>Dec:</em> " + wordDecl[0] +"&#186 "+ wordDecl[1] +"' "+ roundNumber(parseFloat(wordDecl[2]), 4) +"\"");
+					var equatorialString = equatorialLayout( equatorial );
+					$("#equatorialCoordinatesSearchResult").html("<em>Ra:</em> " + equatorialString[0] + "<br /><em>Dec:</em> " + equatorialString[1] +"\"");
 
 					$('#equatorialCoordinatesSearchResult').fadeIn(animationDuration);
 					astroNavigator.zoomTo([response.ra, response.dec], 15, 5000 );
@@ -148,7 +147,9 @@ $(function()
 	$("#HEALPixCanvas").click(function(event){
 		if(event.ctrlKey){
 			var equatorial = [];
-			geo = globe.getLonLatFromPixel(event.pageX, event.pageY);		
+			geo = globe.getLonLatFromPixel(event.pageX, event.pageY);
+			
+			GlobWeb.CoordinateSystem.fromGeoToEquatorial ( geo, equatorial );
 			
 			var equatorialString = equatorialLayout(equatorial);
 			$("#equatorialCoordinates").html("<em>Right ascension:</em> <br/>&nbsp&nbsp&nbsp&nbsp" + equatorialString[0] +"<br /><em>Declination :</em> <br/>&nbsp&nbsp&nbsp&nbsp" + equatorialString[1] +"\"");
