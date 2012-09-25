@@ -1,3 +1,9 @@
+define( [ "jquery.ui" ],
+
+function($) {
+
+var globe;
+
 function setBackgroundLayersButtonsetLayout()
 {
 	// Make it vertical
@@ -404,7 +410,8 @@ function createHtmlForLayer(layer,currentIndex) {
 /**
  *	Fill the LayerManager table
  */
-function initLayers(globe,layers) {
+function initLayers(layers) {
+	var tooltipIcon = "css/images/tooltip.png";
 
 	var gwLayer;
 	var gwBaseLayers = [];
@@ -475,3 +482,15 @@ function initLayers(globe,layers) {
 	setBackgroundLayersButtonsetLayout();
 
 }
+
+return {
+	init: function(gl,layers) {
+		// Store the globe in the global module variable
+		globe = gl;
+		
+		// Call init layers
+		initLayers(layers);
+	}
+};
+
+});

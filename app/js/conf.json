@@ -1,7 +1,7 @@
 {
 	"stats": {
 		"verbose": false,
-		"element": "fps"
+		"visible": false
 	},
 	"layers":
 	[

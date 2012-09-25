@@ -1,3 +1,28 @@
+
+require.config({
+    paths: {
+        "jquery": "jquery-1.8.2.min",
+		"jquery.ui": "jquery-ui-1.8.21.custom.min",
+		"GlobWeb": "../externals/GlobWeb/src/GlobWeb"
+   },
+	shim: {
+		'jquery': {
+            deps: [],
+            exports: 'jQuery'
+        },
+		'jquery.ui': {
+            deps: ['jquery'],
+            exports: 'jQuery'
+        },
+		'GlobWeb': {
+            deps: [],
+            exports: 'GlobWeb'
+        }
+	}
+  });
+
+require( ["jquery.ui", "LayerManager"], function($, LayerManager) {
+	
 var globe = null;
 var astroNavigator = null;
 var layerManager = null;
@@ -157,13 +182,17 @@ $(function()
 	$.getJSON("js/conf.json", function(data) {
 	
 		// Add stats
-		if ( data.stats ) {
-			new GlobWeb.Stats( globe, data.stats );
+		if ( data.stats.visible ) {
+			new GlobWeb.Stats( globe, { element: "fps", verbose: data.stats.verbose });
+		} else  {
+			$("#fps").hide();
 		}
 	
 		// Create layers from configuration file
-		initLayers(globe,data.layers);
+		LayerManager.init(globe,data.layers);
 	});
 	
 	
+});
+
 });
