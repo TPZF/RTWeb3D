@@ -1,0 +1,82 @@
+/*** NameResolver Search ***/
+#searchDiv {
+	position: absolute;
+	right: 2px;
+	margin: 5px;
+	top: 10px;
+}
+
+#searchForm {
+	margin-bottom: 0px;
+}
+
+#searchForm fieldset {
+	position: relative;
+	display: block;
+	border: none;
+}
+
+div.input {
+	width: 200px;
+	padding: 5px 15px 7px 15px;
+	border-radius: 20px;
+	border: 1px solid orange;
+	box-shadow: 0 0 6px #FF9E52, inset 0 1px 2px rgba(0, 0, 0, 0.08);
+	float: right;
+	background: #E8EDF1;
+	padding-left: 30px;
+}
+
+div.input.focus {
+	box-shadow: 0 0 6px #FF9E52, inset 0 1px 2px rgba(0, 0, 0, 0.08);
+}
+
+input#searchInput:focus {
+	outline:none
+}
+
+#searchInput {
+	width:100%;
+	border:0;
+	border-radius:20px;
+	background:transparent;
+	height:16px;
+	color:#b4bdc4;
+	text-shadow:0 1px 1px #fff;
+}
+
+input#searchSubmit {
+	display:block;
+	width:20px;
+	height:20px;
+	overflow:hidden;
+	background:url(../css/images/searchSubmit-icon.png) no-repeat;
+	border:0;
+	position:absolute;
+	top: 10px;
+	left: 18px;
+	z-index:5;
+	cursor:pointer;
+}
+
+input#searchClear {
+	width:20px;
+	height:20px;
+	overflow:hidden;
+	background:url(../css/images/searchClear-icon.png) no-repeat;
+	border:0;
+	position:absolute;
+	top: 10px;
+	right: 18px;
+	z-index:5;
+	display:none;
+	cursor:pointer;
+}
+
+#equatorialCoordinatesSearchResult {
+	text-align: center;
+	width: 210px;
+	margin-left: 40px;
+	color: white;
+	height: 100%;
+}

@@ -1,0 +1,23 @@
+#backgroundLayers
+{
+	margin-right: inherit;
+	margin-top: 10px;
+	margin-bottom: 20px;
+	text-align: center;
+}
+
+.addLayer
+{
+	position: relative;
+	margin-bottom: 15px;
+}
+
+.percentInput
+{
+	border:0;
+	background-color: transparent;
+	width: 40px;
+	color:#f6931f;
+	font-weight:bold;
+	value: 20%;
+}

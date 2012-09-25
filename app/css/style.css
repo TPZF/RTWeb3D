@@ -1,290 +1,67 @@
-   #loadingtext {
-        position:absolute;
-        top:370px;
-        left:580px;
-        font-size:2em;
-        color: white;
-    }
-	
-	#healpix {
-		position: absolute;
-		z-index: 1;
-		left: 45%;
-		top: 10px;
-		font-family:Georgia,serif;
-		#color:#4E443C;
-		color:#FFFFFF;
-		font-size:2em;
-	}
-	
-	em
-	{
-		color: #6BCAFF;
-	}
-	
-	.fps
-	{
-		position: absolute;
-		z-index: 0;
-		border: 1px solid black;
-		background-color: rgb(255,255,255);
-		box-shadow: 0 0 6px #FF9E52, inset 0 1px 2px rgba(0, 0, 0, 0.08);
-		opacity: 0.8;
-		border-radius: 10px;
-		padding: 5px;
-		border:solid 1px orange;
-	}
+@import url('nameResolver.css');
+@import url('sidebar.css');
+   
+em
+{
+	color: #6BCAFF;
+}
 
-	#webGLNotAvailable
-	{
-		width: 1024;
-		height: 768; 
-		padding-top: 300px;
-		text-align: center;
-		display: none;
-	}
-	
-	body
-	{
-		background: rgba(76,109,131,0.7);
-		padding: 0px;
-		margin: 0px;
-		overflow: auto;
-	}
-	
-	#accordion div, #accordion h3
-	{
-		box-shadow: 0.3em 0.3em 0.9em black;
-	}
-	
-	.canvas{
-		#position:relative;
-		#display:block;
-		width:100%;
-		height:100%;	
-	}
-	
-	#header
-	{	
-		border: solid 1px orange;
-		padding: 1px;
-		margin-bottom: 20px;
-		height: 80px;
-	}
-	
-	.ui-widget
-	{
-		font-size: 0.9em;
-	}
-	
-	.ui-widget .ui-widget {
-		font-size: 0.8em;
-	}
-	
-	.sidebar
-	{
-		position: absolute;
-		z-index: 1;
-		left: 20px;
-		top: 10px;
-		padding: 0px;
-		margin: 5px;
-		width: 250px;
-		background: rgba(76, 109, 131, 0);
-	}
-	
-	#accordion
-	{
-		#border: 1px solid white;
-		#text-align: center;
-		#background : #4250AD;
-	}
-	
-	a:link
-	{
-		#color:white;
-		text-decoration: none;
-	}
-	
-	a:visited
-	{
-		#color:white;
-		text-decoration: none;
-	}
-	
-	a:hover
-	{
-		text-decoration: underline;
-	}
-	
-	.ui-widget-content
-	{
-		#opacity: 0.9;
-	}
+.fps
+{
+	position: absolute;
+	z-index: 0;
+	border: 1px solid black;
+	background-color: rgb(255,255,255);
+	box-shadow: 0 0 6px #FF9E52, inset 0 1px 2px rgba(0, 0, 0, 0.08);
+	opacity: 0.8;
+	border-radius: 10px;
+	padding: 5px;
+	border:solid 1px orange;
+}
 
-	#poiMenu 
-	{
-		margin: 0px;
-		padding: 0px;
-	}
+#webGLNotAvailable
+{
+	width: 1024;
+	height: 768; 
+	padding-top: 300px;
+	text-align: center;
+	display: none;
+}
 
-	#poiMenu  ul
-	{
-		margin: 0px;
-		padding: 0px;
-		width: 248px; 
-		height: 200px;
-		overflow: auto;
-	}
-	
-	#test
-	{
-		margin: 0px;
-		padding: 0px;
-		width: 248px; 
-		height: 200px;
-		overflow:auto;
-	}
-	
-	#poiMenu  li
-	{
-		list-style-type:none;
-		cursor: pointer;
-		text-align: center;
-		#background: white;
-		padding: 6px;
-		opacity: 0.7;
-	}
+body
+{
+	background: rgba(76,109,131,0.7);
+	padding: 0px;
+	margin: 0px;
+	overflow: auto;
+}
 
-	#poiMenu  li:hover
-	{
-		background: rgb(102,128,160);
-		#color: white;
-		#opacity: 0.7;
-	}
+.canvas{
+	width:100%;
+	height:100%;
+}
+
+.ui-widget
+{
+	font-size: 0.9em;
+}
+
+.ui-widget .ui-widget {
+	font-size: 0.8em;
+}
+
+::-webkit-scrollbar {
+	width: 10px;
+}
+
+::-webkit-scrollbar-track {
+	background: white;
+	-webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3); 
+	border-radius: 10px;
+}
 	
-	input:submit
-	{
-		background: rgb(102,128,160);
-	}
-	
-	#accordion > div
-	{
-		position: relative;
-	}
-	
-	#backgroundLayers
-	{
-		margin-right: inherit;
-		margin-top: 10px;
-		margin-bottom: 20px;
-		text-align: center;
-	}
-	
-	::-webkit-scrollbar {
-		width: 10px;
-	}
- 
-	::-webkit-scrollbar-track {
-		background: white;
-		-webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3); 
-		border-radius: 10px;
-	}
-	 
-	::-webkit-scrollbar-thumb {
-		border-radius: 10px;
-		background:#DFDFDF;
-		-webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.5); 
-	}
-	
-	.input-menu
-	{
-		#background: white;
-		padding: 6px;
-		opacity: 0.7;
-	}
-	
-	/*** NameResolver Search ***/
-	#searchDiv {
-		position: absolute;
-		right: 2px;
-		margin: 5px;
-		top: 10px;
-	}
-	
-	#searchForm {
-		margin-bottom: 0px;
-	}
-	
-	#searchForm fieldset {
-		position: relative;
-		display: block;
-		border: none;
-	}
-	
-	div.input {
-		width: 200px;
-		padding: 5px 15px 7px 15px;
-		border-radius: 20px;
-		border: 1px solid orange;
-		#box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.08);
-		box-shadow: 0 0 6px #FF9E52, inset 0 1px 2px rgba(0, 0, 0, 0.08);
-		float: right;
-		background: #E8EDF1;
-		padding-left: 30px;
-	}
-	
-	div.input.focus {
-		border: 1px solid #D39437;
-		#box-shadow: 0 0 6px #FF9E52, inset 0 1px 2px rgba(0, 0, 0, 0.08);
-	}
-	
-	input#searchInput:focus {
-		outline:none
-	}
-	
-	#searchInput {
-		width:100%;
-		border:0;
-		border-radius:20px;
-		background:transparent;
-		height:16px;
-		color:#b4bdc4;
-		text-shadow:0 1px 1px #fff;
-	}
-	
-	input#searchSubmit {
-		display:block;
-		width:20px;
-		height:20px;
-		overflow:hidden;
-		background:url(../css/images/searchSubmit-icon.png) no-repeat;
-		border:0;
-		position:absolute;
-		top: 10px;
-		left: 18px;
-		z-index:5;
-		cursor:pointer;
-	}
-	
-	input#searchClear {
-		width:20px;
-		height:20px;
-		overflow:hidden;
-		background:url(../css/images/searchClear-icon.png) no-repeat;
-		border:0;
-		position:absolute;
-		top: 10px;
-		right: 18px;
-		z-index:5;
-		display:none;
-		cursor:pointer;
-	}
-	
-	#equatorialCoordinatesSearchResult {
-		text-align: center;
-		width: 210px;
-		margin-left: 40px;
-		color: white;
-		height: 100%;
-	}
+::-webkit-scrollbar-thumb {
+	border-radius: 10px;
+	background:#DFDFDF;
+	-webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.5); 
+}

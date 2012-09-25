@@ -344,7 +344,7 @@ function createLayerFromConf(layer) {
 			break;
 		case "grid":
 			// TODO
-/*					gwLayer = new GlobWeb.EquatorialGridLayer( {visible: visible} );
+/*			gwLayer = new GlobWeb.EquatorialGridLayer( {visible: visible} );
 			globe.addLayer( gwLayer );*/
 			break;
 		case "healpixGrid":
@@ -364,7 +364,7 @@ function createLayerFromConf(layer) {
 function createHtmlForLayer(layer,currentIndex) {
 	var description = layer.description || "";		
 	var layerDiv = 
-		'<div style="position: relative; margin-bottom: 15px;" class="ui-widget" id=addLayer_'+currentIndex+'>\
+		'<div class="ui-widget addLayer" id=addLayer_'+currentIndex+'>\
 			<input id="addLayerInput_'+currentIndex+'" type="checkbox" value="'+currentIndex+'" name="showAdditionalLayer" />';
 	
 	// Optionnal icon
@@ -373,7 +373,7 @@ function createHtmlForLayer(layer,currentIndex) {
 	
 	layerDiv += 
 			'<label title="'+description+'" for="addLayerInput_'+currentIndex+'">'+layer.name+'</label>\
-			<div><label for="percentInput_'+currentIndex+'">Opacity: </label><input type="text" id="percentInput_'+currentIndex+'" style="border:0; background-color: transparent; width: 40px; color:#f6931f; font-weight:bold; value="20%"" /></div>\
+			<div><label for="percentInput_'+currentIndex+'">Opacity: </label><input class="percentInput" type="text" id="percentInput_'+currentIndex+'"" /></div>\
 			<div class="slider" id="slider_'+currentIndex+'"></div>\
 		</div>';
 
@@ -405,7 +405,6 @@ function createHtmlForLayer(layer,currentIndex) {
  *	Fill the LayerManager table
  */
 function initLayers(globe,layers) {
-	var tooltipIcon = "css/images/tooltip.png";
 
 	var gwLayer;
 	var gwBaseLayers = [];
