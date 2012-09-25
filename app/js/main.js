@@ -137,8 +137,6 @@ $(function()
 		document.getElementById('webGLNotAvailable').style.display = "block";
 	}
 	
-	// Add stats
-	var stats = new GlobWeb.Stats( globe, {element: 'fps', verbose: true} );
 	
 	// Initialize navigator
 	astroNavigator = new GlobWeb.AstroNavigation(globe);
@@ -156,7 +154,16 @@ $(function()
 		}
 	});
 	
-	// Create layers from configuration file
-	initLayers(globe);
+	$.getJSON("js/conf.json", function(data) {
+	
+		// Add stats
+		if ( data.stats ) {
+			new GlobWeb.Stats( globe, data.stats );
+		}
+	
+		// Create layers from configuration file
+		initLayers(globe,data.layers);
+	});
+	
 	
 });

@@ -308,174 +308,171 @@ function handleStarFeature(starLayer, layer)
 }
 
 /**
-*	Fill the LayerManager table
-*/
-function initLayers(globe)
-{
+ *	Create layer from configuration file
+ */
+function createLayerFromConf(layer) {
+	var gwLayer;
+	switch(layer.type){
+		case "healpix":
+			gwLayer = new GlobWeb.HEALPixLayer( { name: layer.name, baseUrl: layer.url, attribution: layer.attribution, visible: layer.visible} );
+			break;
+		case "star":
+			// Create style
+			var options = {};
+			options.style = new GlobWeb.FeatureStyle();
+			options.style.label = true;
+			options.style.iconUrl = null;
+			options.name = layer.name;
+			options.attribution = layer.attribution;
+			options.visible = layer.visible;
+			
+			gwLayer = new GlobWeb.VectorLayer(options);
+			handleStarFeature( gwLayer, layer );		
+			break;
+		case "constellation":
+			// Create style
+			var options = {};
+			options.style = new GlobWeb.FeatureStyle();
+			options.style.label = true;
+			options.style.iconUrl = null;
+			options.name = layer.name;
+			options.attribution = layer.attribution;
+			options.visible = layer.visible;
+			
+			gwLayer = new GlobWeb.VectorLayer(options);
+			handleConstellationFeature( gwLayer, layer );			
+			break;
+		case "grid":
+			// TODO
+/*					gwLayer = new GlobWeb.EquatorialGridLayer( {visible: visible} );
+			globe.addLayer( gwLayer );*/
+			break;
+		case "healpixGrid":
+			gwLayer = new GlobWeb.TileWireframeLayer( {visible: layer.visible});
+			globe.addLayer( gwLayer );
+			break;
+		default:
+			console.error("Not implemented");
+	}
+	
+	return gwLayer;
+}
+
+/**
+ *	Create the Html for addtionnal layers
+ */
+function createHtmlForLayer(layer,currentIndex) {
+	var description = layer.description || "";		
+	var layerDiv = 
+		'<div style="position: relative; margin-bottom: 15px;" class="ui-widget" id=addLayer_'+currentIndex+'>\
+			<input id="addLayerInput_'+currentIndex+'" type="checkbox" value="'+currentIndex+'" name="showAdditionalLayer" />';
+	
+	// Optionnal icon
+	if ( layer.icon )
+		layerDiv += '<img src="'+layer.icon+'" />';
+	
+	layerDiv += 
+			'<label title="'+description+'" for="addLayerInput_'+currentIndex+'">'+layer.name+'</label>\
+			<div><label for="percentInput_'+currentIndex+'">Opacity: </label><input type="text" id="percentInput_'+currentIndex+'" style="border:0; background-color: transparent; width: 40px; color:#f6931f; font-weight:bold; value="20%"" /></div>\
+			<div class="slider" id="slider_'+currentIndex+'"></div>\
+		</div>';
+
+	$(layerDiv)
+		.appendTo('#additionalLayers')
+		.find('input').attr('checked',layer.visible);
+		
+	// Slider initialisation
+	$('#slider_'+currentIndex).slider({
+		value: 100,
+		min: 20,
+		max: 100,
+		step: 20,
+		slide: function( event, ui ) {
+			
+			$( "#percentInput_"+currentIndex ).val( ui.value + "%" );
+			
+			var layerIndex = parseInt( $(this).siblings('input').val() );
+			var layer = gwAdditionalLayers[ layerIndex ];
+			layer.opacity( ui.value/100. );
+		}
+	}).slider( "option", "disabled", !layer.visible );
+
+	// Init percent input of slider
+	$( "#percentInput_"+currentIndex ).val( $( "#slider_"+currentIndex ).slider( "value" ) + "%" );
+}
+
+/**
+ *	Fill the LayerManager table
+ */
+function initLayers(globe,layers) {
 	var tooltipIcon = "css/images/tooltip.png";
 
-	
-	$.getJSON("js/conf.json", function(data) {
-		var gwLayer;
-		var gwBaseLayers = [];
-		var gwAdditionalLayers = [];
-		var nbBackgroundLayers = 0;
-		var nbAddLayers = 0;
-		$.each(data.layers, function(i, layer){
-			
-			var visible = layer.visible ? (layer.visible == 'true') : true;
-			
-			switch(layer.type){
-				case "healpix":
-					gwLayer = new GlobWeb.HEALPixLayer( { name: layer.name, baseUrl: layer.url, attribution: layer.attribution, visible: visible} );
-					break;
-				case "star":
-					// Create style
-					var options = {};
-					options.style = new GlobWeb.FeatureStyle();
-					options.style.label = true;
-					options.style.iconUrl = null;
-					options.name = layer.name;
-					options.attribution = layer.attribution;
-					options.visible = visible;
-					
-					gwLayer = new GlobWeb.VectorLayer(options);
-					handleStarFeature( gwLayer, layer );
-					
-					break;
-				case "constellation":
-					// Create style
-					var options = {};
-					options.style = new GlobWeb.FeatureStyle();
-					options.style.label = true;
-					options.style.iconUrl = null;
-					options.name = layer.name;
-					options.attribution = layer.attribution;
-					options.visible = visible;
-					
-					gwLayer = new GlobWeb.VectorLayer(options);
-					handleConstellationFeature( gwLayer, layer );
-					
-					break;
-				case "grid":
-					// TODO
-/*					gwLayer = new GlobWeb.EquatorialGridLayer( {visible: visible} );
-					globe.addLayer( gwLayer );*/
-					break;
-				case "healpixGrid":
-					gwLayer = new GlobWeb.TileWireframeLayer( {visible: visible});
-					globe.addLayer( gwLayer );
-					break;
-				default:
-					console.error("Not implemented");
-			}
-			
-			var description = layer.description || "";
-			
-			if( layer.background == 'true' )
-			{
-				/***Background layer***/
+	var gwLayer;
+	var gwBaseLayers = [];
+	var gwAdditionalLayers = [];
+	var nbBackgroundLayers = 0;
+	var nbAddLayers = 0;
+	for (var i=0; i<layers.length; i++) {
+		var layer = layers[i];		
+		gwLayer = createLayerFromConf(layer);
 				
-				// Add to engine
-				globe.setBaseImagery( gwLayer );
-				gwBaseLayers.push( gwLayer );
-				
-				// Add HTML
-				var currentIndex = nbBackgroundLayers;
-				
-				var layerDiv ='<input checked="'+visible+'" type="radio" id="backgroundLayerInput_'+currentIndex+'" name="backgroundLayers" value="'+currentIndex+'" /><label title="'+description+'" for="backgroundLayerInput_'+currentIndex+'">'+layer.name+'</label>';
-				$(layerDiv).appendTo('#backgroundLayers');
-				
-				nbBackgroundLayers++;
-
-			}
-			else
-			{
-				/***Additional layer***/
-				
-				// Add to engine
-				gwAdditionalLayers.push( gwLayer );
-				
-				// Add HTML
-				var currentIndex = nbAddLayers;
-				
-				var layerDiv = 
-					'<div style="position: relative; margin-bottom: 15px;" class="ui-widget" id=addLayer_'+currentIndex+'>\
-						<input id="addLayerInput_'+currentIndex+'" type="checkbox" value="'+currentIndex+'" name="showAdditionalLayer" />';
-				
-				// Optionnal icon
-				if ( layer.icon )
-					layerDiv += '<img src="'+icon+'" />';
-				
-				layerDiv += 
-						'<label title="'+description+'" for="addLayerInput_'+currentIndex+'">'+layer.name+'</label>\
-						<div><label for="percentInput_'+currentIndex+'">Opacity: </label><input type="text" id="percentInput_'+currentIndex+'" style="border:0; background-color: transparent; width: 40px; color:#f6931f; font-weight:bold; value="20%"" /></div>\
-						<div class="slider" id="slider_'+currentIndex+'"></div>\
-					</div>';
-
-				$(layerDiv)
-					.appendTo('#additionalLayers')
-					.find('input').attr('checked',visible);
-
-					
-				// Slider initialisation
-				$('#slider_'+currentIndex).slider({
-					value: 100,
-					min: 20,
-					max: 100,
-					step: 20,
-					slide: function( event, ui ) {
-						
-						$( "#percentInput_"+currentIndex ).val( ui.value + "%" );
-						
-						var layerIndex = parseInt( $(this).siblings('input').val() );
-						var layer = gwAdditionalLayers[ layerIndex ];
-						layer.opacity( ui.value/100. );
-					}
-				}).slider( "option", "disabled", !visible );
-
-				// Init percent input of slider
-				$( "#percentInput_"+currentIndex ).val( $( "#slider_"+currentIndex ).slider( "value" ) + "%" );
-				
-				nbAddLayers++;
-			}
-		});
+		var description = layer.description || "";
 		
-		// Input background layers event
-		$('input[name=backgroundLayers]').click(function(){
-			var layerIndex = parseInt( $(this).val() );
-			if ( $(this).is(':checked') ){
-				globe.setBaseImagery( gwBaseLayers[ layerIndex ] );
-			}
-		});
+		if ( layer.background )
+		{
+			/***Background layer***/
+			
+			// Add to engine
+			globe.setBaseImagery( gwLayer );
+			gwBaseLayers.push( gwLayer );
+			
+			// Add HTML
+			var currentIndex = nbBackgroundLayers;
+			
+			var layerDiv ='<input ' + (layer.visible ? 'checked="checked"': '') +' type="radio" id="backgroundLayerInput_'+currentIndex;
+			layerDiv += '" name="backgroundLayers" value="'+currentIndex+'"/>';
+			layerDiv += '<label title="'+description+'" for="backgroundLayerInput_'+currentIndex+'">'+layer.name+'</label>';
+			$(layerDiv).appendTo('#backgroundLayers');
+			
+			nbBackgroundLayers++;
+
+		}
+		else
+		{
+			/***Additional layer***/
+			
+			// Add to engine
+			gwAdditionalLayers.push( gwLayer );
+			
+			// Add HTML
+			var currentIndex = nbAddLayers;
+			createHtmlForLayer(layer,currentIndex);
+			
+			nbAddLayers++;
+		}
+	}
 		
-		// Input additional layers event
-		$('input[name=showAdditionalLayer]').click(function(){
-			var layerIndex = parseInt( $(this).val() );
-			if ( $(this).is(':checked') )
-			{
-				var layer = gwAdditionalLayers[ layerIndex ];
-				layer.visible( true );
-				
-				$(this).siblings('.slider').slider("enable");
-			}
-			else
-			{
-				var layer = gwAdditionalLayers[ layerIndex ];
-				layer.visible( false );
-				
-				$(this).siblings('.slider').slider("disable");
-			}
-		});
-		
-		// Create background layers button set
-		$( "#backgroundLayers" ).buttonset();
-		setBackgroundLayersButtonsetLayout();
-		
+	// Input background layers event
+	$('input[name=backgroundLayers]').click(function(){
+		var layerIndex = parseInt( $(this).val() );
+		if ( $(this).is(':checked') ){
+			globe.setBaseImagery( gwBaseLayers[ layerIndex ] );
+		}
 	});
-
 	
-
-
+	// Input additional layers event
+	$('input[name=showAdditionalLayer]').click(function(){
+		var layerIndex = parseInt( $(this).val() );
+		
+		var layer = gwAdditionalLayers[ layerIndex ];
+		var isChecked = $(this).is(':checked');
+		layer.visible( isChecked );
+		
+		$(this).siblings('.slider').slider( isChecked ? "enable" : "disable" );
+	});
 	
+	// Create background layers button set
+	$( "#backgroundLayers" ).buttonset();
+	setBackgroundLayersButtonsetLayout();
+
 }

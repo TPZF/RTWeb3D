@@ -1,4 +1,8 @@
 {
+	"stats": {
+		"verbose": false,
+		"element": "fps"
+	},
 	"layers":
 	[
 		{ 
@@ -6,19 +10,19 @@
 			"name": "SDSS",
 			"url": "/Alasky/SDSS/Color",
 			"description": "Sloan Digital Sky Survey",
-			"attribution": "<img src=\"http://cdsweb.u-strasbg.fr/img/cds.png\" id=\"cds\" />",
+			"attribution": "<object width='96' height='64' data=\"css/images/cds.svg\" type=\"image/svg+xml\"></object>",
 			"icon": "css/images/search-icon.png",
-			"background": "true",
-			"visible": "false"
+			"background": true,
+			"visible": false
 		},
 		{ 
 			"type": "healpix",
 			"name": "DSS",
 			"url": "/Alasky/DssColor/",
 			"description": "Digital Sky Survey",
-			"attribution": "<object data=\"css/images/cds.svg\" type=\"image/svg+xml\"></object>",
-			"visible": "true",
-			"background": "true"
+			"attribution": "<object width='96' height='64' data=\"css/images/cds.svg\" type=\"image/svg+xml\"></object>",
+			"visible": true,
+			"background": true
 		},
 		{
 			"type": "star",
@@ -27,7 +31,7 @@
 			"description": "The most brighten stars from VizieR Catalogue",
 			"nameUrl": "data/Names.tsv",
 			"catalogueUrl": "data/Catalogue.tsv",
-			"visible": "true"
+			"visible": true
 		},
 		{
 			"type": "constellation",
@@ -36,12 +40,12 @@
 			"description": "Constellation shapes from VizieR Catalogue",
 			"nameUrl": "data/ConstellationNames.tsv",
 			"catalogueUrl": "data/bound_20.dat",
-			"visible": "false"
+			"visible": false
 		},
 		{
 			"type": "healpixGrid",
 			"name": "Healpix grid layer",
-			"visible": "false"
+			"visible": false
 		}
 	]
 }
