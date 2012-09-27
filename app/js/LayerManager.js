@@ -225,7 +225,6 @@ function handleConstellationFeature(constellationLayer, layer )
 			// Add it to the constellationLayer
 			constellationLayer.addFeatureCollection( constellationShapesFeatureCollection );
 			constellationLayer.addFeatureCollection( constellationNameFeatureCollection );
-			globe.addLayer( constellationLayer );
 		}
 	}
 	
@@ -328,7 +327,6 @@ function handleStarFeature(starLayer, layer)
 		};
 		
 		starLayer.addFeatureCollection( poiFeatureCollection );
-		globe.addLayer( starLayer );
 	}
 }
 
@@ -374,7 +372,6 @@ function createLayerFromConf(layer) {
 			break;
 		case "healpixGrid":
 			gwLayer = new GlobWeb.TileWireframeLayer( {visible: layer.visible});
-			globe.addLayer( gwLayer );
 			break;
 		default:
 			console.error("Not implemented");
@@ -443,7 +440,9 @@ function initLayers(layers) {
 			/***Background layer***/
 			
 			// Add to engine
-			globe.setBaseImagery( gwLayer );
+			if ( layer.visible ) {
+				globe.setBaseImagery( gwLayer );
+			}
 			gwBaseLayers.push( gwLayer );
 			
 			// Add HTML
@@ -463,6 +462,7 @@ function initLayers(layers) {
 			
 			// Add to engine
 			gwAdditionalLayers.push( gwLayer );
+			globe.addLayer( gwLayer );
 			
 			// Add HTML
 			var currentIndex = nbAddLayers;

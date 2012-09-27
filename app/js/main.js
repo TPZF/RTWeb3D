@@ -62,7 +62,7 @@ $(function()
 	}
 	catch (err)
 	{
-		document.getElementById('HEALPixCanvas').style.display = "none";
+		document.getElementById('GlobWebCanvas').style.display = "none";
 		document.getElementById('webGLNotAvailable').style.display = "block";
 	}
 	
@@ -71,7 +71,7 @@ $(function()
 	navigation = new GlobWeb.AstroNavigation(globe);
 	
 	// Click event to show equatorial coordinates
-	$("#HEALPixCanvas").click(function(event){
+	$("#GlobWebCanvas").click(function(event){
 		if(event.ctrlKey){
 			var equatorial = [];
 			geo = globe.getLonLatFromPixel(event.pageX, event.pageY);

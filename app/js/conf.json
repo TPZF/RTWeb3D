@@ -14,7 +14,6 @@
 			"url": "/Alasky/SDSS/Color",
 			"description": "Sloan Digital Sky Survey",
 			"attribution": "<object width='96' height='64' data=\"css/images/cds.svg\" type=\"image/svg+xml\"></object>",
-			"icon": "css/images/search-icon.png",
 			"background": true,
 			"visible": false
 		},
@@ -26,6 +25,15 @@
 			"attribution": "<object width='96' height='64' data=\"css/images/cds.svg\" type=\"image/svg+xml\"></object>",
 			"visible": true,
 			"background": true
+		},
+		{
+			"type": "healpix",
+			"name": "Doradus",
+			"url": "/sitools/datastorage/user/doradus/",
+			"description": "Doradus",
+			"attribution": "",
+			"visible": false,
+			"background": false
 		},
 		{
 			"type": "star",
