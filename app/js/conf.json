@@ -29,7 +29,7 @@
 		{
 			"type": "healpix",
 			"name": "Doradus",
-			"url": "/sitools/datastorage/user/doradus/",
+			"url": "http://demonstrator.telespazio.com/doradus/",
 			"description": "Doradus",
 			"attribution": "",
 			"visible": false,
