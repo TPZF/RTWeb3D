@@ -4,7 +4,7 @@
  */
 require.config({
     paths: {
-        "jquery": "jquery-1.8.2.min",
+		"jquery": "jquery-1.8.2.min",
 		"jquery.ui": "jquery-ui-1.8.23.custom.min",
 		"GlobWeb": "GlobWeb.min"
    },
@@ -15,6 +15,10 @@ require.config({
         },
 		'jquery.ui': {
             deps: ['jquery'],
+            exports: 'jQuery'
+        },
+	'jquery.ui.selectmenu': {
+            deps: ['jquery.ui'],
             exports: 'jQuery'
         },
 		'GlobWeb': {

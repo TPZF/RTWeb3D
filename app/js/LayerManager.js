@@ -2,7 +2,7 @@
 /**
  * LayerManager module
  */
-define( ["jquery.ui" ], function($) {
+define( [ "jquery.ui", "jquery.ui.selectmenu" ], function($) {
 
 /**
  * Private variable for module
@@ -13,35 +13,31 @@ var globe;
 var gwLayer;
 var gwBaseLayers = [];
 var gwAdditionalLayers = [];
+var backgroundLayersIcons = [];
 var nbBackgroundLayers = 0;
 var nbAddLayers = 0;
 
 /**
  * Private functions
  */
- 
+
 /**
- * Make buttonset vertical for background layers
+ * 	ON/OFF radio buttons layout
  */
-function setBackgroundLayersButtonsetLayout()
+function setVisibilityButtonsetLayout()
 {
-	// Make it vertical
-	$(':radio, :checkbox', '#backgroundLayers').wrap('<div style="margin: 1px"/>'); 
-	$('label:first', '#backgroundLayers').removeClass('ui-corner-left').addClass('ui-corner-top');
-	$('label:last', '#backgroundLayers').removeClass('ui-corner-right').addClass('ui-corner-bottom');
-	
-	// Make the same width for all labels
-	mw = 100; // max witdh
-	$('label', '#backgroundLayers').each(function(index){
-		w = $(this).width();
-		if (w > mw) mw = w; 
-	});
-	
-	// Another way to find a max
-	// mw = Math.max.apply(Math, $('label', '#ImageriesDiv').map(function(){ return $(this).width(); }).get());
-	
-	$('label', '#backgroundLayers').each(function(index){
-		$(this).width(mw);
+	$('.layerVisibilityRadio').each(function(){
+		var inputOn = $(this).find(".inputOn");
+		console.log( $(this).find(".inputOn" ) );
+		if ( inputOn.is(':checked') )
+		{
+			console.log ( inputOn.siblings('.on') ) ;
+			inputOn.siblings('.on').addClass('ui-state-active');
+		}
+		else
+		{
+			inputOn.siblings('.off').addClass('ui-state-active');
+		}
 	});
 }
 
@@ -345,6 +341,7 @@ function createLayerFromConf(layer) {
 			options.style = new GlobWeb.FeatureStyle();
 			options.style.label = true;
 			options.style.iconUrl = null;
+			options.style.opacity = layer.opacity / 100.;
 			options.name = layer.name;
 			options.attribution = layer.attribution;
 			options.visible = layer.visible;
@@ -358,17 +355,17 @@ function createLayerFromConf(layer) {
 			options.style = new GlobWeb.FeatureStyle();
 			options.style.label = true;
 			options.style.iconUrl = null;
+			options.style.opacity = layer.opacity / 100.;
 			options.name = layer.name;
 			options.attribution = layer.attribution;
 			options.visible = layer.visible;
+			options.opacity = layer.opacity;
 			
 			gwLayer = new GlobWeb.VectorLayer(options);
 			handleConstellationFeature( gwLayer, layer );			
 			break;
 		case "grid":
-			// TODO
-/*			gwLayer = new GlobWeb.EquatorialGridLayer( {visible: visible} );
-			globe.addLayer( gwLayer );*/
+			gwLayer = new GlobWeb.EquatorialGridLayer( {visible: layer.visible} );
 			break;
 		case "healpixGrid":
 			gwLayer = new GlobWeb.TileWireframeLayer( {visible: layer.visible});
@@ -384,28 +381,36 @@ function createLayerFromConf(layer) {
  *	Create the Html for addtionnal layers
  */
 function createHtmlForLayer(layer,currentIndex) {
-	var description = layer.description || "";		
+	var description = layer.description || "";
 	var layerDiv = 
-		'<div class="ui-widget addLayer" id=addLayer_'+currentIndex+'>\
-			<input id="addLayerInput_'+currentIndex+'" type="checkbox" value="'+currentIndex+'" name="showAdditionalLayer" />';
+		'<div class="ui-widget addLayer" value="'+currentIndex+'" id=addLayer_'+currentIndex+'>';
 	
 	// Optionnal icon
 	if ( layer.icon )
-		layerDiv += '<img src="'+layer.icon+'" />';
-	
-	layerDiv += 
-			'<label title="'+description+'" for="addLayerInput_'+currentIndex+'">'+layer.name+'</label>\
+		layerDiv += '<img class="layerIcon" src="'+layer.icon+'" />';
+
+	layerDiv += 	'<label title="'+description+'" for="addLayerInput_'+currentIndex+'">'+layer.name+'</label>\
+			<div class="layerVisibilityRadioDiv">\
+				<input class="inputOff visibilityRadio"' + (layer.visible ? '': 'checked="checked"') +
+					' type="radio" id="hideAddLayer_'+currentIndex+'"\
+					name="visibilityRadio_'+currentIndex+'"/>\
+				<label title="off" class="off" for="hideAddLayer_'+currentIndex+'">OFF</label>\
+				<input class="inputOn visibilityRadio" ' + (layer.visible ? 'checked="checked"': '') +
+					' type="radio" id="showAddLayer_'+currentIndex+'"\
+					name="visibilityRadio_'+currentIndex+'"/>\
+				<label class="on" title="on" for="showAddLayer_'+currentIndex+'">ON</label>\
+			</div>\
 			<div><label for="percentInput_'+currentIndex+'">Opacity: </label><input class="percentInput" type="text" id="percentInput_'+currentIndex+'"" /></div>\
 			<div class="slider" id="slider_'+currentIndex+'"></div>\
 		</div>';
 
 	$(layerDiv)
-		.appendTo('#additionalLayers')
-		.find('input').attr('checked',layer.visible);
+		.appendTo('#additionalLayers');
+
 		
 	// Slider initialisation
 	$('#slider_'+currentIndex).slider({
-		value: 100,
+		value: layer.opacity,
 		min: 20,
 		max: 100,
 		step: 20,
@@ -413,7 +418,8 @@ function createHtmlForLayer(layer,currentIndex) {
 			
 			$( "#percentInput_"+currentIndex ).val( ui.value + "%" );
 			
-			var layerIndex = parseInt( $(this).siblings('input').val() );
+			
+			var layerIndex = parseInt( $(this).parent().index() );
 			var layer = gwAdditionalLayers[ layerIndex ];
 			layer.opacity( ui.value/100. );
 		}
@@ -427,10 +433,14 @@ function createHtmlForLayer(layer,currentIndex) {
  *	Fill the LayerManager table
  */
 function initLayers(layers) {
-	var tooltipIcon = "css/images/tooltip.png";
 
 	for (var i=0; i<layers.length; i++) {
-		var layer = layers[i];		
+		var layer = layers[i];
+		
+		// Define default optionnal parameters
+		if(!layer.opacity)
+			layer.opacity = 100.;
+		
 		gwLayer = createLayerFromConf(layer);
 				
 		var description = layer.description || "";
@@ -447,11 +457,34 @@ function initLayers(layers) {
 			
 			// Add HTML
 			var currentIndex = nbBackgroundLayers;
+			var currentClass;
 			
-			var layerDiv ='<input ' + (layer.visible ? 'checked="checked"': '') +' type="radio" id="backgroundLayerInput_'+currentIndex;
-			layerDiv += '" name="backgroundLayers" value="'+currentIndex+'"/>';
-			layerDiv += '<label title="'+description+'" for="backgroundLayerInput_'+currentIndex+'">'+layer.name+'</label>';
-			$(layerDiv).appendTo('#backgroundLayers');
+			var layerDiv ='<option value="'+ currentIndex +'" class="">"'+ layer.name + '"</option>"';
+			
+			
+			if ( layer.icon )
+			{
+				// Create icon style
+				var sheet = document.createElement('style');
+				sheet.innerHTML = ".backgroundLayer_" + currentIndex + " .ui-selectmenu-item-icon { background: url("+layer.icon+") 0 0 no-repeat; }";
+				document.body.appendChild(sheet);
+				
+				backgroundLayersIcons.push( {find: ".backgroundLayer_" + currentIndex} );
+				currentClass = 'backgroundLayer_'+ currentIndex;
+			}
+			else
+			{
+				// Use default style
+				backgroundLayersIcons.push( {find: ".unknown"} );
+				currentClass = 'unknown';
+			}
+			$(layerDiv).appendTo('#backgroundLayers').addClass(currentClass);
+			
+			// Set visible layer on top of selector
+			if ( layer.visible )
+			{
+				$('#backgroundLayers').val( $(layerDiv).val() );
+			}
 			
 			nbBackgroundLayers++;
 
@@ -463,6 +496,10 @@ function initLayers(layers) {
 			// Add to engine
 			gwAdditionalLayers.push( gwLayer );
 			globe.addLayer( gwLayer );
+			
+			// Constellation & Star layers are added asynchronously
+			if( layer.type != "constellation" && layer.type != "star" )
+				globe.addLayer( gwLayer );
 			
 			// Add HTML
 			var currentIndex = nbAddLayers;
@@ -479,22 +516,34 @@ function initLayers(layers) {
 			globe.setBaseImagery( gwBaseLayers[ layerIndex ] );
 		}
 	});
+		
+	// Create background layers button set
+	$( ".layerVisibilityRadioDiv" ).buttonset();
 	
-	// Input additional layers event
-	$('input[name=showAdditionalLayer]').click(function(){
-		var layerIndex = parseInt( $(this).val() );
-		
-		var layer = gwAdditionalLayers[ layerIndex ];
-		var isChecked = $(this).is(':checked');
-		layer.visible( isChecked );
-		
-		$(this).siblings('.slider').slider( isChecked ? "enable" : "disable" );
+
+	// Init select menu
+	$('select#backgroundLayers').selectmenu({
+		icons: backgroundLayersIcons
 	});
 	
-	// Create background layers button set
-	$( "#backgroundLayers" ).buttonset();
-	setBackgroundLayersButtonsetLayout();
+	setVisibilityButtonsetLayout();
+	
+	// Background selection visibility event
+	$('#backgroundLayers-menu li').click(function(){
+		var layerIndex = parseInt( $(this).index() );
+		globe.setBaseImagery( gwBaseLayers[ layerIndex ] );
+	});
 
+	// Input additional layers visibility event
+	$('input.visibilityRadio').click(function(){
+		var layerIndex = parseInt( $(this).parent().parent().index() );
+		
+		var layer = gwAdditionalLayers[ layerIndex ];
+		var isOn = $(this).is('.inputOn');
+		layer.visible( isOn );
+		
+		$(this).parent().siblings('.slider').slider( isOn ? "enable" : "disable" );
+	});
 }
 
 return {

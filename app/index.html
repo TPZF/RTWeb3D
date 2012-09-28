@@ -13,6 +13,7 @@
 <!-- RequireJS -->
 <script data-main="js/main" src="js/require.min.js"></script>
 
+
 </head>
 
 
@@ -26,7 +27,10 @@
 				<h3><a href="#">Layer manager</a></h3>
 				<div id="layerManager">
 					<em>Background layers:</em>
-					<div id="backgroundLayers"></div>
+					<fieldset>
+						<select name="backgroundLayers" id="backgroundLayers">
+						</select>
+					</fieldset>
 					<em>Additional layers:</em>
 					<div id="additionalLayers">
 					</div>
@@ -44,7 +48,7 @@
 			<form id="searchForm">
 				<fieldset>
 					<div class="input">
-						<input title="Enter an object name (e.g. m31) or coordinate (e.g 23h45mn30.5s -45°30'30)" type="text" name="searchInput" id="searchInput" value="Object name or coordinates" />
+						<input title="Enter an object name (e.g. m31) or coordinate (e.g 23h45mn30.5s -45&#186;30'30)" type="text" name="searchInput" id="searchInput" value="Object name or coordinates" />
 					</div>
 					<input type="submit" id="searchSubmit" value="" />
 					<input type="button" id="searchClear" value="" style="display: none;"/>

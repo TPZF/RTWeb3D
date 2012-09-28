@@ -14,6 +14,7 @@
 			"url": "/Alasky/SDSS/Color",
 			"description": "Sloan Digital Sky Survey",
 			"attribution": "<object width='96' height='64' data=\"css/images/cds.svg\" type=\"image/svg+xml\"></object>",
+			"icon": "css/images/star_icon.png",
 			"background": true,
 			"visible": false
 		},
@@ -38,15 +39,18 @@
 		{
 			"type": "star",
 			"name": "Star layer",
+			"icon": "css/images/star_icon.png",
 			"attribution": "The most brighten stars coming from CDS VizieR catalogue",
 			"description": "The most brighten stars from VizieR Catalogue",
 			"nameUrl": "data/Names.tsv",
 			"catalogueUrl": "data/Catalogue.tsv",
-			"visible": true
+			"visible": true,
+			"opacity": 30
 		},
 		{
 			"type": "constellation",
 			"name": "Constellation layer",
+			"icon": "css/images/constellation_icon.png",
 			"attribution": "Constellation coming from CDS VizieR catalogue",
 			"description": "Constellation shapes from VizieR Catalogue",
 			"nameUrl": "data/ConstellationNames.tsv",
@@ -57,6 +61,11 @@
 			"type": "healpixGrid",
 			"name": "Healpix grid layer",
 			"visible": false
+		},
+		{
+			"type": "grid",
+			"name": "Equatorial grid layer(beta)",
+			"visible": true
 		}
 	]
 }
