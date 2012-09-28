@@ -495,10 +495,9 @@ function initLayers(layers) {
 			
 			// Add to engine
 			gwAdditionalLayers.push( gwLayer );
-			globe.addLayer( gwLayer );
 			
 			// Constellation & Star layers are added asynchronously
-			if( layer.type != "constellation" && layer.type != "star" )
+			if( layer.type != "constellation" || layer.type != "star" )
 				globe.addLayer( gwLayer );
 			
 			// Add HTML
