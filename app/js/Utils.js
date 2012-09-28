@@ -21,7 +21,7 @@ return {
 	equatorialLayout: function(equatorialCoordinates) {
 		var wordRA = equatorialCoordinates[0].split(" ");
 		var wordDecl = equatorialCoordinates[1].split(" ");
-		return [ wordRA[0] +"h "+ wordRA[1] +"mn "+ roundNumber(parseFloat(wordRA[2]), 4) +"s", wordDecl[0] +"&#186 "+ wordDecl[1] +"' "+ roundNumber(parseFloat(wordDecl[2]), 4) ];
+		return [ wordRA[0] +"h "+ wordRA[1] +"mn "+ roundNumber(parseFloat(wordRA[2]), 2) +"s", wordDecl[0] + String.fromCharCode(176) + " "+ wordDecl[1] +"' "+ roundNumber(parseFloat(wordDecl[2]), 2) ];
 	}
 };
 
