@@ -40,6 +40,11 @@ window.console||(console={log:function(){}});
 var globe = null;
 var navigation = null;
 
+function showCanvas()
+{
+	$('#loading').hide(300);
+}
+
 $(function()
 {	
 	// Create accordeon
@@ -70,9 +75,20 @@ $(function()
 	catch (err)
 	{
 		document.getElementById('GlobWebCanvas').style.display = "none";
+		document.getElementById('loading').style.display = "none";
 		document.getElementById('webGLNotAvailable').style.display = "block";
 	}
 	
+	// When rendering is ready
+	globe.subscribe("levelZeroTextureLoaded", showCanvas);
+	
+	// Context lost listener
+	canvas.addEventListener("webglcontextlost", function(event) {
+		// TODO
+		event.preventDefault();
+		document.getElementById('loading').style.display = "none";
+		document.getElementById('webGLContextLost').style.display = "block";
+	}, false);
 	
 	// Initialize navigation
 	navigation = new GlobWeb.AstroNavigation(globe);
