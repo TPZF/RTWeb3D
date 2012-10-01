@@ -1,6 +1,6 @@
 {
 	"nameResolver": {
-		"baseUrl": "/ExampleProject/plugin/resolverName"
+		"baseUrl": "/sitools/projects/rtwebgl/plugin/resolverName"
 	},
 	"stats": {
 		"verbose": false,
