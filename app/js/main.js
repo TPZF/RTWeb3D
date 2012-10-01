@@ -32,6 +32,9 @@ require.config({
  * Main module
  */
 require( ["jquery.ui", "LayerManager", "NameResolver", "Utils"], function($, LayerManager, NameResolver, Utils) {
+
+// Console fix	
+window.console||(console={log:function(){}});
 	
 // Private variable
 var globe = null;
