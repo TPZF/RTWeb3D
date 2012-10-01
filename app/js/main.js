@@ -107,7 +107,10 @@ $(function()
 		LayerManager.init(globe,data.layers);
 	});
 	
-	
+	window.setInterval( function() {
+		var fov = Utils.roundNumber( globe.renderContext.fov, 2 ) ;
+		$('#fov').html( "Fov : " + fov + " x " + fov );
+	}, 1000 );
 });
 
 });

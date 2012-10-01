@@ -9,6 +9,7 @@
 
 <!-- GlobWeb does not use require.js in development mode -->
 <script type="text/javascript" src="externals/GlobWeb/src/GlobWeb.js"></script>
+<!-- <script type="text/javascript" src="externals/GlobWeb/build/generated/GlobWeb.min.js"></script> -->
 
 <!-- RequireJS -->
 <script data-main="js/main" src="js/require.min.js"></script>
@@ -67,7 +68,8 @@
 		</div>
 		
 		
-		<div id="fps" class="ui-widget">FPS : 0</div>
+		<div id="fps" class="box ui-widget">FPS : 0</div>
+		<div id="fov" class="box ui-widget">Fov : 45 x 45</div>
 
 		
 		<canvas id="GlobWebCanvas" width="1024" height="768"></canvas>

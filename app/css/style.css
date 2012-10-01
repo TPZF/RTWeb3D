@@ -8,9 +8,8 @@ em
 	color: #6BCAFF;
 }
 
-#fps
+.box
 {
-	position: absolute;
 	z-index: 0;
 	border: 1px solid black;
 	background-color: rgb(255,255,255);
@@ -20,8 +19,20 @@ em
 	padding: 5px;
 	border:solid 1px orange;
 	font-weight:bold;
+}
+
+#fps
+{
+	position: absolute;
 	left: 20px;
 	bottom: 20px;
+}
+
+#fov
+{
+	position: absolute;
+	left: 20px;
+	bottom: 100px;
 }
 
 #webGLNotAvailable
