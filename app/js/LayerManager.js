@@ -455,7 +455,7 @@ function initLayers(layers) {
 			var currentIndex = nbBackgroundLayers;
 			var currentClass;
 			
-			var layerDiv ='<option value="'+ currentIndex +'" class="">"'+ layer.name + '"</option>"';
+			var layerDiv ='<option value="'+ currentIndex +'" class="">'+ layer.name + '</option>"';
 			
 			
 			if ( layer.icon )
