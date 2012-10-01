@@ -108,8 +108,8 @@ $(function()
 	});
 	
 	window.setInterval( function() {
-		var fov = Utils.roundNumber( globe.renderContext.fov, 2 ) ;
-		$('#fov').html( "Fov : " + fov + " x " + fov );
+		var fov = Utils.roundNumber( navigation.getFov(), 2 ) ;
+		$('#fov').html( "Fov : " + fov );
 	}, 1000 );
 });
 

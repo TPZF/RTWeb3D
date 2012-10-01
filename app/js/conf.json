@@ -12,7 +12,7 @@
 			"type": "healpix",
 			"name": "SDSS",
 			"url": "/Alasky/SDSS/Color",
-			"description": "Sloan Digital Sky Survey",
+			"description": "Sloan Digital Sky Survey from CDS",
 			"attribution": "<object width='96' height='64' data=\"css/images/cds.svg\" type=\"image/svg+xml\"></object>",
 			"icon": "css/images/star_icon.png",
 			"background": true,
@@ -22,7 +22,7 @@
 			"type": "healpix",
 			"name": "DSS",
 			"url": "/Alasky/DssColor/",
-			"description": "Digital Sky Survey",
+			"description": "Digital Sky Survey from CDS",
 			"attribution": "<object width='96' height='64' data=\"css/images/cds.svg\" type=\"image/svg+xml\"></object>",
 			"visible": true,
 			"background": true
@@ -38,18 +38,18 @@
 		},
 		{
 			"type": "star",
-			"name": "Star layer",
+			"name": "Brighten stars",
 			"icon": "css/images/star_icon.png",
 			"attribution": "The most brighten stars coming from CDS VizieR catalogue",
 			"description": "The most brighten stars from VizieR Catalogue",
 			"nameUrl": "data/Names.tsv",
 			"catalogueUrl": "data/Catalogue.tsv",
 			"visible": true,
-			"opacity": 30
+			"opacity": 100
 		},
 		{
 			"type": "constellation",
-			"name": "Constellation layer",
+			"name": "Constellations",
 			"icon": "css/images/constellation_icon.png",
 			"attribution": "Constellation coming from CDS VizieR catalogue",
 			"description": "Constellation shapes from VizieR Catalogue",
@@ -59,7 +59,7 @@
 		},
 		{
 			"type": "healpixGrid",
-			"name": "Healpix grid layer",
+			"name": "Healpix grid",
 			"visible": false
 		}
 	]
