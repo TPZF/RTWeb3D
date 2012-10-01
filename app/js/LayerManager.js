@@ -202,7 +202,7 @@ function handleConstellationFeature(constellationLayer, layer )
 					},
 					properties: {
 						name: current.name,
-						textColor: '#083BA8'
+						style: new GlobWeb.FeatureStyle({ textColor: '#083BA8', label: current.name })
 					}
 				};
 				constellationNames.push( constellationName );
@@ -308,7 +308,8 @@ function handleStarFeature(starLayer, layer)
 							coordinates: [geo[0],geo[1]]
 						},
 						properties: {
-							name: starName
+							name: starName,
+							style: new GlobWeb.FeatureStyle({ label: starName })
 						}
 					};
 					pois.push(poi);
@@ -339,12 +340,10 @@ function createLayerFromConf(layer) {
 			// Create style
 			var options = {};
 			options.style = new GlobWeb.FeatureStyle();
-			options.style.label = true;
-			options.style.iconUrl = null;
-			options.style.opacity = layer.opacity / 100.;
 			options.name = layer.name;
 			options.attribution = layer.attribution;
 			options.visible = layer.visible;
+			options.opacity = layer.opacity / 100.;
 			
 			gwLayer = new GlobWeb.VectorLayer(options);
 			handleStarFeature( gwLayer, layer );		
@@ -353,13 +352,10 @@ function createLayerFromConf(layer) {
 			// Create style
 			var options = {};
 			options.style = new GlobWeb.FeatureStyle();
-			options.style.label = true;
-			options.style.iconUrl = null;
-			options.style.opacity = layer.opacity / 100.;
 			options.name = layer.name;
 			options.attribution = layer.attribution;
 			options.visible = layer.visible;
-			options.opacity = layer.opacity;
+			options.opacity = layer.opacity / 100.;
 			
 			gwLayer = new GlobWeb.VectorLayer(options);
 			handleConstellationFeature( gwLayer, layer );			

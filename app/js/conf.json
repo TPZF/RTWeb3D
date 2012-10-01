@@ -61,11 +61,6 @@
 			"type": "healpixGrid",
 			"name": "Healpix grid layer",
 			"visible": false
-		},
-		{
-			"type": "grid",
-			"name": "Equatorial grid layer(beta)",
-			"visible": true
 		}
 	]
 }
