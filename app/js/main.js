@@ -40,9 +40,22 @@ window.console||(console={log:function(){}});
 var globe = null;
 var navigation = null;
 
-function showCanvas()
+function hideLoading()
 {
 	$('#loading').hide(300);
+}
+
+/**
+ *	Function updating fov box
+ */
+function updateFov()
+{
+	var fov = navigation.getFov();
+	var fovx = Utils.roundNumber( fov[0], 2 ) ;
+	fovx = GlobWeb.CoordinateSystem.fromDegreesToDMS( fovx, true );
+	var fovy = Utils.roundNumber( fov[1], 2 ) ;
+	fovy = GlobWeb.CoordinateSystem.fromDegreesToDMS( fovy, true );
+	$('#fov').html( "Fov : " + fovx + " x " + fovy );
 }
 
 $(function()
@@ -79,8 +92,8 @@ $(function()
 		document.getElementById('webGLNotAvailable').style.display = "block";
 	}
 	
-	// When rendering is ready
-	globe.subscribe("levelZeroTextureLoaded", showCanvas);
+	// When level zero texture is loaded, hide loading
+	globe.subscribe("levelZeroTextureLoaded", hideLoading);
 	
 	// Context lost listener
 	canvas.addEventListener("webglcontextlost", function(event) {
@@ -91,7 +104,8 @@ $(function()
 	}, false);
 	
 	// Initialize navigation
-	navigation = new GlobWeb.AstroNavigation(globe);
+	navigation = new GlobWeb.AstroNavigation(globe, {minFov: 0.05});
+	updateFov();
 	
 	// Click event to show equatorial coordinates
 	$("#GlobWebCanvas").click(function(event){
@@ -100,9 +114,8 @@ $(function()
 			geo = globe.getLonLatFromPixel(event.pageX, event.pageY);
 			
 			GlobWeb.CoordinateSystem.fromGeoToEquatorial ( geo, equatorial );
-			
-			var equatorialString = Utils.equatorialLayout(equatorial);
-			$("#equatorialCoordinates").html("<em>Right ascension:</em> <br/>&nbsp&nbsp&nbsp&nbsp" + equatorialString[0] +"<br /><em>Declination :</em> <br/>&nbsp&nbsp&nbsp&nbsp" + equatorialString[1] +"\"");
+
+			$("#equatorialCoordinates").html("<em>Right ascension:</em> <br/>&nbsp&nbsp&nbsp&nbsp" + equatorial[0] +"<br /><em>Declination :</em> <br/>&nbsp&nbsp&nbsp&nbsp" + equatorial[1]);
 		}
 	});
 	
@@ -123,10 +136,9 @@ $(function()
 		LayerManager.init(globe,data.layers);
 	});
 	
-	window.setInterval( function() {
-		var fov = Utils.roundNumber( navigation.getFov(), 2 ) ;
-		$('#fov').html( "Fov : " + fov );
-	}, 1000 );
+	// Add wheel listeners updating fov box
+	canvas.addEventListener("DOMMouseScroll",function(e) { e.preventDefault(); updateFov(); },false);
+	canvas.addEventListener("mousewheel",function(e) { e.preventDefault(); updateFov(); },false);
 });
 
 });

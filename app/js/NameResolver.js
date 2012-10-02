@@ -82,8 +82,7 @@ function setSearchBehavior()
 						var equatorial = [];
 						GlobWeb.CoordinateSystem.fromGeoToEquatorial([response.ra, response.dec], equatorial);
 				
-						var equatorialString = Utils.equatorialLayout( equatorial );
-						$("#equatorialCoordinatesSearchResult").html("<em>Ra:</em> " + equatorialString[0] + "<br /><em>Dec:</em> " + equatorialString[1] +"\"");
+						$("#equatorialCoordinatesSearchResult").html("<em>Ra:</em> " + equatorial[0] + "<br /><em>Dec:</em> " + equatorial[1]);
 
 						$('#equatorialCoordinatesSearchResult').fadeIn(animationDuration);
 						astroNavigator.zoomTo([response.ra, response.dec], 15, 5000 );
