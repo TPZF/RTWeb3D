@@ -59,8 +59,13 @@
 		},
 		{
 			"type": "healpixGrid",
-			"name": "Healpix grid",
-			"visible": false
+			"name": "Healpix grid"
+		},
+		{
+			"type": "GeoJSON",
+			"name": "Examples",
+			"url": "data/examples.json",
+			"visible": true
 		}
 	]
 }

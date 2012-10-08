@@ -1,0 +1,106 @@
+#selectedFeatureDiv
+{
+	box-shadow: 0 0 6px #FF9E52, inset 0 1px 2px rgba(0, 0, 0, 0.08);
+	border:solid 1px orange;
+	padding: 20px;
+	border-radius: 10px;
+	z-index: 10;
+}
+
+#featureList > div
+{
+	padding: 5px;
+}
+
+#arrow-left {
+	width: 0; 
+	height: 0; 
+	border-top: 10px solid transparent;
+	border-bottom: 10px solid transparent; 
+	border-right:10px solid orange;
+	position: absolute;
+	left: -11;
+	top: 90;
+}
+
+table.picking {
+}
+
+.selectValue
+{
+	color: white;
+}
+
+table.picking td {
+	border-width: 1px;
+	padding: 4px;
+}
+
+.closeBtn
+{
+	background:url(../css/images/close_button.png) no-repeat;
+	width:30px;
+	height:30px;
+	position: absolute;
+	top: -15px;
+	right: -15px;
+}
+
+.closeBtn:hover
+{
+	background:url(../css/images/close_buttonHover.png) no-repeat;
+}
+
+.thumbnail
+{
+	text-align: right;
+	display: block;
+}
+
+.thumbnail img
+{
+	#height: 25%;
+}
+
+#selectionListDiv
+{
+	display: inline-block;
+	width: auto;
+	border-radius: 10px;
+	padding: 15px;
+	box-shadow: 0 0 6px #FF9E52, inset 0 1px 2px rgba(0, 0, 0, 0.08);
+	border:solid 1px orange;
+}
+
+#detailedInfo
+{
+	display: block;
+	overflow-y: auto;
+	height: auto;
+}
+
+#featureList
+{
+	#display: inline-block;
+	float:left;
+	vertical-align: middle;
+	margin-right: 20px; 
+	overflow-y: auto;
+	height: auto;
+}
+
+#pileStashHelp
+{
+	float: right;
+	margin-left: 20px;
+	vertical-align: middle;
+	height: 150;
+	width: 200;
+	display: table-cell;
+}
+
+.selectedFeature
+{
+	box-shadow: inset 0px 0px 3px 1px #F8A102;
+	border-radius: 10px;
+}

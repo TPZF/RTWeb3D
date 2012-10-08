@@ -2,7 +2,7 @@
 /**
  * LayerManager module
  */
-define( [ "jquery.ui", "jquery.ui.selectmenu" ], function($) {
+define( [ "jquery.ui", "PickingManager", "jquery.ui.selectmenu" ], function($, PickingManager) {
 
 /**
  * Private variable for module
@@ -160,11 +160,8 @@ function handleConstellationFeature(constellationLayer, layer )
 				constellations[ currentAbb ].y+=pos3d[1];
 				constellations[ currentAbb ].z+=pos3d[2];
 				constellations[ currentAbb ].nbStars++;
-				
-				// Add point to the chosen constellation
-				constellations[ currentAbb ].coord.push(pos3d[0]);
-				constellations[ currentAbb ].coord.push(pos3d[1]);
-				constellations[ currentAbb ].coord.push(pos3d[2]);
+
+				constellations[ currentAbb ].coord.push(pos3d);
 			}
 		}
 		
@@ -180,11 +177,11 @@ function handleConstellationFeature(constellationLayer, layer )
 				
 				var constellationShape = {
 					geometry: {
-						type: "SimpleLineCollection",
-						coordinates: current.coord
+						type: "Polygon",
+						coordinates: [current.coord]
 					},
 					properties: {
-						name: current.name
+						name: current.name,
 					}
 				};
 				
@@ -328,6 +325,44 @@ function handleStarFeature(starLayer, layer)
 }
 
 /**
+ * 	Load GeoJSON file and add layer to the globe
+ */
+function handleGeoJSONFeature(gwLayer, layer )
+{
+	var jsonFile;
+	
+	$.ajax({
+		type: "GET",
+		url: layer.url,
+		success: function(response){
+			
+			for ( var i in response.features )
+			{
+				var currentFeature = response.features[i];
+				for ( var j in currentFeature.geometry.coordinates[0] )
+				{
+					var currentEqCoord = currentFeature.geometry.coordinates[0][0];
+					
+					// Replace equatorial coordinates by cartesian
+					var pos3d = [];
+					GlobWeb.CoordinateSystem.fromGeoTo3D([currentEqCoord[0], currentEqCoord[1]], pos3d);
+
+					currentFeature.geometry.coordinates[0].push(pos3d);
+					currentFeature.geometry.coordinates[0].splice(0,1);
+				}
+				
+			}
+			
+			gwLayer.addFeatureCollection( response );
+			PickingManager.addPickableLayer( gwLayer );
+		},
+		error: function (xhr, ajaxOptions, thrownError) {
+			console.error( xhr.responseText );
+		}
+	});
+}
+
+/**
  *	Create layer from configuration file
  */
 function createLayerFromConf(layer) {
@@ -339,11 +374,10 @@ function createLayerFromConf(layer) {
 		case "star":
 			// Create style
 			var options = {};
-			options.style = new GlobWeb.FeatureStyle();
+			options.style = new GlobWeb.FeatureStyle( {opacity: layer.opacity / 100.} );
 			options.name = layer.name;
 			options.attribution = layer.attribution;
 			options.visible = layer.visible;
-			options.opacity = layer.opacity / 100.;
 			
 			gwLayer = new GlobWeb.VectorLayer(options);
 			handleStarFeature( gwLayer, layer );		
@@ -351,11 +385,10 @@ function createLayerFromConf(layer) {
 		case "constellation":
 			// Create style
 			var options = {};
-			options.style = new GlobWeb.FeatureStyle();
+			options.style = new GlobWeb.FeatureStyle( { strokeColor: [0.03125, 0.23046875, 0.65625, 1.], rendererHint: "Basic", opacity: layer.opacity / 100. });
 			options.name = layer.name;
 			options.attribution = layer.attribution;
 			options.visible = layer.visible;
-			options.opacity = layer.opacity / 100.;
 			
 			gwLayer = new GlobWeb.VectorLayer(options);
 			handleConstellationFeature( gwLayer, layer );			
@@ -365,6 +398,17 @@ function createLayerFromConf(layer) {
 			break;
 		case "healpixGrid":
 			gwLayer = new GlobWeb.TileWireframeLayer( {visible: layer.visible});
+			break;
+		case "GeoJSON":
+			// Create style
+			var options = {};
+			options.style = new GlobWeb.FeatureStyle({ rendererHint: "Basic", opacity: layer.opacity});
+			options.name = layer.name;
+			options.attribution = layer.attribution;
+			options.visible = layer.visible;
+			
+			gwLayer = new GlobWeb.VectorLayer(options);
+			handleGeoJSONFeature( gwLayer, layer );
 			break;
 		default:
 			console.error("Not implemented");
@@ -491,10 +535,7 @@ function initLayers(layers) {
 			
 			// Add to engine
 			gwAdditionalLayers.push( gwLayer );
-			
-			// Constellation & Star layers are added asynchronously
-			if( layer.type != "constellation" || layer.type != "star" )
-				globe.addLayer( gwLayer );
+			globe.addLayer( gwLayer );
 			
 			// Add HTML
 			var currentIndex = nbAddLayers;

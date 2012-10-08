@@ -55,7 +55,6 @@ input#searchSubmit {
 	position:absolute;
 	top: 10px;
 	left: 18px;
-	z-index:5;
 	cursor:pointer;
 }
 

@@ -3,35 +3,39 @@
  * Configuration for require.js
  */
 require.config({
-    paths: {
+	paths: {
 		"jquery": "jquery-1.8.2.min",
 		"jquery.ui": "jquery-ui-1.8.23.custom.min",
 		"GlobWeb": "GlobWeb.min"
-   },
+	},
 	shim: {
 		'jquery': {
-            deps: [],
-            exports: 'jQuery'
-        },
+			deps: [],
+			exports: 'jQuery'
+		},
 		'jquery.ui': {
-            deps: ['jquery'],
-            exports: 'jQuery'
-        },
-	'jquery.ui.selectmenu': {
-            deps: ['jquery.ui'],
-            exports: 'jQuery'
-        },
+			deps: ['jquery'],
+			exports: 'jQuery'
+		},
+		'jquery.ui.selectmenu': {
+			deps: ['jquery.ui'],
+			exports: 'jQuery'
+		},
+		'underscore-min': {
+			deps: ['jquery'],
+			exports: '_'
+		},
 		'GlobWeb': {
-            deps: [],
-            exports: 'GlobWeb'
-        }
+			deps: [],
+			exports: 'GlobWeb'
+		}
 	}
-  });
+});
 
 /**
  * Main module
  */
-require( ["jquery.ui", "LayerManager", "NameResolver", "Utils"], function($, LayerManager, NameResolver, Utils) {
+require( ["jquery.ui", "LayerManager", "NameResolver", "Utils", "PickingManager"], function($, LayerManager, NameResolver, Utils, PickingManager) {
 
 // Console fix	
 window.console||(console={log:function(){}});
@@ -45,9 +49,6 @@ function hideLoading()
 	$('#loading').hide(300);
 }
 
-/**
- *	Function updating fov box
- */
 function updateFov()
 {
 	var fov = navigation.getFov();
@@ -105,7 +106,6 @@ $(function()
 	
 	// Initialize navigation
 	navigation = new GlobWeb.AstroNavigation(globe, {minFov: 0.05});
-	updateFov();
 	
 	// Click event to show equatorial coordinates
 	$("#GlobWebCanvas").click(function(event){
@@ -136,7 +136,10 @@ $(function()
 		LayerManager.init(globe,data.layers);
 	});
 	
-	// Add wheel listeners updating fov box
+	// Create data manager
+	PickingManager.init(globe);
+	
+	updateFov();
 	canvas.addEventListener("DOMMouseScroll",function(e) { e.preventDefault(); updateFov(); },false);
 	canvas.addEventListener("mousewheel",function(e) { e.preventDefault(); updateFov(); },false);
 });
