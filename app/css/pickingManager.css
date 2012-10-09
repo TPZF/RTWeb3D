@@ -10,9 +10,10 @@
 #featureList > div
 {
 	padding: 5px;
+	text-align: center;
 }
 
-#arrow-left {
+.arrow-left {
 	width: 0; 
 	height: 0; 
 	border-top: 10px solid transparent;
@@ -21,6 +22,36 @@
 	position: absolute;
 	left: -11;
 	top: 90;
+}
+
+.arrow-up {
+	width: 0; 
+	height: 0; 
+	border-left: 10px solid transparent;
+	border-right: 10px solid transparent;
+	border-bottom: 10px solid orange;
+	position: absolute;
+	left: 20;
+	top: 90;
+}
+
+.arrow-down {
+	width: 0; 
+	height: 0; 
+	border-left: 10px solid transparent;
+	border-right: 10px solid transparent;
+	border-top: 10px solid orange;
+	position: absolute;
+	left: 280;
+	bottom: -10px;
+}
+
+.arrow-right {
+	width: 0; 
+	height: 0; 
+	border-top: 10px solid transparent;
+	border-bottom: 10px solid transparent;
+	border-left: 10px solid orange;
 }
 
 table.picking {
@@ -49,6 +80,7 @@ table.picking td {
 .closeBtn:hover
 {
 	background:url(../css/images/close_buttonHover.png) no-repeat;
+	cursor:pointer;
 }
 
 .thumbnail
@@ -74,29 +106,19 @@ table.picking td {
 
 #detailedInfo
 {
-	display: block;
-	overflow-y: auto;
-	height: auto;
+	float: right;
 }
 
-#featureList
+#featureListDiv
 {
-	#display: inline-block;
-	float:left;
-	vertical-align: middle;
+	display: inline-block;
 	margin-right: 20px; 
-	overflow-y: auto;
-	height: auto;
 }
 
 #pileStashHelp
 {
 	float: right;
-	margin-left: 20px;
-	vertical-align: middle;
-	height: 150;
-	width: 200;
-	display: table-cell;
+	width: 150px;
 }
 
 .selectedFeature
