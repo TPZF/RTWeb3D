@@ -63,9 +63,14 @@
 		},
 		{
 			"type": "GeoJSON",
-			"name": "Examples",
+			"name": "Search.json",
 			"url": "data/search.json",
 			"visible": true
+		},
+		{
+			"type": "grid",
+			"name": "Equatorial grid(beta)",
+			"visible": false
 		}
 	]
 }
