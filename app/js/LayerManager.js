@@ -2,7 +2,7 @@
 /**
  * LayerManager module
  */
-define( [ "jquery.ui", "PickingManager", "jquery.ui.selectmenu" ], function($, PickingManager) {
+define( [ "jquery.ui", "PickingManager", "underscore-min", "text!../templates/additionalLayer.html", "jquery.ui.selectmenu" ], function($, PickingManager, _, additionalLayerHTMLTemplate) {
 
 /**
  * Private variable for module
@@ -17,6 +17,9 @@ var backgroundLayersIcons = [];
 var nbBackgroundLayers = 0;
 var nbAddLayers = 0;
 
+// Template generating the additional layer div in sidemenu
+var additionalLayerTemplate = _.template(additionalLayerHTMLTemplate);
+
 /**
  * Private functions
  */
@@ -26,12 +29,10 @@ var nbAddLayers = 0;
  */
 function setVisibilityButtonsetLayout()
 {
-	$('.layerVisibilityRadio').each(function(){
+	$('.layerVisibilityRadioDiv').each(function(){
 		var inputOn = $(this).find(".inputOn");
-		console.log( $(this).find(".inputOn" ) );
 		if ( inputOn.is(':checked') )
 		{
-			console.log ( inputOn.siblings('.on') ) ;
 			inputOn.siblings('.on').addClass('ui-state-active');
 		}
 		else
@@ -325,33 +326,40 @@ function handleStarFeature(starLayer, layer)
 }
 
 /**
+ * 	Recompute geometry from equatorial coordinates to cartesian for each feature
+ */
+function recomputeFeaturesGeometry(features)
+{
+	for ( var i in features )
+	{
+		var currentFeature = features[i];
+		for ( var j in currentFeature.geometry.coordinates[0] )
+		{
+			var currentEqCoord = currentFeature.geometry.coordinates[0][0];
+			
+			// Replace equatorial coordinates by cartesian
+			var pos3d = [];
+			GlobWeb.CoordinateSystem.fromGeoTo3D([currentEqCoord[0], currentEqCoord[1]], pos3d);
+
+			currentFeature.geometry.coordinates[0].push(pos3d);
+			currentFeature.geometry.coordinates[0].splice(0,1);
+		}
+		
+	}
+}
+
+
+/**
  * 	Load GeoJSON file and add layer to the globe
  */
 function handleGeoJSONFeature(gwLayer, layer )
 {
-	var jsonFile;
-	
 	$.ajax({
 		type: "GET",
 		url: layer.url,
 		success: function(response){
 			
-			for ( var i in response.features )
-			{
-				var currentFeature = response.features[i];
-				for ( var j in currentFeature.geometry.coordinates[0] )
-				{
-					var currentEqCoord = currentFeature.geometry.coordinates[0][0];
-					
-					// Replace equatorial coordinates by cartesian
-					var pos3d = [];
-					GlobWeb.CoordinateSystem.fromGeoTo3D([currentEqCoord[0], currentEqCoord[1]], pos3d);
-
-					currentFeature.geometry.coordinates[0].push(pos3d);
-					currentFeature.geometry.coordinates[0].splice(0,1);
-				}
-				
-			}
+			recomputeFeaturesGeometry( response.features );
 			
 			gwLayer.addFeatureCollection( response );
 			PickingManager.addPickableLayer( gwLayer );
@@ -380,7 +388,7 @@ function createLayerFromConf(layer) {
 			options.visible = layer.visible;
 			
 			gwLayer = new GlobWeb.VectorLayer(options);
-			handleStarFeature( gwLayer, layer );		
+			handleStarFeature( gwLayer, layer );
 			break;
 		case "constellation":
 			// Create style
@@ -391,7 +399,7 @@ function createLayerFromConf(layer) {
 			options.visible = layer.visible;
 			
 			gwLayer = new GlobWeb.VectorLayer(options);
-			handleConstellationFeature( gwLayer, layer );			
+			handleConstellationFeature( gwLayer, layer );
 			break;
 		case "grid":
 			gwLayer = new GlobWeb.EquatorialGridLayer( {visible: layer.visible} );
@@ -418,36 +426,78 @@ function createLayerFromConf(layer) {
 }
 
 /**
+ * 	Drop event
+ */
+function handleDrop(evt) {
+	evt.stopPropagation();
+	evt.preventDefault();
+
+	var files = evt.dataTransfer.files; // FileList object.
+	
+	// files is a FileList of File objects. List some properties.
+	for (var i = 0, f; f = files[i]; i++) {
+		
+		// TODO don't work with multiple files
+		var name = f.name;
+		
+		// TODO alert if not json
+// 		if (!f.type.match('application/json')) {
+// 			alert('Not a JSON file!');
+// 		}
+
+		var reader = new FileReader();
+		
+		reader.onloadend = function(e) {
+			// Create style
+			var options = {};
+			options.style = new GlobWeb.FeatureStyle({ rendererHint: "Basic"});
+			options.name = name;
+			gwLayer = new GlobWeb.VectorLayer( options );
+			
+			var response = JSON.parse(this.result);
+			recomputeFeaturesGeometry( response.features );
+			gwLayer.addFeatureCollection( response );
+			PickingManager.addPickableLayer( gwLayer );
+			
+			// Add to engine
+			gwAdditionalLayers.push( gwLayer );
+			globe.addLayer( gwLayer );
+			
+			var layer = {visible: true, opacity: 100., name: name}
+			
+			// Add HTML
+			var currentIndex = nbAddLayers;
+			createHtmlForLayer(layer,currentIndex);
+			
+			nbAddLayers++;
+			
+			// Create additional layers visibility button set
+			$( ".layerVisibilityRadioDiv" ).buttonset()
+			
+		};
+		reader.readAsText(f);
+	}
+}
+
+/**
+ * 	Drag over event
+ */
+function handleDragOver(evt) {
+	evt.stopPropagation();
+	evt.preventDefault();
+	evt.dataTransfer.dropEffect = 'copy'; // Explicitly show this is a copy.
+}
+
+/**
  *	Create the Html for addtionnal layers
  */
 function createHtmlForLayer(layer,currentIndex) {
-	var description = layer.description || "";
-	var layerDiv = 
-		'<div class="ui-widget addLayer" value="'+currentIndex+'" id=addLayer_'+currentIndex+'>';
-	
-	// Optionnal icon
-	if ( layer.icon )
-		layerDiv += '<img class="layerIcon" src="'+layer.icon+'" />';
 
-	layerDiv += 	'<label title="'+description+'" for="addLayerInput_'+currentIndex+'">'+layer.name+'</label>\
-			<div class="layerVisibilityRadioDiv">\
-				<input class="inputOff visibilityRadio"' + (layer.visible ? '': 'checked="checked"') +
-					' type="radio" id="hideAddLayer_'+currentIndex+'"\
-					name="visibilityRadio_'+currentIndex+'"/>\
-				<label title="off" class="off" for="hideAddLayer_'+currentIndex+'">OFF</label>\
-				<input class="inputOn visibilityRadio" ' + (layer.visible ? 'checked="checked"': '') +
-					' type="radio" id="showAddLayer_'+currentIndex+'"\
-					name="visibilityRadio_'+currentIndex+'"/>\
-				<label class="on" title="on" for="showAddLayer_'+currentIndex+'">ON</label>\
-			</div>\
-			<div><label for="percentInput_'+currentIndex+'">Opacity: </label><input class="percentInput" type="text" id="percentInput_'+currentIndex+'"" /></div>\
-			<div class="slider" id="slider_'+currentIndex+'"></div>\
-		</div>';
+	var layerDiv = additionalLayerTemplate( { layer: layer, currentIndex: currentIndex } );
 
 	$(layerDiv)
 		.appendTo('#additionalLayers');
 
-		
 	// Slider initialisation
 	$('#slider_'+currentIndex).slider({
 		value: layer.opacity,
@@ -455,10 +505,7 @@ function createHtmlForLayer(layer,currentIndex) {
 		max: 100,
 		step: 20,
 		slide: function( event, ui ) {
-			
 			$( "#percentInput_"+currentIndex ).val( ui.value + "%" );
-			
-			
 			var layerIndex = parseInt( $(this).parent().index() );
 			var layer = gwAdditionalLayers[ layerIndex ];
 			layer.opacity( ui.value/100. );
@@ -473,17 +520,20 @@ function createHtmlForLayer(layer,currentIndex) {
  *	Fill the LayerManager table
  */
 function initLayers(layers) {
-
+	
+	// Necessary to drag&drop option while using jQuery
+	$.event.props.push('dataTransfer');
+	
 	for (var i=0; i<layers.length; i++) {
 		var layer = layers[i];
 		
 		// Define default optionnal parameters
 		if(!layer.opacity)
 			layer.opacity = 100.;
+		if(!layer.description)
+			layer.description = "";
 		
 		gwLayer = createLayerFromConf(layer);
-				
-		var description = layer.description || "";
 		
 		if ( layer.background )
 		{
@@ -553,16 +603,14 @@ function initLayers(layers) {
 		}
 	});
 		
-	// Create background layers button set
+	// Create additional layers visibility button set
 	$( ".layerVisibilityRadioDiv" ).buttonset();
-	
+	setVisibilityButtonsetLayout();
 
 	// Init select menu
 	$('select#backgroundLayers').selectmenu({
 		icons: backgroundLayersIcons
 	});
-	
-	setVisibilityButtonsetLayout();
 	
 	// Background selection visibility event
 	$('#backgroundLayers-menu li').click(function(){
@@ -571,7 +619,7 @@ function initLayers(layers) {
 	});
 
 	// Input additional layers visibility event
-	$('input.visibilityRadio').click(function(){
+	$('#additionalLayers').on('click', 'input.visibilityRadio', function(){
 		var layerIndex = parseInt( $(this).parent().parent().index() );
 		
 		var layer = gwAdditionalLayers[ layerIndex ];
@@ -580,6 +628,10 @@ function initLayers(layers) {
 		
 		$(this).parent().siblings('.slider').slider( isOn ? "enable" : "disable" );
 	});
+	
+	// Setup the drag & drop listeners.
+	$(globe.renderContext.canvas).on('dragover', handleDragOver);
+	$(globe.renderContext.canvas).on('drop', handleDrop);
 }
 
 return {
