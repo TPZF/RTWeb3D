@@ -2,7 +2,7 @@
 /**
  * PickingManager module
  */
-define( [ "jquery.ui", "underscore-min", "text!../jsp/featureList.jsp", "text!../jsp/featureDescription.jsp" ], function($, _, featureListJSP, featureDescriptionJSP) {
+define( [ "jquery.ui", "underscore-min", "text!../templates/featureList.html", "text!../templates/featureDescription.html" ], function($, _, featureListHTMLTemplate, featureDescriptionHTMLTemplate) {
 
 var globe;
 var selection = [];
@@ -16,16 +16,16 @@ var selectedFeatureDiv = '<div id="selectedFeatureDiv" class="ui-widget-content"
 $(selectedFeatureDiv).appendTo('body');
 
 // Template generating the list of selected features
-var featureListTemplate = _.template(featureListJSP);
+var featureListTemplate = _.template(featureListHTMLTemplate);
 
 // Template generating the detailed description of choosen feature
-var featureDescriptionTemplate = _.template(featureDescriptionJSP);
+var featureDescriptionTemplate = _.template(featureDescriptionHTMLTemplate);
 
 // PileStash help HTML
 var pileStashHelp = 	'<div id="pileStashHelp"> Some objects are overlapped <br/> Click on the object stack to see detailed\
 			information about each object.</div>\
 			<div class="closeBtn"></div>\
-			<div id="arrow-left">';
+			<div id="arrow">';
 
 /**
  * 	Selected feature div position calculations
@@ -37,32 +37,80 @@ function computeDivPosition(clientX, clientY)
 {
 	
 	var mousex = clientX; //Get X coodrinates
-        var mousey = clientY; //Get Y coordinates
-        
-        // Adaptative positionning... not implemented yet
-//         tip = $('#selectedFeatureDiv');
-//         var tipWidth = tip.width(); //Find width of tooltip
-//         var tipHeight = 250; //Find height of tooltip
+	var mousey = clientY; //Get Y coordinates
+// 	var arrowx = clientX;
+// 	var arrowy = clientY;
+	
+	// Default : div appers on the right side of pick point
+	$('#selectedFeatureDiv').find('#arrow').addClass('arrow-left');
+	
+	// TODO Adaptative positionning... not implemented yet
+// 	tip = $('#selectedFeatureDiv');
+// 	
+// 	var tipWidth = tip.width(); //Find width of tooltip
+// 	var tipHeight = tip.height(); //Find height of tooltip
 // 
-//         //Distance of element from the right edge of viewport
-//         var tipVisX = $(window).width() - (mousex + tipWidth);
-//         //Distance of element from the bottom of viewport
-//         var tipVisY = $(window).height() - (mousey + tipHeight);
+// 	//Distance of element from the right edge of viewport
+// 	var tipVisX = $(window).width() - (mousex + tipWidth);
+// 	//Distance of element from the bottom of viewport
+// 	var tipVisY = $(window).height() - (mousey + tipHeight);
 // 
-//         if ( tipVisX < 20 ) { //If tooltip exceeds the X coordinate of viewport
-//             
-//             if( tipWidth > clientX - 20 ){
-//                 mousex = 0;
-//             } else {
-//                 mousex = clientX - tipWidth - 20;
-//             }
-//             
-//         } if ( tipVisY < 20 ) { //If tooltip exceeds the Y coordinate of viewport
-//             mousey = clientY - tipHeight - 20;
-//         }
-        //Absolute position the tooltip according to mouse position
+// 	
+// 	if ( tipVisX < 20 )
+// 	{ //If tooltip exceeds the X coordinate of viewport  
+// 		if( tipWidth > clientX - 20 )
+// 		{
+// 			mousex = 0;
+// 		}
+// 		else
+// 		{
+// 			
+// // 			mousex = clientX - tipWidth - 20;
+// 		}
+// 	
+// 	} else {
+// 		arrowy = 90;
+
+// 		
+// 		$('#arrow').css(
+// 			{
+// 				position: 'absolute',
+// 				left: '-11px',
+// 				top: arrowy + 'px',
+// 			}
+// 		);
+// 		
+// 	}
+// 	
+// 	if ( tipVisY < 20 )
+// 	{ //If tooltip exceeds the Y coordinate of viewport
+// 		// TODO
+// 		mousex = clientX - tipWidth/2 - 15;
+// 		mousey = clientY - 5*tipHeight/4 - 50;
+// 		arrowx = tipWidth/2;
+// // 		mousey = clientY - tipHeight - 20;
+// // 		mousex = clientX - tipWidth - 50;
+// 		$('#selectedFeatureDiv').find('#arrow').removeClass('arrow-left');
+// 		$('#selectedFeatureDiv').find('#arrow').addClass('arrow-down');
+// 		
+// 		$('#arrow').css(
+// 			{
+// 				position: 'absolute',
+// 				left: arrowx + 'px',
+// 				top: '',
+// 				bottom: '-10px',
+// 			}
+// 		);
+// 		
+// 	}
+// 	else
+// 	{	
+// 		
+// 	}
+	//Absolute position the tooltip according to mouse position
 //         tip.css({  top: mousey, left: mousex });
 // 	
+
 	mousex+= 50;
 	mousey-= 100;
 	
@@ -75,6 +123,9 @@ function computeDivPosition(clientX, clientY)
 // 			height: tipHeight + 'px'
 		}
 	);
+	
+	
+	
 }
 
 /**
@@ -93,93 +144,97 @@ function init()
 		for ( var i=0; i<pickableLayers.length; i++)
 		{
 			var pickableLayer = pickableLayers[i];
-			var mostRight = [-300.,-300.,-300.];
-			// Search for picked features
-			for ( var j=0; j<pickableLayer.features.length; j++ )
+			
+			if ( pickableLayer._visible )
 			{
-				if ( pointInRing( pickPoint, pickableLayer.features[j]['geometry']['coordinates'][0] ) )
+				// Search for picked features
+				for ( var j=0; j<pickableLayer.features.length; j++ )
 				{
-					newSelection.push( pickableLayer.features[j] );
+					if ( pointInRing( pickPoint, pickableLayer.features[j]['geometry']['coordinates'][0] ) )
+					{
+						newSelection.push( { feature: pickableLayer.features[j], baseStyle: pickableLayer.style } );
+					}
 				}
+			}
+		}
+		
+		if ( isSelectionEqual(newSelection) && newSelection.length != 0 ){
+			
+			// Reset previous selected feature
+			if ( stackSelectionIndex == -1 ) {
+				// Blur all the features
+				for ( var i=0; i < selection.length; i++ ) {
+					pickableLayer.modifyFeatureStyle( selection[i].feature,  selection[i].style );
+				}
+				
+			} else {
+				// Blur only previous feature
+				pickableLayer.modifyFeatureStyle( selection[stackSelectionIndex].feature, selection[stackSelectionIndex].style );
+				$('#featureList div:eq('+stackSelectionIndex+')').removeClass('selectedFeature');
 			}
 			
-			if ( isSelectionEqual(newSelection) && newSelection.length != 0 ){
+			stackSelectionIndex++;
+			
+			// Select individual feature
+			if ( stackSelectionIndex == selection.length ) {
+				// Blur only last feature
+				pickableLayer.modifyFeatureStyle( selection[stackSelectionIndex-1].feature, selection[stackSelectionIndex-1].style );
+				selection = [];
+				stackSelectionIndex = -1;
+				$('#selectedFeatureDiv').fadeOut(500);
+			} else {
+				// Focus current feature
+				pickableLayer.modifyFeatureStyle( selection[stackSelectionIndex].feature, selectedStyle );
 				
-				// Reset previous selected feature
-				if ( stackSelectionIndex == -1 ) {
-					// Blur all the features
-					for ( var i=0; i < selection.length; i++ ) {
-						pickableLayer.modifyFeatureStyle( selection[i], pickableLayer.style );
-					}
-					
-				} else {
-					// Blur only previous feature
-					pickableLayer.modifyFeatureStyle( selection[stackSelectionIndex], pickableLayer.style );
-					$('#featureList div:eq('+stackSelectionIndex+')').removeClass('selectedFeature');
-				}
-				
-				stackSelectionIndex++;
-				
-				// Select individual feature
-				if ( stackSelectionIndex == selection.length ) {
-					// Blur only last feature
-					pickableLayer.modifyFeatureStyle( selection[stackSelectionIndex-1], pickableLayer.style );
-					selection = [];
-					stackSelectionIndex = -1;
-					$('#selectedFeatureDiv').fadeOut(500);
-				} else {
-					// Focus current feature
-					pickableLayer.modifyFeatureStyle( selection[stackSelectionIndex], selectedStyle );
-					
-					$('#selectedFeatureDiv').fadeOut(300, function(){
-						createHTMLSelectedFeatureDiv( selection[stackSelectionIndex] );
-						computeDivPosition(clientX, clientY);
-						$('#featureList div:eq('+stackSelectionIndex+')').addClass('selectedFeature');
-						$(this).fadeIn(300);
-					});
-				}
+				$('#selectedFeatureDiv').fadeOut(300, function(){
+					createHTMLSelectedFeatureDiv( selection[stackSelectionIndex].feature );
+					computeDivPosition(clientX, clientY);
+					$('#featureList div:eq('+stackSelectionIndex+')').addClass('selectedFeature');
+					$(this).fadeIn(300);
+				});
 			}
-			else
+		}
+		else
+		{
+			// Remove selected style for previous selection
+			for ( var i=0; i < selection.length; i++ ) {
+				pickableLayer.modifyFeatureStyle( selection[i].feature, selection[i].style );
+			}
+			
+			// Add selected style for new selection
+			for ( var i=0; i < newSelection.length; i++ ) {
+				pickableLayer.modifyFeatureStyle( newSelection[i].feature, selectedStyle );
+			}
+			
+			if ( newSelection.length > 0 )
 			{
-				// Remove selected style for previous selection
-				for ( var i=0; i < selection.length; i++ ) {
-					pickableLayer.modifyFeatureStyle( selection[i], pickableLayer.style );
-				}
-				
-				// Add selected style for new selection
-				for ( var i=0; i < newSelection.length; i++ ) {
-					pickableLayer.modifyFeatureStyle( newSelection[i], selectedStyle );
-				}
-				
-				if ( newSelection.length > 0 )
+				// Create dialogue for the first selection call
+				if ( newSelection.length > 1 )
 				{
-					// Create dialogue for the first selection call
-					if ( newSelection.length > 1 )
-					{
-						createHTMLSelectionDiv( newSelection );
-						computeDivPosition(clientX, clientY);
-						$('#selectedFeatureDiv').fadeIn(500);
-						stackSelectionIndex = -1;
-					}
-					else
-					{
-						// only one layer, no pile needed, create feature dialogue
-						stackSelectionIndex = 0;
-						createHTMLSelectedFeatureList( newSelection );
-						createHTMLSelectedFeatureDiv( newSelection[stackSelectionIndex] );
-						computeDivPosition(clientX, clientY);
-						$('#featureList div:eq('+stackSelectionIndex+')').addClass('selectedFeature');
-						$('#selectedFeatureDiv').fadeIn(500);
-					}
-				} else {
-					$('#selectedFeatureDiv').fadeOut(500);
+					createHTMLSelectionDiv( newSelection );
+					computeDivPosition(clientX, clientY);
+					$('#selectedFeatureDiv').fadeIn(500);
+					stackSelectionIndex = -1;
 				}
-					
-				selection = newSelection;
+				else
+				{
+					// only one layer, no pile needed, create feature dialogue
+					stackSelectionIndex = 0;
+					createHTMLSelectedFeatureList( newSelection );
+					createHTMLSelectedFeatureDiv( newSelection[stackSelectionIndex].feature );
+					computeDivPosition(clientX, clientY);
+					$('#featureList div:eq('+stackSelectionIndex+')').addClass('selectedFeature');
+					$('#selectedFeatureDiv').fadeIn(500);
+				}
+			} else {
+				$('#selectedFeatureDiv').fadeOut(500);
 			}
+				
+			selection = newSelection;
 		}
 	});
 	
+	// Close button event
 	$('#selectedFeatureDiv').on("click",'.closeBtn', function(event){
 		$(this).parent().fadeOut(300);
 	});
@@ -194,7 +249,7 @@ function isSelectionEqual( newSelection )
 {
 	if ( selection.length == newSelection.length) {
 		for ( var i=0; i < selection.length; i++ ) {
-			if ( selection[i] != newSelection[i] )
+			if ( selection[i].feature != newSelection[i].feature )
 				return false;
 		}
 		return true;
@@ -253,12 +308,15 @@ function createHTMLSelectedFeatureDiv( feature )
 	
 	var output = featureDescriptionTemplate( { feature: feature } );
 	$('#selectedFeatureDiv').html( featureListHTML + output);
+// 	$('#selectedFeatureDiv').css("height", $('#selectedFeatureDiv').height()); // explicitly update height of div
 }
 
 function createHTMLSelectionDiv( selection )
 {
 	createHTMLSelectedFeatureList( selection );
 	$('#selectedFeatureDiv').html( featureListHTML + pileStashHelp);
+	
+// 	$('#selectedFeatureDiv').css("height", $('#selectedFeatureDiv').height()); // explicitly update height of div
 }
 
 return {
