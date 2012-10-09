@@ -136,7 +136,7 @@ function init()
 	// Picking event
 	$('canvas').click(function(event){
 		
-		var pickPoint = globe.renderContext.get3DFromPixel(event.clientX, event.clientY);
+		var pickPoint = globe.getLonLatFromPixel(event.clientX, event.clientY);
 		var newSelection = [];
 		var clientX = event.clientX;
 		var clientY = event.clientY;
@@ -145,7 +145,7 @@ function init()
 		{
 			var pickableLayer = pickableLayers[i];
 			
-			if ( pickableLayer._visible )
+			if ( pickableLayer.visible() )
 			{
 				// Search for picked features
 				for ( var j=0; j<pickableLayer.features.length; j++ )
@@ -239,8 +239,13 @@ function init()
 		$(this).parent().fadeOut(300);
 	});
 	
-}
+	// Quicklook event
+	$('#selectedFeatureDiv').on("click", '#quicklook', function(event){
+		var fullImgURL = event.srcElement.alt;
+		window.open(fullImgURL);
+	});
 	
+}
 
 /**
  * 	Test if a new selection is equal to the previous selection

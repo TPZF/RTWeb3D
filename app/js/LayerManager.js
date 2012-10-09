@@ -162,7 +162,7 @@ function handleConstellationFeature(constellationLayer, layer )
 				constellations[ currentAbb ].z+=pos3d[2];
 				constellations[ currentAbb ].nbStars++;
 
-				constellations[ currentAbb ].coord.push(pos3d);
+				constellations[ currentAbb ].coord.push([RA, Decl]);
 			}
 		}
 		
@@ -326,23 +326,18 @@ function handleStarFeature(starLayer, layer)
 }
 
 /**
- * 	Recompute geometry from equatorial coordinates to cartesian for each feature
+ * 	Recompute geometry from equatorial coordinates to geo for each feature
  */
 function recomputeFeaturesGeometry(features)
 {
 	for ( var i in features )
 	{
 		var currentFeature = features[i];
-		for ( var j in currentFeature.geometry.coordinates[0] )
+		var ring = currentFeature.geometry.coordinates[0];
+		for ( var j = 0; j < ring.length; j++ )
 		{
-			var currentEqCoord = currentFeature.geometry.coordinates[0][0];
-			
-			// Replace equatorial coordinates by cartesian
-			var pos3d = [];
-			GlobWeb.CoordinateSystem.fromGeoTo3D([currentEqCoord[0], currentEqCoord[1]], pos3d);
-
-			currentFeature.geometry.coordinates[0].push(pos3d);
-			currentFeature.geometry.coordinates[0].splice(0,1);
+			if ( ring[j][0] > 180 )
+				ring[j][0] -= 360;
 		}
 		
 	}
@@ -630,8 +625,8 @@ function initLayers(layers) {
 	});
 	
 	// Setup the drag & drop listeners.
-	$(globe.renderContext.canvas).on('dragover', handleDragOver);
-	$(globe.renderContext.canvas).on('drop', handleDrop);
+	$('canvas').on('dragover', handleDragOver);
+	$('canvas').on('drop', handleDrop);
 }
 
 return {

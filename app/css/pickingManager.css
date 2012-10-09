@@ -1,3 +1,8 @@
+#quicklook
+{
+	cursor: pointer;
+}
+
 #selectedFeatureDiv
 {
 	box-shadow: 0 0 6px #FF9E52, inset 0 1px 2px rgba(0, 0, 0, 0.08);
@@ -125,4 +130,10 @@ table.picking td {
 {
 	box-shadow: inset 0px 0px 3px 1px #F8A102;
 	border-radius: 10px;
+}
+
+#services
+{
+	margin-top: 10px;
+	text-align: center;
 }
