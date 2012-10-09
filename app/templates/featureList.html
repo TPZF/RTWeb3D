@@ -1,0 +1,9 @@
+<div id="featureListDiv">
+<u>Overlapped objects:</u><br/>
+	<div id="featureList">
+		<% for ( var i=0; i<selection.length; i++ )
+		{ %>
+			<div> <%= selection[i].feature.properties.object %> <br/></div>
+		<% } %>
+	</div>
+</div>

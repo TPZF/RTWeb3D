@@ -64,7 +64,7 @@
 		{
 			"type": "GeoJSON",
 			"name": "Examples",
-			"url": "data/examples.json",
+			"url": "data/search.json",
 			"visible": true
 		}
 	]
