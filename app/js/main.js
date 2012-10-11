@@ -139,6 +139,16 @@ $(function()
 	// Create data manager
 	PickingManager.init(globe);
 	
+	// Fade hover styled image effect
+	$("body").on("mouseenter", "img.defaultImg", function () {
+		//stuff to do on mouseover
+		$(this).stop().animate({"opacity": "0"}, 300);
+	});
+	$("body").on("mouseleave", "img.defaultImg", function () {
+		//stuff to do on mouseleave
+		$(this).stop().animate({"opacity": "1"}, 300);
+	});
+	
 	updateFov();
 	canvas.addEventListener("DOMMouseScroll",function(e) { e.preventDefault(); updateFov(); },false);
 	canvas.addEventListener("mousewheel",function(e) { e.preventDefault(); updateFov(); },false);

@@ -7,14 +7,18 @@
 
 <label title="<%= layer.description %>" for="addLayerInput_<%= currentIndex %>"><%= layer.name %></label>
 	<div class="layerVisibilityRadioDiv">
-		<input class="inputOff visibilityRadio" <%= ( layer.visible ? '': 'checked="checked"') %>
+		<input class="inputOff visibilityRadio" <%= ( layer.visible() ? '': 'checked="checked"') %>
 			type="radio" id="hideAddLayer_<%= currentIndex %>"
 			name="visibilityRadio_<%= currentIndex %>"/>
 		<label title="off" class="off" for="hideAddLayer_<%= currentIndex %>">OFF</label>
-		<input class="inputOn visibilityRadio" <%= ( layer.visible ? 'checked="checked"': '') %>
+		<input class="inputOn visibilityRadio" <%= ( layer.visible() ? 'checked="checked"': '') %>
 			 type="radio" id="showAddLayer_<%= currentIndex %>"
 			name="visibilityRadio_<%= currentIndex %>"/>
 		<label class="on" title="on" for="showAddLayer_<%= currentIndex %>">ON</label>
+	</div>
+	<div class="deleteLayer">
+		<img src="css/images/delete.png" alt="" class="defaultImg" />
+		<img src="css/images/deleteHover.png" alt="" class="hoverImg" />
 	</div>
 	<div><label for="percentInput_<%= currentIndex %>">Opacity: </label><input class="percentInput" type="text" id="percentInput_<%= currentIndex %>"" /></div>
 	<div class="slider" id="slider_<%= currentIndex %>"></div>

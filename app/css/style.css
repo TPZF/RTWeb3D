@@ -67,6 +67,24 @@ body
 }
 
 /**
+ * 	Stylized fade on hover effect
+ */
+.defaultImg
+{
+	position: absolute;
+	z-index: 4;
+	top: 0;
+	right: 0;
+}
+
+.hoverImg
+{
+	position: absolute;
+	top: 0;
+	right: 0;
+}
+
+/**
  * Small modifications on jQuery UI
  */
 .ui-widget
