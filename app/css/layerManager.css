@@ -1,3 +1,14 @@
+/*** Background layers ***/
+
+#layerManager fieldset
+{
+	border: none;
+}
+
+#layerManager fieldset select {
+	min-width: 150px;
+}
+
 #backgroundLayers
 {
 	margin-right: inherit;
@@ -6,10 +17,35 @@
 	text-align: center;
 }
 
+#backgroundLayers > label
+{
+	margin-left: 30px;
+	display: inline-block;
+}
+
+a#backgroundLayers{ height: 2.8em;}
+#backgroundLayers li a, body a#backgroundLayers span.ui-selectmenu-status
+{
+	line-height: 2em;
+	padding-left: 30px !important;
+}
+
+.unknown .ui-selectmenu-item-icon {
+	background: url(../css/images/unknown.png) 0 0 no-repeat;
+}
+
+/*** Additionnal layers ***/
+
 .addLayer
 {
 	position: relative;
 	margin-bottom: 15px;
+}
+
+.addLayer > label
+{
+	width: 120px;
+	display: inline-block;
 }
 
 .percentInput
@@ -21,3 +57,33 @@
 	font-weight:bold;
 	value: 20%;
 }
+
+.layerVisibilityRadioDiv
+{
+	position: absolute;
+	display: inline-block;
+	right: 0px;
+}
+
+.on .ui-button-text, .off .ui-button-text
+{
+	padding: .2em .4em;
+}
+
+.deleteLayer
+{
+	position: absolute;
+	display: inline;
+	right: -20px;
+	top: 1px;
+	cursor: pointer;
+}
+
+/*** Common ***/
+
+.layerIcon
+{
+	margin-right: 5px;
+	margin-left: 5px;
+}
+
