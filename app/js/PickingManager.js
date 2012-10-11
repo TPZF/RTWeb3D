@@ -224,6 +224,7 @@ function init()
 					createHTMLSelectedFeatureDiv( newSelection[stackSelectionIndex].feature );
 					computeDivPosition(clientX, clientY);
 					$('#featureList div:eq('+stackSelectionIndex+')').addClass('selectedFeature');
+					
 					$('#selectedFeatureDiv').fadeIn(500);
 				}
 			} else {
@@ -244,6 +245,34 @@ function init()
 		var fullImgURL = event.srcElement.alt;
 		window.open(fullImgURL);
 	});
+	
+	// Arrow events
+	$('#selectedFeatureDiv').on("mousedown", '#scroll-arrow-down.clickable', function(event){
+		$('#scroll-arrow-up').css("border-bottom-color", "orange").addClass("clickable");
+		var topValue = parseInt($('#featureList').css("top"), 10) - 60;
+		var height = $('#featureList').height();
+		var maxHeight = parseInt( $('#featureListDiv').css("max-height") );
+		if (topValue <= -(height - maxHeight))
+		{
+			topValue = -(height - maxHeight);
+			$(this).css("border-top-color", "gray").removeClass("clickable");
+
+		}
+		$('#featureList').stop().animate({top: topValue +"px"}, 300);
+	}).disableSelection();
+	
+	$('#selectedFeatureDiv').on("mousedown", '#scroll-arrow-up.clickable', function(event){
+
+		$('#scroll-arrow-down').css("border-top-color", "orange").addClass("clickable");
+		
+		var topValue = parseInt($('#featureList').css("top"), 10) + 60;
+		if (topValue >= 0)
+		{
+			topValue = 0;
+			$(this).css("border-bottom-color", "gray").removeClass("clickable");
+		}
+		$('#featureList').stop().animate({top: topValue +"px"}, 300);
+	}).disableSelection();
 	
 }
 
@@ -299,7 +328,10 @@ function pointInRing( point, ring )
  */
 function createHTMLSelectedFeatureList( selection )
 {	
-	featureListHTML = featureListTemplate( { selection: selection });
+	var arrowVisibility = false;
+	if ( selection.length > 10 )
+		arrowVisibility = true;
+	featureListHTML = featureListTemplate( { selection: selection, arrowVisibility: arrowVisibility });
 }
 
 /**
@@ -313,6 +345,7 @@ function createHTMLSelectedFeatureDiv( feature )
 	
 	var output = featureDescriptionTemplate( { feature: feature } );
 	$('#selectedFeatureDiv').html( featureListHTML + output);
+	
 // 	$('#selectedFeatureDiv').css("height", $('#selectedFeatureDiv').height()); // explicitly update height of div
 }
 
@@ -337,6 +370,15 @@ return {
 	addPickableLayer: function( layer )
 	{
 		pickableLayers.push( layer );
+	},
+	
+	removePickableLayer: function( layer )
+	{
+		for ( var i=0; i<pickableLayers.length; i++ )
+		{
+			if( layer.id == pickableLayers[i].id )
+				pickableLayers.splice( i, 1 );
+		}
 	}
 };
 

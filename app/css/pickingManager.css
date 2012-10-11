@@ -29,34 +29,27 @@
 	top: 90;
 }
 
-.arrow-up {
+.scroll-arrow-up {
 	width: 0; 
 	height: 0; 
 	border-left: 10px solid transparent;
 	border-right: 10px solid transparent;
-	border-bottom: 10px solid orange;
-	position: absolute;
-	left: 20;
-	top: 90;
+	border-bottom: 10px solid gray;
+	margin-bottom: 10px;
+	margin-top: 10px;
+	margin-left: 50px;
 }
 
-.arrow-down {
+.scroll-arrow-down {
 	width: 0; 
 	height: 0; 
 	border-left: 10px solid transparent;
 	border-right: 10px solid transparent;
 	border-top: 10px solid orange;
-	position: absolute;
-	left: 280;
-	bottom: -10px;
-}
-
-.arrow-right {
-	width: 0; 
-	height: 0; 
-	border-top: 10px solid transparent;
-	border-bottom: 10px solid transparent;
-	border-left: 10px solid orange;
+	margin-bottom: 10px;
+	margin-top: 10px;
+	margin-left: 50px;
+	
 }
 
 table.picking {
@@ -74,18 +67,11 @@ table.picking td {
 
 .closeBtn
 {
-	background:url(../css/images/close_button.png) no-repeat;
-	width:30px;
-	height:30px;
 	position: absolute;
 	top: -15px;
 	right: -15px;
-}
-
-.closeBtn:hover
-{
-	background:url(../css/images/close_buttonHover.png) no-repeat;
 	cursor:pointer;
+	display: inline;
 }
 
 .thumbnail
@@ -111,13 +97,31 @@ table.picking td {
 
 #detailedInfo
 {
-	float: right;
+	display: inline-block;
+	max-height: 400px;
+	overflow-y: auto;
+	overflow-x: auto;
+	max-width: 400;
+}
+
+#overlappedObjects
+{
+	display: inline-block;
+	margin-right: 20px; 
+	vertical-align: top;
+
 }
 
 #featureListDiv
 {
-	display: inline-block;
-	margin-right: 20px; 
+	max-height: 300px;
+	overflow-y: hidden;
+}
+
+#featureList
+{
+	position: relative;
+	top: 0px;
 }
 
 #pileStashHelp
