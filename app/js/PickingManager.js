@@ -5,6 +5,8 @@
 define( [ "jquery.ui", "underscore-min", "text!../templates/featureList.html", "text!../templates/featureDescription.html" ], function($, _, featureListHTMLTemplate, featureDescriptionHTMLTemplate) {
 
 var globe;
+var navigation;
+
 var selection = [];
 var stackSelectionIndex = -1;
 var selectedStyle = new GlobWeb.FeatureStyle( { strokeColor: [1., 1., 0., 1.] } );
@@ -12,7 +14,15 @@ var pickableLayers = [];
 var featureListHTML = '';
 
 // Create selected feature div
-var selectedFeatureDiv = '<div id="selectedFeatureDiv" class="ui-widget-content" style="display: none"></div>';
+var selectedFeatureDiv = '<div id="selectedFeatureDiv" class="ui-widget-content" style="display: none">\
+				<div id="leftDiv"></div>\
+				<div id="rightDiv"></div>\
+				<div class="closeBtn">\
+					<img src="css/images/close_button.png" alt="" class="defaultImg" />\
+					<img src="css/images/close_buttonHover.png" alt="" class="hoverImg" />\
+				</div>\
+				<div id="arrow">\
+			</div>';
 $(selectedFeatureDiv).appendTo('body');
 
 // Template generating the list of selected features
@@ -23,9 +33,7 @@ var featureDescriptionTemplate = _.template(featureDescriptionHTMLTemplate);
 
 // PileStash help HTML
 var pileStashHelp = 	'<div id="pileStashHelp"> Some objects are overlapped <br/> Click on the object stack to see detailed\
-			information about each object.</div>\
-			<div class="closeBtn"></div>\
-			<div id="arrow">';
+			information about each object.</div>';
 
 /**
  * 	Selected feature div position calculations
@@ -38,78 +46,6 @@ function computeDivPosition(clientX, clientY)
 	
 	var mousex = clientX; //Get X coodrinates
 	var mousey = clientY; //Get Y coordinates
-// 	var arrowx = clientX;
-// 	var arrowy = clientY;
-	
-	// Default : div appers on the right side of pick point
-	$('#selectedFeatureDiv').find('#arrow').addClass('arrow-left');
-	
-	// TODO Adaptative positionning... not implemented yet
-// 	tip = $('#selectedFeatureDiv');
-// 	
-// 	var tipWidth = tip.width(); //Find width of tooltip
-// 	var tipHeight = tip.height(); //Find height of tooltip
-// 
-// 	//Distance of element from the right edge of viewport
-// 	var tipVisX = $(window).width() - (mousex + tipWidth);
-// 	//Distance of element from the bottom of viewport
-// 	var tipVisY = $(window).height() - (mousey + tipHeight);
-// 
-// 	
-// 	if ( tipVisX < 20 )
-// 	{ //If tooltip exceeds the X coordinate of viewport  
-// 		if( tipWidth > clientX - 20 )
-// 		{
-// 			mousex = 0;
-// 		}
-// 		else
-// 		{
-// 			
-// // 			mousex = clientX - tipWidth - 20;
-// 		}
-// 	
-// 	} else {
-// 		arrowy = 90;
-
-// 		
-// 		$('#arrow').css(
-// 			{
-// 				position: 'absolute',
-// 				left: '-11px',
-// 				top: arrowy + 'px',
-// 			}
-// 		);
-// 		
-// 	}
-// 	
-// 	if ( tipVisY < 20 )
-// 	{ //If tooltip exceeds the Y coordinate of viewport
-// 		// TODO
-// 		mousex = clientX - tipWidth/2 - 15;
-// 		mousey = clientY - 5*tipHeight/4 - 50;
-// 		arrowx = tipWidth/2;
-// // 		mousey = clientY - tipHeight - 20;
-// // 		mousex = clientX - tipWidth - 50;
-// 		$('#selectedFeatureDiv').find('#arrow').removeClass('arrow-left');
-// 		$('#selectedFeatureDiv').find('#arrow').addClass('arrow-down');
-// 		
-// 		$('#arrow').css(
-// 			{
-// 				position: 'absolute',
-// 				left: arrowx + 'px',
-// 				top: '',
-// 				bottom: '-10px',
-// 			}
-// 		);
-// 		
-// 	}
-// 	else
-// 	{	
-// 		
-// 	}
-	//Absolute position the tooltip according to mouse position
-//         tip.css({  top: mousey, left: mousex });
-// 	
 
 	mousex+= 50;
 	mousey-= 100;
@@ -120,12 +56,15 @@ function computeDivPosition(clientX, clientY)
 			position: 'absolute',
 			left: mousex + 'px',
 			top: mousey + 'px'
-// 			height: tipHeight + 'px'
 		}
 	);
-	
-	
-	
+}
+
+function blurAll( selection )
+{
+	for ( var i=0; i < selection.length; i++ ) {
+		selection[i].layer.modifyFeatureStyle( selection[i].feature, selection[i].layer.style );
+	}
 }
 
 /**
@@ -134,7 +73,8 @@ function computeDivPosition(clientX, clientY)
 function init()
 {
 	// Picking event
-	$('canvas').click(function(event){
+	$('canvas').on("mousedown",function(event){
+		
 		
 		var pickPoint = globe.getLonLatFromPixel(event.clientX, event.clientY);
 		var newSelection = [];
@@ -152,7 +92,7 @@ function init()
 				{
 					if ( pointInRing( pickPoint, pickableLayer.features[j]['geometry']['coordinates'][0] ) )
 					{
-						newSelection.push( { feature: pickableLayer.features[j], baseStyle: pickableLayer.style } );
+						newSelection.push( { feature: pickableLayer.features[j], layer: pickableLayer } );
 					}
 				}
 			}
@@ -160,35 +100,36 @@ function init()
 		
 		if ( isSelectionEqual(newSelection) && newSelection.length != 0 ){
 			
+			var selectedFeature = selection[stackSelectionIndex];
 			// Reset previous selected feature
 			if ( stackSelectionIndex == -1 ) {
 				// Blur all the features
-				for ( var i=0; i < selection.length; i++ ) {
-					pickableLayer.modifyFeatureStyle( selection[i].feature,  selection[i].style );
-				}
+				blurAll( selection );
 				
 			} else {
 				// Blur only previous feature
-				pickableLayer.modifyFeatureStyle( selection[stackSelectionIndex].feature, selection[stackSelectionIndex].style );
+				selectedFeature.layer.modifyFeatureStyle( selectedFeature.feature, selectedFeature.layer.style );
 				$('#featureList div:eq('+stackSelectionIndex+')').removeClass('selectedFeature');
 			}
 			
 			stackSelectionIndex++;
+			selectedFeature = selection[stackSelectionIndex];
 			
 			// Select individual feature
 			if ( stackSelectionIndex == selection.length ) {
 				// Blur only last feature
-				pickableLayer.modifyFeatureStyle( selection[stackSelectionIndex-1].feature, selection[stackSelectionIndex-1].style );
+				selection[stackSelectionIndex-1].layer.modifyFeatureStyle( selection[stackSelectionIndex-1].feature, selection[stackSelectionIndex-1].layer.style );
 				selection = [];
+				$('#selectedFeatureDiv').fadeOut(300);
 				stackSelectionIndex = -1;
-				$('#selectedFeatureDiv').fadeOut(500);
 			} else {
 				// Focus current feature
-				pickableLayer.modifyFeatureStyle( selection[stackSelectionIndex].feature, selectedStyle );
+				selectedFeature.layer.modifyFeatureStyle( selectedFeature.feature, selectedStyle );
 				
-				$('#selectedFeatureDiv').fadeOut(300, function(){
-					createHTMLSelectedFeatureDiv( selection[stackSelectionIndex].feature );
-					computeDivPosition(clientX, clientY);
+				
+				$('#rightDiv').fadeOut(300, function(){
+					createHTMLSelectedFeatureDiv( selectedFeature.feature );
+// 					computeDivPosition(clientX, clientY);
 					$('#featureList div:eq('+stackSelectionIndex+')').addClass('selectedFeature');
 					$(this).fadeIn(300);
 				});
@@ -197,22 +138,25 @@ function init()
 		else
 		{
 			// Remove selected style for previous selection
-			for ( var i=0; i < selection.length; i++ ) {
-				pickableLayer.modifyFeatureStyle( selection[i].feature, selection[i].style );
-			}
+			blurAll( selection );
 			
 			// Add selected style for new selection
 			for ( var i=0; i < newSelection.length; i++ ) {
-				pickableLayer.modifyFeatureStyle( newSelection[i].feature, selectedStyle );
+				newSelection[i].layer.modifyFeatureStyle( newSelection[i].feature, selectedStyle );
 			}
 			
 			if ( newSelection.length > 0 )
 			{
+				// View on center
+				// TODO zoomTo --> moveTo
+				// TODO make appear selectedFeatureDiv AFTER once moveTo finished
+				navigation.zoomTo( pickPoint, globe.renderContext.fov, 2000, globe.renderContext.fov );
 				// Create dialogue for the first selection call
 				if ( newSelection.length > 1 )
 				{
-					createHTMLSelectionDiv( newSelection );
-					computeDivPosition(clientX, clientY);
+					createHTMLSelectedFeatureList( newSelection );
+					createHTMLSelectionHelp();
+					computeDivPosition( globe.renderContext.canvas.width/2, globe.renderContext.canvas.height/2);
 					$('#selectedFeatureDiv').fadeIn(500);
 					stackSelectionIndex = -1;
 				}
@@ -222,7 +166,7 @@ function init()
 					stackSelectionIndex = 0;
 					createHTMLSelectedFeatureList( newSelection );
 					createHTMLSelectedFeatureDiv( newSelection[stackSelectionIndex].feature );
-					computeDivPosition(clientX, clientY);
+					computeDivPosition( globe.renderContext.canvas.width/2, globe.renderContext.canvas.height/2);
 					$('#featureList div:eq('+stackSelectionIndex+')').addClass('selectedFeature');
 					
 					$('#selectedFeatureDiv').fadeIn(500);
@@ -230,13 +174,15 @@ function init()
 			} else {
 				$('#selectedFeatureDiv').fadeOut(500);
 			}
-				
+			
 			selection = newSelection;
 		}
 	});
 	
 	// Close button event
 	$('#selectedFeatureDiv').on("click",'.closeBtn', function(event){
+		blurAll( selection );
+		selection = [];
 		$(this).parent().fadeOut(300);
 	});
 	
@@ -322,7 +268,7 @@ function pointInRing( point, ring )
 }
 
 /**
- * 	Create HTML code of features selection
+ * 	Insert HTML code of selected features
  * 
  * 	@param {<GlobWeb.Feature>[]} seleciton Array of features
  */
@@ -332,10 +278,11 @@ function createHTMLSelectedFeatureList( selection )
 	if ( selection.length > 10 )
 		arrowVisibility = true;
 	featureListHTML = featureListTemplate( { selection: selection, arrowVisibility: arrowVisibility });
+	$('#leftDiv').html( featureListHTML );
 }
 
 /**
- * 	Create HTML code of choosen feature
+ * 	Insert HTML code of choosen feature
  */
 function createHTMLSelectedFeatureDiv( feature )
 {	
@@ -344,24 +291,24 @@ function createHTMLSelectedFeatureDiv( feature )
 // 	var proxyUrl = feature.properties.thumbnail.slice(index);
 	
 	var output = featureDescriptionTemplate( { feature: feature } );
-	$('#selectedFeatureDiv').html( featureListHTML + output);
-	
-// 	$('#selectedFeatureDiv').css("height", $('#selectedFeatureDiv').height()); // explicitly update height of div
+	$('#rightDiv').html( output );
 }
 
-function createHTMLSelectionDiv( selection )
+/**
+ * 	Insert HTML code of help to iterate on each feature
+ */
+function createHTMLSelectionHelp( selection )
 {
-	createHTMLSelectedFeatureList( selection );
-	$('#selectedFeatureDiv').html( featureListHTML + pileStashHelp);
-	
-// 	$('#selectedFeatureDiv').css("height", $('#selectedFeatureDiv').height()); // explicitly update height of div
+	$('#rightDiv').html( pileStashHelp );
 }
 
 return {
-	init: function(gl) 
+	init: function( gl, nav ) 
 	{
 		// Store the globe in the global module variable
 		globe = gl;
+
+		navigation = nav;
 		
 		// Call init
 		init();

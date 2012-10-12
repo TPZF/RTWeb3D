@@ -52,9 +52,6 @@
 	
 }
 
-table.picking {
-}
-
 .selectValue
 {
 	color: white;
@@ -85,33 +82,6 @@ table.picking td {
 	#height: 25%;
 }
 
-#selectionListDiv
-{
-	display: inline-block;
-	width: auto;
-	border-radius: 10px;
-	padding: 15px;
-	box-shadow: 0 0 6px #FF9E52, inset 0 1px 2px rgba(0, 0, 0, 0.08);
-	border:solid 1px orange;
-}
-
-#detailedInfo
-{
-	display: inline-block;
-	max-height: 400px;
-	overflow-y: auto;
-	overflow-x: auto;
-	max-width: 400;
-}
-
-#overlappedObjects
-{
-	display: inline-block;
-	margin-right: 20px; 
-	vertical-align: top;
-
-}
-
 #featureListDiv
 {
 	max-height: 300px;
@@ -126,7 +96,6 @@ table.picking td {
 
 #pileStashHelp
 {
-	float: right;
 	width: 150px;
 }
 
@@ -140,4 +109,21 @@ table.picking td {
 {
 	margin-top: 10px;
 	text-align: center;
+}
+
+#leftDiv
+{
+	display: inline-block;
+	margin-right: 20px;
+	vertical-align: top;
+}
+
+#rightDiv
+{
+	display: inline-block;
+	max-height: 400px;
+	max-width: 300px;
+	overflow-y: auto;
+	overflow-x: auto;
+	
 }
