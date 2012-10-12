@@ -137,7 +137,7 @@ $(function()
 	});
 	
 	// Create data manager
-	PickingManager.init(globe);
+	PickingManager.init(globe, navigation);
 	
 	// Fade hover styled image effect
 	$("body").on("mouseenter", "img.defaultImg", function () {
@@ -150,8 +150,8 @@ $(function()
 	});
 	
 	updateFov();
-	canvas.addEventListener("DOMMouseScroll",function(e) { e.preventDefault(); updateFov(); },false);
-	canvas.addEventListener("mousewheel",function(e) { e.preventDefault(); updateFov(); },false);
+	// Update fov when moving
+	globe.subscribe("endNavigation", updateFov);
 });
 
 });
