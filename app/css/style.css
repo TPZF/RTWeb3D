@@ -9,6 +9,14 @@ em
 	color: #6BCAFF;
 }
 
+.jsonError
+{
+	box-shadow: 0 0 6px red, inset 0 1px 2px rgba(0, 0, 0, 0.08);
+	border: solid 1px red;
+	text-align: center;
+	max-height: 100px;
+}
+
 .box
 {
 	z-index: 0;

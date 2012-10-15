@@ -20,6 +20,17 @@ var nbAddLayers = 0;
 // Template generating the additional layer div in sidemenu
 var additionalLayerTemplate = _.template(additionalLayerHTMLTemplate);
 
+var jsonErrorDiv = '<div Title="Error">JSON parsing error : <span id="error"></span><br/> For more details see http://jsonlint.com/. </div>';
+
+var jErrorDiv = $(jsonErrorDiv)
+	.appendTo('body');
+$(jErrorDiv).dialog({
+	autoOpen: false,
+	resizable: false,
+	width: '300px',
+	dialogClass: 'jsonError'
+});
+
 /**
  * Private functions
  */
@@ -47,21 +58,34 @@ function setVisibilityButtonsetLayout()
  */
 function recomputeFeaturesGeometry( features )
 {
+	
 	for ( var i=0; i<features.length; i++ )
 	{
 		var currentFeature = features[i];
-		var ring = currentFeature.geometry.coordinates[0];
-		for ( var j = 0; j < ring.length; j++ )
-		{
-			if ( ring[j][0] > 180 )
-				ring[j][0] -= 360;
-		}
 		
+		switch ( currentFeature.geometry.type )
+		{
+			case "Point":
+				if ( currentFeature.geometry.coordinates[0] > 180 )
+					currentFeature.geometry.coordinates[0] -= 360;
+				break;
+			case "Polygon":
+				var ring = currentFeature.geometry.coordinates[0];
+				for ( var j = 0; j < ring.length; j++ )
+				{
+					if ( ring[j][0] > 180 )
+						ring[j][0] -= 360;
+				}
+				break;
+			default:
+				break;
+		}
 	}
 }
 
 function handleEquatorialFeatureCollection( gwLayer, featureCollection )
 {
+	
 	recomputeFeaturesGeometry( featureCollection.features );
 	gwLayer.addFeatureCollection( featureCollection );
 	PickingManager.addPickableLayer( gwLayer );
@@ -150,7 +174,10 @@ function handleDrop(evt) {
 			try {
 				var response = JSON.parse(this.result);
 			} catch (e) {
-				alert('JSON not valid');
+				$(jErrorDiv)
+					.find("#error").html(e.type).end()
+					.dialog( "open" );
+				return false;
 			}
 			
 			// Create style
