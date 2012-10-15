@@ -52,6 +52,14 @@
 	
 }
 
+#detailedInfo
+{
+	max-height: 400px;
+	max-width: 380px;
+	overflow: auto;
+	z-index: 100;
+}
+
 .selectValue
 {
 	color: white;
@@ -121,9 +129,9 @@ table.picking td {
 #rightDiv
 {
 	display: inline-block;
-	max-height: 400px;
-	max-width: 300px;
-	overflow-y: auto;
-	overflow-x: auto;
-	
+}
+
+.featureTitle
+{
+	cursor: pointer;
 }

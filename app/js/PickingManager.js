@@ -2,7 +2,7 @@
 /**
  * PickingManager module
  */
-define( [ "jquery.ui", "underscore-min", "text!../templates/featureList.html", "text!../templates/featureDescription.html" ], function($, _, featureListHTMLTemplate, featureDescriptionHTMLTemplate) {
+define( [ "jquery.ui", "underscore-min", "text!../templates/featureList.html", "text!../templates/featureDescription.html"/*, "jquery.mousewheel.min", "jquery.mCustomScrollbar.min"*/ ], function($, _, featureListHTMLTemplate, featureDescriptionHTMLTemplate) {
 
 var globe;
 var navigation;
@@ -21,7 +21,7 @@ var selectedFeatureDiv = '<div id="selectedFeatureDiv" class="ui-widget-content"
 					<img src="css/images/close_button.png" alt="" class="defaultImg" />\
 					<img src="css/images/close_buttonHover.png" alt="" class="hoverImg" />\
 				</div>\
-				<div id="arrow">\
+				<div class="arrow-left"></div>\
 			</div>';
 $(selectedFeatureDiv).appendTo('body');
 
@@ -60,11 +60,48 @@ function computeDivPosition(clientX, clientY)
 	);
 }
 
-function blurAll( selection )
+/**
+ * 	Revert style of selection
+ */
+function blurSelection()
 {
 	for ( var i=0; i < selection.length; i++ ) {
 		selection[i].layer.modifyFeatureStyle( selection[i].feature, selection[i].layer.style );
 	}
+}
+
+/**
+ * 	Apply selectedStyle to selection
+ */
+function focusSelection( newSeleciton )
+{
+	for ( var i=0; i < newSeleciton.length; i++ ) {
+		newSeleciton[i].layer.modifyFeatureStyle( newSeleciton[i].feature, selectedStyle );
+	}
+}
+
+/**
+ * 	Revert style of selected feature
+ */
+function blurSelectedFeature()
+{
+	var selectedFeature = selection[stackSelectionIndex];
+	selectedFeature.layer.modifyFeatureStyle( selectedFeature.feature, selectedFeature.layer.style );
+	$('#featureList div:eq('+stackSelectionIndex+')').removeClass('selectedFeature');
+}
+
+/**
+ * 	Apply selected style to feature
+ * 
+ * 	@param index Index of feature in selection array
+ */
+function focusFeature( index )
+{
+	stackSelectionIndex = index;
+	var selectedFeature = selection[stackSelectionIndex];
+	selectedFeature.layer.modifyFeatureStyle( selectedFeature.feature, selectedStyle );
+	$('#featureList div:eq('+stackSelectionIndex+')').addClass('selectedFeature');
+	
 }
 
 /**
@@ -90,9 +127,19 @@ function init()
 				// Search for picked features
 				for ( var j=0; j<pickableLayer.features.length; j++ )
 				{
-					if ( pointInRing( pickPoint, pickableLayer.features[j]['geometry']['coordinates'][0] ) )
+					switch ( pickableLayer.features[j]['geometry'].type )
 					{
-						newSelection.push( { feature: pickableLayer.features[j], layer: pickableLayer } );
+						case "Polygon":
+							if ( pointInRing( pickPoint, pickableLayer.features[j]['geometry']['coordinates'][0] ) )
+							{
+								newSelection.push( { feature: pickableLayer.features[j], layer: pickableLayer } );
+							}
+							break;
+						case "Point":
+							// TODO
+							break;
+						default:
+							break;
 					}
 				}
 			}
@@ -103,13 +150,12 @@ function init()
 			var selectedFeature = selection[stackSelectionIndex];
 			// Reset previous selected feature
 			if ( stackSelectionIndex == -1 ) {
-				// Blur all the features
-				blurAll( selection );
+				// Blur all selected features
+				blurSelection( selection );
 				
 			} else {
 				// Blur only previous feature
-				selectedFeature.layer.modifyFeatureStyle( selectedFeature.feature, selectedFeature.layer.style );
-				$('#featureList div:eq('+stackSelectionIndex+')').removeClass('selectedFeature');
+				blurSelectedFeature( stackSelectionIndex );
 			}
 			
 			stackSelectionIndex++;
@@ -117,71 +163,73 @@ function init()
 			
 			// Select individual feature
 			if ( stackSelectionIndex == selection.length ) {
-				// Blur only last feature
-				selection[stackSelectionIndex-1].layer.modifyFeatureStyle( selection[stackSelectionIndex-1].feature, selection[stackSelectionIndex-1].layer.style );
 				selection = [];
 				$('#selectedFeatureDiv').fadeOut(300);
 				stackSelectionIndex = -1;
 			} else {
 				// Focus current feature
-				selectedFeature.layer.modifyFeatureStyle( selectedFeature.feature, selectedStyle );
-				
+				focusFeature( stackSelectionIndex );
 				
 				$('#rightDiv').fadeOut(300, function(){
 					createHTMLSelectedFeatureDiv( selectedFeature.feature );
-// 					computeDivPosition(clientX, clientY);
-					$('#featureList div:eq('+stackSelectionIndex+')').addClass('selectedFeature');
-					$(this).fadeIn(300);
+					$(this).fadeIn(300, function(){
+// 						$("#detailedInfo").mCustomScrollbar("update");
+					});
 				});
 			}
 		}
 		else
 		{
 			// Remove selected style for previous selection
-			blurAll( selection );
-			
+			blurSelection();
+
 			// Add selected style for new selection
-			for ( var i=0; i < newSelection.length; i++ ) {
-				newSelection[i].layer.modifyFeatureStyle( newSelection[i].feature, selectedStyle );
-			}
-			
-			if ( newSelection.length > 0 )
-			{
-				// View on center
-				// TODO zoomTo --> moveTo
-				// TODO make appear selectedFeatureDiv AFTER once moveTo finished
-				navigation.zoomTo( pickPoint, globe.renderContext.fov, 2000, globe.renderContext.fov );
-				// Create dialogue for the first selection call
-				if ( newSelection.length > 1 )
-				{
-					createHTMLSelectedFeatureList( newSelection );
-					createHTMLSelectionHelp();
-					computeDivPosition( globe.renderContext.canvas.width/2, globe.renderContext.canvas.height/2);
-					$('#selectedFeatureDiv').fadeIn(500);
-					stackSelectionIndex = -1;
-				}
-				else
-				{
-					// only one layer, no pile needed, create feature dialogue
-					stackSelectionIndex = 0;
-					createHTMLSelectedFeatureList( newSelection );
-					createHTMLSelectedFeatureDiv( newSelection[stackSelectionIndex].feature );
-					computeDivPosition( globe.renderContext.canvas.width/2, globe.renderContext.canvas.height/2);
-					$('#featureList div:eq('+stackSelectionIndex+')').addClass('selectedFeature');
-					
-					$('#selectedFeatureDiv').fadeIn(500);
-				}
-			} else {
-				$('#selectedFeatureDiv').fadeOut(500);
-			}
+			focusSelection( newSelection );
 			
 			selection = newSelection;
+			if ( newSelection.length > 0 )
+			{
+				
+				$('#selectedFeatureDiv').fadeOut(300, function(){
+					// View on center
+					// TODO make appear selectedFeatureDiv AFTER once moveTo finished
+					// 	+ timeOut
+					//	or
+					//	+ new event to subscribe
+					navigation.moveTo( pickPoint, 1000 );
+					window.setTimeout( function(){ $('#selectedFeatureDiv').fadeIn(500); }, 1000 );
+					
+					// Create dialogue for the first selection call
+					if ( newSelection.length > 1 )
+					{
+						
+						createHTMLSelectedFeatureList( newSelection );
+						createHTMLSelectionHelp();
+						computeDivPosition( globe.renderContext.canvas.width/2 - 30, globe.renderContext.canvas.height/2);
+						stackSelectionIndex = -1;
+					}
+					else
+					{
+						// only one layer, no pile needed, create feature dialogue
+						createHTMLSelectedFeatureList( newSelection );
+						focusFeature( 0 );
+						createHTMLSelectedFeatureDiv( newSelection[stackSelectionIndex].feature );
+						computeDivPosition( globe.renderContext.canvas.width/2, globe.renderContext.canvas.height/2);				
+						$('#selectedFeatureDiv').fadeIn(500);
+// 						$("#detailedInfo").mCustomScrollbar("update");
+					}
+				});
+			} else {
+				$('#selectedFeatureDiv').fadeOut(300);
+			}
 		}
 	});
 	
+// 	globe.subscribe("endNavigation", function(){ $('#selectedFeatureDiv').fadeIn(500); } );
+	
 	// Close button event
 	$('#selectedFeatureDiv').on("click",'.closeBtn', function(event){
-		blurAll( selection );
+		blurSelection( selection );
 		selection = [];
 		$(this).parent().fadeOut(300);
 	});
@@ -220,6 +268,20 @@ function init()
 		$('#featureList').stop().animate({top: topValue +"px"}, 300);
 	}).disableSelection();
 	
+	// Choose feature by clicking on its title
+	$('#selectedFeatureDiv').on("click", '.featureTitle', function(){
+		blurSelectedFeature();
+		
+		var featureIndexToFocus = $(this).index();
+		focusFeature( featureIndexToFocus );
+		var selectedFeature = selection[stackSelectionIndex];
+		
+		$('#rightDiv').fadeOut(300, function(){
+			createHTMLSelectedFeatureDiv( selectedFeature.feature );
+			$(this).fadeIn(300);
+		});
+		
+	});
 }
 
 /**
@@ -291,7 +353,18 @@ function createHTMLSelectedFeatureDiv( feature )
 // 	var proxyUrl = feature.properties.thumbnail.slice(index);
 	
 	var output = featureDescriptionTemplate( { feature: feature } );
+	
 	$('#rightDiv').html( output );
+	
+	// stylized scroll ......
+// 	$('#detailedInfo').mCustomScrollbar({
+// 		scrollButtons:{
+// 			enable:true
+// 		},
+// 		height: $('#rightDiv').height()
+// 	});
+	
+// 	window.setInterval( function(){ $('#detailedInfo').mCustomScrollbar("update"); }, 1000 );
 }
 
 /**
