@@ -83,6 +83,7 @@ $(function()
 	{
 		globe = new GlobWeb.Globe( { 
 			canvas: canvas, 
+			tileErrorTreshold: 1.5,
 			continuousRendering: true
 		} );
 	}
@@ -142,11 +143,11 @@ $(function()
 	// Fade hover styled image effect
 	$("body").on("mouseenter", "img.defaultImg", function () {
 		//stuff to do on mouseover
-		$(this).stop().animate({"opacity": "0"}, 300);
+		$(this).stop().animate({"opacity": "0"}, 100);
 	});
 	$("body").on("mouseleave", "img.defaultImg", function () {
 		//stuff to do on mouseleave
-		$(this).stop().animate({"opacity": "1"}, 300);
+		$(this).stop().animate({"opacity": "1"}, 100);
 	});
 	
 	updateFov();

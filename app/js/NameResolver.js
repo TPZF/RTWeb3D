@@ -76,7 +76,6 @@ function setSearchBehavior()
 				type: "GET",
 				url: url,
 				success: function(response){
-					console.log(response);
 					if(response.dec && response.ra)
 					{
 						var equatorial = [];
