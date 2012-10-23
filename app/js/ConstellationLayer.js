@@ -3,23 +3,59 @@
  */
 define( [ "jquery.ui" ], function($) {
 
-var layerToFill;
+/**
+ * 	@constructor
+ * 	@class
+ * 	Specific constellation layer handling the constellations from VizieR database
+ * 	
+ * 	@param options Configuration options
+ * 		<ul>
+			<li>namesUrl : Url providing the constellations name data(necessary option)</li>
+			<li>catalogueUrl : Url providing all information about each constellation(necessary option)</li>
+		</ul>
+ *
+ *	@see http://vizier.cfa.harvard.edu/viz-bin/ftp-index?VI/49
+ */
+ConstellationLayer = function(options)
+{
+	GlobWeb.VectorLayer.prototype.constructor.call( this, options );
+
+	if ( options.namesUrl && options.catalogueUrl )
+	{
+		this.loadFiles( options.namesUrl, options.catalogueUrl );
+	}
+	else
+	{
+		console.error("Not valid options");
+		return false;
+	}
+}
+
+/**************************************************************************************************************/
+
+GlobWeb.inherits( GlobWeb.VectorLayer, ConstellationLayer );
+
+/**************************************************************************************************************/
 
 var namesFile;
 var catalogueFile;
 
 var constellations = {};
 
-function loadFiles( layer )
+/**
+*	Asynchronous request to load constellation database
+*
+*	@param namesUrl Url to the file containing correspondance between HR and constellation name
+*	@param catalogueUrl Url to the file containing all information about each constellation
+*
+*	@see http://vizier.cfa.harvard.edu/viz-bin/ftp-index?VI/49
+*/
+ConstellationLayer.prototype.loadFiles = function( namesUrl, catalogueUrl )
 {
-	/*
-	*	Asynchronous request to load constellation database composed of:
-	*		1) ConstellationNames.tsv 	: containing correspondance between HR and constellation name
-	*		2) bound_20.tsv 		: containing all information about each constellation
-	*/
+
 	var nameRequest = {
 				type: "GET",
-				url: layer.nameUrl,
+				url: namesUrl,
 				success: function(response){
 					namesFile = response;
 				},
@@ -30,7 +66,7 @@ function loadFiles( layer )
 	
 	var catalogueRequest = {
 				type: "GET",
-				url: layer.catalogueUrl,
+				url: catalogueUrl,
 				success: function(response){
 				       catalogueFile = response;
 				},
@@ -47,23 +83,19 @@ function loadFiles( layer )
 		console.error( "Failed to load files" );
 	}
 
+	var self = this;
 	// Synchronizing two asynchronious requests with the same callback
 	$.when($.ajax(nameRequest), $.ajax(catalogueRequest))
-		.then(createConstellations,failure);
+		.then( function() { self.extractDatabase(); self.handleFeatures(); },failure);
 }
 
-/*
-*	Create constellation names and shapes
-*/
-function createConstellations(){
-	extractDatabase();
-	handleFeatures();
-}
+/**************************************************************************************************************/
 
 /**
 *	Extract information in "constellation" variables
 */
-function extractDatabase(){
+ConstellationLayer.prototype.extractDatabase = function()
+{
 	var constellationNamesTab = namesFile.split("\n");
 	var catalogueTab = catalogueFile.split("\n");
 	
@@ -119,10 +151,13 @@ function extractDatabase(){
 	}
 }
 
+/**************************************************************************************************************/
+
 /**
 * 	Create geoJson features
 */
-function handleFeatures(){
+ConstellationLayer.prototype.handleFeatures = function()
+{
 	
 	var constellationNamesFeatures = [];
 	var constellationShapesFeatures = [];
@@ -173,17 +208,13 @@ function handleFeatures(){
 	};
 	
 	// Add shapes&names to the layer
-	layerToFill.addFeatureCollection( constellationShapesFeatureCollection );
-	layerToFill.addFeatureCollection( constellationNameFeatureCollection );
+	this.addFeatureCollection( constellationShapesFeatureCollection );
+	this.addFeatureCollection( constellationNameFeatureCollection );
 }
 
+/**************************************************************************************************************/
 
-return {
-	fillLayer: function( gwLayer, layer ) 
-	{
-		layerToFill = gwLayer;
-		loadFiles( layer );
-	}
-};
+
+return ConstellationLayer;
 
 });

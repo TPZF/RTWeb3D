@@ -3,22 +3,57 @@
  */
 define( [ "jquery.ui" ], function($) {
 
-var layerToFill;
+/**
+ * 	@constructor
+ * 	@class
+ * 	Specific star layer handling the stars from catalogue of the Brightest Stars (Ochsenbein+ 1988) from VizieR database
+ *	
+ * 	@param options Configuration options
+ * 		<ul>
+			<li>namesUrl : Url providing the stars name data(necessary option)</li>
+			<li>catalogueUrl : Url providing all information about each star(necessary option)</li>
+		</ul>
+ */
+StarLayer = function(options)
+{
+	GlobWeb.VectorLayer.prototype.constructor.call( this, options );
+
+	if ( options.namesUrl && options.catalogueUrl )
+	{
+		this.loadFiles( options.namesUrl, options.catalogueUrl );
+	}
+	else
+	{
+		console.error("Not valid options");
+		return false;
+	}
+}
+
+
+/**************************************************************************************************************/
+
+GlobWeb.inherits( GlobWeb.VectorLayer, StarLayer );
+
+/**************************************************************************************************************/
 
 var namesFile;
 var catalogueFile;
 
-function loadFiles( layer )
+/**
+*	Asynchronous requests to load stars database
+*
+*	@param namesUrl Url of file containing couples between HR and star name
+*	@param catalogueUrl Url containing all necessary information(as equatorial coordinates) about each star
+*
+* 	@see Search Catalogue of the Brightest Stars (Ochsenbein+ 1988) in VizieR database for more details
+*/
+StarLayer.prototype.loadFiles = function( namesUrl, catalogueUrl )
 {
 		
-	/*
-	*	Asynchronous requests to load stars database composed of:
-	*		1) Names.tsv 	 : containing couples between HR and star name
-	*		2) Catalogue.tsv : containing all necessary information(as equatorial coordinates) about each star
-	*/
+
 	var nameRequest = {
 				type: "GET",
-				url: layer.nameUrl,
+				url: namesUrl,
 				success: function(response){
 					namesFile = response;
 				},
@@ -29,7 +64,7 @@ function loadFiles( layer )
 	
 	var catalogueRequest = {
 				type: "GET",
-				url: layer.catalogueUrl,
+				url: catalogueUrl,
 				success: function(response){
 				       catalogueFile = response;
 				},
@@ -39,8 +74,9 @@ function loadFiles( layer )
 	};
 	
 	// Synchronizing two asynchronious requests with the same callback
+	var self = this;
 	$.when($.ajax(nameRequest), $.ajax(catalogueRequest))
-		.then(handleFeatures,failure);
+		.then(function(){ self.handleFeatures(); },failure);
 		
 	function failure()
 	{
@@ -51,7 +87,7 @@ function loadFiles( layer )
 /**
  * 	Handle features on layer
  */
-function handleFeatures()
+StarLayer.prototype.handleFeatures = function()
 {
 	// Extract the table data
 	var tmpTab = namesFile.slice(namesFile.indexOf("897;Acamar"), namesFile.indexOf('1231;Zaurak')+11);
@@ -102,15 +138,9 @@ function handleFeatures()
 		features : pois
 	};
 	
-	layerToFill.addFeatureCollection( poiFeatureCollection );
+	this.addFeatureCollection( poiFeatureCollection );
 }
 
-return {
-	fillLayer: function( gwLayer, layer ) 
-	{
-		layerToFill = gwLayer;
-		loadFiles( layer );
-	}
-};
+return StarLayer;
 
 });
