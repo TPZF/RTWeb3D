@@ -55,9 +55,10 @@
 #detailedInfo
 {
 	max-height: 400px;
-	max-width: 380px;
+	max-width: 340px;
 	overflow: auto;
 	z-index: 100;
+	padding-right: 15px;
 }
 
 .selectValue
@@ -94,6 +95,7 @@ table.picking td {
 {
 	max-height: 300px;
 	overflow-y: hidden;
+	max-width: 140px;
 }
 
 #featureList
@@ -107,16 +109,22 @@ table.picking td {
 	width: 150px;
 }
 
-.selectedFeature
+.selected
 {
 	box-shadow: inset 0px 0px 3px 1px #F8A102;
-	border-radius: 10px;
+	border-radius: 8px;
 }
 
 #services
 {
 	margin-top: 10px;
 	text-align: center;
+	padding: 3px;
+}
+
+#services a, #services img
+{
+	padding: 3px;
 }
 
 #leftDiv
@@ -134,4 +142,6 @@ table.picking td {
 .featureTitle
 {
 	cursor: pointer;
+	text-overflow: ellipsis;
+	overflow-x: hidden;
 }

@@ -10,6 +10,7 @@ var navigation;
 var selection = [];
 var stackSelectionIndex = -1;
 var selectedStyle = new GlobWeb.FeatureStyle( { strokeColor: [1., 1., 0., 1.] } );
+var quicklookStyle = new GlobWeb.FeatureStyle( { fill: true, strokeColor: [1., 1., 0., 1.] } );
 var pickableLayers = [];
 var featureListHTML = '';
 
@@ -86,8 +87,11 @@ function focusSelection( newSeleciton )
 function blurSelectedFeature()
 {
 	var selectedFeature = selection[stackSelectionIndex];
-	selectedFeature.layer.modifyFeatureStyle( selectedFeature.feature, selectedFeature.layer.style );
-	$('#featureList div:eq('+stackSelectionIndex+')').removeClass('selectedFeature');
+	if ( selectedFeature )
+	{
+		selectedFeature.layer.modifyFeatureStyle( selectedFeature.feature, selectedFeature.layer.style );
+		$('#featureList div:eq('+stackSelectionIndex+')').removeClass('selected');
+	}
 }
 
 /**
@@ -100,7 +104,7 @@ function focusFeature( index )
 	stackSelectionIndex = index;
 	var selectedFeature = selection[stackSelectionIndex];
 	selectedFeature.layer.modifyFeatureStyle( selectedFeature.feature, selectedStyle );
-	$('#featureList div:eq('+stackSelectionIndex+')').addClass('selectedFeature');
+	$('#featureList div:eq('+stackSelectionIndex+')').addClass('selected');
 	
 }
 
@@ -151,11 +155,11 @@ function init()
 			// Reset previous selected feature
 			if ( stackSelectionIndex == -1 ) {
 				// Blur all selected features
-				blurSelection( selection );
+				blurSelection();
 				
 			} else {
 				// Blur only previous feature
-				blurSelectedFeature( stackSelectionIndex );
+				blurSelectedFeature();
 			}
 			
 			stackSelectionIndex++;
@@ -214,8 +218,7 @@ function init()
 						createHTMLSelectedFeatureList( newSelection );
 						focusFeature( 0 );
 						createHTMLSelectedFeatureDiv( newSelection[stackSelectionIndex].feature );
-						computeDivPosition( globe.renderContext.canvas.width/2, globe.renderContext.canvas.height/2);				
-						$('#selectedFeatureDiv').fadeIn(500);
+						computeDivPosition( globe.renderContext.canvas.width/2, globe.renderContext.canvas.height/2);
 // 						$("#detailedInfo").mCustomScrollbar("update");
 					}
 				});
@@ -229,15 +232,27 @@ function init()
 	
 	// Close button event
 	$('#selectedFeatureDiv').on("click",'.closeBtn', function(event){
-		blurSelection( selection );
+		blurSelection();
 		selection = [];
 		$(this).parent().fadeOut(300);
 	});
 	
 	// Quicklook event
 	$('#selectedFeatureDiv').on("click", '#quicklook', function(event){
-		var fullImgURL = event.srcElement.alt;
-		window.open(fullImgURL);
+		
+		var featureIndexToQuicklook = $('#featureList .selected').index();
+		var selectedFeature = selection[featureIndexToQuicklook];
+		
+		if ( selectedFeature.feature.properties.style.fill == quicklookStyle.fill )
+		{
+			$('#quicklook').removeClass('selected');
+			selectedFeature.layer.modifyFeatureStyle( selectedFeature.feature, selectedStyle );
+		} 
+		else
+		{
+			$('#quicklook').addClass('selected');
+			selectedFeature.layer.modifyFeatureStyle( selectedFeature.feature, quicklookStyle );
+		}
 	});
 	
 	// Arrow events
@@ -270,6 +285,7 @@ function init()
 	
 	// Choose feature by clicking on its title
 	$('#selectedFeatureDiv').on("click", '.featureTitle', function(){
+		blurSelection();
 		blurSelectedFeature();
 		
 		var featureIndexToFocus = $(this).index();
