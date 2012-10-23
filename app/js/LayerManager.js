@@ -2,7 +2,7 @@
 /**
  * LayerManager module
  */
-define( [ "jquery.ui", "PickingManager", "StarLayer", "ConstellationLayer", "underscore-min", "text!../templates/additionalLayer.html", "jquery.ui.selectmenu" ], function($, PickingManager, StarLayer, ConstellationLayer, _, additionalLayerHTMLTemplate) {
+define( [ "jquery.ui", "PickingManager", "StarLayer", "ConstellationLayer", "DynamicOSLayer", "underscore-min", "text!../templates/additionalLayer.html", "jquery.ui.selectmenu" ], function($, PickingManager, StarLayer, ConstellationLayer, DynamicOSLayer, _, additionalLayerHTMLTemplate) {
 
 /**
  * Private variable for module
@@ -83,22 +83,30 @@ function recomputeFeaturesGeometry( features )
 	}
 }
 
+/**
+ *	Adds feature collection to the layer in GeoJSON format
+ *
+ *	@param gwLayer GlobWeb layer
+ *	@param featureCollection Feature collection in equatorial format	
+ */
 function handleEquatorialFeatureCollection( gwLayer, featureCollection )
 {
-	
 	recomputeFeaturesGeometry( featureCollection.features );
 	gwLayer.addFeatureCollection( featureCollection );
 	PickingManager.addPickableLayer( gwLayer );
 }
 
 /**
- * 	Load GeoJSON file and add layer to the globe
+ * 	Load JSON file and add layer to the globe
+ *
+ *	@param gwLayer GlobWeb layer
+ *	@param url Url to JSON containing feature collection in equatorial coordinates
  */
-function handleGeoJSONFeature( gwLayer, layer )
+function handleJSONFeature( gwLayer, url )
 {
 	$.ajax({
 		type: "GET",
-		url: layer.url,
+		url: url,
 		success: function(response){
 			handleEquatorialFeatureCollection( gwLayer, response );
 		},
@@ -113,40 +121,88 @@ function handleGeoJSONFeature( gwLayer, layer )
  */
 function createLayerFromConf(layer) {
 	var gwLayer;
+
+	// default options
+	var options = {
+		name: layer.name,
+		attribution: layer.attribution,
+		visible: layer.visible,
+		icon: layer.icon,
+		description: layer.description
+	};
+
 	switch(layer.type){
 		case "healpix":
-			gwLayer = new GlobWeb.HEALPixLayer( { name: layer.name, baseUrl: layer.url, attribution: layer.attribution, visible: layer.visible, icon: layer.icon} );
+			// Add necessary option
+			options.baseUrl = layer.url;
+			gwLayer = new GlobWeb.HEALPixLayer(options);
 			break;
+			
 		case "star":
 			// Create style
-			var options = {name: layer.name, attribution: layer.attribution, visible: layer.visible, icon: layer.icon, description: layer.description };
-			options.style = new GlobWeb.FeatureStyle( {opacity: layer.opacity / 100.} );
-			
-			gwLayer = new GlobWeb.VectorLayer(options);
-			StarLayer.fillLayer( gwLayer, layer );
+			options.style = new GlobWeb.FeatureStyle({
+				opacity: layer.opacity / 100.
+			});
+
+			// Add necessary options
+			options.namesUrl = layer.nameUrl;
+			options.catalogueUrl = layer.catalogueUrl;
+			gwLayer = new StarLayer(options);
 			break;
+			
 		case "constellation":
 			// Create style
-			var options = { name: layer.name, attribution: layer.attribution, visible: layer.visible, icon: layer.icon, description: layer.description };
-			options.style = new GlobWeb.FeatureStyle( { strokeColor: [0.03125, 0.23046875, 0.65625, 1.], rendererHint: "Basic", opacity: layer.opacity / 100., icon: layer.icon });
+			options.style = new GlobWeb.FeatureStyle({
+				strokeColor: [0.03125, 0.23046875, 0.65625, 1.],
+				rendererHint: "Basic",
+				opacity: layer.opacity / 100.,
+				icon: layer.icon
+			});
 			
-			gwLayer = new GlobWeb.VectorLayer(options);
-			ConstellationLayer.fillLayer( gwLayer, layer );
+			// Add necessary options
+			options.namesUrl = layer.nameUrl;
+			options.catalogueUrl = layer.catalogueUrl;
+			gwLayer = new ConstellationLayer(options);
 			break;
-		case "grid":
+			
+		case "equatorialGrid":
 			gwLayer = new GlobWeb.EquatorialGridLayer( {name: layer.name, visible: layer.visible} );
 			break;
+			
 		case "healpixGrid":
 			gwLayer = new GlobWeb.TileWireframeLayer( {name: layer.name, visible: layer.visible});
 			break;
-		case "GeoJSON":
+			
+		case "JSON":
 			// Create style
-			var options = {name: layer.name, attribution: layer.attribution, visible: layer.visible, icon: layer.icon, description: layer.description };
-			options.style = new GlobWeb.FeatureStyle({ rendererHint: "Basic", opacity: layer.opacity});
+			options.style = new GlobWeb.FeatureStyle({ 
+				rendererHint: "Basic", 
+				opacity: layer.opacity/100.
+			});
 			
 			gwLayer = new GlobWeb.VectorLayer(options);
-			handleGeoJSONFeature( gwLayer, layer );
+			handleJSONFeature( gwLayer, layer.url );
 			break;
+			
+		case "StaticOpenSearch":
+			// Create style
+			options.style = new GlobWeb.FeatureStyle({ 
+				rendererHint: "Basic", 
+				opacity: layer.opacity/100.
+			});
+			
+			gwLayer = new GlobWeb.VectorLayer(options);
+			handleJSONFeature( gwLayer, layer.url );
+			break;
+			
+		case "DynamicOpenSearch":
+			
+			// Add necessary option			
+			options.serviceUrl = layer.serviceUrl;
+			options.minOrder = layer.minOrder;
+			gwLayer = new DynamicOSLayer( options );
+			break;
+			
 		default:
 			console.error("Not implemented");
 	}
@@ -163,7 +219,7 @@ function handleDrop(evt) {
 
 	var files = evt.dataTransfer.files; // FileList object.
 	
-	// files is a FileList of File objects. List some properties.
+	// Files is a FileList of File objects.
 	$.each( files, function(index, f) {
 		
 		var name = f.name;
@@ -182,7 +238,7 @@ function handleDrop(evt) {
 			
 			// Create style
 			var options = {name: name};
-			options.style = new GlobWeb.FeatureStyle({ rendererHint: "Basic"});
+			options.style = new GlobWeb.FeatureStyle({ rendererHint: "Basic" });
 			gwLayer = new GlobWeb.VectorLayer( options );
 			
 			// Add geoJson layer
@@ -309,13 +365,6 @@ function addAdditionalLayer ( gwLayer )
 
 function initGuiEvents ()
 {
-	// Input background layers event
-// 	$('input[name=backgroundLayers]').click(function(){
-// 		var layerIndex = parseInt( $(this).val() );
-// 		if ( $(this).is(':checked') ){
-// 			globe.setBaseImagery( gwBaseLayers[ layerIndex ] );
-// 		}
-// 	});
 	
 	// Background selection visibility event
 	$('#backgroundLayers-menu li').click(function(){
@@ -334,14 +383,16 @@ function initGuiEvents ()
 		$(this).parent().siblings('.slider').slider( isOn ? "enable" : "disable" );
 	});
 	
+	// Delete layer event
 	$('#additionalLayers').on("click",'.deleteLayer', function(){
 		
 		$(this).parent().fadeOut(300, function(){
 			$(this).remove();
 		});
 		var layerIndex = parseInt( $(this).parent().index() );
-		gwAdditionalLayers[ layerIndex ]._detach( globe );
-		PickingManager.removePickableLayer( gwAdditionalLayers[ layerIndex ] );
+		var layer = gwAdditionalLayers[ layerIndex ];
+		globe.removeLayer(layer);
+		PickingManager.removePickableLayer( layer );
 		gwAdditionalLayers.splice( layerIndex, 1 );
 	});
 }
@@ -361,9 +412,7 @@ function initLayers(layers)
 		// Define default optionnal parameters
 		if(!layer.opacity)
 			layer.opacity = 100.;
-// 		if(!layer.description)
-// 			layer.description = "";
-// 		
+	
 		gwLayer = createLayerFromConf(layer);
 		if( layer.background )
 		{

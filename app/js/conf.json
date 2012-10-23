@@ -21,7 +21,7 @@
 		{ 
 			"type": "healpix",
 			"name": "DSS",
-			"url": "/Alasky/DssColor/",
+			"url": "/Alasky/DssColor",
 			"description": "Digital Sky Survey from CDS",
 			"attribution": "<object width='96' height='64' data=\"css/images/cds.svg\" type=\"image/svg+xml\"></object>",
 			"visible": true,
@@ -30,7 +30,7 @@
 		{
 			"type": "healpix",
 			"name": "Doradus",
-			"url": "http://demonstrator.telespazio.com/doradus/",
+			"url": "http://demonstrator.telespazio.com/doradus",
 			"description": "Doradus",
 			"attribution": "",
 			"visible": false,
@@ -62,15 +62,33 @@
 			"name": "Healpix grid"
 		},
 		{
-			"type": "GeoJSON",
+			"type": "JSON",
 			"name": "Search.json",
-			"url": "data/search.json",
+			"url": "data/responseHerschel.json",
+			"visible": false
+		},
+		{
+			"type": "equatorialGrid",
+			"name": "Equatorial grid(beta)",
+			"visible": false
+		},
+		{
+			"type": "JSON",
+			"name": "Doradus",
+			"url": "data/doradus.json",
 			"visible": true
 		},
 		{
-			"type": "grid",
-			"name": "Equatorial grid(beta)",
+			"type": "StaticOpenSearch",
+			"name": "Static herschel",
+			"url": "/oherschel/search?",
 			"visible": false
+		},
+		{
+			"type": "DynamicOpenSearch",
+			"name": "Dynamic fuse",
+			"serviceUrl": "/ofuse/search?",
+			"visible": true
 		}
 	]
 }
