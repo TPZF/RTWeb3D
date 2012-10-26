@@ -5,7 +5,7 @@
 define(["jquery.ui", "Utils"], function($,Utils) {
 
 var astroNavigator;
-var baseUrl;
+var configuration = {zoomFov: 15.};
 
 function setSearchBehavior()
 {
@@ -65,7 +65,7 @@ function setSearchBehavior()
 			// Convert to geo and zoom
 			var geoPos = [];
 			GlobWeb.CoordinateSystem.fromEquatorialToGeo([word[0], word[1]], geoPos);
-			astroNavigator.zoomTo(geoPos, 15, 5000 );
+			astroNavigator.zoomTo(geoPos);
 		}
 		else
 		{
@@ -81,10 +81,10 @@ function setSearchBehavior()
 						var equatorial = [];
 						GlobWeb.CoordinateSystem.fromGeoToEquatorial([response.ra, response.dec], equatorial);
 				
-						$("#equatorialCoordinatesSearchResult").html("<em>Ra:</em> " + equatorial[0] + "<br /><em>Dec:</em> " + equatorial[1]);
+						$("#equatorialCoordinatesSearchResult").html("<em>Ra:</em> " + equatorial[0] + "<br /><em>Dec:</em> " + equatorial[1] + "<br/> Found in " + response.name + " database");
 
 						$('#equatorialCoordinatesSearchResult').fadeIn(animationDuration);
-						astroNavigator.zoomTo([response.ra, response.dec], 15, 5000 );
+						astroNavigator.zoomTo([response.ra, response.dec], configuration.zoomFov );
 					} else {
 						$('#equatorialCoordinatesSearchResult').html("Enter object name");
 						$('#equatorialCoordinatesSearchResult').fadeIn(animationDuration);
@@ -114,7 +114,12 @@ function setSearchBehavior()
 return {
 	init: function(nav,conf) {
 		astroNavigator = nav;
-		configuration = conf;
+
+		for( var x in conf )
+		{
+			configuration[x] = conf[x];
+		}
+
 		setSearchBehavior();
 	}
 };
