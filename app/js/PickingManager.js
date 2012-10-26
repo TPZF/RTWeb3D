@@ -33,8 +33,12 @@ var featureListTemplate = _.template(featureListHTMLTemplate);
 var featureDescriptionTemplate = _.template(featureDescriptionHTMLTemplate);
 
 // PileStash help HTML
-var pileStashHelp = 	'<div id="pileStashHelp"> Some objects are overlapped <br/> Click on the object stack to see detailed\
-			information about each object.</div>';
+var pileStashHelp = '<div id="pileStashHelp"> Some objects are overlapped <br/> Click on the object stack to see detailed\
+				information about each object.</div>';
+
+// External link popup
+var popup = '<div id="popup" class="box" style="display: none; left: 300; top: 300; position: absolute; overflow: auto; max-width: 300px; max-height: 300px;"></div>';
+$(popup).appendTo('body');
 
 /**
  * 	Selected feature div position calculations
@@ -67,7 +71,9 @@ function computeDivPosition(clientX, clientY)
 function blurSelection()
 {
 	for ( var i=0; i < selection.length; i++ ) {
-		selection[i].layer.modifyFeatureStyle( selection[i].feature, selection[i].layer.style );
+		var style = selection[i].feature.properties.style;
+		style.strokeColor = selection[i].layer.style.strokeColor;
+		selection[i].layer.modifyFeatureStyle( selection[i].feature, style );
 	}
 }
 
@@ -76,8 +82,19 @@ function blurSelection()
  */
 function focusSelection( newSeleciton )
 {
+	var style;
 	for ( var i=0; i < newSeleciton.length; i++ ) {
-		newSeleciton[i].layer.modifyFeatureStyle( newSeleciton[i].feature, selectedStyle );
+		if ( newSeleciton[i].feature.properties.style )
+		{
+			style = newSeleciton[i].feature.properties.style;	
+		}
+		else
+		{
+			style = new GlobWeb.FeatureStyle( newSeleciton[i].layer.style );
+		}
+
+		style.strokeColor = selectedStyle.strokeColor;
+		newSeleciton[i].layer.modifyFeatureStyle( newSeleciton[i].feature, style );
 	}
 }
 
@@ -89,7 +106,9 @@ function blurSelectedFeature()
 	var selectedFeature = selection[stackSelectionIndex];
 	if ( selectedFeature )
 	{
-		selectedFeature.layer.modifyFeatureStyle( selectedFeature.feature, selectedFeature.layer.style );
+		var style = selectedFeature.feature.properties.style;
+		style.strokeColor = selectedFeature.layer.style.strokeColor; 
+		selectedFeature.layer.modifyFeatureStyle( selectedFeature.feature, style );
 		$('#featureList div:eq('+stackSelectionIndex+')').removeClass('selected');
 	}
 }
@@ -101,11 +120,15 @@ function blurSelectedFeature()
  */
 function focusFeature( index )
 {
-	stackSelectionIndex = index;
-	var selectedFeature = selection[stackSelectionIndex];
-	selectedFeature.layer.modifyFeatureStyle( selectedFeature.feature, selectedStyle );
-	$('#featureList div:eq('+stackSelectionIndex+')').addClass('selected');
-	
+	var selectedFeature = selection[index];
+	if ( selectedFeature )
+	{
+		stackSelectionIndex = index;
+		var style = selectedFeature.feature.properties.style;
+		style.strokeColor = selectedStyle.strokeColor;
+		selectedFeature.layer.modifyFeatureStyle( selectedFeature.feature, style );
+		$('#featureList div:eq('+stackSelectionIndex+')').addClass('selected');	
+	}	
 }
 
 /**
@@ -197,7 +220,7 @@ function init()
 				$('#selectedFeatureDiv').fadeOut(300, function(){
 					// View on center
 					// TODO make appear selectedFeatureDiv AFTER once moveTo finished
-					// 	+ timeOut
+					// 	+ timeOut (used currently)
 					//	or
 					//	+ new event to subscribe
 					navigation.moveTo( pickPoint, 1000 );
@@ -232,9 +255,7 @@ function init()
 	
 	// Close button event
 	$('#selectedFeatureDiv').on("click",'.closeBtn', function(event){
-		blurSelection();
-		selection = [];
-		$(this).parent().fadeOut(300);
+		hideDescriptionPane();
 	});
 	
 	// Quicklook event
@@ -243,18 +264,25 @@ function init()
 		var featureIndexToQuicklook = $('#featureList .selected').index();
 		var selectedFeature = selection[featureIndexToQuicklook];
 		
-		if ( selectedFeature.feature.properties.style.fill == quicklookStyle.fill )
+		if ( selectedFeature.feature.properties.style.fill == true )
 		{
 			$('#quicklook').removeClass('selected');
-			selectedFeature.layer.modifyFeatureStyle( selectedFeature.feature, selectedStyle );
+			// HACK TODO canApply depend on fill attribute
+			var newStyle = new GlobWeb.FeatureStyle( selectedFeature.feature.properties.style );
+			newStyle.fill = false;
+			selectedFeature.layer.modifyFeatureStyle( selectedFeature.feature, newStyle );
 		} 
 		else
 		{
 			$('#quicklook').addClass('selected');
-			selectedFeature.layer.modifyFeatureStyle( selectedFeature.feature, quicklookStyle );
+			var style = selectedFeature.feature.properties.style;
+			style.fill = true;
+			selectedFeature.layer.modifyFeatureStyle( selectedFeature.feature, style );
 		}
 	});
 	
+	globe.subscribe("startNavigation", function(){ if ($('#selectedFeatureDiv').css('display') != 'none') hideDescriptionPane(); } );
+
 	// Arrow events
 	$('#selectedFeatureDiv').on("mousedown", '#scroll-arrow-down.clickable', function(event){
 		$('#scroll-arrow-up').css("border-bottom-color", "orange").addClass("clickable");
@@ -296,8 +324,37 @@ function init()
 			createHTMLSelectedFeatureDiv( selectedFeature.feature );
 			$(this).fadeIn(300);
 		});
-		
 	});
+
+	// Popup event TODO !
+	$('#selectedFeatureDiv').on("click", '.picking a', function(event){
+		event.preventDefault();
+		$.ajax({
+			url: event.target.innerHTML,
+			context: document.body,
+			crossDomain: true,
+			success: function(response)
+			{
+				console.log(response);
+				$('#popup').html(response);
+				$('#popup').show();
+			},
+			error: function(xhr)
+			{
+				console.error(xhr.responseText);
+			}
+		});
+	});
+}
+
+/**
+ *	Hides description pane
+ */
+function hideDescriptionPane()
+{
+	blurSelection();
+	selection = [];
+	$('#selectedFeatureDiv').fadeOut(300);
 }
 
 /**

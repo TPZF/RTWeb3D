@@ -53,9 +53,9 @@ function updateFov()
 {
 	var fov = navigation.getFov();
 	var fovx = Utils.roundNumber( fov[0], 2 ) ;
-	fovx = GlobWeb.CoordinateSystem.fromDegreesToDMS( fovx, true );
+	fovx = GlobWeb.CoordinateSystem.fromDegreesToDMS( fovx );
 	var fovy = Utils.roundNumber( fov[1], 2 ) ;
-	fovy = GlobWeb.CoordinateSystem.fromDegreesToDMS( fovy, true );
+	fovy = GlobWeb.CoordinateSystem.fromDegreesToDMS( fovy );
 	$('#fov').html( "Fov : " + fovx + " x " + fovy );
 }
 
