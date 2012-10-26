@@ -12,6 +12,7 @@ define( [ "jquery.ui" ], function($) {
  * 	@param options Configuration options
  * 		<ul>
 			<li>serviceUrl : Url of the service providing the OpenSearch data(necessary option)</li>
+			<li>minOrder : Starting order for OpenSearch requests</li>
 		</ul>
  */
 DynamicOSLayer = function(options)
@@ -19,12 +20,12 @@ DynamicOSLayer = function(options)
 	GlobWeb.BaseLayer.prototype.constructor.call( this, options );
 	
 	this.serviceUrl = options.serviceUrl;
-	
+	this.minOrder = options.minOrder || 5;
+
 	// Style, probably bucket later
 	this.style = new GlobWeb.FeatureStyle({ iconUrl: "css/images/star.png" });
 	this.texture = null;
 	
-	this.minOrder = options.minOrder || 5;
 	// TODO "os" is overriden by BaseLayer id when attached by globe
 	this.id = "os";
 
