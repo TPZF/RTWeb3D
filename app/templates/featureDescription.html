@@ -1,5 +1,8 @@
 <div id="detailedInfo">
-	<div class="thumbnail"><img src="<%= feature.properties.thumbnail %>" /></div>
+	<% if ( feature.properties.thumbnail ) 
+	{ %>
+		<div class="thumbnail"><img src="<%= feature.properties.thumbnail %>" /></div>
+	<% } %>
 	<table class="picking" rules="rows">
 		<tbody>
 			<% for ( var key in feature.properties )
@@ -9,7 +12,13 @@
 					var stringKey = key.charAt(0).toUpperCase() + key.substring(1).toLowerCase()%>
 				<tr>
 					<td class="selectProperty"><em><%= stringKey %>:</em></td>
-					<td class="selectValue"><%= feature.properties[key] %></td>
+					<% 
+					var isUrl = ( typeof (feature.properties[key]) == "string" && feature.properties[key].substr(0,4) == 'http' ) ? true : false;
+					if (isUrl) {%>
+						<td class="selectValue"><a href="<%= feature.properties[key] %>"><%= feature.properties[key] %></a></td>
+					<% } else { %>
+						<td class="selectValue"><%= feature.properties[key] %></td>
+					<% }%>
 				</tr>
 				<% }
 			} %>
@@ -22,7 +31,7 @@
 			<a href="<%= feature.services ? feature.services.download.url : "" %>" target="_self"><img src="css/images/download1.png"></a>
 		<% }
 		if ( feature.properties.quicklook ) { %>
-			<img id='quicklook' src="css/images/quicklook.png">
+			<img id='quicklook' src="css/images/quicklook.png" class=<%= (feature.properties.style.fill ? 'selected' : '' ) %> />
 		<% } %>
 	</div>
 
