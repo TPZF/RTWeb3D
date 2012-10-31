@@ -54,11 +54,13 @@ function setVisibilityButtonsetLayout()
 }
 
 /**
+ *	Handles feature collection
  * 	Recompute geometry from equatorial coordinates to geo for each feature
+ *	Adds proxy url to quicklook for each feature
  */
-function recomputeFeaturesGeometry( features )
+function handleFeatureCollection( features )
 {
-	
+	var proxyUrl = "/sitools/proxy?external_url=";
 	for ( var i=0; i<features.length; i++ )
 	{
 		var currentFeature = features[i];
@@ -76,6 +78,10 @@ function recomputeFeaturesGeometry( features )
 					if ( ring[j][0] > 180 )
 						ring[j][0] -= 360;
 				}
+
+				// Add proxy url to quicklook url
+				if ( currentFeature.properties.quicklook )
+					currentFeature.properties.quicklook = proxyUrl+currentFeature.properties.quicklook;
 				break;
 			default:
 				break;
@@ -91,7 +97,7 @@ function recomputeFeaturesGeometry( features )
  */
 function handleEquatorialFeatureCollection( gwLayer, featureCollection )
 {
-	recomputeFeaturesGeometry( featureCollection.features );
+	handleFeatureCollection( featureCollection.features );
 	gwLayer.addFeatureCollection( featureCollection );
 	PickingManager.addPickableLayer( gwLayer );
 }
@@ -201,6 +207,7 @@ function createLayerFromConf(layer) {
 			options.serviceUrl = layer.serviceUrl;
 			options.minOrder = layer.minOrder;
 			gwLayer = new DynamicOSLayer( options );
+			PickingManager.addPickableLayer( gwLayer );
 			break;
 			
 		default:
@@ -238,7 +245,7 @@ function handleDrop(evt) {
 			
 			// Create style
 			var options = {name: name};
-			options.style = new GlobWeb.FeatureStyle({ rendererHint: "Basic" });
+			options.style = new GlobWeb.FeatureStyle({ rendererHint: "Basic", iconUrl: "css/images/star.png" });
 			gwLayer = new GlobWeb.VectorLayer( options );
 			
 			// Add geoJson layer
