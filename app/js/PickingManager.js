@@ -52,7 +52,7 @@ function computeDivPosition(clientX, clientY)
 	var mousex = clientX; //Get X coodrinates
 	var mousey = clientY; //Get Y coordinates
 
-	mousex+= 50;
+	mousex+= 20;
 	mousey-= 100;
 	
 	// Positionning
@@ -71,30 +71,37 @@ function computeDivPosition(clientX, clientY)
 function blurSelection()
 {
 	for ( var i=0; i < selection.length; i++ ) {
-		var style = selection[i].feature.properties.style;
-		style.strokeColor = selection[i].layer.style.strokeColor;
-		selection[i].layer.modifyFeatureStyle( selection[i].feature, style );
+		var selectedFeature = selection[i];
+		if ( selectedFeature.feature.geometry.type == "Polygon" )
+		{
+			var style = selection[i].feature.properties.style;
+			style.strokeColor = selection[i].layer.style.strokeColor;
+			selection[i].layer.modifyFeatureStyle( selection[i].feature, style );
+		}
 	}
 }
 
 /**
  * 	Apply selectedStyle to selection
  */
-function focusSelection( newSeleciton )
+function focusSelection( newSelection )
 {
 	var style;
-	for ( var i=0; i < newSeleciton.length; i++ ) {
-		if ( newSeleciton[i].feature.properties.style )
+	for ( var i=0; i < newSelection.length; i++ ) {
+		var selectedFeature = newSelection[i];
+		if ( selectedFeature.feature.geometry.type == "Polygon" )
 		{
-			style = newSeleciton[i].feature.properties.style;	
+			if ( newSelection[i].feature.properties.style )
+			{
+				style = newSelection[i].feature.properties.style;	
+			}
+			else
+			{
+				style = new GlobWeb.FeatureStyle( newSelection[i].layer.style );
+			}
+			style.strokeColor = selectedStyle.strokeColor;
+			newSelection[i].layer.modifyFeatureStyle( newSelection[i].feature, style );
 		}
-		else
-		{
-			style = new GlobWeb.FeatureStyle( newSeleciton[i].layer.style );
-		}
-
-		style.strokeColor = selectedStyle.strokeColor;
-		newSeleciton[i].layer.modifyFeatureStyle( newSeleciton[i].feature, style );
 	}
 }
 
@@ -106,9 +113,12 @@ function blurSelectedFeature()
 	var selectedFeature = selection[stackSelectionIndex];
 	if ( selectedFeature )
 	{
-		var style = selectedFeature.feature.properties.style;
-		style.strokeColor = selectedFeature.layer.style.strokeColor; 
-		selectedFeature.layer.modifyFeatureStyle( selectedFeature.feature, style );
+		if ( selectedFeature.feature.geometry.type == "Polygon" )
+		{
+			var style = selectedFeature.feature.properties.style;
+			style.strokeColor = selectedFeature.layer.style.strokeColor; 
+			selectedFeature.layer.modifyFeatureStyle( selectedFeature.feature, style );
+		}
 		$('#featureList div:eq('+stackSelectionIndex+')').removeClass('selected');
 	}
 }
@@ -124,9 +134,13 @@ function focusFeature( index )
 	if ( selectedFeature )
 	{
 		stackSelectionIndex = index;
-		var style = selectedFeature.feature.properties.style;
-		style.strokeColor = selectedStyle.strokeColor;
-		selectedFeature.layer.modifyFeatureStyle( selectedFeature.feature, style );
+		if ( selectedFeature.feature.geometry.type == "Polygon" )
+		{
+			var style = selectedFeature.feature.properties.style;
+			style.strokeColor = selectedStyle.strokeColor;
+			selectedFeature.layer.modifyFeatureStyle( selectedFeature.feature, style );
+		}
+
 		$('#featureList div:eq('+stackSelectionIndex+')').addClass('selected');	
 	}	
 }
@@ -138,8 +152,6 @@ function init()
 {
 	// Picking event
 	$('canvas').on("mousedown",function(event){
-		
-		
 		var pickPoint = globe.getLonLatFromPixel(event.clientX, event.clientY);
 		var newSelection = [];
 		var clientX = event.clientX;
@@ -163,7 +175,10 @@ function init()
 							}
 							break;
 						case "Point":
-							// TODO
+							if ( pointInSphere( pickPoint, pickableLayer.features[j]['geometry']['coordinates'] ) )
+							{
+								newSelection.push( { feature: pickableLayer.features[j], layer: pickableLayer } );
+							}
 							break;
 						default:
 							break;
@@ -212,11 +227,10 @@ function init()
 
 			// Add selected style for new selection
 			focusSelection( newSelection );
-			
 			selection = newSelection;
+			
 			if ( newSelection.length > 0 )
 			{
-				
 				$('#selectedFeatureDiv').fadeOut(300, function(){
 					// View on center
 					// TODO make appear selectedFeatureDiv AFTER once moveTo finished
@@ -229,10 +243,9 @@ function init()
 					// Create dialogue for the first selection call
 					if ( newSelection.length > 1 )
 					{
-						
 						createHTMLSelectedFeatureList( newSelection );
 						createHTMLSelectionHelp();
-						computeDivPosition( globe.renderContext.canvas.width/2 - 30, globe.renderContext.canvas.height/2);
+						computeDivPosition( globe.renderContext.canvas.width/2, globe.renderContext.canvas.height/2);
 						stackSelectionIndex = -1;
 					}
 					else
@@ -267,7 +280,8 @@ function init()
 		if ( selectedFeature.feature.properties.style.fill == true )
 		{
 			$('#quicklook').removeClass('selected');
-			// HACK TODO canApply depend on fill attribute
+			// HACK re-creating style
+			// TODO canApply depend on fill attribute
 			var newStyle = new GlobWeb.FeatureStyle( selectedFeature.feature.properties.style );
 			newStyle.fill = false;
 			selectedFeature.layer.modifyFeatureStyle( selectedFeature.feature, newStyle );
@@ -281,6 +295,7 @@ function init()
 		}
 	});
 	
+	// BUG ! Disables stack onclick action
 	globe.subscribe("startNavigation", function(){ if ($('#selectedFeatureDiv').css('display') != 'none') hideDescriptionPane(); } );
 
 	// Arrow events
@@ -379,7 +394,7 @@ function isSelectionEqual( newSelection )
 /**
 *	Determine if a point lies inside a polygon
 * 
-* 	@param {Float[]} point Point in 3D
+* 	@param {Float[]} point Point in geographic coordinates
 * 	@param {Float[][]} ring Array of points representing the polygon
 */
 function pointInRing( point, ring )
@@ -400,6 +415,33 @@ function pointInRing( point, ring )
 		}
 	}
 	return inPoly;
+}
+
+/**
+ *	Determine if a point lies inside a sphere of arbitrary radius 0.0009
+ *
+ */
+function pointInSphere( point, sphere )
+{
+	var point3D = [];
+	var sphere3D = [];
+	var radius = 0.0009; // Arbitrary value
+	GlobWeb.CoordinateSystem.fromGeoTo3D( point, point3D );
+	GlobWeb.CoordinateSystem.fromGeoTo3D( sphere, sphere3D );
+	//Calculate the squared distance from the point to the center of the sphere
+	var vecDist = [];
+	vec3.subtract(sphere3D, point3D, vecDist);
+	vecDist = vec3.dot(vecDist, vecDist);
+
+	//Calculate if the squared distance between the sphere's center and the point
+	//is less than the squared radius of the sphere
+	if( vecDist < radius * radius )
+	{
+	    return true;
+	}
+
+	//If not, return false
+	return false;
 }
 
 /**
