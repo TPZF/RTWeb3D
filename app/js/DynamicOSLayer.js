@@ -29,6 +29,11 @@ DynamicOSLayer = function(options)
 	// TODO "os" is overriden by BaseLayer id when attached by globe
 	this.id = "os";
 
+	// Used for picking management
+	this.features = [];
+	// Counter set, indicates how many times the feature has been requested
+	this.featuresSet = new Set();
+
 	this.requests = [];
 	for ( var i=0; i<2; i++ )
 	{
@@ -153,14 +158,13 @@ DynamicOSLayer.prototype.launchRequest = function(tile)
 {
 	var index = null;
 
-
 	for ( var i = 0; i < this.requests.length; i++ )
 	{
 		if ( !this.requests[i] )
 		{
 			this.requests[i] = tile;
 			index = i;
-			tile.extension[this.id] = new DynamicOSLayer.OSData();
+			tile.extension[this.id] = new DynamicOSLayer.OSData(this);
 			break;
 		}
 	}
@@ -176,8 +180,7 @@ DynamicOSLayer.prototype.launchRequest = function(tile)
 				
 				for ( var i=0; i<response.features.length; i++ )
 				{
-					self.addGeometry( response.features[i].geometry, tile );
-// 					console.log((i+1)+"("+response.features.length+") feature for order = "+ tile.order + " index = " + tile.pixelIndex + " added");
+					self.addFeature( response.features[i], tile );
 				}
 				self.requests[index] = null;
 			},
@@ -211,6 +214,133 @@ DynamicOSLayer.prototype.launchRequests = function( tiles )
 			}
 		}
 	}
+}
+
+/**************************************************************************************************************/
+
+/*
+	Add a geometry to the tile extension
+ */
+DynamicOSLayer.prototype.addGeometryToTile = function(geometry,tile)
+{
+	var posGeo = geometry['coordinates'];
+	var pos3d = GlobWeb.CoordinateSystem.fromGeoTo3D( posGeo );
+	var vertical = vec3.create();
+	vec3.normalize(pos3d, vertical);
+	
+	var pointRenderData = {
+		geometry: geometry,
+		pos3d: pos3d,
+		vertical: vertical
+	};
+	
+	tile.extension[this.id].points.push( pointRenderData );
+}
+
+/**************************************************************************************************************/
+
+/**
+ *	Add feature to the layer and to the tile extension
+ */
+DynamicOSLayer.prototype.addFeature = function( feature, tile )
+{
+	// Add feature if it doesn't exist
+	if ( !this.featuresSet[feature.properties.identifier] )
+	{
+		this.features.push( feature );
+		this.featuresSet.add( feature.properties.identifier, 1 );
+	}
+	else
+	{
+		// Increment the number of requests for current feature
+		this.featuresSet[feature.properties.identifier]++;
+	}
+
+	// Add feature id
+	tile.extension[this.id].featureIds.push( feature.properties.identifier );
+	// Add feature geometry to the tile
+	this.addGeometryToTile( feature.geometry, tile );
+}
+
+/**************************************************************************************************************/
+
+/**
+ *	Remove feature from Dynamic OpenSearch layer
+ */
+DynamicOSLayer.prototype.removeFeature = function( geometry, identifier )
+{
+	// BUG ! Children tiles don't dispose their extension resources
+	if ( this.featuresSet[identifier] == 1 )
+	{
+		// Last feature
+		this.featuresSet.remove( identifier );
+		for ( var i = 0; i<this.features.length; i++ )
+		{
+			var currentFeature = this.features[i];
+			if ( currentFeature.geometry == geometry){
+				this.features.splice(i, 1);
+			}
+		}
+	}
+	else
+	{
+		// Decrease
+		this.featuresSet[identifier]--;
+	}
+}
+
+/**************************************************************************************************************/
+
+/**
+ * 	Set visibility of the layer
+ */
+DynamicOSLayer.prototype.visible = function( arg )
+{
+	if ( typeof arg == "boolean" && this._visible != arg )
+	{
+		this._visible = arg;
+		
+		if ( arg ){
+			this.globe.tileManager.addPostRenderer(this);
+		}
+		else
+		{
+			this.globe.tileManager.removePostRenderer(this);
+		}
+	}
+	
+	return this._visible;
+}
+
+/**************************************************************************************************************/
+
+/**
+ *	@constructor
+ *	DynamicOSLayer.OSData constructor
+ *
+ *	OpenSearch renderable
+ */
+DynamicOSLayer.OSData = function(layer)
+{
+	this.layer = layer;
+	this.featureIds = []; // exclusive parameter to remove from layer
+	this.points = [];
+}
+
+/**************************************************************************************************************/
+
+/**
+ * 	Dispose renderable data from tile
+ *	
+ */
+DynamicOSLayer.OSData.prototype.dispose = function( renderContext, tilePool )
+{	
+	for( var i=0; i<this.points.length; i++ )
+	{
+		this.layer.removeFeature(this.points[i].geometry, this.featureIds[i] );
+	}
+		
+	this.points.length = 0;
 }
 
 /**************************************************************************************************************/
@@ -300,69 +430,43 @@ DynamicOSLayer.prototype.render = function( tiles )
 
 /**************************************************************************************************************/
 
-/*
-	Add a geometry to the tile extension
- */
-DynamicOSLayer.prototype.addGeometry = function(geometry,tile)
-{
-	var posGeo = geometry['coordinates'];
-	var pos3d = GlobWeb.CoordinateSystem.fromGeoTo3D( posGeo );
-	var vertical = vec3.create();
-	vec3.normalize(pos3d, vertical);
-	
-	var pointRenderData = {
-		pos3d: pos3d,
-		vertical: vertical
-	};
-	
-	tile.extension[this.id].points.push( pointRenderData );
-}
-
-/**************************************************************************************************************/
-
-/**
- * 	Set visibility of the layer
- */
-DynamicOSLayer.prototype.visible = function( arg )
-{
-	if ( typeof arg == "boolean" && this._visible != arg )
-	{
-		this._visible = arg;
-		
-		if ( arg ){
-			this.globe.tileManager.addPostRenderer(this);
-		}
-		else
-		{
-			this.globe.tileManager.removePostRenderer(this);
-		}
-	}
-	
-	return this._visible;
-}
-
-/**************************************************************************************************************/
-
 /**
  *	@constructor
- *	DynamicOSLayer.OSData constructor
  *
- *	OpenSearch renderable
+ *	To add the multiple features only once
  */
-DynamicOSLayer.OSData = function()
+Set = function()
 {
-	this.points = [];
+	this.length = 0;
 }
 
-/**************************************************************************************************************/
+/**
+ *	Add the element to the set
+ *
+ *	@param k Key
+ *	@param v Value
+ */
+Set.prototype.add = function(k,v)
+{
+	if (typeof this[k] === 'undefined')
+		{
+			this.length++;
+			this[k] = v;
+		}
+}
 
 /**
- * 	Dispose renderable data from tile
+ *	Remove the element from the set
+ *
+ *	@param k Key
  */
-DynamicOSLayer.OSData.prototype.dispose = function( renderContext, tilePool )
+Set.prototype.remove = function(k)
 {
-// 	console.log(this.points.length+" removed");
-	this.points.length = 0;
+	if ( this[k])
+	{
+		this.length--;
+		delete this[k];
+	}
 }
 
 /**************************************************************************************************************/
