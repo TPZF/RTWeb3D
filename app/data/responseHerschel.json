@@ -35,14 +35,14 @@
             "identifier": "ngc7023_blue_4SLD_80HPmap",
             "object": "n7023_int",
             "program": "SAG-4",
-            "quicklook": "/herschelFootprints/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/n7023_int/ngc7023_blue_4SLD_80HPmap_fullsize.png",
+            "quicklook": "http://idoc-herschel.ias.u-psud.fr/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/n7023_int/ngc7023_blue_4SLD_80HPmap_fullsize.png",
             "ra": 315.47592,
-            "thumbnail": "/herschelFootprints/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/n7023_int/ngc7023_blue_4SLD_80HPmap.png",
+            "thumbnail": "http://idoc-herschel.ias.u-psud.fr/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/n7023_int/ngc7023_blue_4SLD_80HPmap.png",
             "title": "n7023_int"
          },
          "services": {"download": {
             "mimetype": "application/fits",
-            "url": "/herschelFootprints/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/n7023_int/ngc7023_blue_4SLD_80HPmap.fits"
+            "url": "http://idoc-herschel.ias.u-psud.fr/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/n7023_int/ngc7023_blue_4SLD_80HPmap.fits"
          }},
          "type": "Feature"
       },
@@ -81,14 +81,14 @@
             "identifier": "ngc7023_blue_4SLD_highPassMadmap",
             "object": "n7023_int",
             "program": "SAG-4",
-            "quicklook": "/herschelFootprints/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/n7023_int/ngc7023_blue_4SLD_highPassMadmap_fullsize.png",
+            "quicklook": "http://idoc-herschel.ias.u-psud.fr/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/n7023_int/ngc7023_blue_4SLD_highPassMadmap_fullsize.png",
             "ra": 315.4772747322724,
-            "thumbnail": "/herschelFootprints/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/n7023_int/ngc7023_blue_4SLD_highPassMadmap.png",
+            "thumbnail": "http://idoc-herschel.ias.u-psud.fr/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/n7023_int/ngc7023_blue_4SLD_highPassMadmap.png",
             "title": "n7023_int"
          },
          "services": {"download": {
             "mimetype": "application/fits",
-            "url": "/herschelFootprints/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/n7023_int/ngc7023_blue_4SLD_highPassMadmap.fits"
+            "url": "http://idoc-herschel.ias.u-psud.fr/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/n7023_int/ngc7023_blue_4SLD_highPassMadmap.fits"
          }},
          "type": "Feature"
       },
@@ -127,14 +127,14 @@
             "identifier": "ngc7023_red_4SLD_80HPmap",
             "object": "n7023_int",
             "program": "SAG-4",
-            "quicklook": "/herschelFootprints/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/n7023_int/ngc7023_red_4SLD_80HPmap_fullsize.png",
+            "quicklook": "http://idoc-herschel.ias.u-psud.fr/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/n7023_int/ngc7023_red_4SLD_80HPmap_fullsize.png",
             "ra": 315.47500888890005,
-            "thumbnail": "/herschelFootprints/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/n7023_int/ngc7023_red_4SLD_80HPmap.png",
+            "thumbnail": "http://idoc-herschel.ias.u-psud.fr/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/n7023_int/ngc7023_red_4SLD_80HPmap.png",
             "title": "n7023_int"
          },
          "services": {"download": {
             "mimetype": "application/fits",
-            "url": "/herschelFootprints/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/n7023_int/ngc7023_red_4SLD_80HPmap.fits"
+            "url": "http://idoc-herschel.ias.u-psud.fr/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/n7023_int/ngc7023_red_4SLD_80HPmap.fits"
          }},
          "type": "Feature"
       },
@@ -173,14 +173,14 @@
             "identifier": "ngc7023_red_4SLD_highPassMadmap",
             "object": "n7023_int",
             "program": "SAG-4",
-            "quicklook": "/herschelFootprints/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/n7023_int/ngc7023_red_4SLD_highPassMadmap_fullsize.png",
+            "quicklook": "http://idoc-herschel.ias.u-psud.fr/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/n7023_int/ngc7023_red_4SLD_highPassMadmap_fullsize.png",
             "ra": 315.4770394645449,
-            "thumbnail": "/herschelFootprints/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/n7023_int/ngc7023_red_4SLD_highPassMadmap.png",
+            "thumbnail": "http://idoc-herschel.ias.u-psud.fr/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/n7023_int/ngc7023_red_4SLD_highPassMadmap.png",
             "title": "n7023_int"
          },
          "services": {"download": {
             "mimetype": "application/fits",
-            "url": "/herschelFootprints/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/n7023_int/ngc7023_red_4SLD_highPassMadmap.fits"
+            "url": "http://idoc-herschel.ias.u-psud.fr/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/n7023_int/ngc7023_red_4SLD_highPassMadmap.fits"
          }},
          "type": "Feature"
       },
@@ -219,14 +219,14 @@
             "identifier": "ngc7023_blue_4SLD_sigma3_5_80HPmap",
             "object": "n7023_int",
             "program": "SAG-4",
-            "quicklook": "/herschelFootprints/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/n7023_int/ngc7023_blue_4SLD_sigma3_5_80HPmap_fullsize.png",
+            "quicklook": "http://idoc-herschel.ias.u-psud.fr/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/n7023_int/ngc7023_blue_4SLD_sigma3_5_80HPmap_fullsize.png",
             "ra": 315.47592,
-            "thumbnail": "/herschelFootprints/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/n7023_int/ngc7023_blue_4SLD_sigma3_5_80HPmap.png",
+            "thumbnail": "http://idoc-herschel.ias.u-psud.fr/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/n7023_int/ngc7023_blue_4SLD_sigma3_5_80HPmap.png",
             "title": "n7023_int"
          },
          "services": {"download": {
             "mimetype": "application/fits",
-            "url": "/herschelFootprints/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/n7023_int/ngc7023_blue_4SLD_sigma3_5_80HPmap.fits"
+            "url": "http://idoc-herschel.ias.u-psud.fr/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/n7023_int/ngc7023_blue_4SLD_sigma3_5_80HPmap.fits"
          }},
          "type": "Feature"
       },
@@ -265,14 +265,14 @@
             "identifier": "ngc7023_blue_4SLD_sigma3_5_highPassMadmap",
             "object": "n7023_int",
             "program": "SAG-4",
-            "quicklook": "/herschelFootprints/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/n7023_int/ngc7023_blue_4SLD_sigma3_5_highPassMadmap_fullsize.png",
+            "quicklook": "http://idoc-herschel.ias.u-psud.fr/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/n7023_int/ngc7023_blue_4SLD_sigma3_5_highPassMadmap_fullsize.png",
             "ra": 315.4772747322724,
-            "thumbnail": "/herschelFootprints/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/n7023_int/ngc7023_blue_4SLD_sigma3_5_highPassMadmap.png",
+            "thumbnail": "http://idoc-herschel.ias.u-psud.fr/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/n7023_int/ngc7023_blue_4SLD_sigma3_5_highPassMadmap.png",
             "title": "n7023_int"
          },
          "services": {"download": {
             "mimetype": "application/fits",
-            "url": "/herschelFootprints/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/n7023_int/ngc7023_blue_4SLD_sigma3_5_highPassMadmap.fits"
+            "url": "http://idoc-herschel.ias.u-psud.fr/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/n7023_int/ngc7023_blue_4SLD_sigma3_5_highPassMadmap.fits"
          }},
          "type": "Feature"
       },
@@ -311,14 +311,14 @@
             "identifier": "ngc7023_red_sigma3_5_4SLD_sigma3_5_80HPmap",
             "object": "n7023_int",
             "program": "SAG-4",
-            "quicklook": "/herschelFootprints/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/n7023_int/ngc7023_red_sigma3_5_4SLD_sigma3_5_80HPmap_fullsize.png",
+            "quicklook": "http://idoc-herschel.ias.u-psud.fr/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/n7023_int/ngc7023_red_sigma3_5_4SLD_sigma3_5_80HPmap_fullsize.png",
             "ra": 315.47500888890005,
-            "thumbnail": "/herschelFootprints/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/n7023_int/ngc7023_red_sigma3_5_4SLD_sigma3_5_80HPmap.png",
+            "thumbnail": "http://idoc-herschel.ias.u-psud.fr/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/n7023_int/ngc7023_red_sigma3_5_4SLD_sigma3_5_80HPmap.png",
             "title": "n7023_int"
          },
          "services": {"download": {
             "mimetype": "application/fits",
-            "url": "/herschelFootprints/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/n7023_int/ngc7023_red_sigma3_5_4SLD_sigma3_5_80HPmap.fits"
+            "url": "http://idoc-herschel.ias.u-psud.fr/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/n7023_int/ngc7023_red_sigma3_5_4SLD_sigma3_5_80HPmap.fits"
          }},
          "type": "Feature"
       },
@@ -357,14 +357,14 @@
             "identifier": "ngc7023_red_sigma3_5_4SLD_sigma3_5_highPassMadmap",
             "object": "n7023_int",
             "program": "SAG-4",
-            "quicklook": "/herschelFootprints/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/n7023_int/ngc7023_red_sigma3_5_4SLD_sigma3_5_highPassMadmap_fullsize.png",
+            "quicklook": "http://idoc-herschel.ias.u-psud.fr/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/n7023_int/ngc7023_red_sigma3_5_4SLD_sigma3_5_highPassMadmap_fullsize.png",
             "ra": 315.4770394645449,
-            "thumbnail": "/herschelFootprints/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/n7023_int/ngc7023_red_sigma3_5_4SLD_sigma3_5_highPassMadmap.png",
+            "thumbnail": "http://idoc-herschel.ias.u-psud.fr/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/n7023_int/ngc7023_red_sigma3_5_4SLD_sigma3_5_highPassMadmap.png",
             "title": "n7023_int"
          },
          "services": {"download": {
             "mimetype": "application/fits",
-            "url": "/herschelFootprints/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/n7023_int/ngc7023_red_sigma3_5_4SLD_sigma3_5_highPassMadmap.fits"
+            "url": "http://idoc-herschel.ias.u-psud.fr/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/n7023_int/ngc7023_red_sigma3_5_4SLD_sigma3_5_highPassMadmap.fits"
          }},
          "type": "Feature"
       },
@@ -403,14 +403,14 @@
             "identifier": "ngc7023_red_4SLD_noHP_filter_80HPmap",
             "object": "n7023_int",
             "program": "SAG-4",
-            "quicklook": "/herschelFootprints/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/n7023_int/ngc7023_red_4SLD_noHP_filter_80HPmap_fullsize.png",
+            "quicklook": "http://idoc-herschel.ias.u-psud.fr/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/n7023_int/ngc7023_red_4SLD_noHP_filter_80HPmap_fullsize.png",
             "ra": 315.47500888890005,
-            "thumbnail": "/herschelFootprints/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/n7023_int/ngc7023_red_4SLD_noHP_filter_80HPmap.png",
+            "thumbnail": "http://idoc-herschel.ias.u-psud.fr/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/n7023_int/ngc7023_red_4SLD_noHP_filter_80HPmap.png",
             "title": "n7023_int"
          },
          "services": {"download": {
             "mimetype": "application/fits",
-            "url": "/herschelFootprints/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/n7023_int/ngc7023_red_4SLD_noHP_filter_80HPmap.fits"
+            "url": "http://idoc-herschel.ias.u-psud.fr/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/n7023_int/ngc7023_red_4SLD_noHP_filter_80HPmap.fits"
          }},
          "type": "Feature"
       },
@@ -449,14 +449,14 @@
             "identifier": "ngc7023_red_4SLD_noHP_filter_highPassMadmap",
             "object": "n7023_int",
             "program": "SAG-4",
-            "quicklook": "/herschelFootprints/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/n7023_int/ngc7023_red_4SLD_noHP_filter_highPassMadmap_fullsize.png",
+            "quicklook": "http://idoc-herschel.ias.u-psud.fr/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/n7023_int/ngc7023_red_4SLD_noHP_filter_highPassMadmap_fullsize.png",
             "ra": 315.4770394645449,
-            "thumbnail": "/herschelFootprints/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/n7023_int/ngc7023_red_4SLD_noHP_filter_highPassMadmap.png",
+            "thumbnail": "http://idoc-herschel.ias.u-psud.fr/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/n7023_int/ngc7023_red_4SLD_noHP_filter_highPassMadmap.png",
             "title": "n7023_int"
          },
          "services": {"download": {
             "mimetype": "application/fits",
-            "url": "/herschelFootprints/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/n7023_int/ngc7023_red_4SLD_noHP_filter_highPassMadmap.fits"
+            "url": "http://idoc-herschel.ias.u-psud.fr/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/n7023_int/ngc7023_red_4SLD_noHP_filter_highPassMadmap.fits"
          }},
          "type": "Feature"
       },
@@ -495,14 +495,14 @@
             "identifier": "ngc7023_blue_4SLD_noHP_filter_80HPmap",
             "object": "n7023_int",
             "program": "SAG-4",
-            "quicklook": "/herschelFootprints/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/n7023_int/ngc7023_blue_4SLD_noHP_filter_80HPmap_fullsize.png",
+            "quicklook": "http://idoc-herschel.ias.u-psud.fr/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/n7023_int/ngc7023_blue_4SLD_noHP_filter_80HPmap_fullsize.png",
             "ra": 315.47592,
-            "thumbnail": "/herschelFootprints/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/n7023_int/ngc7023_blue_4SLD_noHP_filter_80HPmap.png",
+            "thumbnail": "http://idoc-herschel.ias.u-psud.fr/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/n7023_int/ngc7023_blue_4SLD_noHP_filter_80HPmap.png",
             "title": "n7023_int"
          },
          "services": {"download": {
             "mimetype": "application/fits",
-            "url": "/herschelFootprints/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/n7023_int/ngc7023_blue_4SLD_noHP_filter_80HPmap.fits"
+            "url": "http://idoc-herschel.ias.u-psud.fr/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/n7023_int/ngc7023_blue_4SLD_noHP_filter_80HPmap.fits"
          }},
          "type": "Feature"
       },
@@ -541,14 +541,14 @@
             "identifier": "ngc7023_blue_4SLD_noHP_filter_highPassMadmap",
             "object": "n7023_int",
             "program": "SAG-4",
-            "quicklook": "/herschelFootprints/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/n7023_int/ngc7023_blue_4SLD_noHP_filter_highPassMadmap_fullsize.png",
+            "quicklook": "http://idoc-herschel.ias.u-psud.fr/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/n7023_int/ngc7023_blue_4SLD_noHP_filter_highPassMadmap_fullsize.png",
             "ra": 315.4772747322724,
-            "thumbnail": "/herschelFootprints/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/n7023_int/ngc7023_blue_4SLD_noHP_filter_highPassMadmap.png",
+            "thumbnail": "http://idoc-herschel.ias.u-psud.fr/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/n7023_int/ngc7023_blue_4SLD_noHP_filter_highPassMadmap.png",
             "title": "n7023_int"
          },
          "services": {"download": {
             "mimetype": "application/fits",
-            "url": "/herschelFootprints/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/n7023_int/ngc7023_blue_4SLD_noHP_filter_highPassMadmap.fits"
+            "url": "http://idoc-herschel.ias.u-psud.fr/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/n7023_int/ngc7023_blue_4SLD_noHP_filter_highPassMadmap.fits"
          }},
          "type": "Feature"
       },
@@ -587,14 +587,14 @@
             "identifier": "ngc7023_red_SrcMap_4SLD_SrcMap_80HPmap",
             "object": "n7023_int",
             "program": "SAG-4",
-            "quicklook": "/herschelFootprints/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/n7023_int/ngc7023_red_SrcMap_4SLD_SrcMap_80HPmap_fullsize.png",
+            "quicklook": "http://idoc-herschel.ias.u-psud.fr/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/n7023_int/ngc7023_red_SrcMap_4SLD_SrcMap_80HPmap_fullsize.png",
             "ra": 315.47500888890005,
-            "thumbnail": "/herschelFootprints/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/n7023_int/ngc7023_red_SrcMap_4SLD_SrcMap_80HPmap.png",
+            "thumbnail": "http://idoc-herschel.ias.u-psud.fr/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/n7023_int/ngc7023_red_SrcMap_4SLD_SrcMap_80HPmap.png",
             "title": "n7023_int"
          },
          "services": {"download": {
             "mimetype": "application/fits",
-            "url": "/herschelFootprints/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/n7023_int/ngc7023_red_SrcMap_4SLD_SrcMap_80HPmap.fits"
+            "url": "http://idoc-herschel.ias.u-psud.fr/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/n7023_int/ngc7023_red_SrcMap_4SLD_SrcMap_80HPmap.fits"
          }},
          "type": "Feature"
       },
@@ -633,14 +633,14 @@
             "identifier": "ngc7023_red_SrcMap_4SLD_SrcMap_highPassMadmap",
             "object": "n7023_int",
             "program": "SAG-4",
-            "quicklook": "/herschelFootprints/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/n7023_int/ngc7023_red_SrcMap_4SLD_SrcMap_highPassMadmap_fullsize.png",
+            "quicklook": "http://idoc-herschel.ias.u-psud.fr/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/n7023_int/ngc7023_red_SrcMap_4SLD_SrcMap_highPassMadmap_fullsize.png",
             "ra": 315.41786444445006,
-            "thumbnail": "/herschelFootprints/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/n7023_int/ngc7023_red_SrcMap_4SLD_SrcMap_highPassMadmap.png",
+            "thumbnail": "http://idoc-herschel.ias.u-psud.fr/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/n7023_int/ngc7023_red_SrcMap_4SLD_SrcMap_highPassMadmap.png",
             "title": "n7023_int"
          },
          "services": {"download": {
             "mimetype": "application/fits",
-            "url": "/herschelFootprints/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/n7023_int/ngc7023_red_SrcMap_4SLD_SrcMap_highPassMadmap.fits"
+            "url": "http://idoc-herschel.ias.u-psud.fr/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/n7023_int/ngc7023_red_SrcMap_4SLD_SrcMap_highPassMadmap.fits"
          }},
          "type": "Feature"
       },
@@ -679,14 +679,14 @@
             "identifier": "ngc7023_blue_SrcMap_4SLD_SrcMap_80HPmap",
             "object": "n7023_int",
             "program": "SAG-4",
-            "quicklook": "/herschelFootprints/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/n7023_int/ngc7023_blue_SrcMap_4SLD_SrcMap_80HPmap_fullsize.png",
+            "quicklook": "http://idoc-herschel.ias.u-psud.fr/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/n7023_int/ngc7023_blue_SrcMap_4SLD_SrcMap_80HPmap_fullsize.png",
             "ra": 315.47592,
-            "thumbnail": "/herschelFootprints/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/n7023_int/ngc7023_blue_SrcMap_4SLD_SrcMap_80HPmap.png",
+            "thumbnail": "http://idoc-herschel.ias.u-psud.fr/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/n7023_int/ngc7023_blue_SrcMap_4SLD_SrcMap_80HPmap.png",
             "title": "n7023_int"
          },
          "services": {"download": {
             "mimetype": "application/fits",
-            "url": "/herschelFootprints/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/n7023_int/ngc7023_blue_SrcMap_4SLD_SrcMap_80HPmap.fits"
+            "url": "http://idoc-herschel.ias.u-psud.fr/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/n7023_int/ngc7023_blue_SrcMap_4SLD_SrcMap_80HPmap.fits"
          }},
          "type": "Feature"
       },
@@ -725,14 +725,14 @@
             "identifier": "ngc7023_blue_SrcMap_4SLD_SrcMap_highPassMadmap",
             "object": "n7023_int",
             "program": "SAG-4",
-            "quicklook": "/herschelFootprints/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/n7023_int/ngc7023_blue_SrcMap_4SLD_SrcMap_highPassMadmap_fullsize.png",
+            "quicklook": "http://idoc-herschel.ias.u-psud.fr/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/n7023_int/ngc7023_blue_SrcMap_4SLD_SrcMap_highPassMadmap_fullsize.png",
             "ra": 315.418982222225,
-            "thumbnail": "/herschelFootprints/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/n7023_int/ngc7023_blue_SrcMap_4SLD_SrcMap_highPassMadmap.png",
+            "thumbnail": "http://idoc-herschel.ias.u-psud.fr/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/n7023_int/ngc7023_blue_SrcMap_4SLD_SrcMap_highPassMadmap.png",
             "title": "n7023_int"
          },
          "services": {"download": {
             "mimetype": "application/fits",
-            "url": "/herschelFootprints/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/n7023_int/ngc7023_blue_SrcMap_4SLD_SrcMap_highPassMadmap.fits"
+            "url": "http://idoc-herschel.ias.u-psud.fr/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/n7023_int/ngc7023_blue_SrcMap_4SLD_SrcMap_highPassMadmap.fits"
          }},
          "type": "Feature"
       },
@@ -771,14 +771,14 @@
             "identifier": "ced201_blue_36MMT_60HPmap",
             "object": "Ced201-2",
             "program": "SAG-4",
-            "quicklook": "/herschelFootprints/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/Ced201-2/ced201_blue_36MMT_60HPmap_fullsize.png",
+            "quicklook": "http://idoc-herschel.ias.u-psud.fr/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/Ced201-2/ced201_blue_36MMT_60HPmap_fullsize.png",
             "ra": 333.35204444445003,
-            "thumbnail": "/herschelFootprints/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/Ced201-2/ced201_blue_36MMT_60HPmap.png",
+            "thumbnail": "http://idoc-herschel.ias.u-psud.fr/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/Ced201-2/ced201_blue_36MMT_60HPmap.png",
             "title": "Ced201-2"
          },
          "services": {"download": {
             "mimetype": "application/fits",
-            "url": "/herschelFootprints/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/Ced201-2/ced201_blue_36MMT_60HPmap.fits"
+            "url": "http://idoc-herschel.ias.u-psud.fr/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/Ced201-2/ced201_blue_36MMT_60HPmap.fits"
          }},
          "type": "Feature"
       },
@@ -817,14 +817,14 @@
             "identifier": "ced201_blue_36MMT_highPassMadmap",
             "object": "Ced201-2",
             "program": "SAG-4",
-            "quicklook": "/herschelFootprints/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/Ced201-2/ced201_blue_36MMT_highPassMadmap_fullsize.png",
+            "quicklook": "http://idoc-herschel.ias.u-psud.fr/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/Ced201-2/ced201_blue_36MMT_highPassMadmap_fullsize.png",
             "ra": 333.35177540325964,
-            "thumbnail": "/herschelFootprints/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/Ced201-2/ced201_blue_36MMT_highPassMadmap.png",
+            "thumbnail": "http://idoc-herschel.ias.u-psud.fr/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/Ced201-2/ced201_blue_36MMT_highPassMadmap.png",
             "title": "Ced201-2"
          },
          "services": {"download": {
             "mimetype": "application/fits",
-            "url": "/herschelFootprints/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/Ced201-2/ced201_blue_36MMT_highPassMadmap.fits"
+            "url": "http://idoc-herschel.ias.u-psud.fr/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/Ced201-2/ced201_blue_36MMT_highPassMadmap.fits"
          }},
          "type": "Feature"
       },
@@ -863,14 +863,14 @@
             "identifier": "ced201_red_4SLD_80HPmap",
             "object": "Ced201-2",
             "program": "SAG-4",
-            "quicklook": "/herschelFootprints/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/Ced201-2/ced201_red_4SLD_80HPmap_fullsize.png",
+            "quicklook": "http://idoc-herschel.ias.u-psud.fr/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/Ced201-2/ced201_red_4SLD_80HPmap_fullsize.png",
             "ra": 333.354,
-            "thumbnail": "/herschelFootprints/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/Ced201-2/ced201_red_4SLD_80HPmap.png",
+            "thumbnail": "http://idoc-herschel.ias.u-psud.fr/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/Ced201-2/ced201_red_4SLD_80HPmap.png",
             "title": "Ced201-2"
          },
          "services": {"download": {
             "mimetype": "application/fits",
-            "url": "/herschelFootprints/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/Ced201-2/ced201_red_4SLD_80HPmap.fits"
+            "url": "http://idoc-herschel.ias.u-psud.fr/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/Ced201-2/ced201_red_4SLD_80HPmap.fits"
          }},
          "type": "Feature"
       },
@@ -909,14 +909,14 @@
             "identifier": "ced201_red_4SLD_highPassMadmap",
             "object": "Ced201-2",
             "program": "SAG-4",
-            "quicklook": "/herschelFootprints/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/Ced201-2/ced201_red_4SLD_highPassMadmap_fullsize.png",
+            "quicklook": "http://idoc-herschel.ias.u-psud.fr/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/Ced201-2/ced201_red_4SLD_highPassMadmap_fullsize.png",
             "ra": 333.3534197800186,
-            "thumbnail": "/herschelFootprints/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/Ced201-2/ced201_red_4SLD_highPassMadmap.png",
+            "thumbnail": "http://idoc-herschel.ias.u-psud.fr/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/Ced201-2/ced201_red_4SLD_highPassMadmap.png",
             "title": "Ced201-2"
          },
          "services": {"download": {
             "mimetype": "application/fits",
-            "url": "/herschelFootprints/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/Ced201-2/ced201_red_4SLD_highPassMadmap.fits"
+            "url": "http://idoc-herschel.ias.u-psud.fr/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/Ced201-2/ced201_red_4SLD_highPassMadmap.fits"
          }},
          "type": "Feature"
       },
@@ -955,14 +955,14 @@
             "identifier": "ursamajors_blue_4SLD_80HPmap",
             "object": "ursamajors",
             "program": "SAG-4",
-            "quicklook": "/herschelFootprints/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/ursamajors/ursamajors_blue_4SLD_80HPmap_fullsize.png",
+            "quicklook": "http://idoc-herschel.ias.u-psud.fr/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/ursamajors/ursamajors_blue_4SLD_80HPmap_fullsize.png",
             "ra": 144.86774999999997,
-            "thumbnail": "/herschelFootprints/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/ursamajors/ursamajors_blue_4SLD_80HPmap.png",
+            "thumbnail": "http://idoc-herschel.ias.u-psud.fr/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/ursamajors/ursamajors_blue_4SLD_80HPmap.png",
             "title": "ursamajors"
          },
          "services": {"download": {
             "mimetype": "application/fits",
-            "url": "/herschelFootprints/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/ursamajors/ursamajors_blue_4SLD_80HPmap.fits"
+            "url": "http://idoc-herschel.ias.u-psud.fr/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/ursamajors/ursamajors_blue_4SLD_80HPmap.fits"
          }},
          "type": "Feature"
       },
@@ -1001,14 +1001,14 @@
             "identifier": "ursamajors_red_4SLD_80HPmap",
             "object": "ursamajors",
             "program": "SAG-4",
-            "quicklook": "/herschelFootprints/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/ursamajors/ursamajors_red_4SLD_80HPmap_fullsize.png",
+            "quicklook": "http://idoc-herschel.ias.u-psud.fr/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/ursamajors/ursamajors_red_4SLD_80HPmap_fullsize.png",
             "ra": 144.86497,
-            "thumbnail": "/herschelFootprints/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/ursamajors/ursamajors_red_4SLD_80HPmap.png",
+            "thumbnail": "http://idoc-herschel.ias.u-psud.fr/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/ursamajors/ursamajors_red_4SLD_80HPmap.png",
             "title": "ursamajors"
          },
          "services": {"download": {
             "mimetype": "application/fits",
-            "url": "/herschelFootprints/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/ursamajors/ursamajors_red_4SLD_80HPmap.fits"
+            "url": "http://idoc-herschel.ias.u-psud.fr/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/ursamajors/ursamajors_red_4SLD_80HPmap.fits"
          }},
          "type": "Feature"
       },
@@ -1047,14 +1047,14 @@
             "identifier": "ursamajors_red_4SLD_highPassMadmap",
             "object": "ursamajors",
             "program": "SAG-4",
-            "quicklook": "/herschelFootprints/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/ursamajors/ursamajors_red_4SLD_highPassMadmap_fullsize.png",
+            "quicklook": "http://idoc-herschel.ias.u-psud.fr/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/ursamajors/ursamajors_red_4SLD_highPassMadmap_fullsize.png",
             "ra": 144.4566511137,
-            "thumbnail": "/herschelFootprints/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/ursamajors/ursamajors_red_4SLD_highPassMadmap.png",
+            "thumbnail": "http://idoc-herschel.ias.u-psud.fr/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/ursamajors/ursamajors_red_4SLD_highPassMadmap.png",
             "title": "ursamajors"
          },
          "services": {"download": {
             "mimetype": "application/fits",
-            "url": "/herschelFootprints/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/ursamajors/ursamajors_red_4SLD_highPassMadmap.fits"
+            "url": "http://idoc-herschel.ias.u-psud.fr/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/ursamajors/ursamajors_red_4SLD_highPassMadmap.fits"
          }},
          "type": "Feature"
       },
@@ -1093,14 +1093,14 @@
             "identifier": "HD37041_blue_legx5_newCal_15SLD_pixfrac1_outpixsz2.0_1800HPmap",
             "object": "HD37041",
             "program": "SAG-4",
-            "quicklook": "/herschelFootprints/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/HD37041/HD37041_blue_legx5_newCal_15SLD_pixfrac1_outpixsz2.0_1800HPmap_fullsize.png",
+            "quicklook": "http://idoc-herschel.ias.u-psud.fr/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/HD37041/HD37041_blue_legx5_newCal_15SLD_pixfrac1_outpixsz2.0_1800HPmap_fullsize.png",
             "ra": 83.84637777778501,
-            "thumbnail": "/herschelFootprints/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/HD37041/HD37041_blue_legx5_newCal_15SLD_pixfrac1_outpixsz2.0_1800HPmap.png",
+            "thumbnail": "http://idoc-herschel.ias.u-psud.fr/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/HD37041/HD37041_blue_legx5_newCal_15SLD_pixfrac1_outpixsz2.0_1800HPmap.png",
             "title": "HD37041"
          },
          "services": {"download": {
             "mimetype": "application/fits",
-            "url": "/herschelFootprints/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/HD37041/HD37041_blue_legx5_newCal_15SLD_pixfrac1_outpixsz2.0_1800HPmap.fits"
+            "url": "http://idoc-herschel.ias.u-psud.fr/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/HD37041/HD37041_blue_legx5_newCal_15SLD_pixfrac1_outpixsz2.0_1800HPmap.fits"
          }},
          "type": "Feature"
       },
@@ -1139,14 +1139,14 @@
             "identifier": "HD37041_red_legx5_newCal_20SLD_pixfrac1_outpixsz3_1800HPmap",
             "object": "HD37041",
             "program": "SAG-4",
-            "quicklook": "/herschelFootprints/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/HD37041/HD37041_red_legx5_newCal_20SLD_pixfrac1_outpixsz3_1800HPmap_fullsize.png",
+            "quicklook": "http://idoc-herschel.ias.u-psud.fr/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/HD37041/HD37041_red_legx5_newCal_20SLD_pixfrac1_outpixsz3_1800HPmap_fullsize.png",
             "ra": 83.84598666667499,
-            "thumbnail": "/herschelFootprints/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/HD37041/HD37041_red_legx5_newCal_20SLD_pixfrac1_outpixsz3_1800HPmap.png",
+            "thumbnail": "http://idoc-herschel.ias.u-psud.fr/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/HD37041/HD37041_red_legx5_newCal_20SLD_pixfrac1_outpixsz3_1800HPmap.png",
             "title": "HD37041"
          },
          "services": {"download": {
             "mimetype": "application/fits",
-            "url": "/herschelFootprints/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/HD37041/HD37041_red_legx5_newCal_20SLD_pixfrac1_outpixsz3_1800HPmap.fits"
+            "url": "http://idoc-herschel.ias.u-psud.fr/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/HD37041/HD37041_red_legx5_newCal_20SLD_pixfrac1_outpixsz3_1800HPmap.fits"
          }},
          "type": "Feature"
       },
@@ -1185,14 +1185,14 @@
             "identifier": "IVCG86_green_4SLD_highPassMadmap",
             "object": "IVCG86",
             "program": "SAG-4",
-            "quicklook": "/herschelFootprints/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/IVCG86/IVCG86_green_4SLD_highPassMadmap_fullsize.png",
+            "quicklook": "http://idoc-herschel.ias.u-psud.fr/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/IVCG86/IVCG86_green_4SLD_highPassMadmap_fullsize.png",
             "ra": 220.25091999999998,
-            "thumbnail": "/herschelFootprints/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/IVCG86/IVCG86_green_4SLD_highPassMadmap.png",
+            "thumbnail": "http://idoc-herschel.ias.u-psud.fr/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/IVCG86/IVCG86_green_4SLD_highPassMadmap.png",
             "title": "IVCG86"
          },
          "services": {"download": {
             "mimetype": "application/fits",
-            "url": "/herschelFootprints/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/IVCG86/IVCG86_green_4SLD_highPassMadmap.fits"
+            "url": "http://idoc-herschel.ias.u-psud.fr/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/IVCG86/IVCG86_green_4SLD_highPassMadmap.fits"
          }},
          "type": "Feature"
       },
@@ -1231,14 +1231,14 @@
             "identifier": "IVCG86_green_4SLD_80HPmap",
             "object": "IVCG86",
             "program": "SAG-4",
-            "quicklook": "/herschelFootprints/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/IVCG86/IVCG86_green_4SLD_80HPmap_fullsize.png",
+            "quicklook": "http://idoc-herschel.ias.u-psud.fr/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/IVCG86/IVCG86_green_4SLD_80HPmap_fullsize.png",
             "ra": 220.19409,
-            "thumbnail": "/herschelFootprints/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/IVCG86/IVCG86_green_4SLD_80HPmap.png",
+            "thumbnail": "http://idoc-herschel.ias.u-psud.fr/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/IVCG86/IVCG86_green_4SLD_80HPmap.png",
             "title": "IVCG86"
          },
          "services": {"download": {
             "mimetype": "application/fits",
-            "url": "/herschelFootprints/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/IVCG86/IVCG86_green_4SLD_80HPmap.fits"
+            "url": "http://idoc-herschel.ias.u-psud.fr/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/IVCG86/IVCG86_green_4SLD_80HPmap.fits"
          }},
          "type": "Feature"
       },
@@ -1277,14 +1277,14 @@
             "identifier": "IVCG86_red_4SLD_highPassMadmap",
             "object": "IVCG86",
             "program": "SAG-4",
-            "quicklook": "/herschelFootprints/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/IVCG86/IVCG86_red_4SLD_highPassMadmap_fullsize.png",
+            "quicklook": "http://idoc-herschel.ias.u-psud.fr/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/IVCG86/IVCG86_red_4SLD_highPassMadmap_fullsize.png",
             "ra": 220.24916,
-            "thumbnail": "/herschelFootprints/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/IVCG86/IVCG86_red_4SLD_highPassMadmap.png",
+            "thumbnail": "http://idoc-herschel.ias.u-psud.fr/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/IVCG86/IVCG86_red_4SLD_highPassMadmap.png",
             "title": "IVCG86"
          },
          "services": {"download": {
             "mimetype": "application/fits",
-            "url": "/herschelFootprints/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/IVCG86/IVCG86_red_4SLD_highPassMadmap.fits"
+            "url": "http://idoc-herschel.ias.u-psud.fr/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/IVCG86/IVCG86_red_4SLD_highPassMadmap.fits"
          }},
          "type": "Feature"
       },
@@ -1323,14 +1323,14 @@
             "identifier": "IVCG86_red_4SLD_80HPmap",
             "object": "IVCG86",
             "program": "SAG-4",
-            "quicklook": "/herschelFootprints/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/IVCG86/IVCG86_red_4SLD_80HPmap_fullsize.png",
+            "quicklook": "http://idoc-herschel.ias.u-psud.fr/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/IVCG86/IVCG86_red_4SLD_80HPmap_fullsize.png",
             "ra": 220.1936388889,
-            "thumbnail": "/herschelFootprints/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/IVCG86/IVCG86_red_4SLD_80HPmap.png",
+            "thumbnail": "http://idoc-herschel.ias.u-psud.fr/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/IVCG86/IVCG86_red_4SLD_80HPmap.png",
             "title": "IVCG86"
          },
          "services": {"download": {
             "mimetype": "application/fits",
-            "url": "/herschelFootprints/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/IVCG86/IVCG86_red_4SLD_80HPmap.fits"
+            "url": "http://idoc-herschel.ias.u-psud.fr/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/IVCG86/IVCG86_red_4SLD_80HPmap.fits"
          }},
          "type": "Feature"
       },
@@ -1369,14 +1369,14 @@
             "identifier": "n2023_red_4SLD_80HPmap",
             "object": "n2023",
             "program": "SAG-4",
-            "quicklook": "/herschelFootprints/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/n2023/n2023_red_4SLD_80HPmap_fullsize.png",
+            "quicklook": "http://idoc-herschel.ias.u-psud.fr/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/n2023/n2023_red_4SLD_80HPmap_fullsize.png",
             "ra": 85.39722,
-            "thumbnail": "/herschelFootprints/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/n2023/n2023_red_4SLD_80HPmap.png",
+            "thumbnail": "http://idoc-herschel.ias.u-psud.fr/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/n2023/n2023_red_4SLD_80HPmap.png",
             "title": "n2023"
          },
          "services": {"download": {
             "mimetype": "application/fits",
-            "url": "/herschelFootprints/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/n2023/n2023_red_4SLD_80HPmap.fits"
+            "url": "http://idoc-herschel.ias.u-psud.fr/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/n2023/n2023_red_4SLD_80HPmap.fits"
          }},
          "type": "Feature"
       },
@@ -1415,14 +1415,14 @@
             "identifier": "n2023_red_4SLD_highPassMadmap",
             "object": "n2023",
             "program": "SAG-4",
-            "quicklook": "/herschelFootprints/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/n2023/n2023_red_4SLD_highPassMadmap_fullsize.png",
+            "quicklook": "http://idoc-herschel.ias.u-psud.fr/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/n2023/n2023_red_4SLD_highPassMadmap_fullsize.png",
             "ra": 85.02758388890001,
-            "thumbnail": "/herschelFootprints/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/n2023/n2023_red_4SLD_highPassMadmap.png",
+            "thumbnail": "http://idoc-herschel.ias.u-psud.fr/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/n2023/n2023_red_4SLD_highPassMadmap.png",
             "title": "n2023"
          },
          "services": {"download": {
             "mimetype": "application/fits",
-            "url": "/herschelFootprints/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/n2023/n2023_red_4SLD_highPassMadmap.fits"
+            "url": "http://idoc-herschel.ias.u-psud.fr/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/n2023/n2023_red_4SLD_highPassMadmap.fits"
          }},
          "type": "Feature"
       },
@@ -1461,14 +1461,14 @@
             "identifier": "n2023_blue_4SLD_80HPmap",
             "object": "n2023",
             "program": "SAG-4",
-            "quicklook": "/herschelFootprints/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/n2023/n2023_blue_4SLD_80HPmap_fullsize.png",
+            "quicklook": "http://idoc-herschel.ias.u-psud.fr/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/n2023/n2023_blue_4SLD_80HPmap_fullsize.png",
             "ra": 85.396614,
-            "thumbnail": "/herschelFootprints/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/n2023/n2023_blue_4SLD_80HPmap.png",
+            "thumbnail": "http://idoc-herschel.ias.u-psud.fr/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/n2023/n2023_blue_4SLD_80HPmap.png",
             "title": "n2023"
          },
          "services": {"download": {
             "mimetype": "application/fits",
-            "url": "/herschelFootprints/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/n2023/n2023_blue_4SLD_80HPmap.fits"
+            "url": "http://idoc-herschel.ias.u-psud.fr/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/n2023/n2023_blue_4SLD_80HPmap.fits"
          }},
          "type": "Feature"
       },
@@ -1507,14 +1507,14 @@
             "identifier": "n2023_blue_4SLD_highPassMadmap",
             "object": "n2023",
             "program": "SAG-4",
-            "quicklook": "/herschelFootprints/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/n2023/n2023_blue_4SLD_highPassMadmap_fullsize.png",
+            "quicklook": "http://idoc-herschel.ias.u-psud.fr/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/n2023/n2023_blue_4SLD_highPassMadmap_fullsize.png",
             "ra": 85.02164000000002,
-            "thumbnail": "/herschelFootprints/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/n2023/n2023_blue_4SLD_highPassMadmap.png",
+            "thumbnail": "http://idoc-herschel.ias.u-psud.fr/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/n2023/n2023_blue_4SLD_highPassMadmap.png",
             "title": "n2023"
          },
          "services": {"download": {
             "mimetype": "application/fits",
-            "url": "/herschelFootprints/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/n2023/n2023_blue_4SLD_highPassMadmap.fits"
+            "url": "http://idoc-herschel.ias.u-psud.fr/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/n2023/n2023_blue_4SLD_highPassMadmap.fits"
          }},
          "type": "Feature"
       },
@@ -1553,14 +1553,14 @@
             "identifier": "n2023_blue_mask_all__4SLD_80HPmap",
             "object": "n2023",
             "program": "SAG-4",
-            "quicklook": "/herschelFootprints/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/n2023/n2023_blue_mask_all__4SLD_80HPmap_fullsize.png",
+            "quicklook": "http://idoc-herschel.ias.u-psud.fr/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/n2023/n2023_blue_mask_all__4SLD_80HPmap_fullsize.png",
             "ra": 85.396614,
-            "thumbnail": "/herschelFootprints/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/n2023/n2023_blue_mask_all__4SLD_80HPmap.png",
+            "thumbnail": "http://idoc-herschel.ias.u-psud.fr/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/n2023/n2023_blue_mask_all__4SLD_80HPmap.png",
             "title": "n2023"
          },
          "services": {"download": {
             "mimetype": "application/fits",
-            "url": "/herschelFootprints/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/n2023/n2023_blue_mask_all__4SLD_80HPmap.fits"
+            "url": "http://idoc-herschel.ias.u-psud.fr/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/n2023/n2023_blue_mask_all__4SLD_80HPmap.fits"
          }},
          "type": "Feature"
       },
@@ -1599,14 +1599,14 @@
             "identifier": "n2023_blue_mask_all__4SLD_highPassMadmap",
             "object": "n2023",
             "program": "SAG-4",
-            "quicklook": "/herschelFootprints/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/n2023/n2023_blue_mask_all__4SLD_highPassMadmap_fullsize.png",
+            "quicklook": "http://idoc-herschel.ias.u-psud.fr/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/n2023/n2023_blue_mask_all__4SLD_highPassMadmap_fullsize.png",
             "ra": 85.02164000000002,
-            "thumbnail": "/herschelFootprints/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/n2023/n2023_blue_mask_all__4SLD_highPassMadmap.png",
+            "thumbnail": "http://idoc-herschel.ias.u-psud.fr/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/n2023/n2023_blue_mask_all__4SLD_highPassMadmap.png",
             "title": "n2023"
          },
          "services": {"download": {
             "mimetype": "application/fits",
-            "url": "/herschelFootprints/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/n2023/n2023_blue_mask_all__4SLD_highPassMadmap.fits"
+            "url": "http://idoc-herschel.ias.u-psud.fr/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/n2023/n2023_blue_mask_all__4SLD_highPassMadmap.fits"
          }},
          "type": "Feature"
       },
@@ -1645,14 +1645,14 @@
             "identifier": "n2023_red_mask_all__4SLD_80HPmap",
             "object": "n2023",
             "program": "SAG-4",
-            "quicklook": "/herschelFootprints/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/n2023/n2023_red_mask_all__4SLD_80HPmap_fullsize.png",
+            "quicklook": "http://idoc-herschel.ias.u-psud.fr/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/n2023/n2023_red_mask_all__4SLD_80HPmap_fullsize.png",
             "ra": 85.39722,
-            "thumbnail": "/herschelFootprints/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/n2023/n2023_red_mask_all__4SLD_80HPmap.png",
+            "thumbnail": "http://idoc-herschel.ias.u-psud.fr/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/n2023/n2023_red_mask_all__4SLD_80HPmap.png",
             "title": "n2023"
          },
          "services": {"download": {
             "mimetype": "application/fits",
-            "url": "/herschelFootprints/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/n2023/n2023_red_mask_all__4SLD_80HPmap.fits"
+            "url": "http://idoc-herschel.ias.u-psud.fr/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/n2023/n2023_red_mask_all__4SLD_80HPmap.fits"
          }},
          "type": "Feature"
       },
@@ -1691,14 +1691,14 @@
             "identifier": "n2023_red_mask_all__4SLD_highPassMadmap",
             "object": "n2023",
             "program": "SAG-4",
-            "quicklook": "/herschelFootprints/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/n2023/n2023_red_mask_all__4SLD_highPassMadmap_fullsize.png",
+            "quicklook": "http://idoc-herschel.ias.u-psud.fr/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/n2023/n2023_red_mask_all__4SLD_highPassMadmap_fullsize.png",
             "ra": 85.02758388890001,
-            "thumbnail": "/herschelFootprints/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/n2023/n2023_red_mask_all__4SLD_highPassMadmap.png",
+            "thumbnail": "http://idoc-herschel.ias.u-psud.fr/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/n2023/n2023_red_mask_all__4SLD_highPassMadmap.png",
             "title": "n2023"
          },
          "services": {"download": {
             "mimetype": "application/fits",
-            "url": "/herschelFootprints/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/n2023/n2023_red_mask_all__4SLD_highPassMadmap.fits"
+            "url": "http://idoc-herschel.ias.u-psud.fr/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/n2023/n2023_red_mask_all__4SLD_highPassMadmap.fits"
          }},
          "type": "Feature"
       },
@@ -1737,14 +1737,14 @@
             "identifier": "n2023_red_mask_all_ter_4SLD_80HPmap",
             "object": "n2023",
             "program": "SAG-4",
-            "quicklook": "/herschelFootprints/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/n2023/n2023_red_mask_all_ter_4SLD_80HPmap_fullsize.png",
+            "quicklook": "http://idoc-herschel.ias.u-psud.fr/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/n2023/n2023_red_mask_all_ter_4SLD_80HPmap_fullsize.png",
             "ra": 85.39722,
-            "thumbnail": "/herschelFootprints/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/n2023/n2023_red_mask_all_ter_4SLD_80HPmap.png",
+            "thumbnail": "http://idoc-herschel.ias.u-psud.fr/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/n2023/n2023_red_mask_all_ter_4SLD_80HPmap.png",
             "title": "n2023"
          },
          "services": {"download": {
             "mimetype": "application/fits",
-            "url": "/herschelFootprints/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/n2023/n2023_red_mask_all_ter_4SLD_80HPmap.fits"
+            "url": "http://idoc-herschel.ias.u-psud.fr/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/n2023/n2023_red_mask_all_ter_4SLD_80HPmap.fits"
          }},
          "type": "Feature"
       },
@@ -1783,14 +1783,14 @@
             "identifier": "n2023_red_mask_all_ter_4SLD_highPassMadmap",
             "object": "n2023",
             "program": "SAG-4",
-            "quicklook": "/herschelFootprints/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/n2023/n2023_red_mask_all_ter_4SLD_highPassMadmap_fullsize.png",
+            "quicklook": "http://idoc-herschel.ias.u-psud.fr/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/n2023/n2023_red_mask_all_ter_4SLD_highPassMadmap_fullsize.png",
             "ra": 85.02758388890001,
-            "thumbnail": "/herschelFootprints/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/n2023/n2023_red_mask_all_ter_4SLD_highPassMadmap.png",
+            "thumbnail": "http://idoc-herschel.ias.u-psud.fr/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/n2023/n2023_red_mask_all_ter_4SLD_highPassMadmap.png",
             "title": "n2023"
          },
          "services": {"download": {
             "mimetype": "application/fits",
-            "url": "/herschelFootprints/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/n2023/n2023_red_mask_all_ter_4SLD_highPassMadmap.fits"
+            "url": "http://idoc-herschel.ias.u-psud.fr/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/n2023/n2023_red_mask_all_ter_4SLD_highPassMadmap.fits"
          }},
          "type": "Feature"
       },
@@ -1829,14 +1829,14 @@
             "identifier": "spica_red__mask1__4SLD_80HPmap",
             "object": "spica",
             "program": "SAG-4",
-            "quicklook": "/herschelFootprints/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/spica/spica_red__mask1__4SLD_80HPmap_fullsize.png",
+            "quicklook": "http://idoc-herschel.ias.u-psud.fr/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/spica/spica_red__mask1__4SLD_80HPmap_fullsize.png",
             "ra": 201.22390888889998,
-            "thumbnail": "/herschelFootprints/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/spica/spica_red__mask1__4SLD_80HPmap.png",
+            "thumbnail": "http://idoc-herschel.ias.u-psud.fr/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/spica/spica_red__mask1__4SLD_80HPmap.png",
             "title": "spica"
          },
          "services": {"download": {
             "mimetype": "application/fits",
-            "url": "/herschelFootprints/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/spica/spica_red__mask1__4SLD_80HPmap.fits"
+            "url": "http://idoc-herschel.ias.u-psud.fr/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/spica/spica_red__mask1__4SLD_80HPmap.fits"
          }},
          "type": "Feature"
       },
@@ -1875,14 +1875,14 @@
             "identifier": "spica_red__mask1__4SLD_highPassMadmap",
             "object": "spica",
             "program": "SAG-4",
-            "quicklook": "/herschelFootprints/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/spica/spica_red__mask1__4SLD_highPassMadmap_fullsize.png",
+            "quicklook": "http://idoc-herschel.ias.u-psud.fr/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/spica/spica_red__mask1__4SLD_highPassMadmap_fullsize.png",
             "ra": 200.6369188889,
-            "thumbnail": "/herschelFootprints/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/spica/spica_red__mask1__4SLD_highPassMadmap.png",
+            "thumbnail": "http://idoc-herschel.ias.u-psud.fr/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/spica/spica_red__mask1__4SLD_highPassMadmap.png",
             "title": "spica"
          },
          "services": {"download": {
             "mimetype": "application/fits",
-            "url": "/herschelFootprints/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/spica/spica_red__mask1__4SLD_highPassMadmap.fits"
+            "url": "http://idoc-herschel.ias.u-psud.fr/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/spica/spica_red__mask1__4SLD_highPassMadmap.fits"
          }},
          "type": "Feature"
       },
@@ -1921,14 +1921,14 @@
             "identifier": "spica_blue__mask1__4SLD_80HPmap",
             "object": "spica",
             "program": "SAG-4",
-            "quicklook": "/herschelFootprints/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/spica/spica_blue__mask1__4SLD_80HPmap_fullsize.png",
+            "quicklook": "http://idoc-herschel.ias.u-psud.fr/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/spica/spica_blue__mask1__4SLD_80HPmap_fullsize.png",
             "ra": 201.22392444444998,
-            "thumbnail": "/herschelFootprints/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/spica/spica_blue__mask1__4SLD_80HPmap.png",
+            "thumbnail": "http://idoc-herschel.ias.u-psud.fr/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/spica/spica_blue__mask1__4SLD_80HPmap.png",
             "title": "spica"
          },
          "services": {"download": {
             "mimetype": "application/fits",
-            "url": "/herschelFootprints/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/spica/spica_blue__mask1__4SLD_80HPmap.fits"
+            "url": "http://idoc-herschel.ias.u-psud.fr/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/spica/spica_blue__mask1__4SLD_80HPmap.fits"
          }},
          "type": "Feature"
       },
@@ -1967,14 +1967,14 @@
             "identifier": "spica_blue__mask1__4SLD_highPassMadmap",
             "object": "spica",
             "program": "SAG-4",
-            "quicklook": "/herschelFootprints/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/spica/spica_blue__mask1__4SLD_highPassMadmap_fullsize.png",
+            "quicklook": "http://idoc-herschel.ias.u-psud.fr/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/spica/spica_blue__mask1__4SLD_highPassMadmap_fullsize.png",
             "ra": 200.62970999999996,
-            "thumbnail": "/herschelFootprints/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/spica/spica_blue__mask1__4SLD_highPassMadmap.png",
+            "thumbnail": "http://idoc-herschel.ias.u-psud.fr/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/spica/spica_blue__mask1__4SLD_highPassMadmap.png",
             "title": "spica"
          },
          "services": {"download": {
             "mimetype": "application/fits",
-            "url": "/herschelFootprints/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/spica/spica_blue__mask1__4SLD_highPassMadmap.fits"
+            "url": "http://idoc-herschel.ias.u-psud.fr/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/spica/spica_blue__mask1__4SLD_highPassMadmap.fits"
          }},
          "type": "Feature"
       },
@@ -2013,14 +2013,14 @@
             "identifier": "polaris_red_legx5_20SLD_1800HPmap",
             "object": "polaris",
             "program": "SAG-4",
-            "quicklook": "/herschelFootprints/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/polaris/polaris_red_legx5_20SLD_1800HPmap_fullsize.png",
+            "quicklook": "http://idoc-herschel.ias.u-psud.fr/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/polaris/polaris_red_legx5_20SLD_1800HPmap_fullsize.png",
             "ra": 28.464567,
-            "thumbnail": "/herschelFootprints/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/polaris/polaris_red_legx5_20SLD_1800HPmap.png",
+            "thumbnail": "http://idoc-herschel.ias.u-psud.fr/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/polaris/polaris_red_legx5_20SLD_1800HPmap.png",
             "title": "polaris"
          },
          "services": {"download": {
             "mimetype": "application/fits",
-            "url": "/herschelFootprints/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/polaris/polaris_red_legx5_20SLD_1800HPmap.fits"
+            "url": "http://idoc-herschel.ias.u-psud.fr/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/polaris/polaris_red_legx5_20SLD_1800HPmap.fits"
          }},
          "type": "Feature"
       },
@@ -2059,14 +2059,14 @@
             "identifier": "polaris_red_legx5_20SLD_highPassMadmap",
             "object": "polaris",
             "program": "SAG-4",
-            "quicklook": "/herschelFootprints/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/polaris/polaris_red_legx5_20SLD_highPassMadmap_fullsize.png",
+            "quicklook": "http://idoc-herschel.ias.u-psud.fr/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/polaris/polaris_red_legx5_20SLD_highPassMadmap_fullsize.png",
             "ra": 28.4771538889,
-            "thumbnail": "/herschelFootprints/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/polaris/polaris_red_legx5_20SLD_highPassMadmap.png",
+            "thumbnail": "http://idoc-herschel.ias.u-psud.fr/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/polaris/polaris_red_legx5_20SLD_highPassMadmap.png",
             "title": "polaris"
          },
          "services": {"download": {
             "mimetype": "application/fits",
-            "url": "/herschelFootprints/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/polaris/polaris_red_legx5_20SLD_highPassMadmap.fits"
+            "url": "http://idoc-herschel.ias.u-psud.fr/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/polaris/polaris_red_legx5_20SLD_highPassMadmap.fits"
          }},
          "type": "Feature"
       },
@@ -2105,14 +2105,14 @@
             "identifier": "DC300_green_4SLD_80HPmap",
             "object": "DC300-17-c2",
             "program": "SAG-4",
-            "quicklook": "/herschelFootprints/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/DC300-17-c2/DC300_green_4SLD_80HPmap_fullsize.png",
+            "quicklook": "http://idoc-herschel.ias.u-psud.fr/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/DC300-17-c2/DC300_green_4SLD_80HPmap_fullsize.png",
             "ra": 178.24576,
-            "thumbnail": "/herschelFootprints/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/DC300-17-c2/DC300_green_4SLD_80HPmap.png",
+            "thumbnail": "http://idoc-herschel.ias.u-psud.fr/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/DC300-17-c2/DC300_green_4SLD_80HPmap.png",
             "title": "DC300-17-c2"
          },
          "services": {"download": {
             "mimetype": "application/fits",
-            "url": "/herschelFootprints/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/DC300-17-c2/DC300_green_4SLD_80HPmap.fits"
+            "url": "http://idoc-herschel.ias.u-psud.fr/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/DC300-17-c2/DC300_green_4SLD_80HPmap.fits"
          }},
          "type": "Feature"
       },
@@ -2151,14 +2151,14 @@
             "identifier": "DC300_red_4SLD_80HPmap",
             "object": "DC300-17-c2",
             "program": "SAG-4",
-            "quicklook": "/herschelFootprints/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/DC300-17-c2/DC300_red_4SLD_80HPmap_fullsize.png",
+            "quicklook": "http://idoc-herschel.ias.u-psud.fr/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/DC300-17-c2/DC300_red_4SLD_80HPmap_fullsize.png",
             "ra": 178.24806888889998,
-            "thumbnail": "/herschelFootprints/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/DC300-17-c2/DC300_red_4SLD_80HPmap.png",
+            "thumbnail": "http://idoc-herschel.ias.u-psud.fr/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/DC300-17-c2/DC300_red_4SLD_80HPmap.png",
             "title": "DC300-17-c2"
          },
          "services": {"download": {
             "mimetype": "application/fits",
-            "url": "/herschelFootprints/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/DC300-17-c2/DC300_red_4SLD_80HPmap.fits"
+            "url": "http://idoc-herschel.ias.u-psud.fr/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/DC300-17-c2/DC300_red_4SLD_80HPmap.fits"
          }},
          "type": "Feature"
       },
@@ -2197,14 +2197,14 @@
             "identifier": "DC300_red_4SLD_highPassMadmap",
             "object": "DC300-17-c2",
             "program": "SAG-4",
-            "quicklook": "/herschelFootprints/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/DC300-17-c2/DC300_red_4SLD_highPassMadmap_fullsize.png",
+            "quicklook": "http://idoc-herschel.ias.u-psud.fr/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/DC300-17-c2/DC300_red_4SLD_highPassMadmap_fullsize.png",
             "ra": 178.24104788981208,
-            "thumbnail": "/herschelFootprints/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/DC300-17-c2/DC300_red_4SLD_highPassMadmap.png",
+            "thumbnail": "http://idoc-herschel.ias.u-psud.fr/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/DC300-17-c2/DC300_red_4SLD_highPassMadmap.png",
             "title": "DC300-17-c2"
          },
          "services": {"download": {
             "mimetype": "application/fits",
-            "url": "/herschelFootprints/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/DC300-17-c2/DC300_red_4SLD_highPassMadmap.fits"
+            "url": "http://idoc-herschel.ias.u-psud.fr/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/DC300-17-c2/DC300_red_4SLD_highPassMadmap.fits"
          }},
          "type": "Feature"
       },
@@ -2243,14 +2243,14 @@
             "identifier": "DC300_green_4SLD_highPassMadmap",
             "object": "DC300-17-c2",
             "program": "SAG-4",
-            "quicklook": "/herschelFootprints/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/DC300-17-c2/DC300_green_4SLD_highPassMadmap_fullsize.png",
+            "quicklook": "http://idoc-herschel.ias.u-psud.fr/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/DC300-17-c2/DC300_green_4SLD_highPassMadmap_fullsize.png",
             "ra": 178.237398205218,
-            "thumbnail": "/herschelFootprints/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/DC300-17-c2/DC300_green_4SLD_highPassMadmap.png",
+            "thumbnail": "http://idoc-herschel.ias.u-psud.fr/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/DC300-17-c2/DC300_green_4SLD_highPassMadmap.png",
             "title": "DC300-17-c2"
          },
          "services": {"download": {
             "mimetype": "application/fits",
-            "url": "/herschelFootprints/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/DC300-17-c2/DC300_green_4SLD_highPassMadmap.fits"
+            "url": "http://idoc-herschel.ias.u-psud.fr/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/DC300-17-c2/DC300_green_4SLD_highPassMadmap.fits"
          }},
          "type": "Feature"
       },
@@ -2289,14 +2289,14 @@
             "identifier": "DC300-17_red_legx5_20SLD_highPassMadmap",
             "object": "DC300-17",
             "program": "SAG-4",
-            "quicklook": "/herschelFootprints/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/DC300-17/DC300-17_red_legx5_20SLD_highPassMadmap_fullsize.png",
+            "quicklook": "http://idoc-herschel.ias.u-psud.fr/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/DC300-17/DC300-17_red_legx5_20SLD_highPassMadmap_fullsize.png",
             "ra": 175.91700888890003,
-            "thumbnail": "/herschelFootprints/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/DC300-17/DC300-17_red_legx5_20SLD_highPassMadmap.png",
+            "thumbnail": "http://idoc-herschel.ias.u-psud.fr/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/DC300-17/DC300-17_red_legx5_20SLD_highPassMadmap.png",
             "title": "DC300-17"
          },
          "services": {"download": {
             "mimetype": "application/fits",
-            "url": "/herschelFootprints/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/DC300-17/DC300-17_red_legx5_20SLD_highPassMadmap.fits"
+            "url": "http://idoc-herschel.ias.u-psud.fr/sitools/datastorage/user/storageAttic/HIPE_Fits/MAPS_PACS/SAG-4/DC300-17/DC300-17_red_legx5_20SLD_highPassMadmap.fits"
          }},
          "type": "Feature"
       }

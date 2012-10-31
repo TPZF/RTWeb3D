@@ -1,6 +1,7 @@
 {
 	"nameResolver": {
-		"baseUrl": "/sitools/projects/rtwebgl/plugin/resolverName"
+		"baseUrl": "/sitools/rtwebgl/plugin/nameResolver",
+		"zoomFov": 2
 	},
 	"stats": {
 		"verbose": false,
@@ -81,14 +82,15 @@
 		{
 			"type": "StaticOpenSearch",
 			"name": "Static herschel",
-			"url": "/oherschel/search?",
+			"url": "/sitools/oherschel/search?",
 			"visible": false
 		},
 		{
 			"type": "DynamicOpenSearch",
 			"name": "Dynamic fuse",
-			"serviceUrl": "/ofuse/search?",
-			"visible": true
+			"serviceUrl": "/sitools/ofuse/search?",
+			"visible": true,
+			"minOrder": 5
 		}
 	]
 }
