@@ -36,24 +36,6 @@ $(jErrorDiv).dialog({
  */
 
 /**
- * 	ON/OFF radio buttons layout
- */
-function setVisibilityButtonsetLayout()
-{
-	$('.layerVisibilityRadioDiv').each(function(){
-		var inputOn = $(this).find(".inputOn");
-		if ( inputOn.is(':checked') )
-		{
-			inputOn.siblings('.on').addClass('ui-state-active');
-		}
-		else
-		{
-			inputOn.siblings('.off').addClass('ui-state-active');
-		}
-	});
-}
-
-/**
  *	Handles feature collection
  * 	Recompute geometry from equatorial coordinates to geo for each feature
  *	Adds proxy url to quicklook for each feature
@@ -317,11 +299,22 @@ function createHtmlForAdditionalLayer( gwLayer )
 	var currentIndex = nbAddLayers;
 	var layerDiv = additionalLayerTemplate( { layer: gwLayer, currentIndex: currentIndex } );
 
-	$(layerDiv)
+	var $layerDiv = $(layerDiv)
 		.appendTo('#additionalLayers');
-	
-	var temp = gwLayer.opacity();
 		
+	// Manage 'custom' checkbox
+	// jQuery UI button is not sexy enough :)
+	// Toggle some classes when the user clicks on the visibility checkbox
+	$('#visible_'+currentIndex).click( function() {
+		var isOn = !$(this).hasClass('ui-state-active');
+		gwLayer.visible( isOn );
+		$layerDiv.find('.slider').slider( isOn ? "enable" : "disable" );
+		$(this).toggleClass('ui-state-active');
+		$(this).toggleClass('ui-state-default');
+		$(this).find('span').toggleClass('ui-icon-check');
+		$(this).find('span').toggleClass('ui-icon-empty');
+	});
+			
 	// Slider initialisation
 	$('#slider_'+currentIndex).slider({
 		value: gwLayer.opacity()*100,
@@ -330,14 +323,19 @@ function createHtmlForAdditionalLayer( gwLayer )
 		step: 20,
 		slide: function( event, ui ) {
 			$( "#percentInput_"+currentIndex ).val( ui.value + "%" );
-			var layerIndex = parseInt( $(this).parent().index() );
-			var layer = gwAdditionalLayers[ layerIndex ];
-			layer.opacity( ui.value/100. );
+			gwLayer.opacity( ui.value/100. );
 		}
 	}).slider( "option", "disabled", !gwLayer.visible() );
-
+	
 	// Init percent input of slider
 	$( "#percentInput_"+currentIndex ).val( $( "#slider_"+currentIndex ).slider( "value" ) + "%" );
+		
+	// Hide the opacity div, open it only when the user clicks on the layer
+	var opacityDiv = $('#opacity_'+currentIndex);
+	opacityDiv.hide();
+	$layerDiv.children().not('.deleteLayer').click( function() {
+			opacityDiv.slideToggle();
+	});
 	
 	nbAddLayers++;
 }
@@ -377,17 +375,6 @@ function initGuiEvents ()
 	$('#backgroundLayers-menu li').click(function(){
 		var layerIndex = parseInt( $(this).index() );
 		globe.setBaseImagery( gwBaseLayers[ layerIndex ] );
-	});
-
-	// Input additional layers visibility event
-	$('#additionalLayers').on("click", 'input.visibilityRadio', function(){
-		var layerIndex = parseInt( $(this).parent().parent().index() );
-		
-		var layer = gwAdditionalLayers[ layerIndex ];
-		var isOn = $(this).is('.inputOn');
-		layer.visible( isOn );
-		
-		$(this).parent().siblings('.slider').slider( isOn ? "enable" : "disable" );
 	});
 	
 	// Delete layer event
@@ -430,10 +417,6 @@ function initLayers(layers)
 			addAdditionalLayer( gwLayer );
 		}
 	}
-	
-	// Create additional layers visibility button set
-	$( ".layerVisibilityRadioDiv" ).buttonset();
-	setVisibilityButtonsetLayout();
 	
 	// Init select menu
 	$('select#backgroundLayers').selectmenu({
