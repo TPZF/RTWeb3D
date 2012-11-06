@@ -61,8 +61,8 @@ function handleFeatureCollection( features )
 						ring[j][0] -= 360;
 				}
 
-				// Add proxy url to quicklook url
-				if ( currentFeature.properties.quicklook )
+				// Add proxy url to quicklook url if not local
+				if ( currentFeature.properties.quicklook && currentFeature.properties.quicklook.substring(0,4) == 'http' )
 					currentFeature.properties.quicklook = proxyUrl+currentFeature.properties.quicklook;
 				break;
 			default:

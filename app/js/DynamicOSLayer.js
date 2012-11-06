@@ -277,7 +277,7 @@ DynamicOSLayer.prototype.removeFeature = function( geometry, identifier )
 		for ( var i = 0; i<this.features.length; i++ )
 		{
 			var currentFeature = this.features[i];
-			if ( currentFeature.geometry == geometry){
+			if ( currentFeature.properties.identifier == identifier){
 				this.features.splice(i, 1);
 			}
 		}
