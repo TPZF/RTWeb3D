@@ -280,8 +280,7 @@ function init()
 		if ( selectedFeature.feature.properties.style.fill == true )
 		{
 			$('#quicklook').removeClass('selected');
-			// HACK re-creating style
-			// TODO canApply depend on fill attribute
+
 			var newStyle = new GlobWeb.FeatureStyle( selectedFeature.feature.properties.style );
 			newStyle.fill = false;
 			selectedFeature.layer.modifyFeatureStyle( selectedFeature.feature, newStyle );
@@ -289,6 +288,7 @@ function init()
 		else
 		{
 			$('#quicklook').addClass('selected');
+			// $('#loading').show(300);
 			var style = selectedFeature.feature.properties.style;
 			style.fill = true;
 			selectedFeature.layer.modifyFeatureStyle( selectedFeature.feature, style );
@@ -297,10 +297,12 @@ function init()
 	
 	// BUG ! Disables stack onclick action
 	globe.subscribe("startNavigation", function(){ if ($('#selectedFeatureDiv').css('display') != 'none') hideDescriptionPane(); } );
+	// TODO manage texture loading process
+	// globe.subscribe("imageLoaded", function(){ $('#loading').hide(300); } );
 
 	// Arrow events
 	$('#selectedFeatureDiv').on("mousedown", '#scroll-arrow-down.clickable', function(event){
-		$('#scroll-arrow-up').css("border-bottom-color", "orange").addClass("clickable");
+		$('#selectedFeatureDiv #scroll-arrow-up').css("border-bottom-color", "orange").addClass("clickable");
 		var topValue = parseInt($('#featureList').css("top"), 10) - 60;
 		var height = $('#featureList').height();
 		var maxHeight = parseInt( $('#featureListDiv').css("max-height") );
@@ -315,7 +317,7 @@ function init()
 	
 	$('#selectedFeatureDiv').on("mousedown", '#scroll-arrow-up.clickable', function(event){
 
-		$('#scroll-arrow-down').css("border-top-color", "orange").addClass("clickable");
+		$('#selectedFeatureDiv #scroll-arrow-down').css("border-top-color", "orange").addClass("clickable");
 		
 		var topValue = parseInt($('#featureList').css("top"), 10) + 60;
 		if (topValue >= 0)
@@ -418,19 +420,25 @@ function pointInRing( point, ring )
 }
 
 /**
- *	Determine if a point lies inside a sphere of arbitrary radius 0.0009
- *
+ *	Determine if a point lies inside a sphere of radius depending on viewport
  */
 function pointInSphere( point, sphere )
 {
 	var point3D = [];
 	var sphere3D = [];
-	var radius = 0.0009; // Arbitrary value
+	var pointTextureHeight = 32; // make parameter ?
+
+	// Compute pixel size vector to offset the points from the earth
+	var pixelSizeVector = globe.renderContext.computePixelSizeVector();
+
 	GlobWeb.CoordinateSystem.fromGeoTo3D( point, point3D );
 	GlobWeb.CoordinateSystem.fromGeoTo3D( sphere, sphere3D );
+
+	var radius = pointTextureHeight * (pixelSizeVector[0] * sphere3D[0] + pixelSizeVector[1] * sphere3D[1] + pixelSizeVector[2] * sphere3D[2] + pixelSizeVector[3]);
+
 	//Calculate the squared distance from the point to the center of the sphere
 	var vecDist = [];
-	vec3.subtract(sphere3D, point3D, vecDist);
+	vec3.subtract(point3D, sphere3D, vecDist);
 	vecDist = vec3.dot(vecDist, vecDist);
 
 	//Calculate if the squared distance between the sphere's center and the point
