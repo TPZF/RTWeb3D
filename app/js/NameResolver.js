@@ -4,11 +4,21 @@
  */
 define(["jquery.ui", "Utils"], function($,Utils) {
 
+var globe;
 var astroNavigator;
 var configuration = {zoomFov: 15.};
 
+// Target layer
+var style = new GlobWeb.FeatureStyle({ iconUrl: "css/images/target.png" });
+var targetLayer = new GlobWeb.VectorLayer({ style: style });
+// Zooming destination feature
+var targetFeature;
+
 function setSearchBehavior()
 {
+	globe.addLayer( targetLayer );
+	globe.subscribe("startNavigation", removeTarget);
+
 	var input = $('#searchInput');
 	var clear = $('#searchClear');
 	var animationDuration = 300;
@@ -45,6 +55,7 @@ function setSearchBehavior()
 	// Submit event
 	$('#searchForm').submit(function(event){
 		event.preventDefault();
+
 		var objectName = $("#searchInput").val();
 		
 		// regexp used only to distinct equatorial coordinates and objects
@@ -65,7 +76,8 @@ function setSearchBehavior()
 			// Convert to geo and zoom
 			var geoPos = [];
 			GlobWeb.CoordinateSystem.fromEquatorialToGeo([word[0], word[1]], geoPos);
-			astroNavigator.zoomTo(geoPos);
+			astroNavigator.zoomTo(geoPos, configuration.zoomFov);
+			addTarget(geoPos[0], geoPos[1]);
 		}
 		else
 		{
@@ -85,6 +97,7 @@ function setSearchBehavior()
 
 						$('#equatorialCoordinatesSearchResult').fadeIn(animationDuration);
 						astroNavigator.zoomTo([response.ra, response.dec], configuration.zoomFov );
+						addTarget(response.ra, response.dec);
 					} else {
 						$('#equatorialCoordinatesSearchResult').html("Enter object name");
 						$('#equatorialCoordinatesSearchResult').fadeIn(animationDuration);
@@ -97,7 +110,6 @@ function setSearchBehavior()
 				}
 			});
 		}
-
 	});
 	
 	$('#searchClear').click(function(event){
@@ -108,11 +120,45 @@ function setSearchBehavior()
 		$('#searchInput').animate({color: '#b4bdc4'}, animationDuration).parent().animate({backgroundColor: '#e8edf1'}, animationDuration).removeClass('focus');
 		
 	});
+}
 
+/**
+ *	Delete target image
+ */
+function removeTarget()
+{
+	if ( targetFeature )
+	{
+		targetLayer.removeFeature( targetFeature );
+		targetFeature = null;
+	}
+}
+
+/**
+ *	Update targetFeature and add it to the target layer
+ *
+ *	@param lon Destination longitude/right ascension in degrees
+ *	@param lat Destination latitude/declination in degrees
+ */
+function addTarget(lon, lat)
+{
+	targetFeature = {
+		"geometry": {
+			"coordinates": [
+				lon,
+				lat
+			],
+			"type": "Point"
+		},
+	"type": "Feature"
+	};
+
+	targetLayer.addFeature( targetFeature );
 }
 
 return {
-	init: function(nav,conf) {
+	init: function(gl, nav, conf) {
+		globe = gl;
 		astroNavigator = nav;
 
 		for( var x in conf )

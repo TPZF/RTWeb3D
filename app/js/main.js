@@ -131,10 +131,10 @@ $(function()
 		}
 		
 		// Initialize the name resolver
-		NameResolver.init(navigation,data.nameResolver);
+		NameResolver.init(globe, navigation, data.nameResolver);
 	
 		// Create layers from configuration file
-		LayerManager.init(globe,data.layers);
+		LayerManager.init(globe, data.layers);
 	});
 	
 	// Create data manager
