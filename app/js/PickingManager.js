@@ -291,6 +291,7 @@ function init()
 			// $('#loading').show(300);
 			var style = selectedFeature.feature.properties.style;
 			style.fill = true;
+			style.fillTextureUrl = selectedFeature.feature.properties.quicklook;
 			selectedFeature.layer.modifyFeatureStyle( selectedFeature.feature, style );
 		}
 	});
