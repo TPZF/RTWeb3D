@@ -301,19 +301,6 @@ function createHtmlForAdditionalLayer( gwLayer )
 
 	var $layerDiv = $(layerDiv)
 		.appendTo('#additionalLayers');
-		
-	// Manage 'custom' checkbox
-	// jQuery UI button is not sexy enough :)
-	// Toggle some classes when the user clicks on the visibility checkbox
-	$('#visible_'+currentIndex).click( function() {
-		var isOn = !$(this).hasClass('ui-state-active');
-		gwLayer.visible( isOn );
-		$layerDiv.find('.slider').slider( isOn ? "enable" : "disable" );
-		$(this).toggleClass('ui-state-active');
-		$(this).toggleClass('ui-state-default');
-		$(this).find('span').toggleClass('ui-icon-check');
-		$(this).find('span').toggleClass('ui-icon-empty');
-	});
 			
 	// Slider initialisation
 	$('#slider_'+currentIndex).slider({
@@ -333,8 +320,25 @@ function createHtmlForAdditionalLayer( gwLayer )
 	// Hide the opacity div, open it only when the user clicks on the layer
 	var opacityDiv = $('#opacity_'+currentIndex);
 	opacityDiv.hide();
-	$layerDiv.children().not('.deleteLayer').click( function() {
+	$layerDiv.children().not('.deleteLayer,.ui-button').click( function() {
 			opacityDiv.slideToggle();
+	});
+		
+	// Manage 'custom' checkbox
+	// jQuery UI button is not sexy enough :)
+	// Toggle some classes when the user clicks on the visibility checkbox
+	$('#visible_'+currentIndex).click( function() {
+		var isOn = !$(this).hasClass('ui-state-active');
+		gwLayer.visible( isOn );
+		$layerDiv.find('.slider').slider( isOn ? "enable" : "disable" );
+		if ( isOn )
+			opacityDiv.slideDown();
+		else
+			opacityDiv.slideUp();
+		$(this).toggleClass('ui-state-active');
+		$(this).toggleClass('ui-state-default');
+		$(this).find('span').toggleClass('ui-icon-check');
+		$(this).find('span').toggleClass('ui-icon-empty');
 	});
 	
 	nbAddLayers++;
