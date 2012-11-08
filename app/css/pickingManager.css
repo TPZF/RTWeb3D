@@ -5,10 +5,7 @@
 
 #selectedFeatureDiv
 {
-	box-shadow: 0 0 6px #FF9E52, inset 0 1px 2px rgba(0, 0, 0, 0.08);
-	border:solid 1px orange;
 	padding: 20px;
-	border-radius: 10px;
 	z-index: 10;
 }
 
@@ -28,6 +25,33 @@
 	left: -11;
 	top: 90;
 }
+
+/*** Section menu ***/
+.arrow-right {
+	float: left;
+	margin: 5px 8px;
+	width: 0; 
+	height: 0; 
+	border-top: 5px solid transparent;
+	border-bottom: 5px solid transparent;
+	border-left: 5px solid white;
+}
+
+.arrow-bottom {
+	float: left;
+	margin: 8px 6px;
+	width: 0; 
+	height: 0; 
+	border-left: 5px solid transparent;
+	border-right: 5px solid transparent;
+	border-top: 5px solid white;
+}
+
+.section {
+	color: white;
+	cursor: pointer;
+}
+/***********************/
 
 .scroll-arrow-up {
 	width: 0; 
@@ -52,12 +76,12 @@
 	
 }
 
-#detailedInfo
+.detailedInfo
 {
 	max-height: 400px;
 	max-width: 340px;
 	overflow: auto;
-	z-index: 100;
+	z-index: 10;
 	padding-right: 15px;
 }
 
@@ -66,9 +90,13 @@
 	color: white;
 }
 
-table.picking td {
+.propertiesTable td {
 	border-width: 1px;
 	padding: 4px;
+}
+
+.propertiesTable td th {
+	color: #FFEABD;
 }
 
 .closeBtn
@@ -84,11 +112,6 @@ table.picking td {
 {
 	text-align: right;
 	display: block;
-}
-
-.thumbnail img
-{
-	#height: 25%;
 }
 
 #featureListDiv

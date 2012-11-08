@@ -1,0 +1,36 @@
+<% for ( var key in properties )
+{ 
+	if ( key != 'style' && key != 'title' && key != 'quicklook' && key != 'thumbnail' )
+	{	
+		var stringKey = key.charAt(0).toUpperCase() + key.substring(1).toLowerCase(); %>
+	<tr height="30%">
+		<% // Test if section
+		if (typeof (properties[key]) === "object" )
+		{
+		%>
+			<td class="selectProperty" colspan="2">
+				<div id="arrow" class="arrow-right"></div><div class="section"><b><%= stringKey %></b></div>
+				<table style="display: none; margin-left: 10px" rules="rows">
+					<tbody>
+						<% var output = descriptionTableTemplate( { properties: properties[key], descriptionTableTemplate: descriptionTableTemplate });
+						 %>
+						 <%= output %>
+					</tbody>
+				</table>
+			</td>
+		<%
+		}
+		else
+		{%>
+			<td class="selectProperty"><em><%= stringKey %>:</em></td>
+			<% 
+			var isUrl = ( typeof (properties[key]) === "string" && properties[key].substr(0,4) == 'http' ) ? true : false;
+			if (isUrl) {%>
+				<td class="selectValue"><a href="<%= properties[key] %>"><%= properties[key] %></a></td>
+			<% } else { %>
+				<td class="selectValue"><%= properties[key] %></td>
+			<% }
+		} %>
+	</tr>
+	<% }
+} %>

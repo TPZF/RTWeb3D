@@ -2,7 +2,7 @@
 /**
  * PickingManager module
  */
-define( [ "jquery.ui", "underscore-min", "text!../templates/featureList.html", "text!../templates/featureDescription.html"/*, "jquery.mousewheel.min", "jquery.mCustomScrollbar.min"*/ ], function($, _, featureListHTMLTemplate, featureDescriptionHTMLTemplate) {
+define( [ "jquery.ui", "underscore-min", "text!../templates/featureList.html", "text!../templates/featureDescription.html", "text!../templates/descriptionTable.html"/*, "jquery.mousewheel.min", "jquery.mCustomScrollbar.min"*/ ], function($, _, featureListHTMLTemplate, featureDescriptionHTMLTemplate, descriptionTableHTMLTemplate) {
 
 var globe;
 var navigation;
@@ -15,7 +15,7 @@ var pickableLayers = [];
 var featureListHTML = '';
 
 // Create selected feature div
-var selectedFeatureDiv = '<div id="selectedFeatureDiv" class="ui-widget-content" style="display: none">\
+var selectedFeatureDiv = '<div id="selectedFeatureDiv" class="contentBox ui-widget-content" style="display: none">\
 				<div id="leftDiv"></div>\
 				<div id="rightDiv"></div>\
 				<div class="closeBtn">\
@@ -32,13 +32,22 @@ var featureListTemplate = _.template(featureListHTMLTemplate);
 // Template generating the detailed description of choosen feature
 var featureDescriptionTemplate = _.template(featureDescriptionHTMLTemplate);
 
-// PileStash help HTML
-var pileStashHelp = '<div id="pileStashHelp"> Some objects are overlapped <br/> Click on the object stack to see detailed\
-				information about each object.</div>';
+// Template generating the table of properties of choosen feature
+var descriptionTableTemplate = _.template(descriptionTableHTMLTemplate);
 
-// External link popup
-var popup = '<div id="popup" class="box" style="display: none; left: 300; top: 300; position: absolute; overflow: auto; max-width: 300px; max-height: 300px;"></div>';
-$(popup).appendTo('body');
+// PileStash help HTML
+var pileStashHelp = '<div id="pileStashHelp"> Some observations are overlapped. <br/> Click on the observation to see detailed informations about each observation. <br/> </div>';
+
+// TODO Refactor...
+var iframe = 
+	'<div id="externalIFrame" class="contentBox">\
+		<div class="closeBtn">\
+			<img src="css/images/close_button.png" alt="" class="defaultImg" />\
+			<img src="css/images/close_buttonHover.png" alt="" class="hoverImg" />\
+		</div>\
+		<iframe src=""><p>Your browser does not support iframes.</p></iframe>\
+	</div>';
+$(iframe).appendTo('body');
 
 /**
  * 	Selected feature div position calculations
@@ -264,14 +273,20 @@ function init()
 		}
 	});
 	
-// 	globe.subscribe("endNavigation", function(){ $('#selectedFeatureDiv').fadeIn(500); } );
-	
 	// Close button event
-	$('#selectedFeatureDiv').on("click",'.closeBtn', function(event){
-		hideDescriptionPane();
+	$('body').on("click",'.closeBtn', function(event){
+		if( $(this).parent().attr("id") == 'externalIFrame' )
+		{
+			$("#externalIFrame").animate({top: -1000}, 800);
+		}
+		else
+		{
+			$(this).parent().fadeOut(300);
+			clearSelection();	
+		}
 	});
 	
-	// Quicklook event
+	// Show/hide quicklook
 	$('#selectedFeatureDiv').on("click", '#quicklook', function(event){
 		
 		var featureIndexToQuicklook = $('#featureList .selected').index();
@@ -297,7 +312,7 @@ function init()
 	});
 	
 	// BUG ! Disables stack onclick action
-	globe.subscribe("startNavigation", function(){ if ($('#selectedFeatureDiv').css('display') != 'none') hideDescriptionPane(); } );
+	globe.subscribe("startNavigation", function(){ if ($('#selectedFeatureDiv').css('display') != 'none'){ $(this).fadeOut(300); clearSelection(); } } );
 	// TODO manage texture loading process
 	// globe.subscribe("imageLoaded", function(){ $('#loading').hide(300); } );
 
@@ -344,35 +359,37 @@ function init()
 		});
 	});
 
-	// Popup event TODO !
-	$('#selectedFeatureDiv').on("click", '.picking a', function(event){
+	// Show/hide external resource
+	$('#selectedFeatureDiv').on("click", '.propertiesTable a', function(event){
 		event.preventDefault();
-		$.ajax({
-			url: event.target.innerHTML,
-			context: document.body,
-			crossDomain: true,
-			success: function(response)
-			{
-				console.log(response);
-				$('#popup').html(response);
-				$('#popup').show();
-			},
-			error: function(xhr)
-			{
-				console.error(xhr.responseText);
-			}
-		});
+
+		$("#externalIFrame iframe").attr("src", "about:blank");
+		$("#externalIFrame iframe").attr('src', "/sitools/proxy?external_url=" + event.target.innerHTML);
+		$("#externalIFrame").animate({top: 100}, 800);
+	});
+
+	// Show/hide subsection properties
+	$('#selectedFeatureDiv').on("click", '.section', function(event){
+		// TODO slideToggle works with div -> add div to the tab generation
+		$(this).siblings('table').fadeToggle("slow", "linear");/*slideToggle(300)*/;
+		if ( $(this).siblings('#arrow').is('.arrow-right') )
+		{
+			$(this).siblings('#arrow').removeClass('arrow-right').addClass('arrow-bottom');
+		}
+		else
+		{
+			$(this).siblings('#arrow').removeClass('arrow-bottom').addClass('arrow-right');
+		}
 	});
 }
 
 /**
- *	Hides description pane
+ *	Clear selection
  */
-function hideDescriptionPane()
+function clearSelection()
 {
 	blurSelection();
 	selection = [];
-	$('#selectedFeatureDiv').fadeOut(300);
 }
 
 /**
@@ -472,11 +489,7 @@ function createHTMLSelectedFeatureList( selection )
  */
 function createHTMLSelectedFeatureDiv( feature )
 {	
-	// Not used yet..
-// 	var index = feature.properties.thumbnail.indexOf("/HIPE_Fits");
-// 	var proxyUrl = feature.properties.thumbnail.slice(index);
-	
-	var output = featureDescriptionTemplate( { feature: feature } );
+	var output = featureDescriptionTemplate( { feature: feature, descriptionTableTemplate: descriptionTableTemplate } );
 	
 	$('#rightDiv').html( output );
 	

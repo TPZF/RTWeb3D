@@ -1,30 +1,13 @@
-<div id="detailedInfo">
+<div class="detailedInfo">
 	<% if ( feature.properties.thumbnail ) 
 	{ %>
 		<div class="thumbnail"><img src="<%= feature.properties.thumbnail %>" /></div>
 	<% } %>
-	<table class="picking" rules="rows">
+	<table class="propertiesTable" rules="rows">
 		<tbody>
-			<% for ( var key in feature.properties )
-			{ 
-				if ( key != 'style' && key != 'title' && key != 'quicklook' && key != 'thumbnail' )
-				{	
-					var stringKey = key.charAt(0).toUpperCase() + key.substring(1).toLowerCase()%>
-				<tr>
-					<td class="selectProperty"><em><%= stringKey %>:</em></td>
-					<% 
-					var isUrl = ( typeof (feature.properties[key]) == "string" && feature.properties[key].substr(0,4) == 'http' ) ? true : false;
-					if (isUrl) {%>
-						<td class="selectValue"><a href="<%= feature.properties[key] %>"><%= feature.properties[key] %></a></td>
-					<% } else { %>
-						<td class="selectValue"><%= feature.properties[key] %></td>
-					<% }%>
-				</tr>
-				<% }
-			} %>
+			<% print(descriptionTableTemplate( { properties: feature.properties, descriptionTableTemplate: descriptionTableTemplate }) ); %>
 		</tbody>
 	</table>
-	
 	
 	<div id="services">
 		<% if ( feature.services && feature.services.download ) { %>
