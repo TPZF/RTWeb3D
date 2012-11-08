@@ -28,7 +28,7 @@ $(jErrorDiv).dialog({
 	autoOpen: false,
 	resizable: false,
 	width: '300px',
-	dialogClass: 'jsonError'
+	dialogClass: 'errorBox'
 });
 
 /**

@@ -60,13 +60,13 @@ function setSearchBehavior()
 		
 		// regexp used only to distinct equatorial coordinates and objects
 		// TODO more accurate ( "x < 24h", "x < 60mn", etc.. )
-		var coordinatesExp = new RegExp("\\d{1,2}h\\d{1,2}mn\\d{1,2}([\\.]\\d+)?s\\s[-+]?[\\d]+°\\d{1,2}'\\d{1,2}([\\.]\\d+)?\"", "g");
+		var coordinatesExp = new RegExp("\\d{1,2}h\\d{1,2}m\\d{1,2}([\\.]\\d+)?s\\s[-+]?[\\d]+°\\d{1,2}'\\d{1,2}([\\.]\\d+)?\"", "g");
 		if ( objectName.match( coordinatesExp ) )
 		{
 			// Format to equatorial coordinates
 			var word = objectName.split(" "); // [RA, Dec]
 			word[0] = word[0].replace("h"," ");
-			word[0] = word[0].replace("mn"," ");
+			word[0] = word[0].replace("m"," ");
 			word[0] = word[0].replace("s","");
 			
 			word[1] = word[1].replace("°"," ");
