@@ -3,6 +3,9 @@
 		"baseUrl": "/sitools/rtwebgl/plugin/nameResolver",
 		"zoomFov": 2
 	},
+	"reverseNameResolver": {
+		"baseUrl": "/sitools/rtwebgl/plugin/reverseNameResolver/"
+	},
 	"stats": {
 		"verbose": false,
 		"visible": true

@@ -35,7 +35,7 @@ require.config({
 /**
  * Main module
  */
-require( ["jquery.ui", "LayerManager", "NameResolver", "Utils", "PickingManager"], function($, LayerManager, NameResolver, Utils, PickingManager) {
+require( ["jquery.ui", "LayerManager", "NameResolver", "ReverseNameResolver", "Utils", "PickingManager"], function($, LayerManager, NameResolver, ReverseNameResolver, Utils, PickingManager) {
 
 // Console fix	
 window.console||(console={log:function(){}});
@@ -133,6 +133,9 @@ $(function()
 		// Initialize the name resolver
 		NameResolver.init(globe, navigation, data.nameResolver);
 	
+		// Initialize the reverse name resolver
+		ReverseNameResolver.init(globe, navigation, data.reverseNameResolver);
+
 		// Create layers from configuration file
 		LayerManager.init(globe, data.layers);
 	});
