@@ -89,8 +89,8 @@ function setBehavior()
 		timeEnd = new Date();
 		diff = timeEnd - timeStart;
 
-		// More than 2 seconds and the mouse position is approximatively the same
-		if ( diff > 2000 && Math.abs(mouseXStart - event.clientX) < epsilon && Math.abs(mouseYStart - event.clientY) < epsilon )
+		// More than 0.5 second and the mouse position is approximatively the same
+		if ( diff > 500 && Math.abs(mouseXStart - event.clientX) < epsilon && Math.abs(mouseYStart - event.clientY) < epsilon )
 		{
 			$('#reverseSearchResult').css("display","none");
 			$('#reverseSearchField').css("display","block");
