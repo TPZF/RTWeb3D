@@ -363,8 +363,7 @@ function init()
 	$('#selectedFeatureDiv').on("click", '.propertiesTable a', function(event){
 		event.preventDefault();
 
-		$("#externalIFrame iframe").attr("src", "about:blank");
-		$("#externalIFrame iframe").attr('src', "/sitools/proxy?external_url=" + event.target.innerHTML);
+		$("#externalIFrame iframe").attr('src', event.target.innerHTML);
 		$("#externalIFrame").animate({top: 100}, 800);
 	});
 
