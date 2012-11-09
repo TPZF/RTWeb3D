@@ -9,7 +9,10 @@ var astroNavigator;
 var configuration = {zoomFov: 15.};
 
 // Target layer
-var style = new GlobWeb.FeatureStyle({ iconUrl: "css/images/target.png" });
+var style = new GlobWeb.FeatureStyle({
+	iconUrl: "css/images/target.png",
+	fillColor: [1., 1., 1., 1.]
+ });
 var targetLayer = new GlobWeb.VectorLayer({ style: style });
 // Zooming destination feature
 var targetFeature;

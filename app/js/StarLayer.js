@@ -124,7 +124,7 @@ StarLayer.prototype.handleFeatures = function()
 					},
 					properties: {
 						name: starName,
-						style: new GlobWeb.FeatureStyle({ label: starName })
+						style: new GlobWeb.FeatureStyle({ label: starName, fillColor: [1.,1.,1.,1.] })
 					}
 				};
 				pois.push(poi);

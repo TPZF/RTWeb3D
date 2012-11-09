@@ -23,7 +23,10 @@ DynamicOSLayer = function(options)
 	this.minOrder = options.minOrder || 5;
 
 	// Style, probably bucket later
-	this.style = new GlobWeb.FeatureStyle({ iconUrl: "css/images/star.png" });
+	this.style = new GlobWeb.FeatureStyle({
+		iconUrl: "css/images/star.png",
+		fillColor: [Math.random(), Math.random(), Math.random(), 1.]
+	});
 	this.texture = null;
 	
 	// TODO "os" is overriden by BaseLayer id when attached by globe
@@ -111,12 +114,13 @@ DynamicOSLayer.prototype._attach = function( g )
 		\n\
 		varying vec2 texCoord; \n\
 		uniform sampler2D texture; \n\
+		uniform vec3 color; \n\
 		uniform float alpha; \n\
 		\n\
 		void main(void) \n\
 		{ \n\
 			vec4 textureColor = texture2D(texture, texCoord); \n\
-			gl_FragColor = vec4(textureColor.rgb, textureColor.a * alpha); \n\
+			gl_FragColor = vec4(textureColor.rgb * color, textureColor.a * alpha); \n\
 			if (gl_FragColor.a <= 0.0) discard; \n\
 		} \n\
 		";
@@ -292,6 +296,16 @@ DynamicOSLayer.prototype.removeFeature = function( geometry, identifier )
 /**************************************************************************************************************/
 
 /**
+ *	Modifies feature style
+ */
+DynamicOSLayer.prototype.modifyFeatureStyle = function( feature, style ){
+	// TODO
+	feature.properties.style = style;
+}
+
+/**************************************************************************************************************/
+
+/**
  * 	Set visibility of the layer
  */
 DynamicOSLayer.prototype.visible = function( arg )
@@ -420,6 +434,7 @@ DynamicOSLayer.prototype.render = function( tiles )
 				
 				gl.uniform3f(this.program.uniforms["poiPosition"], x, y, z);
 				gl.uniform1f(this.program.uniforms["alpha"], this.opacity() );
+				gl.uniform3f(this.program.uniforms["color"], this.style.fillColor[0], this.style.fillColor[1], this.style.fillColor[2]);
 				
 				gl.drawArrays(gl.TRIANGLE_FAN, 0, 4);
 			}

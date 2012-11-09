@@ -191,7 +191,7 @@ ConstellationLayer.prototype.handleFeatures = function()
 			},
 			properties: {
 				name: current.name,
-				style: new GlobWeb.FeatureStyle({ textColor: '#083BA8', label: current.name })
+				style: new GlobWeb.FeatureStyle({ textColor: '#083BA8', fillColor: [1.,1.,1.,1.], label: current.name })
 			}
 		};
 		constellationNamesFeatures.push( constellationName );
