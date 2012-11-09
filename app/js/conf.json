@@ -17,7 +17,7 @@
 			"name": "SDSS",
 			"url": "/Alasky/SDSS/Color",
 			"description": "Sloan Digital Sky Survey from CDS",
-			"attribution": "<object width='96' height='64' data=\"css/images/cds.svg\" type=\"image/svg+xml\"></object>",
+			"attribution": "SDSS backbround from <object width='48' height='32' data=\"css/images/cds.svg\" type=\"image/svg+xml\"></object>",
 			"icon": "css/images/star_icon.png",
 			"background": true,
 			"visible": false
@@ -27,7 +27,7 @@
 			"name": "DSS",
 			"url": "/Alasky/DssColor",
 			"description": "Digital Sky Survey from CDS",
-			"attribution": "<object width='96' height='64' data=\"css/images/cds.svg\" type=\"image/svg+xml\"></object>",
+			"attribution": "DSS backbround from <object width='48' height='32' data=\"css/images/cds.svg\" type=\"image/svg+xml\"></object>",
 			"visible": true,
 			"background": true
 		},
@@ -80,6 +80,7 @@
 			"type": "JSON",
 			"name": "Doradus",
 			"url": "data/doradus.json",
+			"attribution": "Doradus data from ESO",
 			"visible": true
 		},
 		{
