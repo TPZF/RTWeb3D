@@ -9,7 +9,7 @@ var navigation;
 
 var selection = [];
 var stackSelectionIndex = -1;
-var selectedStyle = new GlobWeb.FeatureStyle( { strokeColor: [1., 1., 0., 1.] } );
+var selectedStyle = new GlobWeb.FeatureStyle( { strokeColor: [1., 1., 0., 1.], fillColor: [1., 1., 0., 1.] } );
 var quicklookStyle = new GlobWeb.FeatureStyle( { fill: true, strokeColor: [1., 1., 0., 1.] } );
 var pickableLayers = [];
 var featureListHTML = '';
@@ -81,12 +81,19 @@ function blurSelection()
 {
 	for ( var i=0; i < selection.length; i++ ) {
 		var selectedFeature = selection[i];
-		if ( selectedFeature.feature.geometry.type == "Polygon" )
+		var style = selection[i].feature.properties.style;
+		switch ( selectedFeature.feature.geometry.type )
 		{
-			var style = selection[i].feature.properties.style;
-			style.strokeColor = selection[i].layer.style.strokeColor;
-			selection[i].layer.modifyFeatureStyle( selection[i].feature, style );
+			case "Polygon":
+				style.strokeColor = selection[i].layer.style.strokeColor;
+				break;
+			case "Point":
+				style.fillColor = selection[i].layer.style.fillColor;
+				break;
+			default:
+				break;
 		}
+		selection[i].layer.modifyFeatureStyle( selection[i].feature, style );
 	}
 }
 
@@ -98,19 +105,28 @@ function focusSelection( newSelection )
 	var style;
 	for ( var i=0; i < newSelection.length; i++ ) {
 		var selectedFeature = newSelection[i];
-		if ( selectedFeature.feature.geometry.type == "Polygon" )
+
+		if ( newSelection[i].feature.properties.style )
 		{
-			if ( newSelection[i].feature.properties.style )
-			{
-				style = newSelection[i].feature.properties.style;	
-			}
-			else
-			{
-				style = new GlobWeb.FeatureStyle( newSelection[i].layer.style );
-			}
-			style.strokeColor = selectedStyle.strokeColor;
-			newSelection[i].layer.modifyFeatureStyle( newSelection[i].feature, style );
+			style = newSelection[i].feature.properties.style;	
 		}
+		else
+		{
+			style = new GlobWeb.FeatureStyle( newSelection[i].layer.style );
+		}
+
+		switch ( selectedFeature.feature.geometry.type )
+		{
+			case "Polygon":
+				style.strokeColor = selectedStyle.strokeColor;
+				break;
+			case "Point":
+				style.fillColor = selectedStyle.fillColor;
+				break;
+			default:
+				break;
+		}
+		newSelection[i].layer.modifyFeatureStyle( newSelection[i].feature, style );
 	}
 }
 
@@ -122,12 +138,19 @@ function blurSelectedFeature()
 	var selectedFeature = selection[stackSelectionIndex];
 	if ( selectedFeature )
 	{
-		if ( selectedFeature.feature.geometry.type == "Polygon" )
+		var style = selectedFeature.feature.properties.style;
+		switch ( selectedFeature.feature.geometry.type )
 		{
-			var style = selectedFeature.feature.properties.style;
-			style.strokeColor = selectedFeature.layer.style.strokeColor; 
-			selectedFeature.layer.modifyFeatureStyle( selectedFeature.feature, style );
+			case "Polygon":
+				style.strokeColor = selectedFeature.layer.style.strokeColor; 
+				break;
+			case "Point":
+				style.fillColor = selectedFeature.layer.style.fillColor; 
+				break;
+			default:
+				break;
 		}
+		selectedFeature.layer.modifyFeatureStyle( selectedFeature.feature, style );	
 		$('#featureList div:eq('+stackSelectionIndex+')').removeClass('selected');
 	}
 }
@@ -143,12 +166,19 @@ function focusFeature( index )
 	if ( selectedFeature )
 	{
 		stackSelectionIndex = index;
-		if ( selectedFeature.feature.geometry.type == "Polygon" )
+		var style = selectedFeature.feature.properties.style;
+		switch ( selectedFeature.feature.geometry.type )
 		{
-			var style = selectedFeature.feature.properties.style;
-			style.strokeColor = selectedStyle.strokeColor;
-			selectedFeature.layer.modifyFeatureStyle( selectedFeature.feature, style );
+			case "Polygon":
+				style.strokeColor = selectedStyle.strokeColor;
+				break;
+			case "Point":
+				style.fillColor = selectedStyle.fillColor;
+				break;
+			default:
+				break;
 		}
+		selectedFeature.layer.modifyFeatureStyle( selectedFeature.feature, style );
 
 		$('#featureList div:eq('+stackSelectionIndex+')').addClass('selected');	
 	}	
@@ -159,116 +189,130 @@ function focusFeature( index )
  */
 function init()
 {
-	// Picking event
+	var mouseXStart;
+	var mouseYStart;
+	var epsilon = 5;
+
 	$('canvas').on("mousedown",function(event){
-		var pickPoint = globe.getLonLatFromPixel(event.clientX, event.clientY);
-		var newSelection = [];
-		var clientX = event.clientX;
-		var clientY = event.clientY;
-		
-		for ( var i=0; i<pickableLayers.length; i++)
+		mouseXStart = event.clientX;
+		mouseYStart = event.clientY;
+	});
+
+	// Picking event
+	$('canvas').on("mouseup",function(event){
+
+		// If not pan
+		if ( Math.abs(mouseXStart - event.clientX) < epsilon && Math.abs(mouseYStart - event.clientY) < epsilon )
 		{
-			var pickableLayer = pickableLayers[i];
+			var pickPoint = globe.getLonLatFromPixel(event.clientX, event.clientY);
+			var newSelection = [];
+			var clientX = event.clientX;
+			var clientY = event.clientY;
 			
-			if ( pickableLayer.visible() )
+			for ( var i=0; i<pickableLayers.length; i++)
 			{
-				// Search for picked features
-				for ( var j=0; j<pickableLayer.features.length; j++ )
+				var pickableLayer = pickableLayers[i];
+				
+				if ( pickableLayer.visible() )
 				{
-					switch ( pickableLayer.features[j]['geometry'].type )
+					// Search for picked features
+					for ( var j=0; j<pickableLayer.features.length; j++ )
 					{
-						case "Polygon":
-							if ( pointInRing( pickPoint, pickableLayer.features[j]['geometry']['coordinates'][0] ) )
-							{
-								newSelection.push( { feature: pickableLayer.features[j], layer: pickableLayer } );
-							}
-							break;
-						case "Point":
-							if ( pointInSphere( pickPoint, pickableLayer.features[j]['geometry']['coordinates'] ) )
-							{
-								newSelection.push( { feature: pickableLayer.features[j], layer: pickableLayer } );
-							}
-							break;
-						default:
-							break;
+						switch ( pickableLayer.features[j]['geometry'].type )
+						{
+							case "Polygon":
+								if ( pointInRing( pickPoint, pickableLayer.features[j]['geometry']['coordinates'][0] ) )
+								{
+									newSelection.push( { feature: pickableLayer.features[j], layer: pickableLayer } );
+								}
+								break;
+							case "Point":
+								if ( pointInSphere( pickPoint, pickableLayer.features[j]['geometry']['coordinates'] ) )
+								{
+									newSelection.push( { feature: pickableLayer.features[j], layer: pickableLayer } );
+								}
+								break;
+							default:
+								break;
+						}
 					}
 				}
 			}
-		}
-		
-		if ( isSelectionEqual(newSelection) && newSelection.length != 0 ){
 			
-			var selectedFeature = selection[stackSelectionIndex];
-			// Reset previous selected feature
-			if ( stackSelectionIndex == -1 ) {
-				// Blur all selected features
-				blurSelection();
+			if ( isSelectionEqual(newSelection) && newSelection.length != 0 ){
 				
-			} else {
-				// Blur only previous feature
-				blurSelectedFeature();
-			}
-			
-			stackSelectionIndex++;
-			selectedFeature = selection[stackSelectionIndex];
-			
-			// Select individual feature
-			if ( stackSelectionIndex == selection.length ) {
-				selection = [];
-				$('#selectedFeatureDiv').fadeOut(300);
-				stackSelectionIndex = -1;
-			} else {
-				// Focus current feature
-				focusFeature( stackSelectionIndex );
-				
-				$('#rightDiv').fadeOut(300, function(){
-					createHTMLSelectedFeatureDiv( selectedFeature.feature );
-					$(this).fadeIn(300, function(){
-// 						$("#detailedInfo").mCustomScrollbar("update");
-					});
-				});
-			}
-		}
-		else
-		{
-			// Remove selected style for previous selection
-			blurSelection();
-
-			// Add selected style for new selection
-			focusSelection( newSelection );
-			selection = newSelection;
-			
-			if ( newSelection.length > 0 )
-			{
-				$('#selectedFeatureDiv').fadeOut(300, function(){
-					// View on center
-					// TODO make appear selectedFeatureDiv AFTER once moveTo finished
-					// 	+ timeOut (used currently)
-					//	or
-					//	+ new event to subscribe
-					navigation.moveTo( pickPoint, 1000 );
-					window.setTimeout( function(){ $('#selectedFeatureDiv').fadeIn(500); }, 1000 );
+				var selectedFeature = selection[stackSelectionIndex];
+				// Reset previous selected feature
+				if ( stackSelectionIndex == -1 ) {
+					// Blur all selected features
+					blurSelection();
 					
-					// Create dialogue for the first selection call
-					if ( newSelection.length > 1 )
-					{
-						createHTMLSelectedFeatureList( newSelection );
-						createHTMLSelectionHelp();
-						computeDivPosition( globe.renderContext.canvas.width/2, globe.renderContext.canvas.height/2);
-						stackSelectionIndex = -1;
-					}
-					else
-					{
-						// only one layer, no pile needed, create feature dialogue
-						createHTMLSelectedFeatureList( newSelection );
-						focusFeature( 0 );
-						createHTMLSelectedFeatureDiv( newSelection[stackSelectionIndex].feature );
-						computeDivPosition( globe.renderContext.canvas.width/2, globe.renderContext.canvas.height/2);
-// 						$("#detailedInfo").mCustomScrollbar("update");
-					}
-				});
-			} else {
-				$('#selectedFeatureDiv').fadeOut(300);
+				} else {
+					// Blur only previous feature
+					blurSelectedFeature();
+				}
+				
+				stackSelectionIndex++;
+				selectedFeature = selection[stackSelectionIndex];
+				
+				// Select individual feature
+				if ( stackSelectionIndex == selection.length ) {
+					selection = [];
+					$('#selectedFeatureDiv').fadeOut(300);
+					stackSelectionIndex = -1;
+				} else {
+					// Focus current feature
+					focusFeature( stackSelectionIndex );
+					
+					$('#rightDiv').fadeOut(300, function(){
+						createHTMLSelectedFeatureDiv( selectedFeature.feature );
+						$(this).fadeIn(300, function(){
+	// 						$("#detailedInfo").mCustomScrollbar("update");
+						});
+					});
+				}
+			}
+			else
+			{
+				// Remove selected style for previous selection
+				blurSelection();
+
+				// Add selected style for new selection
+				focusSelection( newSelection );
+				selection = newSelection;
+				
+				if ( newSelection.length > 0 )
+				{
+					$('#selectedFeatureDiv').fadeOut(300, function(){
+						// View on center
+						// TODO make appear selectedFeatureDiv ONCE moveTo finished
+						// 	+ timeOut (used currently)
+						//	or
+						//	+ new event to subscribe
+						navigation.moveTo( pickPoint, 1000 );
+						window.setTimeout( function(){ $('#selectedFeatureDiv').fadeIn(500); }, 1000 );
+						
+						// Create dialogue for the first selection call
+						if ( newSelection.length > 1 )
+						{
+							createHTMLSelectedFeatureList( newSelection );
+							createHTMLSelectionHelp();
+							computeDivPosition( globe.renderContext.canvas.width/2, globe.renderContext.canvas.height/2);
+							stackSelectionIndex = -1;
+						}
+						else
+						{
+							// only one layer, no pile needed, create feature dialogue
+							createHTMLSelectedFeatureList( newSelection );
+							focusFeature( 0 );
+							createHTMLSelectedFeatureDiv( newSelection[stackSelectionIndex].feature );
+							computeDivPosition( globe.renderContext.canvas.width/2, globe.renderContext.canvas.height/2);
+	// 						$("#detailedInfo").mCustomScrollbar("update");
+						}
+					});
+				} else {
+					$('#selectedFeatureDiv').fadeOut(300);
+				}
 			}
 		}
 	});
@@ -303,7 +347,6 @@ function init()
 		else
 		{
 			$('#quicklook').addClass('selected');
-			// $('#loading').show(300);
 			var style = selectedFeature.feature.properties.style;
 			style.fill = true;
 			style.fillTextureUrl = selectedFeature.feature.properties.quicklook;
@@ -312,9 +355,7 @@ function init()
 	});
 	
 	// BUG ! Disables stack onclick action
-	globe.subscribe("startNavigation", function(){ if ($('#selectedFeatureDiv').css('display') != 'none'){ $(this).fadeOut(300); clearSelection(); } } );
-	// TODO manage texture loading process
-	// globe.subscribe("imageLoaded", function(){ $('#loading').hide(300); } );
+	globe.subscribe("startNavigation", function(){ if ($('#selectedFeatureDiv').css('display') != 'none'){ $('#selectedFeatureDiv').fadeOut(300); clearSelection(); } } );
 
 	// Arrow events
 	$('#selectedFeatureDiv').on("mousedown", '#scroll-arrow-down.clickable', function(event){
