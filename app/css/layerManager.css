@@ -9,6 +9,10 @@
 	min-width: 150px;
 }
 
+#layerManager {
+	max-height: 450px;
+}
+
 #backgroundLayers
 {
 	margin-right: inherit;

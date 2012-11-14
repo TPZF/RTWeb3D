@@ -2,7 +2,9 @@
 /**
  * LayerManager module
  */
-define( [ "jquery.ui", "PickingManager", "StarLayer", "ConstellationLayer", "DynamicOSLayer", "underscore-min", "text!../templates/additionalLayer.html", "jquery.ui.selectmenu" ], function($, PickingManager, StarLayer, ConstellationLayer, DynamicOSLayer, _, additionalLayerHTMLTemplate) {
+define( [ "jquery.ui", "PickingManager", "StarLayer", "ConstellationLayer", "DynamicOSLayer", 
+	"underscore-min", "text!../templates/additionalLayer.html", "jquery.ui.selectmenu", "jquery.nicescroll.min" ], 
+	function($, PickingManager, StarLayer, ConstellationLayer, DynamicOSLayer, _, additionalLayerHTMLTemplate) {
 
 /**
  * Private variable for module
@@ -400,6 +402,8 @@ function initGuiEvents ()
  */
 function initLayers(layers) 
 {
+	// Nice scrollbar
+	$('#layerManager').niceScroll({ autohidemode: false });
 	
 	// Necessary to drag&drop option while using jQuery
 	$.event.props.push('dataTransfer');
