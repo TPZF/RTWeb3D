@@ -2,7 +2,8 @@
 /**
  * PickingManager module
  */
-define( [ "jquery.ui", "underscore-min", "text!../templates/featureList.html", "text!../templates/featureDescription.html", "text!../templates/descriptionTable.html"/*, "jquery.mousewheel.min", "jquery.mCustomScrollbar.min"*/ ], function($, _, featureListHTMLTemplate, featureDescriptionHTMLTemplate, descriptionTableHTMLTemplate) {
+define( [ "jquery.ui", "underscore-min", "text!../templates/featureList.html", "text!../templates/featureDescription.html", 
+	"text!../templates/descriptionTable.html", "jquery.nicescroll.min" ], function($, _, featureListHTMLTemplate, featureDescriptionHTMLTemplate, descriptionTableHTMLTemplate) {
 
 var globe;
 var navigation;
@@ -24,7 +25,7 @@ var selectedFeatureDiv = '<div id="selectedFeatureDiv" class="contentBox ui-widg
 				</div>\
 				<div class="arrow-left"></div>\
 			</div>';
-$(selectedFeatureDiv).appendTo('body');
+var $selectedFeatureDiv = $(selectedFeatureDiv).appendTo('body');
 
 // Template generating the list of selected features
 var featureListTemplate = _.template(featureListHTMLTemplate);
@@ -185,6 +186,37 @@ function focusFeature( index )
 }
 
 /**
+ * 	Show feature information in the selectFeature popup
+ */
+function showFeatureInformation(feature) {
+	$('.detailedInfo').getNiceScroll().remove();
+	$('#rightDiv').fadeOut(300, function(){
+		createHTMLSelectedFeatureDiv( feature );
+		$(this).fadeIn(300, function(){
+			$('.detailedInfo').getNiceScroll().resize();
+		});
+	});
+}
+
+/**
+ * 	Show the select feature popup
+ */
+function showSelectFeaturePopup(callback) {
+	$selectedFeatureDiv.fadeIn(500, function() {
+		$('.detailedInfo').getNiceScroll().resize();
+		if (callback) callback();
+	});
+}
+
+/**
+ * 	Hide the select feature popup
+ */
+function hideSelectFeaturePopup(callback) {
+	$('.detailedInfo').getNiceScroll().remove();
+	$selectedFeatureDiv.fadeOut(300, callback );
+}
+
+/**
  * 	Init event
  */
 function init()
@@ -205,39 +237,7 @@ function init()
 		if ( Math.abs(mouseXStart - event.clientX) < epsilon && Math.abs(mouseYStart - event.clientY) < epsilon )
 		{
 			var pickPoint = globe.getLonLatFromPixel(event.clientX, event.clientY);
-			var newSelection = [];
-			var clientX = event.clientX;
-			var clientY = event.clientY;
-			
-			for ( var i=0; i<pickableLayers.length; i++)
-			{
-				var pickableLayer = pickableLayers[i];
-				
-				if ( pickableLayer.visible() )
-				{
-					// Search for picked features
-					for ( var j=0; j<pickableLayer.features.length; j++ )
-					{
-						switch ( pickableLayer.features[j]['geometry'].type )
-						{
-							case "Polygon":
-								if ( pointInRing( pickPoint, pickableLayer.features[j]['geometry']['coordinates'][0] ) )
-								{
-									newSelection.push( { feature: pickableLayer.features[j], layer: pickableLayer } );
-								}
-								break;
-							case "Point":
-								if ( pointInSphere( pickPoint, pickableLayer.features[j]['geometry']['coordinates'] ) )
-								{
-									newSelection.push( { feature: pickableLayer.features[j], layer: pickableLayer } );
-								}
-								break;
-							default:
-								break;
-						}
-					}
-				}
-			}
+			var newSelection = computePickSelection(pickPoint);
 			
 			if ( isSelectionEqual(newSelection) && newSelection.length != 0 ){
 				
@@ -258,18 +258,12 @@ function init()
 				// Select individual feature
 				if ( stackSelectionIndex == selection.length ) {
 					selection = [];
-					$('#selectedFeatureDiv').fadeOut(300);
+					hideSelectFeaturePopup();
 					stackSelectionIndex = -1;
 				} else {
 					// Focus current feature
 					focusFeature( stackSelectionIndex );
-					
-					$('#rightDiv').fadeOut(300, function(){
-						createHTMLSelectedFeatureDiv( selectedFeature.feature );
-						$(this).fadeIn(300, function(){
-	// 						$("#detailedInfo").mCustomScrollbar("update");
-						});
-					});
+					showFeatureInformation( selectedFeature.feature );
 				}
 			}
 			else
@@ -283,14 +277,15 @@ function init()
 				
 				if ( newSelection.length > 0 )
 				{
-					$('#selectedFeatureDiv').fadeOut(300, function(){
+					// Hide previous popup if any
+					hideSelectFeaturePopup( function() {
 						// View on center
 						// TODO make appear selectedFeatureDiv ONCE moveTo finished
 						// 	+ timeOut (used currently)
 						//	or
 						//	+ new event to subscribe
 						navigation.moveTo( pickPoint, 1000 );
-						window.setTimeout( function(){ $('#selectedFeatureDiv').fadeIn(500); }, 1000 );
+						window.setTimeout( showSelectFeaturePopup, 1000 );
 						
 						// Create dialogue for the first selection call
 						if ( newSelection.length > 1 )
@@ -307,11 +302,10 @@ function init()
 							focusFeature( 0 );
 							createHTMLSelectedFeatureDiv( newSelection[stackSelectionIndex].feature );
 							computeDivPosition( globe.renderContext.canvas.width/2, globe.renderContext.canvas.height/2);
-	// 						$("#detailedInfo").mCustomScrollbar("update");
 						}
 					});
 				} else {
-					$('#selectedFeatureDiv').fadeOut(300);
+					hideSelectFeaturePopup();
 				}
 			}
 		}
@@ -325,13 +319,15 @@ function init()
 		}
 		else
 		{
-			$(this).parent().fadeOut(300);
+			hideSelectFeaturePopup();
 			clearSelection();	
 		}
 	});
 	
+
+	
 	// Show/hide quicklook
-	$('#selectedFeatureDiv').on("click", '#quicklook', function(event){
+	$selectedFeatureDiv.on("click", '#quicklook', function(event){
 		
 		var featureIndexToQuicklook = $('#featureList .selected').index();
 		var selectedFeature = selection[featureIndexToQuicklook];
@@ -355,10 +351,15 @@ function init()
 	});
 	
 	// BUG ! Disables stack onclick action
-	globe.subscribe("startNavigation", function(){ if ($('#selectedFeatureDiv').css('display') != 'none'){ $('#selectedFeatureDiv').fadeOut(300); clearSelection(); } } );
+	globe.subscribe("startNavigation", function() { 
+		if ( $selectedFeatureDiv.css('display') != 'none') { 
+			hideSelectFeaturePopup(); 
+			clearSelection(); 
+		} 
+	});
 
 	// Arrow events
-	$('#selectedFeatureDiv').on("mousedown", '#scroll-arrow-down.clickable', function(event){
+	$selectedFeatureDiv.on("mousedown", '#scroll-arrow-down.clickable', function(event){
 		$('#selectedFeatureDiv #scroll-arrow-up').css("border-bottom-color", "orange").addClass("clickable");
 		var topValue = parseInt($('#featureList').css("top"), 10) - 60;
 		var height = $('#featureList').height();
@@ -372,7 +373,7 @@ function init()
 		$('#featureList').stop().animate({top: topValue +"px"}, 300);
 	}).disableSelection();
 	
-	$('#selectedFeatureDiv').on("mousedown", '#scroll-arrow-up.clickable', function(event){
+	$selectedFeatureDiv.on("mousedown", '#scroll-arrow-up.clickable', function(event){
 
 		$('#selectedFeatureDiv #scroll-arrow-down').css("border-top-color", "orange").addClass("clickable");
 		
@@ -386,7 +387,7 @@ function init()
 	}).disableSelection();
 	
 	// Choose feature by clicking on its title
-	$('#selectedFeatureDiv').on("click", '.featureTitle', function(){
+	$selectedFeatureDiv.on("click", '.featureTitle', function(){
 		blurSelection();
 		blurSelectedFeature();
 		
@@ -394,14 +395,11 @@ function init()
 		focusFeature( featureIndexToFocus );
 		var selectedFeature = selection[stackSelectionIndex];
 		
-		$('#rightDiv').fadeOut(300, function(){
-			createHTMLSelectedFeatureDiv( selectedFeature.feature );
-			$(this).fadeIn(300);
-		});
+		showFeatureInformation( selectedFeature.feature );
 	});
 
 	// Show/hide external resource
-	$('#selectedFeatureDiv').on("click", '.propertiesTable a', function(event){
+	$selectedFeatureDiv.on("click", '.propertiesTable a', function(event){
 		event.preventDefault();
 
 		$("#externalIFrame iframe").attr('src', event.target.innerHTML);
@@ -409,7 +407,7 @@ function init()
 	});
 
 	// Show/hide subsection properties
-	$('#selectedFeatureDiv').on("click", '.section', function(event){
+	$selectedFeatureDiv.on("click", '.section', function(event){
 		// TODO slideToggle works with div -> add div to the tab generation
 		$(this).siblings('table').fadeToggle("slow", "linear");/*slideToggle(300)*/;
 		if ( $(this).siblings('#arrow').is('.arrow-right') )
@@ -511,6 +509,46 @@ function pointInSphere( point, sphere )
 }
 
 /**
+ * 	Compute the selection at the picking point
+ */
+function computePickSelection( pickPoint )
+{
+	var newSelection = [];
+	
+	for ( var i=0; i<pickableLayers.length; i++)
+	{
+		var pickableLayer = pickableLayers[i];
+		
+		if ( pickableLayer.visible() )
+		{
+			// Search for picked features
+			for ( var j=0; j<pickableLayer.features.length; j++ )
+			{
+				switch ( pickableLayer.features[j]['geometry'].type )
+				{
+					case "Polygon":
+						if ( pointInRing( pickPoint, pickableLayer.features[j]['geometry']['coordinates'][0] ) )
+						{
+							newSelection.push( { feature: pickableLayer.features[j], layer: pickableLayer } );
+						}
+						break;
+					case "Point":
+						if ( pointInSphere( pickPoint, pickableLayer.features[j]['geometry']['coordinates'] ) )
+						{
+							newSelection.push( { feature: pickableLayer.features[j], layer: pickableLayer } );
+						}
+						break;
+					default:
+						break;
+				}
+			}
+		}
+	}
+	
+	return newSelection;
+}
+
+/**
  * 	Insert HTML code of selected features
  * 
  * 	@param {<GlobWeb.Feature>[]} seleciton Array of features
@@ -533,15 +571,7 @@ function createHTMLSelectedFeatureDiv( feature )
 	
 	$('#rightDiv').html( output );
 	
-	// stylized scroll ......
-// 	$('#detailedInfo').mCustomScrollbar({
-// 		scrollButtons:{
-// 			enable:true
-// 		},
-// 		height: $('#rightDiv').height()
-// 	});
-	
-// 	window.setInterval( function(){ $('#detailedInfo').mCustomScrollbar("update"); }, 1000 );
+	$('.detailedInfo').niceScroll({autohidemode: false});
 }
 
 /**
