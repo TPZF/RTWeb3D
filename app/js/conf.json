@@ -94,7 +94,6 @@
 			"name": "Dynamic fuse",
 			"serviceUrl": "/sitools/ofuse/search?",
 			"visible": true,
-			"minOrder": 5
-		}
-	]
+			"minOrder": 3
+		}	]
 }

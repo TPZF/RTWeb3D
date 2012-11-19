@@ -37,11 +37,7 @@ DynamicOSLayer = function(options)
 	// Counter set, indicates how many times the feature has been requested
 	this.featuresSet = new Set();
 
-	this.requests = [];
-	for ( var i=0; i<2; i++ )
-	{
-		this.requests[i] = null;
-	}
+	this.requests = [ null, null ];
 }
 
 /**************************************************************************************************************/
@@ -168,7 +164,6 @@ DynamicOSLayer.prototype.launchRequest = function(tile)
 		{
 			this.requests[i] = tile;
 			index = i;
-			tile.extension[this.id] = new DynamicOSLayer.OSData(this);
 			break;
 		}
 	}
@@ -180,6 +175,8 @@ DynamicOSLayer.prototype.launchRequest = function(tile)
 			type: "GET",
 			url: self.serviceUrl + "order=" + tile.order + "&healpix=" + tile.pixelIndex,
 			success: function(response){
+				tile.extension[self.id] = new DynamicOSLayer.OSData(self);
+				tile.extension[self.id].complete = (response.totalResults == response.features.length);
 				recomputeFeaturesGeometry(response.features);
 				
 				for ( var i=0; i<response.features.length; i++ )
@@ -193,30 +190,6 @@ DynamicOSLayer.prototype.launchRequest = function(tile)
 				console.error( xhr.responseText );
 			}
 		});
-	}
-}
-
-/**************************************************************************************************************/
-
-/**
- * 	Launch requests
- */
-DynamicOSLayer.prototype.launchRequests = function( tiles )
-{
-	// Launch requests
-	for ( var i=0; i<tiles.length; i++ )
-	{
-		var tile = tiles[i];
-		if( !tile.extension[this.id] )
-		{
-			if ( tile.order >= this.minOrder )
-			{
-				if ( tile.state != GlobWeb.Tile.State.NONE )
-				{
-					this.launchRequest(tile);
-				}
-			}
-		}
 	}
 }
 
@@ -339,6 +312,7 @@ DynamicOSLayer.OSData = function(layer)
 	this.layer = layer;
 	this.featureIds = []; // exclusive parameter to remove from layer
 	this.points = [];
+	this.complete = false;
 }
 
 /**************************************************************************************************************/
@@ -366,8 +340,54 @@ DynamicOSLayer.OSData.prototype.dispose = function( renderContext, tilePool )
  */
 DynamicOSLayer.prototype.render = function( tiles )
 {
-
-	this.launchRequests( tiles );
+	var points = [];
+	var visitedTiles = {};
+	
+	for ( var i = 0; i < tiles.length; i++ )
+	{
+		var tile = tiles[i];
+		if ( tile.order >= this.minOrder )
+		{
+			var tileData = tile.extension[this.id];
+			if( !tileData )
+			{				
+				// Search for available data on tile parent
+				var completeDataFound = false;
+				var prevVisitTile = tile;
+				var visitTile = tile.parent;
+				while ( visitTile && visitTile.order >= this.minOrder )
+				{
+					tileData = visitTile.extension[this.id];
+					if ( tileData )
+					{
+						var key = visitTile.order + "_" + visitTile.pixelIndex;
+						if ( !visitedTiles.hasOwnProperty(key) && tileData.points.length > 0 )
+						{
+							points = points.concat( tileData.points );
+						}
+						visitedTiles[key] = true;
+						visitTile = null;
+						completeDataFound = tileData.complete;
+					}
+					else 
+					{
+						prevVisitTile = visitTile;
+						visitTile = visitTile.parent;
+					}
+				}
+				
+				// Only request the file if needed, ie if a parent does not already contains all data
+				if ( !completeDataFound && (prevVisitTile.state != GlobWeb.Tile.State.NONE) )
+				{
+					this.launchRequest(prevVisitTile);
+				}
+			}
+			else if ( tileData.points.length > 0 )
+			{
+				points = points.concat( tileData.points ); 
+			}
+		}
+	}
 
 	// Render tiles
 	var renderContext = this.renderContext;
@@ -403,43 +423,37 @@ DynamicOSLayer.prototype.render = function( tiles )
 	gl.activeTexture(gl.TEXTURE0);
 	gl.bindTexture(gl.TEXTURE_2D, this.texture);
 	
-	for ( var n = 0; n < tiles.length; n++ )
+		
+	// 2.0 * because normalized device coordinates goes from -1 to 1
+	var scale = [2.0 * this.textureWidth / renderContext.canvas.width,
+				 2.0 * this.textureHeight / renderContext.canvas.height];
+	gl.uniform2fv(this.program.uniforms["poiScale"], scale);
+	gl.uniform2fv(this.program.uniforms["tst"], [ 0.5 / (this.textureWidth), 0.5 / (this.textureHeight)  ]);
+		gl.uniform1f(this.program.uniforms["alpha"], this.opacity() );
+		gl.uniform3f(this.program.uniforms["color"], this.style.fillColor[0], this.style.fillColor[1], this.style.fillColor[2]);
+
+	for (var i = 0; i < points.length; ++i)
 	{
-		var tile = tiles[n];
-		
-		if ( !tile.extension[this.id] )
-			continue;
-		
-		// 2.0 * because normalized device coordinates goes from -1 to 1
-		var scale = [2.0 * this.textureWidth / renderContext.canvas.width,
-					 2.0 * this.textureHeight / renderContext.canvas.height];
-		gl.uniform2fv(this.program.uniforms["poiScale"], scale);
-		gl.uniform2fv(this.program.uniforms["tst"], [ 0.5 / (this.textureWidth), 0.5 / (this.textureHeight)  ]);
+		// Poi culling
+		var point = points[i];
+		var worldPoi = point.pos3d;
+		var poiVec = point.vertical;
+		var scale = this.textureHeight * ( pixelSizeVector[0] * worldPoi[0] + pixelSizeVector[1] * worldPoi[1] + pixelSizeVector[2] * worldPoi[2] + pixelSizeVector[3] );
+		scale *= this.tileConfig.cullSign;
 
-		for (var i = 0; i < tile.extension[this.id].points.length; ++i)
+		if ( vec3.dot(poiVec, camZ) > 0 
+			&& renderContext.worldFrustum.containsSphere(worldPoi,scale) >= 0 )
 		{
-			// Poi culling
-			var point = tile.extension[this.id].points[i];
-			var worldPoi = point.pos3d;
-			var poiVec = point.vertical;
-			var scale = this.textureHeight * ( pixelSizeVector[0] * worldPoi[0] + pixelSizeVector[1] * worldPoi[1] + pixelSizeVector[2] * worldPoi[2] + pixelSizeVector[3] );
-			scale *= this.tileConfig.cullSign;
-
-			if ( vec3.dot(poiVec, camZ) > 0 
-				&& renderContext.worldFrustum.containsSphere(worldPoi,scale) >= 0 )
-			{
-				var x = poiVec[0] * scale + worldPoi[0];
-				var y = poiVec[1] * scale + worldPoi[1];
-				var z = poiVec[2] * scale + worldPoi[2];
-				
-				gl.uniform3f(this.program.uniforms["poiPosition"], x, y, z);
-				gl.uniform1f(this.program.uniforms["alpha"], this.opacity() );
-				gl.uniform3f(this.program.uniforms["color"], this.style.fillColor[0], this.style.fillColor[1], this.style.fillColor[2]);
-				
-				gl.drawArrays(gl.TRIANGLE_FAN, 0, 4);
-			}
+			var x = poiVec[0] * scale + worldPoi[0];
+			var y = poiVec[1] * scale + worldPoi[1];
+			var z = poiVec[2] * scale + worldPoi[2];
+			
+			gl.uniform3f(this.program.uniforms["poiPosition"], x, y, z);
+			
+			gl.drawArrays(gl.TRIANGLE_FAN, 0, 4);
 		}
 	}
+	
 	gl.disable(gl.BLEND);
 }
 
