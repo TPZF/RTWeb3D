@@ -91,6 +91,13 @@
 		},
 		{
 			"type": "DynamicOpenSearch",
+			"name": "Dynamic herschel",
+			"serviceUrl": "/sitools/oherschel/search?",
+			"visible": false,
+			"minOrder": 3
+		},
+		{
+			"type": "DynamicOpenSearch",
 			"name": "Dynamic fuse",
 			"serviceUrl": "/sitools/ofuse/search?",
 			"visible": true,

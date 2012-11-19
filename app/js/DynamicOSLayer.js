@@ -27,7 +27,6 @@ DynamicOSLayer = function(options)
 		iconUrl: "css/images/star.png",
 		fillColor: [Math.random(), Math.random(), Math.random(), 1.]
 	});
-	this.texture = null;
 	
 	// TODO "os" is overriden by BaseLayer id when attached by globe
 	this.id = "os";
@@ -37,7 +36,13 @@ DynamicOSLayer = function(options)
 	// Counter set, indicates how many times the feature has been requested
 	this.featuresSet = new Set();
 
+	// Maximum two requests for now
 	this.requests = [ null, null ];
+	
+	// For rendering
+	this.bucket = null;
+	this.lineRenderer = null;
+	this.pointRenderer = null;
 }
 
 /**************************************************************************************************************/
@@ -55,87 +60,10 @@ DynamicOSLayer.prototype._attach = function( g )
 {
 	GlobWeb.BaseLayer.prototype._attach.call( this, g );
 	
-	this.renderContext = g.tileManager.renderContext;
-	this.tileConfig = g.tileManager.tileConfig;
-	
-	// Create texture
-	var self = this;
-	var poiImage = new Image();
-	poiImage.crossOrigin = '';
-	poiImage.onload = function () 
-	{
-		self.texture = self.renderContext.createNonPowerOfTwoTextureFromImage(poiImage);
-		self.textureWidth = poiImage.width;
-		self.textureHeight = poiImage.height;
-	}
-	
-	poiImage.onerror = function(event) {
-		console.log("Cannot load " + quicklookImage.src );
-	}
-	poiImage.src = this.style.iconUrl;
-
-	if ( this._visible )
-	{
-		this.globe.tileManager.addPostRenderer(this);
-	}
-	
-	if (!this.program)
-	{
-		var vertexShader = "\
-		attribute vec3 vertex; // vertex have z = 0, spans in x,y from -0.5 to 0.5 \n\
-		uniform mat4 viewProjectionMatrix; \n\
-		uniform vec3 poiPosition; // world position \n\
-		uniform vec2 poiScale; // x,y scale \n\
-		uniform vec2 tst; \n\
-		\n\
-		varying vec2 texCoord; \n\
-		\n\
-		void main(void)  \n\
-		{ \n\
-			// Generate texture coordinates, input vertex goes from -0.5 to 0.5 (on x,y) \n\
-			texCoord = vertex.xy + vec2(0.5) + tst; \n\
-			// Invert y \n\
-			texCoord.y = 1.0 - texCoord.y; \n\
-			\n\
-			// Compute poi position in clip coordinate \n\
-			gl_Position = viewProjectionMatrix * vec4(poiPosition, 1.0); \n\
-			gl_Position.xy += vertex.xy * gl_Position.w * poiScale; \n\
-		} \n\
-		";
-		
-		var fragmentShader = "\
-		#ifdef GL_ES \n\
-		precision highp float; \n\
-		#endif \n\
-		\n\
-		varying vec2 texCoord; \n\
-		uniform sampler2D texture; \n\
-		uniform vec3 color; \n\
-		uniform float alpha; \n\
-		\n\
-		void main(void) \n\
-		{ \n\
-			vec4 textureColor = texture2D(texture, texCoord); \n\
-			gl_FragColor = vec4(textureColor.rgb * color, textureColor.a * alpha); \n\
-			if (gl_FragColor.a <= 0.0) discard; \n\
-		} \n\
-		";
-	
-		this.program = new GlobWeb.Program(this.renderContext);
-		this.program.createFromSource(vertexShader, fragmentShader);
-	}
-	
-	var vertices = new Float32Array(
-		[-0.5, -0.5, 0.0,
-		-0.5,  0.5, 0.0,
-		0.5,  0.5, 0.0,
-		0.5, -0.5, 0.0]
-	);
-	
-	var gl = this.renderContext.gl;
-	this.vertexBuffer = gl.createBuffer();
-	gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexBuffer);
-	gl.bufferData(gl.ARRAY_BUFFER, vertices, gl.STATIC_DRAW);
+	this.pointRenderer = new GlobWeb.PointRenderer( g.tileManager );
+	this.lineRenderer = new GlobWeb.SimpleLineRenderer( g.tileManager );
+	this.bucket = this.pointRenderer.getOrCreateBucket( this, this.style );
+	g.tileManager.addPostRenderer(this);
 }
 
 /**************************************************************************************************************/
@@ -146,6 +74,9 @@ DynamicOSLayer.prototype._attach = function( g )
 DynamicOSLayer.prototype._detach = function()
 {
 	this.globe.tileManager.removePostRenderer(this);
+	this.pointRenderer = null;
+	this.bucket = null;
+	
 	GlobWeb.BaseLayer.prototype._detach.call(this);
 }
 
@@ -201,17 +132,26 @@ DynamicOSLayer.prototype.launchRequest = function(tile)
 DynamicOSLayer.prototype.addGeometryToTile = function(geometry,tile)
 {
 	var posGeo = geometry['coordinates'];
-	var pos3d = GlobWeb.CoordinateSystem.fromGeoTo3D( posGeo );
-	var vertical = vec3.create();
-	vec3.normalize(pos3d, vertical);
-	
-	var pointRenderData = {
-		geometry: geometry,
-		pos3d: pos3d,
-		vertical: vertical
-	};
-	
-	tile.extension[this.id].points.push( pointRenderData );
+	if ( geometry['type'] == "Point" )
+	{
+		var pos3d = GlobWeb.CoordinateSystem.fromGeoTo3D( posGeo );
+		var vertical = vec3.create();
+		vec3.normalize(pos3d, vertical);
+		
+		var pointRenderData = {
+			geometry: geometry,
+			pos3d: pos3d,
+			vertical: vertical,
+			color: this.style.fillColor
+		};
+		
+		tile.extension[this.id].points.push( pointRenderData );
+	} 
+	else if ( geometry['type'] == "Polygon" )
+	{
+		this.lineRenderer.addGeometry(geometry,this,this.style);
+		tile.extension[this.id].lines.push( this.lineRenderer.renderables[ this.lineRenderer.renderables.length-1 ] );
+	}
 }
 
 /**************************************************************************************************************/
@@ -278,28 +218,6 @@ DynamicOSLayer.prototype.modifyFeatureStyle = function( feature, style ){
 
 /**************************************************************************************************************/
 
-/**
- * 	Set visibility of the layer
- */
-DynamicOSLayer.prototype.visible = function( arg )
-{
-	if ( typeof arg == "boolean" && this._visible != arg )
-	{
-		this._visible = arg;
-		
-		if ( arg ){
-			this.globe.tileManager.addPostRenderer(this);
-		}
-		else
-		{
-			this.globe.tileManager.removePostRenderer(this);
-		}
-	}
-	
-	return this._visible;
-}
-
-/**************************************************************************************************************/
 
 /**
  *	@constructor
@@ -312,6 +230,7 @@ DynamicOSLayer.OSData = function(layer)
 	this.layer = layer;
 	this.featureIds = []; // exclusive parameter to remove from layer
 	this.points = [];
+	this.lines = [];
 	this.complete = false;
 }
 
@@ -340,7 +259,13 @@ DynamicOSLayer.OSData.prototype.dispose = function( renderContext, tilePool )
  */
 DynamicOSLayer.prototype.render = function( tiles )
 {
+	if (!this._visible)
+		return;
+		
+	// Traverse the tiles to find all available data, and request data for needed tiles
+	
 	var points = [];
+	var lines = [];
 	var visitedTiles = {};
 	
 	for ( var i = 0; i < tiles.length; i++ )
@@ -361,9 +286,12 @@ DynamicOSLayer.prototype.render = function( tiles )
 					if ( tileData )
 					{
 						var key = visitTile.order + "_" + visitTile.pixelIndex;
-						if ( !visitedTiles.hasOwnProperty(key) && tileData.points.length > 0 )
+						if ( !visitedTiles.hasOwnProperty(key) )
 						{
-							points = points.concat( tileData.points );
+							if ( tileData.points.length > 0 )
+								points = points.concat( tileData.points );
+							if ( tileData.lines.length > 0 )
+								lines = lines.concat( tileData.lines );							
 						}
 						visitedTiles[key] = true;
 						visitTile = null;
@@ -382,79 +310,30 @@ DynamicOSLayer.prototype.render = function( tiles )
 					this.launchRequest(prevVisitTile);
 				}
 			}
-			else if ( tileData.points.length > 0 )
+			else
 			{
-				points = points.concat( tileData.points ); 
+				if ( tileData.points.length > 0 )
+					points = points.concat( tileData.points );
+				if ( tileData.lines.length > 0 )
+					lines = lines.concat( tileData.lines );							
 			}
 		}
 	}
-
-	// Render tiles
-	var renderContext = this.renderContext;
-	var gl = this.renderContext.gl;
 	
-	// Setup states
-	gl.enable(gl.BLEND);
-	gl.blendEquation(gl.FUNC_ADD);
-	gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
-
-	// Setup program
-	this.program.apply();
 	
-	// The shader only needs the viewProjection matrix, use GlobWeb.modelViewMatrix as a temporary storage
-	mat4.multiply(renderContext.projectionMatrix, renderContext.viewMatrix, renderContext.modelViewMatrix)
-	gl.uniformMatrix4fv(this.program.uniforms["viewProjectionMatrix"], false, renderContext.modelViewMatrix);
-	gl.uniform1i(this.program.uniforms["texture"], 0);
-
-	// Compute eye direction from inverse view matrix
-	mat4.inverse(renderContext.viewMatrix, renderContext.modelViewMatrix);
-	var camZ = [renderContext.modelViewMatrix[8], renderContext.modelViewMatrix[9], renderContext.modelViewMatrix[10]];
-	vec3.normalize(camZ);
-	vec3.scale(camZ, this.tileConfig.cullSign, camZ);
-	
-	// Compute pixel size vector to offset the points from the earth
-	var pixelSizeVector = renderContext.computePixelSizeVector();
-	
-	// Warning : use quoted strings to access properties of the attributes, to work correclty in advanced mode with closure compiler
-	gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexBuffer);
-	gl.vertexAttribPointer(this.program.attributes['vertex'], 3, gl.FLOAT, false, 0, 0);
-
-	// Bind point texture
-	gl.activeTexture(gl.TEXTURE0);
-	gl.bindTexture(gl.TEXTURE_2D, this.texture);
-	
-		
-	// 2.0 * because normalized device coordinates goes from -1 to 1
-	var scale = [2.0 * this.textureWidth / renderContext.canvas.width,
-				 2.0 * this.textureHeight / renderContext.canvas.height];
-	gl.uniform2fv(this.program.uniforms["poiScale"], scale);
-	gl.uniform2fv(this.program.uniforms["tst"], [ 0.5 / (this.textureWidth), 0.5 / (this.textureHeight)  ]);
-		gl.uniform1f(this.program.uniforms["alpha"], this.opacity() );
-		gl.uniform3f(this.program.uniforms["color"], this.style.fillColor[0], this.style.fillColor[1], this.style.fillColor[2]);
-
-	for (var i = 0; i < points.length; ++i)
+	// Render the points
+	if ( points.length > 0 )
 	{
-		// Poi culling
-		var point = points[i];
-		var worldPoi = point.pos3d;
-		var poiVec = point.vertical;
-		var scale = this.textureHeight * ( pixelSizeVector[0] * worldPoi[0] + pixelSizeVector[1] * worldPoi[1] + pixelSizeVector[2] * worldPoi[2] + pixelSizeVector[3] );
-		scale *= this.tileConfig.cullSign;
-
-		if ( vec3.dot(poiVec, camZ) > 0 
-			&& renderContext.worldFrustum.containsSphere(worldPoi,scale) >= 0 )
-		{
-			var x = poiVec[0] * scale + worldPoi[0];
-			var y = poiVec[1] * scale + worldPoi[1];
-			var z = poiVec[2] * scale + worldPoi[2];
-			
-			gl.uniform3f(this.program.uniforms["poiPosition"], x, y, z);
-			
-			gl.drawArrays(gl.TRIANGLE_FAN, 0, 4);
-		}
+		this.bucket.points = points;
+		this.pointRenderer.render();
 	}
 	
-	gl.disable(gl.BLEND);
+	// Render the lines
+	if ( lines.length > 0 )
+	{
+		this.lineRenderer.renderables = lines;
+		this.lineRenderer.render();
+	}
 }
 
 /**************************************************************************************************************/
