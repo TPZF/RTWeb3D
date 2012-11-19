@@ -107,6 +107,32 @@ function handleJSONFeature( gwLayer, url )
 }
 
 /**
+ * 	Load JSON file and add layer to the globe
+ *
+ *	@param gwLayer GlobWeb layer
+ *	@param url Url to JSON containing feature collection in equatorial coordinates
+ */
+function handleJSONFeatureFromOpenSearch( gwLayer, url, startIndex )
+{
+	$.ajax({
+		type: "GET",
+		url: url + "startIndex=" + startIndex + "&count=500",
+		success: function(response){
+			handleFeatureCollection( response.features );
+			gwLayer.addFeatureCollection( response );
+			if ( startIndex + response.features.length < response.totalResults ) {
+				handleJSONFeatureFromOpenSearch( gwLayer, url, startIndex + response.features.length );
+			} else {
+				PickingManager.addPickableLayer( gwLayer );
+			}
+		},
+		error: function (xhr, ajaxOptions, thrownError) {
+			console.error( xhr.responseText );
+		}
+	});
+}
+
+/**
  *	Create layer from configuration file
  */
 function createLayerFromConf(layer) {
@@ -120,6 +146,12 @@ function createLayerFromConf(layer) {
 		icon: layer.icon,
 		description: layer.description
 	};
+	
+	var defaultVectorStyle = new GlobWeb.FeatureStyle({ 
+				rendererHint: "Basic", 
+				opacity: layer.opacity/100.,
+				iconUrl: "css/images/star.png"
+			});
 
 	switch(layer.type){
 		case "healpix":
@@ -164,25 +196,15 @@ function createLayerFromConf(layer) {
 			break;
 			
 		case "JSON":
-			// Create style
-			options.style = new GlobWeb.FeatureStyle({ 
-				rendererHint: "Basic", 
-				opacity: layer.opacity/100.
-			});
-			
+			options.style = defaultVectorStyle;
 			gwLayer = new GlobWeb.VectorLayer(options);
 			handleJSONFeature( gwLayer, layer.url );
 			break;
 			
 		case "StaticOpenSearch":
-			// Create style
-			options.style = new GlobWeb.FeatureStyle({ 
-				rendererHint: "Basic", 
-				opacity: layer.opacity/100.
-			});
-			
+			options.style = defaultVectorStyle;			
 			gwLayer = new GlobWeb.VectorLayer(options);
-			handleJSONFeature( gwLayer, layer.url );
+			handleJSONFeatureFromOpenSearch( gwLayer, layer.url, 1 );
 			break;
 			
 		case "DynamicOpenSearch":
