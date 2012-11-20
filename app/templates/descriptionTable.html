@@ -6,19 +6,23 @@
 	<tr height="30%">
 		<% // Test if section
 		if (typeof (properties[key]) === "object" )
-		{
-		%>
-			<td class="selectProperty" colspan="2">
-				<div id="arrow" class="arrow-right"></div><div class="section"><b><%= stringKey %></b></div>
-				<table style="display: none; margin-left: 10px" rules="rows">
-					<tbody>
-						<% var output = descriptionTableTemplate( { properties: properties[key], descriptionTableTemplate: descriptionTableTemplate });
-						 %>
-						 <%= output %>
-					</tbody>
-				</table>
-			</td>
-		<%
+		{	
+			if ( key == 'crs' )
+			{%>
+				<td class="selectProperty"><em><%= stringKey %>:</em></td>
+				<td class="selectValue"><%= properties[key].properties.name %></td>
+			<% } else { %>
+				<td class="selectProperty" colspan="2">
+					<div id="arrow" class="arrow-right"></div><div class="section"><b><%= stringKey %></b></div>
+					<table style="display: none; margin-left: 10px" rules="rows">
+						<tbody>
+							<% var output = descriptionTableTemplate( { properties: properties[key], descriptionTableTemplate: descriptionTableTemplate });
+							 %>
+							 <%= output %>
+						</tbody>
+					</table>
+				</td>
+		<%	}
 		}
 		else
 		{%>
