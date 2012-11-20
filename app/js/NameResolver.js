@@ -108,7 +108,7 @@ function setSearchBehavior()
 							var equatorial = [];
 							GlobWeb.CoordinateSystem.fromGeoToEquatorial([response.features[i].geometry.coordinates[0], response.features[i].geometry.coordinates[1]], equatorial);
 
-							var result = nameResolverResultTemplate( { name: objectName, properties: response.features[i].properties, ra: equatorial[0], dec: equatorial[1] } );
+							var result = nameResolverResultTemplate( { properties: response.features[i].properties, ra: equatorial[0], dec: equatorial[1] } );
 
 							// output+="<em>Ra:</em> " + equatorial[0] + "<br /><em>Dec:</em> " + equatorial[1] + "<br/> Found in " + response.features[0].properties.credits + " database<br/>";
 							output+=result;
