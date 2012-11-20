@@ -1,7 +1,7 @@
 /**
  * Dynamic OpenSearch renderer module
  */
-define( [ "jquery.ui" ], function($) {
+define( [ "jquery.ui", "Utils" ], function($, Utils) {
 
 /**
  * 	@constructor
@@ -22,10 +22,13 @@ DynamicOSLayer = function(options)
 	this.serviceUrl = options.serviceUrl;
 	this.minOrder = options.minOrder || 5;
 
+	var color = Utils.generateColor();
+
 	// Style, probably bucket later
 	this.style = new GlobWeb.FeatureStyle({
 		iconUrl: "css/images/star.png",
-		fillColor: [Math.random(), Math.random(), Math.random(), 1.]
+		fillColor: color,
+		strokeColor: color
 	});
 	
 	// TODO "os" is overriden by BaseLayer id when attached by globe

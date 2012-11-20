@@ -1,6 +1,6 @@
 <div class="ui-widget addLayer" value="<%= currentIndex %>" id="addLayer_<%= currentIndex %>" >
 
-<span id="visible_<%= currentIndex %>" class="<% if (layer.visible()) print('ui-state-active'); else print('ui-state-default'); %> ui-corner-all ui-button">
+<span class="layerColor" style="background-color: <%= layerColor %>"></span><span id="visible_<%= currentIndex %>" class="<% if (layer.visible()) print('ui-state-active'); else print('ui-state-default'); %> ui-corner-all ui-button">
 	<span class="ui-icon <% if (layer.visible()) print('ui-icon-check'); else print('ui-icon-empty'); %>"></span>
 </span>
 
@@ -13,7 +13,7 @@
 
 <div class="deleteLayer">
 	<img src="css/images/delete.png" alt="" class="defaultImg" />
-	<img src="css/images/deleteHover.png" alt="" class="hoverImg" />
+	<img style="opacity: 0" src="css/images/deleteHover.png" alt="" class="hoverImg" />
 </div>
 
 <div id="opacity_<%= currentIndex %>">

@@ -2,9 +2,9 @@
 /**
  * LayerManager module
  */
-define( [ "jquery.ui", "PickingManager", "StarLayer", "ConstellationLayer", "DynamicOSLayer", 
+define( [ "jquery.ui", "PickingManager", "StarLayer", "ConstellationLayer", "DynamicOSLayer", "Utils",
 	"underscore-min", "text!../templates/additionalLayer.html", "jquery.ui.selectmenu", "jquery.nicescroll.min" ], 
-	function($, PickingManager, StarLayer, ConstellationLayer, DynamicOSLayer, _, additionalLayerHTMLTemplate) {
+	function($, PickingManager, StarLayer, ConstellationLayer, DynamicOSLayer, Utils, _, additionalLayerHTMLTemplate) {
 
 /**
  * Private variable for module
@@ -146,11 +146,16 @@ function createLayerFromConf(layer) {
 		icon: layer.icon,
 		description: layer.description
 	};
+
+	// generate random color
+	var color = Utils.generateColor();
 	
 	var defaultVectorStyle = new GlobWeb.FeatureStyle({ 
 				rendererHint: "Basic", 
 				opacity: layer.opacity/100.,
-				iconUrl: "css/images/star.png"
+				iconUrl: "css/images/star.png",
+				fillColor: color,
+				strokeColor: color
 			});
 
 	switch(layer.type){
@@ -163,7 +168,8 @@ function createLayerFromConf(layer) {
 		case "star":
 			// Create style
 			options.style = new GlobWeb.FeatureStyle({
-				opacity: layer.opacity / 100.
+				opacity: layer.opacity / 100.,
+				fillColor: [1., 1., 1., 1.]
 			});
 
 			// Add necessary options
@@ -176,6 +182,7 @@ function createLayerFromConf(layer) {
 			// Create style
 			options.style = new GlobWeb.FeatureStyle({
 				strokeColor: [0.03125, 0.23046875, 0.65625, 1.],
+				fillColor: [0.03125, 0.23046875, 0.65625, 1.],
 				rendererHint: "Basic",
 				opacity: layer.opacity / 100.,
 				icon: layer.icon
@@ -249,9 +256,12 @@ function handleDrop(evt) {
 				return false;
 			}
 			
+			// generate random color
+			var color = Utils.generateColor();
+			
 			// Create style
 			var options = {name: name};
-			options.style = new GlobWeb.FeatureStyle({ rendererHint: "Basic", iconUrl: "css/images/star.png" });
+			options.style = new GlobWeb.FeatureStyle({ rendererHint: "Basic", iconUrl: "css/images/star.png", fillColor: color, strokeColor: color });
 			gwLayer = new GlobWeb.VectorLayer( options );
 			
 			// Add geoJson layer
@@ -321,7 +331,14 @@ function createHtmlForBackgroundLayer( gwLayer )
 function createHtmlForAdditionalLayer( gwLayer )
 {
 	var currentIndex = nbAddLayers;
-	var layerDiv = additionalLayerTemplate( { layer: gwLayer, currentIndex: currentIndex } );
+	var cssColor = "rgb(1,1,1)";
+
+	if (gwLayer.style)
+	{
+		cssColor = "rgb("+Math.floor(gwLayer.style.fillColor[0]*255)+","+Math.floor(gwLayer.style.fillColor[1]*255)+","+Math.floor(gwLayer.style.fillColor[2]*255)+")";
+	}
+
+	var layerDiv = additionalLayerTemplate( { layer: gwLayer, currentIndex: currentIndex, layerColor: cssColor } );
 
 	var $layerDiv = $(layerDiv)
 		.appendTo('#additionalLayers');

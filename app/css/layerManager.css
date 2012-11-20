@@ -20,30 +20,23 @@
 	margin-bottom: 20px;
 	text-align: center;
 }
-/*
-#backgroundLayers > label
-{
-	margin-left: 30px;
-	margin-bottom: 3px;
-	display: inline-block;
-}
-
-
-a#backgroundLayers{ height: 2.8em;}
-
-#backgroundLayers li a, body a#backgroundLayers span.ui-selectmenu-status
-{
-	line-height: 2em;
-	padding-left: 30px !important;
-}
-
-*/
 
 .unknown .ui-selectmenu-item-icon {
 	background: url(../css/images/unknown.png) 0 0 no-repeat;
 }
 
 /*** Additionnal layers ***/
+
+.layerColor
+{
+	width: 15px;
+	height: 10px;
+	border-radius: 3px;
+	display: inline-block;
+	margin-right: 5px;
+	position: relative;
+	top: -3px;
+}
 
 .addLayer
 {
@@ -60,28 +53,13 @@ a#backgroundLayers{ height: 2.8em;}
 	font-weight:bold;
 	value: 20%;
 }
-/*
-.layerVisibilityRadioDiv
-{
-	display: inline;
-}
 
-.on .ui-button-text, .off .ui-button-text
-{
-	padding: .2em .4em;
-}
-
-*/
 .ui-icon-empty {
 	background-position: 16px 16px;
 }
 
 .deleteLayer
 {
-/*	position: absolute;
-	display: inline;
-	right: -20px;
-	top: 1px;*/
 	cursor: pointer;
 }
 
@@ -89,9 +67,6 @@ a#backgroundLayers{ height: 2.8em;}
 
 .layerIcon
 {
-	/*margin-right: 5px;
-	margin-left: 5px;
-	float: left;*/
 	display: inline;
 }
 
