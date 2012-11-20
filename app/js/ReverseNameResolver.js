@@ -18,7 +18,7 @@ var descriptionTableTemplate = _.template(descriptionTableHTMLTemplate);
 var reverseNameResolverHTML =
 	'<div id="reverseNameResolver" class="contentBox ui-widget-content" style="display: none;">\
 		<div id="reverseSearchField">\
-			<input type="submit" value="Find Names" /><span style="margin-left: 10px;">CDS</span>\
+			<input type="submit" value="Find Object Name" />\
 		</div>\
 		<div id="reverseSearchResult"></div>\
 		<div class="closeBtn">\
@@ -117,7 +117,7 @@ function showFeature( feature )
 {
 	var output = featureDescriptionTemplate( { feature: feature, descriptionTableTemplate: descriptionTableTemplate } );
 	var title = ( feature.properties.title ) ? feature.properties.title : feature.properties.identifier;
-	output = '<div class="title">'+ title +'</div>' + output;
+	output = '<div class="title">'+ title +'</div><div class="credit">Found in CDS database</div>' + output;
 	$('#reverseSearchResult').html( output );
 	$('#reverseSearchField').fadeOut(300 , function(){
 		$('#reverseSearchResult').fadeIn(300);

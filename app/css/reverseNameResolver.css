@@ -3,6 +3,13 @@
 	padding: 10px;
 }
 
+.credit
+{
+	position: absolute;
+	right: 20px;
+	bottom: 10px;
+}
+
 .title
 {
 	color:white;
