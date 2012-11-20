@@ -21,7 +21,7 @@ var selectedFeatureDiv = '<div id="selectedFeatureDiv" class="contentBox ui-widg
 				<div id="rightDiv"></div>\
 				<div class="closeBtn">\
 					<img src="css/images/close_button.png" alt="" class="defaultImg" />\
-					<img src="css/images/close_buttonHover.png" alt="" class="hoverImg" />\
+					<img style="opacity: 0" src="css/images/close_buttonHover.png" alt="" class="hoverImg" />\
 				</div>\
 				<div class="arrow-left"></div>\
 			</div>';
@@ -44,7 +44,7 @@ var iframe =
 	'<div id="externalIFrame" class="contentBox">\
 		<div class="closeBtn">\
 			<img src="css/images/close_button.png" alt="" class="defaultImg" />\
-			<img src="css/images/close_buttonHover.png" alt="" class="hoverImg" />\
+			<img style="opacity: 0" src="css/images/close_buttonHover.png" alt="" class="hoverImg" />\
 		</div>\
 		<iframe src=""><p>Your browser does not support iframes.</p></iframe>\
 	</div>';
@@ -188,7 +188,8 @@ function focusFeature( index )
 /**
  * 	Show feature information in the selectFeature popup
  */
-function showFeatureInformation(feature) {
+function showFeatureInformation(feature) 
+{
 	$('.detailedInfo').getNiceScroll().remove();
 	$('#rightDiv').fadeOut(300, function(){
 		createHTMLSelectedFeatureDiv( feature );
@@ -201,7 +202,8 @@ function showFeatureInformation(feature) {
 /**
  * 	Show the select feature popup
  */
-function showSelectFeaturePopup(callback) {
+function showSelectFeaturePopup(callback) 
+{
 	$selectedFeatureDiv.fadeIn(500, function() {
 		$('.detailedInfo').getNiceScroll().resize();
 		if (callback) callback();
@@ -209,11 +211,15 @@ function showSelectFeaturePopup(callback) {
 }
 
 /**
- * 	Hide the select feature popup
+ *	Hide popup
+ *
+ *	@param jId jQuery identifier selector of popup
+ *	@param callback Callback 
  */
-function hideSelectFeaturePopup(callback) {
+function hidePopup(jId, callback) 
+{
 	$('.detailedInfo').getNiceScroll().remove();
-	$selectedFeatureDiv.fadeOut(300, callback );
+	jId.fadeOut(300, callback );
 }
 
 /**
@@ -258,7 +264,7 @@ function init()
 				// Select individual feature
 				if ( stackSelectionIndex == selection.length ) {
 					selection = [];
-					hideSelectFeaturePopup();
+					hidePopup( $selectedFeatureDiv );
 					stackSelectionIndex = -1;
 				} else {
 					// Focus current feature
@@ -278,7 +284,7 @@ function init()
 				if ( newSelection.length > 0 )
 				{
 					// Hide previous popup if any
-					hideSelectFeaturePopup( function() {
+					hidePopup( $selectedFeatureDiv, function() {
 						// View on center
 						// TODO make appear selectedFeatureDiv ONCE moveTo finished
 						// 	+ timeOut (used currently)
@@ -305,7 +311,7 @@ function init()
 						}
 					});
 				} else {
-					hideSelectFeaturePopup();
+					hidePopup( $selectedFeatureDiv );
 				}
 			}
 		}
@@ -319,8 +325,8 @@ function init()
 		}
 		else
 		{
-			hideSelectFeaturePopup();
-			clearSelection();	
+			hidePopup( $(this).parent() );
+			clearSelection();
 		}
 	});
 	
@@ -353,7 +359,7 @@ function init()
 	// BUG ! Disables stack onclick action
 	globe.subscribe("startNavigation", function() { 
 		if ( $selectedFeatureDiv.css('display') != 'none') { 
-			hideSelectFeaturePopup(); 
+			hidePopup( $selectedFeatureDiv ); 
 			clearSelection(); 
 		} 
 	});
