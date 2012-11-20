@@ -147,10 +147,12 @@ $(function()
 	$("body").on("mouseenter", "img.defaultImg", function () {
 		//stuff to do on mouseover
 		$(this).stop().animate({"opacity": "0"}, 100);
+		$(this).siblings().stop().animate({"opacity": "1"}, 100);
 	});
 	$("body").on("mouseleave", "img.defaultImg", function () {
 		//stuff to do on mouseleave
 		$(this).stop().animate({"opacity": "1"}, 100);
+		$(this).siblings().stop().animate({"opacity": "0"}, 100);
 	});
 	
 	updateFov();
