@@ -79,3 +79,14 @@ input#searchClear {
 	color: white;
 	height: 100%;
 }
+
+#equatorialCoordinatesSearchResult .selected {
+	#background-color: rgba(179, 234, 255, 0.46);
+	box-shadow: 0 0 20px #FF9E52, 0 1px 2px rgba(0, 0, 0, 0.08);
+	border-radius: 20px;
+}
+
+#equatorialCoordinatesSearchResult:hover
+{
+	cursor: pointer;
+}

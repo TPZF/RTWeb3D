@@ -2,11 +2,16 @@
 /**
  * Name resolver module : search object name and zoom to them
  */
-define(["jquery.ui", "Utils"], function($,Utils) {
+define(["jquery.ui", "Utils", "underscore-min", "text!../templates/nameResolverResult.html"], function($, Utils, _, nameResolverResultHTMLTemplate) {
+
+
+// Template generating the list of selected features
+var nameResolverResultTemplate = _.template(nameResolverResultHTMLTemplate);
 
 var globe;
 var astroNavigator;
 var configuration = {zoomFov: 15.};
+var response;
 
 // Target layer
 var style = new GlobWeb.FeatureStyle({
@@ -40,8 +45,6 @@ function setSearchBehavior()
 			}
 		}).addClass('focus');
 	}).bind('blur', function(event) {
-		
-		$('#equatorialCoordinatesSearchResult').fadeOut(animationDuration);
 		$(this).animate({color: '#b4bdc4'}, animationDuration, function() {
 			if(input.val() === '') {
 				input.val(defaultText)
@@ -90,24 +93,37 @@ function setSearchBehavior()
 			$.ajax({
 				type: "GET",
 				url: url,
-				success: function(response){
-					if(response.dec && response.ra)
+				success: function(data){
+					
+					response = data;
+					if(response.type == "FeatureCollection")
 					{
-						var equatorial = [];
-						GlobWeb.CoordinateSystem.fromGeoToEquatorial([response.ra, response.dec], equatorial);
-				
-						$("#equatorialCoordinatesSearchResult").html("<em>Ra:</em> " + equatorial[0] + "<br /><em>Dec:</em> " + equatorial[1] + "<br/> Found in " + response.name + " database");
+						// Zoom to the first feature
+						zoomTo(response.features[0]);
+						
+						// Fill search result field
+						var output = "";
+						for ( var i=0; i<response.features.length; i++)
+						{
+							var equatorial = [];
+							GlobWeb.CoordinateSystem.fromGeoToEquatorial([response.features[i].geometry.coordinates[0], response.features[i].geometry.coordinates[1]], equatorial);
 
+							var result = nameResolverResultTemplate( { name: objectName, properties: response.features[i].properties, ra: equatorial[0], dec: equatorial[1] } );
+
+							// output+="<em>Ra:</em> " + equatorial[0] + "<br /><em>Dec:</em> " + equatorial[1] + "<br/> Found in " + response.features[0].properties.credits + " database<br/>";
+							output+=result;
+						}
+
+						$('#equatorialCoordinatesSearchResult').html(output);
+						$('#equatorialCoordinatesSearchResult div:first-child').addClass('selected');
 						$('#equatorialCoordinatesSearchResult').fadeIn(animationDuration);
-						astroNavigator.zoomTo([response.ra, response.dec], configuration.zoomFov );
-						addTarget(response.ra, response.dec);
 					} else {
 						$('#equatorialCoordinatesSearchResult').html("Enter object name");
 						$('#equatorialCoordinatesSearchResult').fadeIn(animationDuration);
 					}
 				},
 				error: function (xhr, ajaxOptions, thrownError) {
-					$('#equatorialCoordinatesSearchResult').html("Not found");
+					$('#equatorialCoordinatesSearchResult').html("Not found or bad request");
 					$('#equatorialCoordinatesSearchResult').fadeIn(animationDuration);
 					console.error( xhr.responseText );
 				}
@@ -115,6 +131,21 @@ function setSearchBehavior()
 		}
 	});
 	
+	// Clear search result field when pan
+	$('canvas').click(function(){
+		$('#equatorialCoordinatesSearchResult').fadeOut(animationDuration);
+	});
+	
+	$('#equatorialCoordinatesSearchResult').on("click",'.nameResolverResult',function(event){
+		$('#equatorialCoordinatesSearchResult').find('.selected').removeClass('selected');
+		$(this).addClass('selected');
+
+		var index = $(this).index();
+		var selectedFeature = response.features[index];
+		zoomTo(selectedFeature);
+
+	});
+
 	$('#searchClear').click(function(event){
 		if(input.val() !== defaultText) {
 			input.val(defaultText);
@@ -123,6 +154,15 @@ function setSearchBehavior()
 		$('#searchInput').animate({color: '#b4bdc4'}, animationDuration).parent().animate({backgroundColor: '#e8edf1'}, animationDuration).removeClass('focus');
 		
 	});
+}
+
+/**
+ *	Zoom to feature
+ */
+function zoomTo(feature)
+{
+	astroNavigator.zoomTo([feature.geometry.coordinates[0], feature.geometry.coordinates[1]], configuration.zoomFov );
+	addTarget(feature.geometry.coordinates[0], feature.geometry.coordinates[1]);
 }
 
 /**
