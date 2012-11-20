@@ -147,15 +147,23 @@ function createLayerFromConf(layer) {
 		description: layer.description
 	};
 
-	// generate random color
-	var color = Utils.generateColor();
+	if ( layer.color )
+	{
+		var rgb = Utils.parseColor( layer.color );
+	}
+	else
+	{
+		// generate random color
+		var rgb = Utils.generateColor();
+	}
+	var rgba = rgb.concat([1]);
 	
 	var defaultVectorStyle = new GlobWeb.FeatureStyle({ 
 				rendererHint: "Basic", 
 				opacity: layer.opacity/100.,
 				iconUrl: "css/images/star.png",
-				fillColor: color,
-				strokeColor: color
+				fillColor: rgba,
+				strokeColor: rgba
 			});
 
 	switch(layer.type){
@@ -219,6 +227,7 @@ function createLayerFromConf(layer) {
 			// Add necessary option			
 			options.serviceUrl = layer.serviceUrl;
 			options.minOrder = layer.minOrder;
+			options.style = defaultVectorStyle;
 			gwLayer = new DynamicOSLayer( options );
 			PickingManager.addPickableLayer( gwLayer );
 			break;
@@ -257,11 +266,12 @@ function handleDrop(evt) {
 			}
 			
 			// generate random color
-			var color = Utils.generateColor();
+			var rgb = Utils.generateColor();
+			var rgba = rgb.concat([1]);
 			
 			// Create style
 			var options = {name: name};
-			options.style = new GlobWeb.FeatureStyle({ rendererHint: "Basic", iconUrl: "css/images/star.png", fillColor: color, strokeColor: color });
+			options.style = new GlobWeb.FeatureStyle({ rendererHint: "Basic", iconUrl: "css/images/star.png", fillColor: rgba, strokeColor: rgba });
 			gwLayer = new GlobWeb.VectorLayer( options );
 			
 			// Add geoJson layer

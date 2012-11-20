@@ -22,14 +22,17 @@ DynamicOSLayer = function(options)
 	this.serviceUrl = options.serviceUrl;
 	this.minOrder = options.minOrder || 5;
 
-	var color = Utils.generateColor();
-
-	// Style, probably bucket later
-	this.style = new GlobWeb.FeatureStyle({
-		iconUrl: "css/images/star.png",
-		fillColor: color,
-		strokeColor: color
-	});
+	// Set style
+	if ( options && options['style'] )
+	{
+		this.style = options['style'];
+	}
+	else
+	{
+		this.style = new GlobWeb.FeatureStyle({
+			iconUrl: "css/images/star.png"
+		});
+	}
 	
 	// TODO "os" is overriden by BaseLayer id when attached by globe
 	this.id = "os";

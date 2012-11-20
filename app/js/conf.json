@@ -101,6 +101,7 @@
 			"name": "Dynamic fuse",
 			"serviceUrl": "/sitools/ofuse/search?",
 			"visible": true,
-			"minOrder": 3
+			"minOrder": 3,
+			"color": "#FFCC11"
 		}	]
 }
