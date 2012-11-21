@@ -2,7 +2,7 @@
 /**
  * Name resolver module : search object name and zoom to them
  */
-define(["jquery.ui", "underscore-min", "text!../templates/featureDescription.html", "text!../templates/descriptionTable.html"], function($, _, featureDescriptionHTMLTemplate, descriptionTableHTMLTemplate) {
+define(["jquery.ui", "IFrame", "underscore-min", "text!../templates/featureDescription.html", "text!../templates/descriptionTable.html"], function($, IFrame, _, featureDescriptionHTMLTemplate, descriptionTableHTMLTemplate) {
 
 var globe;
 var navigation;
@@ -27,7 +27,8 @@ var reverseNameResolverHTML =
 		</div>\
 	</div>';
 
-$(reverseNameResolverHTML).appendTo('body');
+$reverseNameResolver = $(reverseNameResolverHTML).appendTo('body');
+
 $( "#reverseNameResolver input[type=submit]")
 	.button()
 	.click(function( event ) {
@@ -46,13 +47,12 @@ $( "#reverseNameResolver input[type=submit]")
 		equatorialCoordinates[1] = equatorialCoordinates[1].replace("\"","");
 
 		var decDegree = parseInt(equatorialCoordinates[1]);
-		if ( decDegree > 0 )
+		if ( decDegree >= 0 )
 			equatorialCoordinates[1] = "+" + equatorialCoordinates[1];
 
 		// Find max order
 		var maxOrder = 3;
 		globe.tileManager.visitTiles( function( tile ){ if ( maxOrder < tile.order ) maxOrder = tile.order} );
-		console.log(maxOrder);
 
 		var requestUrl = configuration.baseUrl + equatorialCoordinates[0] + " " + equatorialCoordinates[1] + ";" + maxOrder;
 
@@ -60,7 +60,6 @@ $( "#reverseNameResolver input[type=submit]")
 			type: "GET",
 			url: requestUrl,
 			success: function(response){
-				console.log(response);
 				// Only one feature for the moment
 				showFeature( response.features[0] );
 			},
@@ -82,7 +81,6 @@ function setBehavior()
 		timeStart = new Date();
 		mouseXStart = event.clientX;
 		mouseYStart = event.clientY;
-		// $('#reverseNameResolver').fadeOut(100);
 	});
 
 	$('canvas').mouseup(function(event){
@@ -94,8 +92,7 @@ function setBehavior()
 		{
 			$('#reverseSearchResult').css("display","none");
 			$('#reverseSearchField').css("display","block");
-			$('#reverseNameResolver')
-				.css({
+			$reverseNameResolver.css({
 					position: 'absolute',
 					left: event.clientX + 'px',
 					top: event.clientY + 'px'
@@ -103,14 +100,20 @@ function setBehavior()
 		}
 	});
 
-	$('#reverseNameResolver').on("click", '.propertiesTable a', function(event){
+	$reverseNameResolver.on("click", '.propertiesTable a', function(event){
 		event.preventDefault();
 		
-		$("#externalIFrame iframe").attr('src', "/sitools/proxy?external_url=" + event.target.innerHTML);
-		$("#externalIFrame").animate({top: 100}, 800);
+		IFrame.set( event.target.innerHTML );
+		// $("#externalIFrame iframe").attr('src', "/sitools/proxy?external_url=" +  );
+		IFrame.show();
 	});
 
-	globe.subscribe("startNavigation", function(){ if ($('#reverseNameResolver').css('display') != 'none'){ $(this).fadeOut(300); } } );
+	globe.subscribe("startNavigation", function(){
+		if ($reverseNameResolver.css('display') != 'none')
+		{
+			$reverseNameResolver.fadeOut(300);
+		}
+	});
 }
 
 function showFeature( feature )

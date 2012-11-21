@@ -35,7 +35,7 @@ require.config({
 /**
  * Main module
  */
-require( ["jquery.ui", "LayerManager", "NameResolver", "ReverseNameResolver", "Utils", "PickingManager"], function($, LayerManager, NameResolver, ReverseNameResolver, Utils, PickingManager) {
+require( ["jquery.ui", "LayerManager", "NameResolver", "ReverseNameResolver", "Utils", "PickingManager", "FeaturePopup", "IFrame"], function($, LayerManager, NameResolver, ReverseNameResolver, Utils, PickingManager, FeaturePopup, IFrame) {
 
 // Console fix	
 window.console||(console={log:function(){}});
@@ -143,6 +143,7 @@ $(function()
 	// Create data manager
 	PickingManager.init(globe, navigation);
 	
+	/*** Refactor into common ? ***/
 	// Fade hover styled image effect
 	$("body").on("mouseenter", "img.defaultImg", function () {
 		//stuff to do on mouseover
@@ -154,6 +155,22 @@ $(function()
 		$(this).stop().animate({"opacity": "1"}, 100);
 		$(this).siblings().stop().animate({"opacity": "0"}, 100);
 	});
+
+	// Close button event
+	$('body').on("click",'.closeBtn', function(event){
+		switch($(this).parent().attr("id"))
+		{
+			case "externalIFrame":
+				IFrame.hide();
+				break;
+			case "selectedFeatureDiv":
+				FeaturePopup.hide();
+				break;
+			default:
+				$(this).parent().fadeOut(300);	
+		}
+	});
+	/***********************************/
 	
 	updateFov();
 	// Update fov when moving

@@ -1,9 +1,7 @@
-
 /**
  * PickingManager module
  */
-define( [ "jquery.ui", "underscore-min", "text!../templates/featureList.html", "text!../templates/featureDescription.html", 
-	"text!../templates/descriptionTable.html", "jquery.nicescroll.min" ], function($, _, featureListHTMLTemplate, featureDescriptionHTMLTemplate, descriptionTableHTMLTemplate) {
+define( [ "jquery.ui", "IFrame", "FeaturePopup" ], function($, IFrame, FeaturePopup) {
 
 var globe;
 var navigation;
@@ -13,67 +11,6 @@ var stackSelectionIndex = -1;
 var selectedStyle = new GlobWeb.FeatureStyle( { strokeColor: [1., 1., 0., 1.], fillColor: [1., 1., 0., 1.] } );
 var quicklookStyle = new GlobWeb.FeatureStyle( { fill: true, strokeColor: [1., 1., 0., 1.] } );
 var pickableLayers = [];
-var featureListHTML = '';
-
-// Create selected feature div
-var selectedFeatureDiv = '<div id="selectedFeatureDiv" class="contentBox ui-widget-content" style="display: none">\
-				<div id="leftDiv"></div>\
-				<div id="rightDiv"></div>\
-				<div class="closeBtn">\
-					<img src="css/images/close_button.png" alt="" class="defaultImg" />\
-					<img style="opacity: 0" src="css/images/close_buttonHover.png" alt="" class="hoverImg" />\
-				</div>\
-				<div class="arrow-left"></div>\
-			</div>';
-var $selectedFeatureDiv = $(selectedFeatureDiv).appendTo('body');
-
-// Template generating the list of selected features
-var featureListTemplate = _.template(featureListHTMLTemplate);
-
-// Template generating the detailed description of choosen feature
-var featureDescriptionTemplate = _.template(featureDescriptionHTMLTemplate);
-
-// Template generating the table of properties of choosen feature
-var descriptionTableTemplate = _.template(descriptionTableHTMLTemplate);
-
-// PileStash help HTML
-var pileStashHelp = '<div id="pileStashHelp"> Some observations are overlapped. <br/> Click on the observation to see detailed informations about each observation. <br/> </div>';
-
-// TODO Refactor...
-var iframe = 
-	'<div id="externalIFrame" class="contentBox">\
-		<div class="closeBtn">\
-			<img src="css/images/close_button.png" alt="" class="defaultImg" />\
-			<img style="opacity: 0" src="css/images/close_buttonHover.png" alt="" class="hoverImg" />\
-		</div>\
-		<iframe src=""><p>Your browser does not support iframes.</p></iframe>\
-	</div>';
-$(iframe).appendTo('body');
-
-/**
- * 	Selected feature div position calculations
- * 
- * 	@param x event.clientX
- * 	@param y event.clientY
- */
-function computeDivPosition(clientX, clientY)
-{
-	
-	var mousex = clientX; //Get X coodrinates
-	var mousey = clientY; //Get Y coordinates
-
-	mousex+= 20;
-	mousey-= 100;
-	
-	// Positionning
-	$('#selectedFeatureDiv').css(
-		{
-			position: 'absolute',
-			left: mousex + 'px',
-			top: mousey + 'px'
-		}
-	);
-}
 
 /**
  * 	Revert style of selection
@@ -97,6 +34,36 @@ function blurSelection()
 		selection[i].layer.modifyFeatureStyle( selection[i].feature, style );
 	}
 }
+
+/**
+ * 	Apply selected style to feature
+ * 
+ * 	@param index Index of feature in selection array
+ */
+function focusFeature( index )
+{
+	var selectedFeature = selection[index];
+	if ( selectedFeature )
+	{
+		stackSelectionIndex = index;
+		var style = selectedFeature.feature.properties.style;
+		switch ( selectedFeature.feature.geometry.type )
+		{
+			case "Polygon":
+				style.strokeColor = selectedStyle.strokeColor;
+				break;
+			case "Point":
+				style.fillColor = selectedStyle.fillColor;
+				break;
+			default:
+				break;
+		}
+		selectedFeature.layer.modifyFeatureStyle( selectedFeature.feature, style );
+
+		FeaturePopup.focusTitle(stackSelectionIndex);
+	}
+}
+
 
 /**
  * 	Apply selectedStyle to selection
@@ -151,75 +118,10 @@ function blurSelectedFeature()
 			default:
 				break;
 		}
-		selectedFeature.layer.modifyFeatureStyle( selectedFeature.feature, style );	
-		$('#featureList div:eq('+stackSelectionIndex+')').removeClass('selected');
-	}
-}
-
-/**
- * 	Apply selected style to feature
- * 
- * 	@param index Index of feature in selection array
- */
-function focusFeature( index )
-{
-	var selectedFeature = selection[index];
-	if ( selectedFeature )
-	{
-		stackSelectionIndex = index;
-		var style = selectedFeature.feature.properties.style;
-		switch ( selectedFeature.feature.geometry.type )
-		{
-			case "Polygon":
-				style.strokeColor = selectedStyle.strokeColor;
-				break;
-			case "Point":
-				style.fillColor = selectedStyle.fillColor;
-				break;
-			default:
-				break;
-		}
 		selectedFeature.layer.modifyFeatureStyle( selectedFeature.feature, style );
 
-		$('#featureList div:eq('+stackSelectionIndex+')').addClass('selected');	
-	}	
-}
-
-/**
- * 	Show feature information in the selectFeature popup
- */
-function showFeatureInformation(feature) 
-{
-	$('.detailedInfo').getNiceScroll().remove();
-	$('#rightDiv').fadeOut(300, function(){
-		createHTMLSelectedFeatureDiv( feature );
-		$(this).fadeIn(300, function(){
-			$('.detailedInfo').getNiceScroll().resize();
-		});
-	});
-}
-
-/**
- * 	Show the select feature popup
- */
-function showSelectFeaturePopup(callback) 
-{
-	$selectedFeatureDiv.fadeIn(500, function() {
-		$('.detailedInfo').getNiceScroll().resize();
-		if (callback) callback();
-	});
-}
-
-/**
- *	Hide popup
- *
- *	@param jId jQuery identifier selector of popup
- *	@param callback Callback 
- */
-function hidePopup(jId, callback) 
-{
-	$('.detailedInfo').getNiceScroll().remove();
-	jId.fadeOut(300, callback );
+		FeaturePopup.blurTitle(stackSelectionIndex);
+	}
 }
 
 /**
@@ -264,12 +166,12 @@ function init()
 				// Select individual feature
 				if ( stackSelectionIndex == selection.length ) {
 					selection = [];
-					hidePopup( $selectedFeatureDiv );
+					FeaturePopup.hide();
 					stackSelectionIndex = -1;
 				} else {
 					// Focus current feature
 					focusFeature( stackSelectionIndex );
-					showFeatureInformation( selectedFeature.feature );
+					FeaturePopup.showFeatureInformation( selectedFeature.feature );
 				}
 			}
 			else
@@ -279,152 +181,46 @@ function init()
 
 				// Add selected style for new selection
 				focusSelection( newSelection );
-				selection = newSelection;
 				
 				if ( newSelection.length > 0 )
 				{
 					// Hide previous popup if any
-					hidePopup( $selectedFeatureDiv, function() {
+					FeaturePopup.hide( function() {
 						// View on center
-						// TODO make appear selectedFeatureDiv ONCE moveTo finished
-						// 	+ timeOut (used currently)
-						//	or
-						//	+ new event to subscribe
 						navigation.moveTo( pickPoint, 1000 );
-						window.setTimeout( showSelectFeaturePopup, 1000 );
-						
-						// Create dialogue for the first selection call
-						if ( newSelection.length > 1 )
-						{
-							createHTMLSelectedFeatureList( newSelection );
-							createHTMLSelectionHelp();
-							computeDivPosition( globe.renderContext.canvas.width/2, globe.renderContext.canvas.height/2);
-							stackSelectionIndex = -1;
-						}
-						else
-						{
-							// only one layer, no pile needed, create feature dialogue
-							createHTMLSelectedFeatureList( newSelection );
-							focusFeature( 0 );
-							createHTMLSelectedFeatureDiv( newSelection[stackSelectionIndex].feature );
-							computeDivPosition( globe.renderContext.canvas.width/2, globe.renderContext.canvas.height/2);
-						}
+						window.setTimeout( function(){
+							selection = newSelection;
+							FeaturePopup.createFeatureList( newSelection );
+							if ( newSelection.length > 1 )
+							{
+								// Create dialogue for the first selection call
+								FeaturePopup.createHelp();
+								stackSelectionIndex = -1;
+							}
+							else
+							{
+								// only one layer, no pile needed, create feature dialogue
+								focusFeature( 0 );
+								FeaturePopup.showFeatureInformation( newSelection[stackSelectionIndex].feature )
+								// createHTMLSelectedFeatureDiv( newSelection[stackSelectionIndex].feature );
+							}
+							FeaturePopup.show(globe.renderContext.canvas.width/2, globe.renderContext.canvas.height/2);
+						}, 1000 );
 					});
 				} else {
-					hidePopup( $selectedFeatureDiv );
+					FeaturePopup.hide();
 				}
 			}
 		}
 	});
 	
-	// Close button event
-	$('body').on("click",'.closeBtn', function(event){
-		if( $(this).parent().attr("id") == 'externalIFrame' )
-		{
-			$("#externalIFrame").animate({top: -1000}, 800);
-		}
-		else
-		{
-			hidePopup( $(this).parent() );
-			clearSelection();
-		}
-	});
-	
-
-	
-	// Show/hide quicklook
-	$selectedFeatureDiv.on("click", '#quicklook', function(event){
-		
-		var featureIndexToQuicklook = $('#featureList .selected').index();
-		var selectedFeature = selection[featureIndexToQuicklook];
-		
-		if ( selectedFeature.feature.properties.style.fill == true )
-		{
-			$('#quicklook').removeClass('selected');
-
-			var newStyle = new GlobWeb.FeatureStyle( selectedFeature.feature.properties.style );
-			newStyle.fill = false;
-			selectedFeature.layer.modifyFeatureStyle( selectedFeature.feature, newStyle );
-		} 
-		else
-		{
-			$('#quicklook').addClass('selected');
-			var style = selectedFeature.feature.properties.style;
-			style.fill = true;
-			style.fillTextureUrl = selectedFeature.feature.properties.quicklook;
-			selectedFeature.layer.modifyFeatureStyle( selectedFeature.feature, style );
-		}
-	});
-	
+	// Hide popup and clear selection when pan/zoom
 	// BUG ! Disables stack onclick action
 	globe.subscribe("startNavigation", function() { 
-		if ( $selectedFeatureDiv.css('display') != 'none') { 
-			hidePopup( $selectedFeatureDiv ); 
-			clearSelection(); 
-		} 
+		clearSelection();
+		FeaturePopup.hide();
 	});
 
-	// Arrow events
-	$selectedFeatureDiv.on("mousedown", '#scroll-arrow-down.clickable', function(event){
-		$('#selectedFeatureDiv #scroll-arrow-up').css("border-bottom-color", "orange").addClass("clickable");
-		var topValue = parseInt($('#featureList').css("top"), 10) - 60;
-		var height = $('#featureList').height();
-		var maxHeight = parseInt( $('#featureListDiv').css("max-height") );
-		if (topValue <= -(height - maxHeight))
-		{
-			topValue = -(height - maxHeight);
-			$(this).css("border-top-color", "gray").removeClass("clickable");
-
-		}
-		$('#featureList').stop().animate({top: topValue +"px"}, 300);
-	}).disableSelection();
-	
-	$selectedFeatureDiv.on("mousedown", '#scroll-arrow-up.clickable', function(event){
-
-		$('#selectedFeatureDiv #scroll-arrow-down').css("border-top-color", "orange").addClass("clickable");
-		
-		var topValue = parseInt($('#featureList').css("top"), 10) + 60;
-		if (topValue >= 0)
-		{
-			topValue = 0;
-			$(this).css("border-bottom-color", "gray").removeClass("clickable");
-		}
-		$('#featureList').stop().animate({top: topValue +"px"}, 300);
-	}).disableSelection();
-	
-	// Choose feature by clicking on its title
-	$selectedFeatureDiv.on("click", '.featureTitle', function(){
-		blurSelection();
-		blurSelectedFeature();
-		
-		var featureIndexToFocus = $(this).index();
-		focusFeature( featureIndexToFocus );
-		var selectedFeature = selection[stackSelectionIndex];
-		
-		showFeatureInformation( selectedFeature.feature );
-	});
-
-	// Show/hide external resource
-	$selectedFeatureDiv.on("click", '.propertiesTable a', function(event){
-		event.preventDefault();
-
-		$("#externalIFrame iframe").attr('src', event.target.innerHTML);
-		$("#externalIFrame").animate({top: 100}, 800);
-	});
-
-	// Show/hide subsection properties
-	$selectedFeatureDiv.on("click", '.section', function(event){
-		// TODO slideToggle works with div -> add div to the tab generation
-		$(this).siblings('table').fadeToggle("slow", "linear");/*slideToggle(300)*/;
-		if ( $(this).siblings('#arrow').is('.arrow-right') )
-		{
-			$(this).siblings('#arrow').removeClass('arrow-right').addClass('arrow-bottom');
-		}
-		else
-		{
-			$(this).siblings('#arrow').removeClass('arrow-bottom').addClass('arrow-right');
-		}
-	});
 }
 
 /**
@@ -554,50 +350,16 @@ function computePickSelection( pickPoint )
 	return newSelection;
 }
 
-/**
- * 	Insert HTML code of selected features
- * 
- * 	@param {<GlobWeb.Feature>[]} seleciton Array of features
- */
-function createHTMLSelectedFeatureList( selection )
-{	
-	var arrowVisibility = false;
-	if ( selection.length > 10 )
-		arrowVisibility = true;
-	featureListHTML = featureListTemplate( { selection: selection, arrowVisibility: arrowVisibility });
-	$('#leftDiv').html( featureListHTML );
-}
-
-/**
- * 	Insert HTML code of choosen feature
- */
-function createHTMLSelectedFeatureDiv( feature )
-{	
-	var output = featureDescriptionTemplate( { feature: feature, descriptionTableTemplate: descriptionTableTemplate } );
-	
-	$('#rightDiv').html( output );
-	
-	$('.detailedInfo').niceScroll({autohidemode: false});
-}
-
-/**
- * 	Insert HTML code of help to iterate on each feature
- */
-function createHTMLSelectionHelp( selection )
-{
-	$('#rightDiv').html( pileStashHelp );
-}
-
 return {
 	init: function( gl, nav ) 
 	{
 		// Store the globe in the global module variable
 		globe = gl;
-
 		navigation = nav;
 		
 		// Call init
 		init();
+		FeaturePopup.init(this);
 	},
 	
 	addPickableLayer: function( layer )
@@ -612,6 +374,26 @@ return {
 			if( layer.id == pickableLayers[i].id )
 				pickableLayers.splice( i, 1 );
 		}
+	},
+
+	blurSelectedFeature: function()
+	{
+		blurSelectedFeature();
+	},
+
+	/**
+	 * 	Apply selected style to feature
+	 * 
+	 * 	@param index Index of feature in selection array
+	 */
+	focusFeature: function(index)
+	{
+		focusFeature(index);
+	},
+
+	getSelectedFeature: function()
+	{
+		return selection[stackSelectionIndex];
 	}
 };
 
