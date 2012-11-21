@@ -242,7 +242,7 @@ function RGBColor(color_string)
 }
 
 return {
-	
+  
 	roundNumber : function (num, dec) {
 		var result = Math.round(num*Math.pow(10,dec))/Math.pow(10,dec);
 		return result;
@@ -254,11 +254,11 @@ return {
 	generateColor : function()
 	{
 		//use golden ratio
-		golden_ratio_conjugate = 0.618033988749895;
-		h = Math.random();
+		var golden_ratio_conjugate = 0.618033988749895;
+		var h = Math.random();
 		h += golden_ratio_conjugate;
 	  	h %= 1;
-	  	return hsv_to_rgb(h, 0.5, 0.95);
+		return hsv_to_rgb(h, 0.5, 0.95);
 	},
 
     parseColor : function(color_string)
