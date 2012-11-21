@@ -17,17 +17,20 @@ return {
 	hide: function(){
 		$iframeDiv.animate({top: -1000}, 800);
 	},
-	show: function(){
-		$iframeDiv.animate({top: 100}, 800);
-	},
 
 	/**
-	 *	Set iframe
+	 *	Show iframe
 	 *
 	 *	@param html External link url
 	 */
-	set: function( html ){
-		$iframeDiv.find('iframe').attr('src', html);
+	show: function( html ){
+		var canvasWidth = parseInt( $('#GlobWebCanvas').css("width") );
+		var canvasHeight = parseInt( $('#GlobWebCanvas').css("height") );
+		var optimalWidth = canvasWidth * 0.8;
+		var optimalHeight = canvasHeight * 0.8;
+		var optimalTop = canvasHeight * 0.1;
+		$iframeDiv.find('iframe').css({ width: optimalWidth, height: optimalHeight }).attr('src',html);
+		$iframeDiv.animate({top: optimalTop}, 800);
 	}
 };
 

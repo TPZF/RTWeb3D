@@ -67,20 +67,6 @@ function createHTMLSelectedFeatureDiv( feature )
 	$('.detailedInfo').niceScroll({autohidemode: false});
 }
 
-/**
- * 	Show feature information
- */
-function showFeatureInformation( feature )
-{
-	$('.detailedInfo').getNiceScroll().remove();
-	$('#rightDiv').fadeOut(300, function(){
-		createHTMLSelectedFeatureDiv( feature );
-		$(this).fadeIn(300, function(){
-			$('.detailedInfo').getNiceScroll().resize();
-		});
-	});
-}
-
 return {
 
 	/**
@@ -89,6 +75,7 @@ return {
 	init: function(pm){
 
 		pickingManager = pm;
+		var self = this;
 
 		// Show/hide quicklook
 		$selectedFeatureDiv.on("click", '#quicklook', function(event){
@@ -163,15 +150,13 @@ return {
 			pickingManager.focusFeature( featureIndexToFocus );
 			var selectedFeature = pickingManager.getSelectedFeature();
 			
-			showFeatureInformation( selectedFeature.feature );
+			self.showFeatureInformation( selectedFeature.feature );
 		});
 
 		// Show/hide external resource
 		$selectedFeatureDiv.on("click", '.propertiesTable a', function(event){
 			event.preventDefault();
-
-			IFrame.set(event.target.innerHTML);
-			IFrame.show();
+			IFrame.show(event.target.innerHTML);
 		});
 
 	},
@@ -225,8 +210,17 @@ return {
 		$('#rightDiv').html( pileStashHelp );
 	},
 
+	/**
+	 * 	Show feature information
+	 */
 	showFeatureInformation: function(feature){
-		showFeatureInformation(feature);
+		$('.detailedInfo').getNiceScroll().remove();
+		$('#rightDiv').fadeOut(300, function(){
+			createHTMLSelectedFeatureDiv( feature );
+			$(this).fadeIn(300, function(){
+				$('.detailedInfo').getNiceScroll().resize();
+			});
+		});
 	}
 
 };

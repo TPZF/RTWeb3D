@@ -102,10 +102,7 @@ function setBehavior()
 
 	$reverseNameResolver.on("click", '.propertiesTable a', function(event){
 		event.preventDefault();
-		
-		IFrame.set( event.target.innerHTML );
-		// $("#externalIFrame iframe").attr('src', "/sitools/proxy?external_url=" +  );
-		IFrame.show();
+		IFrame.show(event.target.innerHTML);
 	});
 
 	globe.subscribe("startNavigation", function(){
