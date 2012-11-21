@@ -4,7 +4,6 @@
  */
 define(["jquery.ui", "Utils", "underscore-min", "text!../templates/nameResolverResult.html"], function($, Utils, _, nameResolverResultHTMLTemplate) {
 
-
 // Template generating the list of selected features
 var nameResolverResultTemplate = _.template(nameResolverResultHTMLTemplate);
 
@@ -109,8 +108,6 @@ function setSearchBehavior()
 							GlobWeb.CoordinateSystem.fromGeoToEquatorial([response.features[i].geometry.coordinates[0], response.features[i].geometry.coordinates[1]], equatorial);
 
 							var result = nameResolverResultTemplate( { properties: response.features[i].properties, ra: equatorial[0], dec: equatorial[1] } );
-
-							// output+="<em>Ra:</em> " + equatorial[0] + "<br /><em>Dec:</em> " + equatorial[1] + "<br/> Found in " + response.features[0].properties.credits + " database<br/>";
 							output+=result;
 						}
 
@@ -134,6 +131,13 @@ function setSearchBehavior()
 	// Clear search result field when pan
 	$('canvas').click(function(){
 		$('#equatorialCoordinatesSearchResult').fadeOut(animationDuration);
+	});
+
+	globe.subscribe("startNavigation", function(){
+		if ($reverseNameResolver.css('display') != 'none')
+		{
+			$reverseNameResolver.fadeOut(300);
+		}
 	});
 	
 	$('#equatorialCoordinatesSearchResult').on("click",'.nameResolverResult',function(event){

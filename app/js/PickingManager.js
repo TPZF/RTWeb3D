@@ -5,6 +5,7 @@ define( [ "jquery.ui", "IFrame", "FeaturePopup" ], function($, IFrame, FeaturePo
 
 var globe;
 var navigation;
+var self;
 
 var selection = [];
 var stackSelectionIndex = -1;
@@ -36,36 +37,6 @@ function blurSelection()
 }
 
 /**
- * 	Apply selected style to feature
- * 
- * 	@param index Index of feature in selection array
- */
-function focusFeature( index )
-{
-	var selectedFeature = selection[index];
-	if ( selectedFeature )
-	{
-		stackSelectionIndex = index;
-		var style = selectedFeature.feature.properties.style;
-		switch ( selectedFeature.feature.geometry.type )
-		{
-			case "Polygon":
-				style.strokeColor = selectedStyle.strokeColor;
-				break;
-			case "Point":
-				style.fillColor = selectedStyle.fillColor;
-				break;
-			default:
-				break;
-		}
-		selectedFeature.layer.modifyFeatureStyle( selectedFeature.feature, style );
-
-		FeaturePopup.focusTitle(stackSelectionIndex);
-	}
-}
-
-
-/**
  * 	Apply selectedStyle to selection
  */
 function focusSelection( newSelection )
@@ -95,32 +66,6 @@ function focusSelection( newSelection )
 				break;
 		}
 		newSelection[i].layer.modifyFeatureStyle( newSelection[i].feature, style );
-	}
-}
-
-/**
- * 	Revert style of selected feature
- */
-function blurSelectedFeature()
-{
-	var selectedFeature = selection[stackSelectionIndex];
-	if ( selectedFeature )
-	{
-		var style = selectedFeature.feature.properties.style;
-		switch ( selectedFeature.feature.geometry.type )
-		{
-			case "Polygon":
-				style.strokeColor = selectedFeature.layer.style.strokeColor; 
-				break;
-			case "Point":
-				style.fillColor = selectedFeature.layer.style.fillColor; 
-				break;
-			default:
-				break;
-		}
-		selectedFeature.layer.modifyFeatureStyle( selectedFeature.feature, style );
-
-		FeaturePopup.blurTitle(stackSelectionIndex);
 	}
 }
 
@@ -157,7 +102,7 @@ function init()
 					
 				} else {
 					// Blur only previous feature
-					blurSelectedFeature();
+					self.blurSelectedFeature();
 				}
 				
 				stackSelectionIndex++;
@@ -170,7 +115,7 @@ function init()
 					stackSelectionIndex = -1;
 				} else {
 					// Focus current feature
-					focusFeature( stackSelectionIndex );
+					self.focusFeature( stackSelectionIndex );
 					FeaturePopup.showFeatureInformation( selectedFeature.feature );
 				}
 			}
@@ -200,7 +145,7 @@ function init()
 							else
 							{
 								// only one layer, no pile needed, create feature dialogue
-								focusFeature( 0 );
+								self.focusFeature( 0 );
 								FeaturePopup.showFeatureInformation( newSelection[stackSelectionIndex].feature )
 								// createHTMLSelectedFeatureDiv( newSelection[stackSelectionIndex].feature );
 							}
@@ -356,7 +301,8 @@ return {
 		// Store the globe in the global module variable
 		globe = gl;
 		navigation = nav;
-		
+		self = this;
+
 		// Call init
 		init();
 		FeaturePopup.init(this);
@@ -376,9 +322,30 @@ return {
 		}
 	},
 
+	/**
+	 * 	Revert style of selected feature
+	 */
 	blurSelectedFeature: function()
 	{
-		blurSelectedFeature();
+		var selectedFeature = selection[stackSelectionIndex];
+		if ( selectedFeature )
+		{
+			var style = selectedFeature.feature.properties.style;
+			switch ( selectedFeature.feature.geometry.type )
+			{
+				case "Polygon":
+					style.strokeColor = selectedFeature.layer.style.strokeColor; 
+					break;
+				case "Point":
+					style.fillColor = selectedFeature.layer.style.fillColor; 
+					break;
+				default:
+					break;
+			}
+			selectedFeature.layer.modifyFeatureStyle( selectedFeature.feature, style );
+
+			FeaturePopup.blurTitle(stackSelectionIndex);
+		}
 	},
 
 	/**
@@ -388,7 +355,25 @@ return {
 	 */
 	focusFeature: function(index)
 	{
-		focusFeature(index);
+		var selectedFeature = selection[index];
+		if ( selectedFeature )
+		{
+			stackSelectionIndex = index;
+			var style = selectedFeature.feature.properties.style;
+			switch ( selectedFeature.feature.geometry.type )
+			{
+				case "Polygon":
+					style.strokeColor = selectedStyle.strokeColor;
+					break;
+				case "Point":
+					style.fillColor = selectedStyle.fillColor;
+					break;
+				default:
+					break;
+			}
+			selectedFeature.layer.modifyFeatureStyle( selectedFeature.feature, style );
+			FeaturePopup.focusTitle(stackSelectionIndex);
+		}
 	},
 
 	getSelectedFeature: function()
