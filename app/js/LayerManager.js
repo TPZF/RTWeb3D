@@ -277,9 +277,8 @@ function handleDrop(evt) {
 			// Add geoJson layer
 			handleEquatorialFeatureCollection ( gwLayer, response );
 			addAdditionalLayer( gwLayer );
-			
-			// Create additional layers visibility button set
-			$( ".layerVisibilityRadioDiv" ).buttonset()
+
+			$('#layerManager').getNiceScroll().resize();
 			
 		};
 		reader.readAsText(f);
@@ -443,6 +442,8 @@ function initGuiEvents ()
 		globe.removeLayer(layer);
 		PickingManager.removePickableLayer( layer );
 		gwAdditionalLayers.splice( layerIndex, 1 );
+
+		$('#layerManager').getNiceScroll().resize();
 	});
 }
 
