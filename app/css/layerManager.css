@@ -27,6 +27,20 @@
 
 /*** Additionnal layers ***/
 
+.addLayer > label
+{
+	position: relative;
+}
+
+.spinner
+{
+	position: absolute;
+	right: -20px;
+	top: 0px;
+	width: 16px;
+	height: 16px;
+}
+
 .layerColor
 {
 	width: 15px;

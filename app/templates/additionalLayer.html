@@ -1,4 +1,4 @@
-<div class="ui-widget addLayer" value="<%= currentIndex %>" id="addLayer_<%= currentIndex %>" >
+<div class="ui-widget addLayer" id="addLayer_<%= currentIndex %>" >
 
 <span class="layerColor" style="background-color: <%= layerColor %>"></span><span id="visible_<%= currentIndex %>" class="<% if (layer.visible()) print('ui-state-active'); else print('ui-state-default'); %> ui-corner-all ui-button">
 	<span class="ui-icon <% if (layer.visible()) print('ui-icon-check'); else print('ui-icon-empty'); %>"></span>
@@ -11,6 +11,7 @@
 
 <label title="<%= layer.description %>" for="addLayerInput_<%= currentIndex %>"><%= layer.name %></label>
 
+<img style="display: none" class="spinner" src="css/images/loading.gif">
 <div class="deleteLayer">
 	<img src="css/images/delete.png" alt="" class="defaultImg" />
 	<img style="opacity: 0" src="css/images/deleteHover.png" alt="" class="hoverImg" />

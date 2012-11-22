@@ -301,7 +301,7 @@ function handleDragOver(evt)
 function createHtmlForBackgroundLayer( gwLayer )
 {
 	// Add HTML
-	var currentIndex = nbBackgroundLayers;
+	var currentIndex = gwLayer.id;
 	var currentClass;
 	
 	var layerDiv ='<option value="'+ currentIndex +'" class="">'+ gwLayer.name + '</option>"';
@@ -339,7 +339,7 @@ function createHtmlForBackgroundLayer( gwLayer )
  */
 function createHtmlForAdditionalLayer( gwLayer )
 {
-	var currentIndex = nbAddLayers;
+	var currentIndex = gwLayer.id;
 	var cssColor = "rgb(1,1,1)";
 
 	if (gwLayer.style)
@@ -420,6 +420,14 @@ function addAdditionalLayer ( gwLayer )
 	
 	// Add HTML
 	createHtmlForAdditionalLayer( gwLayer );
+
+	// Spinner event
+	globe.subscribe("startLoad", function(id){
+		$('#addLayer_'+id).find('.spinner').stop(true,true).fadeIn('fast');
+	});
+	globe.subscribe("endLoad", function(id){
+		$('#addLayer_'+id).find('.spinner').fadeOut(500);
+	});
 }
 
 function initGuiEvents ()

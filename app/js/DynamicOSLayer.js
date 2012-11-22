@@ -35,7 +35,7 @@ DynamicOSLayer = function(options)
 	}
 	
 	// TODO "os" is overriden by BaseLayer id when attached by globe
-	this.id = "os";
+	this.extId = "os";
 
 	// Used for picking management
 	this.features = [];
@@ -65,6 +65,8 @@ GlobWeb.inherits( GlobWeb.BaseLayer, DynamicOSLayer );
 DynamicOSLayer.prototype._attach = function( g )
 {
 	GlobWeb.BaseLayer.prototype._attach.call( this, g );
+
+	this.extId += this.id;
 	
 	this.pointRenderer = new GlobWeb.PointRenderer( g.tileManager );
 	this.lineRenderer = new GlobWeb.SimpleLineRenderer( g.tileManager );
@@ -107,13 +109,14 @@ DynamicOSLayer.prototype.launchRequest = function(tile)
 	
 	var self = this;
 	if (index)
-	{
+	{	
+		self.globe.publish("startLoad",self.id);
 		$.ajax({
 			type: "GET",
 			url: self.serviceUrl + "order=" + tile.order + "&healpix=" + tile.pixelIndex,
 			success: function(response){
-				tile.extension[self.id] = new DynamicOSLayer.OSData(self);
-				tile.extension[self.id].complete = (response.totalResults == response.features.length);
+				tile.extension[self.extId] = new DynamicOSLayer.OSData(self);
+				tile.extension[self.extId].complete = (response.totalResults == response.features.length);
 				recomputeFeaturesGeometry(response.features);
 				
 				for ( var i=0; i<response.features.length; i++ )
@@ -121,6 +124,7 @@ DynamicOSLayer.prototype.launchRequest = function(tile)
 					self.addFeature( response.features[i], tile );
 				}
 				self.requests[index] = null;
+				self.globe.publish("endLoad",self.id);
 			},
 			error: function (xhr, ajaxOptions, thrownError) {
 				self.requests[index] = null;
@@ -151,12 +155,12 @@ DynamicOSLayer.prototype.addGeometryToTile = function(geometry,tile)
 			color: this.style.fillColor
 		};
 		
-		tile.extension[this.id].points.push( pointRenderData );
+		tile.extension[this.extId].points.push( pointRenderData );
 	} 
 	else if ( geometry['type'] == "Polygon" )
 	{
 		this.lineRenderer.addGeometry(geometry,this,this.style);
-		tile.extension[this.id].lines.push( this.lineRenderer.renderables[ this.lineRenderer.renderables.length-1 ] );
+		tile.extension[this.extId].lines.push( this.lineRenderer.renderables[ this.lineRenderer.renderables.length-1 ] );
 	}
 }
 
@@ -180,7 +184,7 @@ DynamicOSLayer.prototype.addFeature = function( feature, tile )
 	}
 
 	// Add feature id
-	tile.extension[this.id].featureIds.push( feature.properties.identifier );
+	tile.extension[this.extId].featureIds.push( feature.properties.identifier );
 	// Add feature geometry to the tile
 	this.addGeometryToTile( feature.geometry, tile );
 }
@@ -279,7 +283,7 @@ DynamicOSLayer.prototype.render = function( tiles )
 		var tile = tiles[i];
 		if ( tile.order >= this.minOrder )
 		{
-			var tileData = tile.extension[this.id];
+			var tileData = tile.extension[this.extId];
 			if( !tileData )
 			{				
 				// Search for available data on tile parent
@@ -288,7 +292,7 @@ DynamicOSLayer.prototype.render = function( tiles )
 				var visitTile = tile.parent;
 				while ( visitTile && visitTile.order >= this.minOrder )
 				{
-					tileData = visitTile.extension[this.id];
+					tileData = visitTile.extension[this.extId];
 					if ( tileData )
 					{
 						var key = visitTile.order + "_" + visitTile.pixelIndex;
