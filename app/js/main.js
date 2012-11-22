@@ -28,6 +28,10 @@ require.config({
 		'GlobWeb': {
 			deps: [],
 			exports: 'GlobWeb'
+		},
+		'jquery.nicescroll.min': {
+			deps: ['jquery'],
+			exports: ''
 		}
 	}
 });
