@@ -70,7 +70,9 @@ function createHTMLSelectedFeatureDiv( feature )
 return {
 
 	/**
-	 *	@param pm PickingManager
+	 *	Init
+	 *
+	 *	@param pm <PickingManager>
 	 */
 	init: function(pm){
 
@@ -79,9 +81,7 @@ return {
 
 		// Show/hide quicklook
 		$selectedFeatureDiv.on("click", '#quicklook', function(event){
-			
-			var featureIndexToQuicklook = $('#featureList .selected').index();
-			var selectedFeature = selection[featureIndexToQuicklook];
+			var selectedFeature = pickingManager.getSelectedFeature();
 			
 			if ( selectedFeature.feature.properties.style.fill == true )
 			{
@@ -161,10 +161,16 @@ return {
 
 	},
 
+	/**
+	 *	Unselect title in the list of features
+	 */
 	blurTitle: function(index){
 		$('#featureList div:eq('+index+')').removeClass('selected');
 	},
 
+	/**
+	 *	Select title in the list of features
+	 */
 	focusTitle: function(index){
 		$('#featureList div:eq('+index+')').addClass('selected');	
 	},
@@ -181,6 +187,13 @@ return {
 		// }
 	},
 
+	/**
+	 *	Show popup
+	 *
+	 *	@param x X in window coordinate system
+	 *	@param y Y in window coordinate system
+	 *	@param callback Callback
+	 */
 	show: function(x, y, callback){
 		computeDivPosition(x,y);
 		$selectedFeatureDiv.fadeIn(500, function() {
