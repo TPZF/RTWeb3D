@@ -187,7 +187,7 @@ DynamicOSLayer.prototype.addFeature = function( feature, tile )
 		renderable = featureData.renderable;
 	}
 
-	var tileData = tile.extension[this.id];
+	var tileData = tile.extension[this.extId];
 	
 	// Add feature id
 	tileData.featureIds.push( feature.properties.identifier );
