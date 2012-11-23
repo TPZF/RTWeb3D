@@ -137,14 +137,13 @@ DynamicOSLayer.prototype.launchRequest = function(tile)
 /**************************************************************************************************************/
 
 /*
-	Add a geometry to the tile extension
+	Create a renderable from the geometry
  */
-DynamicOSLayer.prototype.addGeometryToTile = function(geometry,tile)
+DynamicOSLayer.prototype.createRenderable = function(geometry)
 {
-	var posGeo = geometry['coordinates'];
 	if ( geometry['type'] == "Point" )
 	{
-		var pos3d = GlobWeb.CoordinateSystem.fromGeoTo3D( posGeo );
+		var pos3d = GlobWeb.CoordinateSystem.fromGeoTo3D( geometry['coordinates'] );
 		var vertical = vec3.create();
 		vec3.normalize(pos3d, vertical);
 		
@@ -154,13 +153,13 @@ DynamicOSLayer.prototype.addGeometryToTile = function(geometry,tile)
 			vertical: vertical,
 			color: this.style.fillColor
 		};
-		
-		tile.extension[this.extId].points.push( pointRenderData );
+		return pointRenderData;
 	} 
 	else if ( geometry['type'] == "Polygon" )
 	{
 		this.lineRenderer.addGeometry(geometry,this,this.style);
-		tile.extension[this.extId].lines.push( this.lineRenderer.renderables[ this.lineRenderer.renderables.length-1 ] );
+		var renderable = this.lineRenderer.renderables[ this.lineRenderer.renderables.length-1 ];
+		return renderable;
 	}
 }
 
@@ -171,22 +170,37 @@ DynamicOSLayer.prototype.addGeometryToTile = function(geometry,tile)
  */
 DynamicOSLayer.prototype.addFeature = function( feature, tile )
 {
+	var renderable;
+	
 	// Add feature if it doesn't exist
 	if ( !this.featuresSet[feature.properties.identifier] )
 	{
 		this.features.push( feature );
-		this.featuresSet.add( feature.properties.identifier, 1 );
+		renderable = this.createRenderable( feature.geometry );
+		this.featuresSet.add( feature.properties.identifier, { counter: 1, renderable: renderable } );
 	}
 	else
 	{
 		// Increment the number of requests for current feature
-		this.featuresSet[feature.properties.identifier]++;
+		var featureData = this.featuresSet[feature.properties.identifier];
+		featureData.counter++;
+		renderable = featureData.renderable;
 	}
 
+	var tileData = tile.extension[this.id];
+	
 	// Add feature id
-	tile.extension[this.extId].featureIds.push( feature.properties.identifier );
-	// Add feature geometry to the tile
-	this.addGeometryToTile( feature.geometry, tile );
+	tileData.featureIds.push( feature.properties.identifier );
+	
+	// Add feature renderable
+	if ( feature.geometry['type'] == "Point" )
+	{
+		tileData.points.push( renderable );
+	}
+	else if ( feature.geometry['type'] == "Polygon" )
+	{
+		tileData.lines.push( renderable );
+	}
 }
 
 /**************************************************************************************************************/
@@ -197,7 +211,7 @@ DynamicOSLayer.prototype.addFeature = function( feature, tile )
 DynamicOSLayer.prototype.removeFeature = function( geometry, identifier )
 {
 	// BUG ! Children tiles don't dispose their extension resources
-	if ( this.featuresSet[identifier] == 1 )
+	if ( this.featuresSet[identifier].counter == 1 )
 	{
 		// Last feature
 		this.featuresSet.remove( identifier );
@@ -219,11 +233,20 @@ DynamicOSLayer.prototype.removeFeature = function( geometry, identifier )
 /**************************************************************************************************************/
 
 /**
- *	Modifies feature style
+ *	Modify feature style
  */
-DynamicOSLayer.prototype.modifyFeatureStyle = function( feature, style ){
-	// TODO
+DynamicOSLayer.prototype.modifyFeatureStyle = function( feature, style ) {
+
 	feature.properties.style = style;
+	var featureData = this.featuresSet[feature.properties.identifier];
+	if ( featureData )
+	{
+		// TODO : a little bit hackish, should try to merge renderable attributes in GlobWeb between PointRenderer and Simple'Line'Renderer
+		if ( featureData.renderable.color )
+			featureData.renderable.color = style.fillColor;
+		if ( featureData.renderable.style )
+			featureData.renderable.style = style;
+	}
 }
 
 /**************************************************************************************************************/
