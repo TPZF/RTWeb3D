@@ -149,7 +149,7 @@ function createLayerFromConf(layer) {
 
 	if ( layer.color )
 	{
-		var rgb = Utils.parseColor( layer.color );
+		var rgb = GlobWeb.FeatureStyle.fromStringToColor( layer.color );
 	}
 	else
 	{
