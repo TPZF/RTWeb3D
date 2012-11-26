@@ -64,7 +64,7 @@ function updateFov()
 $(function()
 {	
 	// Create accordeon
-	$( "#accordion" ).accordion( { autoHeight: false, active: 0, collapsible: true } );
+	$( "#accordion" ).accordion( { autoHeight: false, active: 0, collapsible: true } ).show();
 		
 	var canvas = document.getElementById('GlobWebCanvas');
 
