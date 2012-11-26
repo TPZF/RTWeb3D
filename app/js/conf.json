@@ -102,6 +102,7 @@
 			"serviceUrl": "/sitools/ofuse/search?",
 			"visible": true,
 			"minOrder": 3,
-			"color": "#FFCC11"
+			"color": "#FFCC11",
+			"displayProperties": [ "ra", "dec", "src_type", "dateobs", "imageSize" ]
 		}	]
 }

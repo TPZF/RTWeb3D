@@ -227,6 +227,9 @@ function createLayerFromConf(layer) {
 			// Add necessary option			
 			options.serviceUrl = layer.serviceUrl;
 			options.minOrder = layer.minOrder;
+			if (layer.displayProperties)
+				options.displayProperties = layer.displayProperties;
+			
 			options.style = defaultVectorStyle;
 			gwLayer = new DynamicOSLayer( options );
 			PickingManager.addPickableLayer( gwLayer );
