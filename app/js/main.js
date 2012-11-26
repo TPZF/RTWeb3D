@@ -6,7 +6,6 @@ require.config({
 	paths: {
 		"jquery": "../externals/jquery-1.8.2.min",
 		"jquery.ui": "../externals/jquery-ui-1.8.23.custom.min",
-		"GlobWeb": "GlobWeb.min",
 		"jquery.ui.selectmenu": "../externals/jquery.ui.selectmenu",
 		"underscore-min": "../externals/underscore-min",
 		"jquery.nicescroll.min": "../externals/jquery.nicescroll.min"
@@ -27,10 +26,6 @@ require.config({
 		'underscore-min': {
 			deps: ['jquery'],
 			exports: '_'
-		},
-		'GlobWeb': {
-			deps: [],
-			exports: 'GlobWeb'
 		},
 		'jquery.nicescroll.min': {
 			deps: ['jquery'],
