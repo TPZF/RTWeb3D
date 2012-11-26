@@ -131,7 +131,9 @@ return {
 		// Show/hide subsection properties
 		$selectedFeatureDiv.on("click", '.section', function(event){
 			// TODO slideToggle works with div -> add div to the tab generation
-			$(this).siblings('table').fadeToggle("slow", "linear");/*slideToggle(300)*/;
+			$(this).siblings('table').fadeToggle("slow", "linear", function(){
+				$('.detailedInfo').getNiceScroll().resize();
+			});/*slideToggle(300)*/;
 			if ( $(this).siblings('#arrow').is('.arrow-right') )
 			{
 				$(this).siblings('#arrow').removeClass('arrow-right').addClass('arrow-bottom');
