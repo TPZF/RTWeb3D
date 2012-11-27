@@ -96,8 +96,8 @@ $(function()
 		document.getElementById('webGLNotAvailable').style.display = "block";
 	}
 	
-	// When level zero texture is loaded, hide loading
-	globe.subscribe("levelZeroTextureLoaded", hideLoading);
+	// When  base layer is ready, hide loading
+	globe.subscribe("baseLayersReady", hideLoading);
 	
 	// Context lost listener
 	canvas.addEventListener("webglcontextlost", function(event) {
