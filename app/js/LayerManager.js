@@ -2,9 +2,9 @@
 /**
  * LayerManager module
  */
-define( [ "jquery.ui", "PickingManager", "StarLayer", "ConstellationLayer", "DynamicOSLayer", "Utils",
+define( [ "jquery.ui", "PickingManager", "StarLayer", "ConstellationLayer", "DynamicOSLayer", "ClusterLayer", "Utils",
 	"underscore-min", "text!../templates/additionalLayer.html", "jquery.ui.selectmenu", "jquery.nicescroll.min" ], 
-	function($, PickingManager, StarLayer, ConstellationLayer, DynamicOSLayer, Utils, _, additionalLayerHTMLTemplate) {
+	function($, PickingManager, StarLayer, ConstellationLayer, DynamicOSLayer, ClusterLayer, Utils, _, additionalLayerHTMLTemplate) {
 
 /**
  * Private variable for module
@@ -233,6 +233,21 @@ function createLayerFromConf(layer) {
 			options.style = defaultVectorStyle;
 			gwLayer = new DynamicOSLayer( options );
 			PickingManager.addPickableLayer( gwLayer );
+			break;
+		case "ClusterLayer":
+			options.serviceUrl = layer.serviceUrl;
+
+			// TODO modify the structure of conf.json maybe ?
+			if( layer.maxOrder )
+				options.maxOrder = layer.maxOrder;
+			if ( layer.orderDepth )
+				options.orderDepth = layer.orderDepth;
+			if ( layer.treshold )
+				options.treshold = layer.treshold;
+			
+			options.style = defaultVectorStyle;
+			options.style.iconUrl = "css/images/lensstar.png";
+			gwLayer = new ClusterLayer( options );
 			break;
 			
 		default:
