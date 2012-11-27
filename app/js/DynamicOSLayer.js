@@ -72,6 +72,7 @@ DynamicOSLayer.prototype._attach = function( g )
 	
 	this.pointRenderer = new GlobWeb.PointRenderer( g.tileManager );
 	this.lineRenderer = new GlobWeb.SimpleLineRenderer( g.tileManager );
+	this.polygonRenderer = new GlobWeb.SimplePolygonRenderer( g.tileManager );
 	this.bucket = this.pointRenderer.getOrCreateBucket( this, this.style );
 	g.tileManager.addPostRenderer(this);
 }
@@ -162,7 +163,11 @@ DynamicOSLayer.prototype.createRenderable = function(geometry)
 	{
 		this.lineRenderer.addGeometry(geometry,this,this.style);
 		var renderable = this.lineRenderer.renderables[ this.lineRenderer.renderables.length-1 ];
-		return renderable;
+		return {
+			line: renderable,
+			polygon: null,
+			style: renderable.style
+		};
 	}
 }
 
@@ -202,7 +207,7 @@ DynamicOSLayer.prototype.addFeature = function( feature, tile )
 	}
 	else if ( feature.geometry['type'] == "Polygon" )
 	{
-		tileData.lines.push( renderable );
+		tileData.polygons.push( renderable );
 	}
 }
 
@@ -244,11 +249,20 @@ DynamicOSLayer.prototype.modifyFeatureStyle = function( feature, style ) {
 	var featureData = this.featuresSet[feature.properties.identifier];
 	if ( featureData )
 	{
+		var renderable = featureData.renderable;
+		
 		// TODO : a little bit hackish, should try to merge renderable attributes in GlobWeb between PointRenderer and Simple'Line'Renderer
-		if ( featureData.renderable.color )
-			featureData.renderable.color = style.fillColor;
-		if ( featureData.renderable.style )
-			featureData.renderable.style = style;
+		if ( renderable.color ) {
+			renderable.color = style.fillColor;
+		}
+		else if ( renderable.style ) {
+			if ( style.fill ) {
+				this.polygonRenderer.addGeometry(feature.geometry,this,style);
+				renderable.polygon = this.polygonRenderer.renderables[ this.polygonRenderer.renderables.length-1 ];
+			}
+			renderable.style = style;
+			renderable.line.style = style;
+		}
 	}
 }
 
@@ -266,7 +280,7 @@ DynamicOSLayer.OSData = function(layer)
 	this.layer = layer;
 	this.featureIds = []; // exclusive parameter to remove from layer
 	this.points = [];
-	this.lines = [];
+	this.polygons = [];
 	this.complete = false;
 }
 
@@ -302,6 +316,7 @@ DynamicOSLayer.prototype.render = function( tiles )
 	
 	var points = [];
 	var lines = [];
+	var polygons = [];
 	var visitedTiles = {};
 	
 	for ( var i = 0; i < tiles.length; i++ )
@@ -321,17 +336,18 @@ DynamicOSLayer.prototype.render = function( tiles )
 					tileData = visitTile.extension[this.extId];
 					if ( tileData )
 					{
-						var key = visitTile.order + "_" + visitTile.pixelIndex;
-						if ( !visitedTiles.hasOwnProperty(key) )
-						{
-							if ( tileData.points.length > 0 )
-								points = points.concat( tileData.points );
-							if ( tileData.lines.length > 0 )
-								lines = lines.concat( tileData.lines );							
-						}
-						visitedTiles[key] = true;
-						visitTile = null;
 						completeDataFound = tileData.complete;
+						var key = visitTile.order + "_" + visitTile.pixelIndex;
+						if ( visitedTiles.hasOwnProperty(key) )	
+						{
+							tileData = null;
+						}
+						else 
+						{
+							visitedTiles[key] = true;
+						}
+						visitTile = null;
+						
 					}
 					else 
 					{
@@ -346,12 +362,19 @@ DynamicOSLayer.prototype.render = function( tiles )
 					this.launchRequest(prevVisitTile);
 				}
 			}
-			else
+			
+			// We have found some available tile data, add it to the current renderables
+			if ( tileData )
 			{
 				if ( tileData.points.length > 0 )
 					points = points.concat( tileData.points );
-				if ( tileData.lines.length > 0 )
-					lines = lines.concat( tileData.lines );							
+					
+				for ( var n = 0; n < tileData.polygons.length; n++ ) {
+					lines.push( tileData.polygons[n].line );
+					if ( tileData.polygons[n].style.fill ) {
+						polygons.push( tileData.polygons[n].polygon );							
+					}
+				}
 			}
 		}
 	}
@@ -369,6 +392,13 @@ DynamicOSLayer.prototype.render = function( tiles )
 	{
 		this.lineRenderer.renderables = lines;
 		this.lineRenderer.render();
+	}
+	
+	// Render the polygons
+	if ( polygons.length > 0 )
+	{
+		this.polygonRenderer.renderables = polygons;
+		this.polygonRenderer.render();
 	}
 }
 
@@ -420,6 +450,7 @@ Set.prototype.remove = function(k)
  */
 function recomputeFeaturesGeometry( features )
 {
+	var proxyUrl = "/sitools/proxy?external_url=";
 	
 	for ( var i=0; i<features.length; i++ )
 	{
@@ -438,6 +469,9 @@ function recomputeFeaturesGeometry( features )
 					if ( ring[j][0] > 180 )
 						ring[j][0] -= 360;
 				}
+				// Add proxy url to quicklook url if not local
+				if ( currentFeature.properties.quicklook && currentFeature.properties.quicklook.substring(0,4) == 'http' )
+					currentFeature.properties.quicklook = proxyUrl+currentFeature.properties.quicklook;
 				break;
 			default:
 				break;
