@@ -22,11 +22,11 @@ ClusterLayer = function(options)
 	// var serviceUrl = 'http://localhost:8182/sitools/solr/fuse/select?q=*:*&rows=0&facet=true&facet.field=order3&facet.field=order4&facet.field=order5&facet.field=order6&facet.limit=-1&facet.mincount=1&wt=json&indent=true';
 	this.serviceUrl = options.serviceUrl + "q=*:*&rows=0&facet=true&facet.limit=-1&facet.mincount=1&wt=json&indent=true";
 	this.treshold = options.treshold || 10;
-	this.maxOrder = options.maxOrder || 6;
+	this.maxOrder = options.maxOrder || 10;
 	this.orderDepth = options.orderDepth || 2;
 	GlobWeb.BaseLayer.prototype.constructor.call( this, options );
 
-	// Compute url
+	// Compute url from order 3
 	for(var i=3; i<=this.maxOrder; i++)
 		this.serviceUrl+='&facet.field=order'+i;
 
@@ -47,7 +47,7 @@ ClusterLayer = function(options)
 	this.pointRenderer = null;
 
 	this.response = null;
-	this.distributions = {};
+	this.distributions = [];
 	var self = this;
 	$.ajax({
 		type: "GET",
@@ -77,13 +77,15 @@ GlobWeb.inherits( GlobWeb.BaseLayer, ClusterLayer );
 function handleDistribution(response, distributions)
 {
 	var facet_fields = response.facet_counts.facet_fields;
+	var order = 3;
 	for (var key in facet_fields)
 	{
-		distributions[key] = {};
+		distributions[order] = {};
 		for (var i=0; i<facet_fields[key].length; i+=2)
 		{
-			distributions[key][facet_fields[key][i]] = facet_fields[key][i+1];
+			distributions[order][facet_fields[key][i]] = facet_fields[key][i+1];
 		}
+		order++;
 	}
 }
 
@@ -120,29 +122,6 @@ ClusterLayer.prototype._detach = function()
 /**************************************************************************************************************/
 
 /**
- *	Compute centroid of array
- *
- *	@param {Float[][]} array Array of points(i.e. [x,y,z])
- *	@return {Float[]} Centroid of array
- */
-function centroid(array)
-{
-	var sumX = 0;
-	var sumY = 0;
-	var sumZ = 0;
-	for(var i=0; i<array.length; i++)
-	{
-		sumX+=array[i][0];
-		sumY+=array[i][1];
-		sumZ+=array[i][2];
-	}
-
-	return [sumX/array.length, sumY/array.length, sumZ/array.length];
-}
-
-/**************************************************************************************************************/
-
-/**
  *	Recursive function computing tile data for the first called pixelIndex
  *
  *	@param	pixelIndex	Current pixel index
@@ -153,7 +132,7 @@ function centroid(array)
  */
 ClusterLayer.prototype.computeTileData = function(pixelIndex, order, face, depth, tileData)
 {
-	var pixelDistribution = this.distributions["order"+order][pixelIndex];
+	var pixelDistribution = this.distributions[order][pixelIndex];
 	if ( pixelDistribution > this.treshold )
 	{
 		if ( order < this.maxOrder && depth != 0 )
@@ -171,13 +150,12 @@ ClusterLayer.prototype.computeTileData = function(pixelIndex, order, face, depth
 			var ix = GlobWeb.HEALPixBase.compress_bits(pix);
 			var iy = GlobWeb.HEALPixBase.compress_bits(pix>>>1);
 			var center = GlobWeb.HEALPixBase.fxyf((ix+0.5)/nside, (iy+0.5)/nside, face);
-			
+
 			var pos3d = center;
 			var vertical = vec3.create();
 			vec3.normalize(pos3d, vertical);
 			
 			var pointRenderData = {
-				// geometry: geometry,
 				pos3d: pos3d,
 				vertical: vertical,
 				color: this.style.fillColor
