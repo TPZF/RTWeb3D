@@ -52,9 +52,9 @@ ClusterLayer = function(options)
 	$.ajax({
 		type: "GET",
 		url: self.serviceUrl,
+		dataType: 'json',
 		success: function(response){
-			self.response = JSON.parse(response);
-			handleDistribution(self.response, self.distributions);
+			self.handleDistribution(response);
 		},
 		error: function (xhr, ajaxOptions, thrownError) {
 			console.error( xhr.responseText );
@@ -74,20 +74,22 @@ GlobWeb.inherits( GlobWeb.BaseLayer, ClusterLayer );
  *	@param response SOLR response
  *	@param distributions Distributions ClusterManager variable
  */
-function handleDistribution(response, distributions)
+ClusterLayer.prototype.handleDistribution = function(response)
 {
 	var facet_fields = response.facet_counts.facet_fields;
 	var order = 3;
 	for (var key in facet_fields)
 	{
-		distributions[order] = {};
+		this.distributions[order] = {};
 		for (var i=0; i<facet_fields[key].length; i+=2)
 		{
-			distributions[order][facet_fields[key][i]] = facet_fields[key][i+1];
+			this.distributions[order][facet_fields[key][i]] = facet_fields[key][i+1];
 		}
 		order++;
 	}
 }
+
+/**************************************************************************************************************/
 
 /**
  * 	Attach the layer to the globe
