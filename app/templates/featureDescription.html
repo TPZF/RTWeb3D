@@ -1,20 +1,20 @@
 <div class="detailedInfo">
-	<% if ( feature.properties.thumbnail ) 
+	<% if ( properties.thumbnail ) 
 	{ %>
-		<div class="thumbnail"><img src="<%= feature.properties.thumbnail %>" /></div>
+		<div class="thumbnail"><img src="<%= properties.thumbnail %>" /></div>
 	<% } %>
 	<table class="propertiesTable" rules="rows">
 		<tbody>
-			<% print(descriptionTableTemplate( { properties: feature.properties, descriptionTableTemplate: descriptionTableTemplate }) ); %>
+			<% print(descriptionTableTemplate( { properties: properties, descriptionTableTemplate: descriptionTableTemplate }) ); %>
 		</tbody>
 	</table>
 	
 	<div id="services">
-		<% if ( feature.services && feature.services.download ) { %>
-			<a href="<%= feature.services ? feature.services.download.url : "" %>" target="_self"><img src="css/images/download1.png"></a>
+		<% if ( services && services.download ) { %>
+			<a href="<%= services ? services.download.url : "" %>" target="_self"><img src="css/images/download1.png"></a>
 		<% }
-		if ( feature.properties.quicklook ) { %>
-			<img id='quicklook' src="css/images/quicklook.png" class=<%= (feature.properties.style.fill ? 'selected' : '' ) %> />
+		if ( properties.quicklook ) { %>
+			<img id='quicklook' src="css/images/quicklook.png" class=<%= (properties.style.fill ? 'selected' : '' ) %> />
 		<% } %>
 	</div>
 

@@ -116,7 +116,7 @@ function init()
 				} else {
 					// Focus current feature
 					self.focusFeature( stackSelectionIndex );
-					FeaturePopup.showFeatureInformation( selectedFeature.feature );
+					FeaturePopup.showFeatureInformation( selectedFeature.layer, selectedFeature.feature );
 				}
 			}
 			else
@@ -146,7 +146,7 @@ function init()
 							{
 								// only one layer, no pile needed, create feature dialogue
 								self.focusFeature( 0 );
-								FeaturePopup.showFeatureInformation( newSelection[stackSelectionIndex].feature )
+								FeaturePopup.showFeatureInformation( newSelection[stackSelectionIndex].layer, newSelection[stackSelectionIndex].feature )
 								// createHTMLSelectedFeatureDiv( newSelection[stackSelectionIndex].feature );
 							}
 							FeaturePopup.show(globe.renderContext.canvas.width/2, globe.renderContext.canvas.height/2);

@@ -120,11 +120,6 @@ DynamicOSLayer.prototype.launchRequest = function(tile)
 				tile.extension[self.extId] = new DynamicOSLayer.OSData(self);
 				tile.extension[self.extId].complete = (response.totalResults == response.features.length);
 
-				if ( self.displayProperties )
-				{
-					handleProperties( response.features, self.displayProperties );
-				}
-
 				recomputeFeaturesGeometry(response.features);
 				
 				for ( var i=0; i<response.features.length; i++ )
@@ -415,54 +410,6 @@ Set.prototype.remove = function(k)
 	{
 		this.length--;
 		delete this[k];
-	}
-}
-
-/**************************************************************************************************************/
-
-/**
- *	Appropriate layout of feature collection depending on displayProperties
- *
- *	@param features Feature collection which will be modified
- *	@param {String[]} displayProperties Array containing properties which must be displayed at first
- *
- */
-function handleProperties( features, displayProperties )
-{	
-	for ( var i=0; i<features.length; i++ )
-	{
-		var currentFeature = features[i];
-		var handledFeature = 
-		{
-			geometry: currentFeature.geometry,
-			properties: {},
-			type: currentFeature.type
-
-		}
-
-		handledFeature.properties.identifier = currentFeature.properties.identifier;
-		handledFeature.properties.title = currentFeature.properties.title;
-		// Fill properties in order
-		for(var j=0; j<displayProperties.length; j++)
-		{
-			var key = displayProperties[j];
-			if (currentFeature.properties[key])
-			{
-				handledFeature.properties[key] = currentFeature.properties[key];
-			}
-		}
-
-		handledFeature.properties.others = {};
-		// Handle the rest into sub-section "others"
-		for(var key in currentFeature.properties)
-		{
-			if (!handledFeature.properties[key])
-			{
-				handledFeature.properties.others[key] = currentFeature.properties[key];
-			}
-		}
-
-		features[i] = handledFeature;
 	}
 }
 

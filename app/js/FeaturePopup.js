@@ -57,11 +57,56 @@ function computeDivPosition(clientX, clientY)
 }
 
 /**
+ *	Appropriate layout of properties depending on displayProperties
+ *
+ *	@param properties Feature properties to modify
+ *	@param {String[]} displayProperties Array containing properties which must be displayed at first
+ *
+ *	@return Properties matching displayProperties 
+ */
+function buildProperties(properties, displayProperties)
+{
+	if( displayProperties )
+	{
+		handledProperties = {}
+
+		handledProperties.identifier = properties.identifier;
+		handledProperties.title = properties.title;
+
+		// Fill handledProperties in order
+		for(var j=0; j<displayProperties.length; j++)
+		{
+			var key = displayProperties[j];
+			if (properties[key])
+			{
+				handledProperties[key] = properties[key];
+			}
+		}
+
+		handledProperties.others = {};
+		// Handle the rest into sub-section "others"
+		for(var key in properties)
+		{
+			if (!handledProperties[key])
+			{
+				handledProperties.others[key] = properties[key];
+			}
+		}
+
+		return handledProperties;
+	}
+	else
+	{
+		return properties;
+	}
+}
+
+/**
  * 	Insert HTML code of choosen feature
  */
-function createHTMLSelectedFeatureDiv( feature )
+function createHTMLSelectedFeatureDiv( layer, feature )
 {	
-	var output = featureDescriptionTemplate( { feature: feature, descriptionTableTemplate: descriptionTableTemplate } );
+	var output = featureDescriptionTemplate( { services: feature.services, properties: buildProperties(feature.properties, layer.displayProperties), descriptionTableTemplate: descriptionTableTemplate } );
 	
 	$('#rightDiv').html( output );
 	$('.detailedInfo').niceScroll({autohidemode: false});
@@ -152,7 +197,7 @@ return {
 			pickingManager.focusFeature( featureIndexToFocus );
 			var selectedFeature = pickingManager.getSelectedFeature();
 			
-			self.showFeatureInformation( selectedFeature.feature );
+			self.showFeatureInformation( selectedFeature.layer, selectedFeature.feature );
 		});
 
 		// Show/hide external resource
@@ -228,10 +273,10 @@ return {
 	/**
 	 * 	Show feature information
 	 */
-	showFeatureInformation: function(feature){
+	showFeatureInformation: function(layer, feature){
 		$('.detailedInfo').getNiceScroll().remove();
 		$('#rightDiv').fadeOut(300, function(){
-			createHTMLSelectedFeatureDiv( feature );
+			createHTMLSelectedFeatureDiv( layer, feature );
 			$(this).fadeIn(300, function(){
 				$('.detailedInfo').getNiceScroll().resize();
 			});
