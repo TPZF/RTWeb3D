@@ -3,8 +3,10 @@
  */
 define(["jquery.ui"], function($) {
 
+// The main div for error
 var errorDiv = '<div id="errorDiv" title="Error"></div>';
 
+// Create the div, use jQuery UI dialog
 var $errorDiv = $(errorDiv)
 					.appendTo('body')
 					.dialog({
