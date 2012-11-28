@@ -1,7 +1,7 @@
 /**
  * PickingManager module
  */
-define( [ "jquery.ui", "IFrame", "FeaturePopup" ], function($, IFrame, FeaturePopup) {
+define( [ "jquery.ui", "FeaturePopup" ], function($, FeaturePopup) {
 
 var globe;
 var navigation;
