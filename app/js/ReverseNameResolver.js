@@ -19,6 +19,7 @@ var reverseNameResolverHTML =
 	'<div id="reverseNameResolver" class="contentBox ui-widget-content" style="display: none;">\
 		<div id="reverseSearchField">\
 			<input type="submit" value="Find Object Name" />\
+			<div id="equatorialCoordinates"></div>\
 		</div>\
 		<div id="reverseSearchResult"></div>\
 		<div class="closeBtn">\
@@ -91,6 +92,13 @@ function setBehavior()
 		if ( diff > 500 && Math.abs(mouseXStart - event.clientX) < epsilon && Math.abs(mouseYStart - event.clientY) < epsilon )
 		{
 			$('#reverseSearchResult').css("display","none");
+
+			var equatorial = [];
+			geo = globe.getLonLatFromPixel(event.clientX, event.clientY);
+			GlobWeb.CoordinateSystem.fromGeoToEquatorial ( geo, equatorial );
+			$("#equatorialCoordinates").html("<em>Right ascension:</em> <br/>&nbsp&nbsp&nbsp&nbsp" + equatorial[0] +
+											"<br/><em>Declination :</em> <br/>&nbsp&nbsp&nbsp&nbsp" + equatorial[1]);
+
 			$('#reverseSearchField').css("display","block");
 			$reverseNameResolver.css({
 					position: 'absolute',
@@ -100,6 +108,7 @@ function setBehavior()
 		}
 	});
 
+	// External link event
 	$reverseNameResolver.on("click", '.propertiesTable a', function(event){
 		event.preventDefault();
 		IFrame.show(event.target.innerHTML);

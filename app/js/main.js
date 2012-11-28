@@ -110,18 +110,6 @@ $(function()
 	// Initialize navigation
 	navigation = new GlobWeb.AstroNavigation(globe, {minFov: 0.05});
 	
-	// Click event to show equatorial coordinates
-	$("#GlobWebCanvas").click(function(event){
-		if(event.ctrlKey){
-			var equatorial = [];
-			geo = globe.getLonLatFromPixel(event.pageX, event.pageY);
-			
-			GlobWeb.CoordinateSystem.fromGeoToEquatorial ( geo, equatorial );
-
-			$("#equatorialCoordinates").html("<em>Right ascension:</em> <br/>&nbsp&nbsp&nbsp&nbsp" + equatorial[0] +"<br /><em>Declination :</em> <br/>&nbsp&nbsp&nbsp&nbsp" + equatorial[1]);
-		}
-	});
-	
 	// Retreive configuration
 	$.getJSON("js/conf.json", function(data) {
 	
