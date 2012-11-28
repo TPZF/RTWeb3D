@@ -196,7 +196,7 @@ function createLayerFromConf(layer) {
 			break;
 			
 		case "healpixGrid":
-			gwLayer = new GlobWeb.TileWireframeLayer( {name: layer.name, visible: layer.visible});
+			gwLayer = new GlobWeb.TileWireframeLayer( {name: layer.name, visible: layer.visible, outline: layer.outline });
 			break;
 			
 		case "JSON":

@@ -63,7 +63,8 @@
 		},
 		{
 			"type": "healpixGrid",
-			"name": "Healpix grid"
+			"name": "Healpix grid",
+			"outline": true
 		},
 		{
 			"type": "JSON",
