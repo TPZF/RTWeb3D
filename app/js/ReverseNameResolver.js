@@ -2,7 +2,7 @@
 /**
  * Name resolver module : search object name and zoom to them
  */
-define(["jquery.ui", "IFrame", "underscore-min", "text!../templates/featureDescription.html", "text!../templates/descriptionTable.html"], function($, IFrame, _, featureDescriptionHTMLTemplate, descriptionTableHTMLTemplate) {
+define(["jquery.ui", "IFrame", "ErrorDialog", "underscore-min", "text!../templates/featureDescription.html", "text!../templates/descriptionTable.html"], function($, IFrame, ErrorDialog, _, featureDescriptionHTMLTemplate, descriptionTableHTMLTemplate) {
 
 var globe;
 var navigation;
@@ -65,7 +65,7 @@ $( "#reverseNameResolver input[type=submit]")
 				showFeature( response.features[0] );
 			},
 			error: function (xhr, ajaxOptions, thrownError) {
-				console.error( xhr.responseText );
+				ErrorDialog.open("Please wait at least 6 seconds between each request to reverse name resolver");
 			}
 		});
 	});

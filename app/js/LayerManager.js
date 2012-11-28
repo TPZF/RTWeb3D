@@ -2,9 +2,9 @@
 /**
  * LayerManager module
  */
-define( [ "jquery.ui", "PickingManager", "StarLayer", "ConstellationLayer", "DynamicOSLayer", "ClusterLayer", "Utils",
+define( [ "jquery.ui", "PickingManager", "StarLayer", "ConstellationLayer", "DynamicOSLayer", "ClusterLayer", "Utils", "ErrorDialog",
 	"underscore-min", "text!../templates/additionalLayer.html", "jquery.ui.selectmenu", "jquery.nicescroll.min" ], 
-	function($, PickingManager, StarLayer, ConstellationLayer, DynamicOSLayer, ClusterLayer, Utils, _, additionalLayerHTMLTemplate) {
+	function($, PickingManager, StarLayer, ConstellationLayer, DynamicOSLayer, ClusterLayer, Utils, ErrorDialog, _, additionalLayerHTMLTemplate) {
 
 /**
  * Private variable for module
@@ -21,17 +21,6 @@ var nbAddLayers = 0;
 
 // Template generating the additional layer div in sidemenu
 var additionalLayerTemplate = _.template(additionalLayerHTMLTemplate);
-
-var jsonErrorDiv = '<div Title="Error">JSON parsing error : <span id="error"></span><br/> For more details see http://jsonlint.com/. </div>';
-
-var jErrorDiv = $(jsonErrorDiv)
-	.appendTo('body');
-$(jErrorDiv).dialog({
-	autoOpen: false,
-	resizable: false,
-	width: '300px',
-	dialogClass: 'errorBox'
-});
 
 /**
  * Private functions
@@ -277,9 +266,7 @@ function handleDrop(evt) {
 			try {
 				var response = JSON.parse(this.result);
 			} catch (e) {
-				$(jErrorDiv)
-					.find("#error").html(e.type).end()
-					.dialog( "open" );
+				ErrorDialog.open("JSON parsing error : " + e.type + "<br/> For more details see http://jsonlint.com/.");
 				return false;
 			}
 			
