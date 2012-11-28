@@ -2,7 +2,7 @@
 @import url('jquery.ui.selectmenu.css');
 @import url('nameResolver.css');
 @import url('reverseNameResolver.css');
-@import url('pickingManager.css');
+@import url('featurePopup.css');
 @import url('sidebar.css');
    
 em
@@ -10,7 +10,17 @@ em
 	color: #6BCAFF;
 }
 
-/*** Error box ***/
+body
+{
+	background: rgb(0,0,0);
+	padding: 0px;
+	margin: 0px;
+	overflow: auto;
+}
+
+/************************/
+/*		Error box		*/
+/************************/
 .errorBox
 {
 	box-shadow: 0 0 6px red, inset 0 1px 2px rgba(0, 0, 0, 0.08);
@@ -19,7 +29,19 @@ em
 	max-height: 100px;
 }
 
-/*** Statistics box ***/
+#webGLNotAvailable, #webGLContextLost
+{
+	width: 1024;
+	height: 768; 
+	padding-top: 300px;
+	text-align: center;
+	display: none;
+}
+
+/****************************/
+/*		Statistics box		*/
+/****************************/
+
 .statBox
 {
 	background-color: rgb(255,255,255);
@@ -31,6 +53,9 @@ em
 	font-weight:bold;
 }
 
+/************************/
+/*		Content box		*/
+/************************/
 .contentBox
 {
 	box-shadow: 0 0 6px #FF9E52, inset 0 1px 2px rgba(0, 0, 0, 0.08);
@@ -40,24 +65,9 @@ em
 	z-index: 2;
 }
 
-/*** Iframe containing data from external resource ***/
-#externalIFrame
-{
-	left: 150px;
-	top: -1000px;
-	position: absolute;
-	padding: 15px;
-	background-color: white;
-	z-index: 3;
-}
-
-#externalIFrame Iframe
-{
-	width: 1000px;
-	height: 500px;
-	border: none;
-}
-
+/****************************/
+/*		Particular boxes	*/
+/****************************/
 #fps
 {
 	position: absolute;
@@ -72,21 +82,31 @@ em
 	bottom: 100px;
 }
 
-#webGLNotAvailable, #webGLContextLost
+/*** Iframe containing data from external resource ***/
+#externalIFrame
 {
-	width: 1024;
-	height: 768; 
-	padding-top: 300px;
-	text-align: center;
-	display: none;
+	left: 10%;
+	top: -1000px;
+	position: absolute;
+	padding: 15px;
+	background-color: white;
+	z-index: 3;
 }
 
-body
+#externalIFrame Iframe
 {
-	background: rgb(0,0,0);
-	padding: 0px;
-	margin: 0px;
-	overflow: auto;
+	min-width: 500px;
+	min-height: 500px;
+	border: none;
+}
+
+.closeBtn
+{
+	position: absolute;
+	top: -15px;
+	right: -15px;
+	cursor:pointer;
+	display: inline;
 }
 
 /*** Fullscreen canvas ***/
@@ -96,6 +116,7 @@ body
 	height:100%;
 }
 
+/*** Loading animation gif ***/
 #loading
 {
 	position: absolute;
@@ -119,9 +140,7 @@ body
 	right: 0;
 }
 
-/**
- * Small modifications on jQuery UI
- */
+/*** Small modifications on jQuery UI ***/
 .ui-widget
 {
 	font-size: 0.9em;
@@ -131,9 +150,7 @@ body
 	font-size: 0.8em;
 }
 
-/**
- * Stylized scrollbar (only for webkit : chrome and safari)
- */
+/*** Stylized scrollbar (only for webkit : chrome and safari) ***/
 ::-webkit-scrollbar {
 	width: 10px;
 }

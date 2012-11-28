@@ -1,0 +1,189 @@
+
+/********************/
+/*		Popup		*/
+/********************/
+
+#selectedFeatureDiv
+{
+	padding: 20px;
+}
+
+.arrow-left {
+	width: 0; 
+	height: 0; 
+	border-top: 10px solid transparent;
+	border-bottom: 10px solid transparent; 
+	border-right:10px solid orange;
+	position: absolute;
+	left: -11;
+	top: 90;
+}
+
+/********************************/
+/*			Common				*/
+/********************************/
+
+#featureList .selected, #quicklook.selected
+{
+	box-shadow: inset 0px 0px 3px 1px #F8A102;
+	border-radius: 8px;
+}
+
+/********************************/
+/*			Left pane			*/
+/********************************/
+
+#leftDiv
+{
+	display: inline-block;
+	margin-right: 20px;
+	vertical-align: top;
+}
+
+#featureListDiv
+{
+	max-height: 300px;
+	overflow-y: hidden;
+	max-width: 161px;
+}
+
+/* Inner feature list for scrolling */
+#featureList
+{
+	position: relative;
+	top: 0px;
+}
+
+#featureList > div
+{
+	padding: 5px;
+	text-align: center;
+}
+
+/* Content of featureList */
+.featureTitle
+{
+	cursor: pointer;
+	text-overflow: ellipsis;
+	overflow-x: hidden;
+}
+
+/*** Feature list scroll ***/
+.scroll-arrow-up {
+	width: 0; 
+	height: 0; 
+	border-left: 10px solid transparent;
+	border-right: 10px solid transparent;
+	border-bottom: 10px solid gray;
+	margin-bottom: 10px;
+	margin-top: 10px;
+	margin-left: 69px;
+}
+
+.scroll-arrow-down {
+	width: 0; 
+	height: 0; 
+	border-left: 10px solid transparent;
+	border-right: 10px solid transparent;
+	border-top: 10px solid orange;
+	margin-bottom: 10px;
+	margin-top: 10px;
+	margin-left: 69px;
+	
+}
+
+
+/********************************/
+/*			Right pane			*/
+/********************************/
+
+#rightDiv
+{
+	display: inline-block;
+}
+
+/*** Detailed info(i.e. thumbnail, table, services) ***/
+.detailedInfo
+{
+	max-height: 400px;
+	max-width: 340px;
+	overflow: hidden;
+	z-index: 10;
+	padding-right: 15px;
+}
+
+
+/*** Thumbnail ***/
+.thumbnail
+{
+	text-align: right;
+	display: block;
+}
+
+
+/*** Table ***/
+.selectValue
+{
+	color: white;
+}
+
+.propertiesTable td {
+	border-width: 1px;
+	padding: 4px;
+}
+
+.propertiesTable td th {
+	color: #FFEABD;
+}
+
+
+/* Sub-section menu in table */
+.section {
+	color: white;
+	cursor: pointer;
+}
+
+.arrow-right {
+	float: left;
+	margin: 5px 8px;
+	width: 0; 
+	height: 0; 
+	border-top: 5px solid transparent;
+	border-bottom: 5px solid transparent;
+	border-left: 5px solid white;
+}
+
+.arrow-bottom {
+	float: left;
+	margin: 8px 6px;
+	width: 0; 
+	height: 0; 
+	border-left: 5px solid transparent;
+	border-right: 5px solid transparent;
+	border-top: 5px solid white;
+}
+
+
+
+/*** Services ***/
+#quicklook
+{
+	cursor: pointer;
+}
+
+#services
+{
+	margin-top: 10px;
+	text-align: center;
+	padding: 3px;
+}
+
+#services a, #services img
+{
+	padding: 3px;
+}
+
+#pileStashHelp
+{
+	width: 150px;
+}
