@@ -124,7 +124,7 @@ function setBehavior()
 
 function showFeature( feature )
 {
-	var output = featureDescriptionTemplate( { feature: feature, descriptionTableTemplate: descriptionTableTemplate } );
+	var output = featureDescriptionTemplate( { services: feature.services, properties: feature.properties, descriptionTableTemplate: descriptionTableTemplate } );
 	var title = ( feature.properties.title ) ? feature.properties.title : feature.properties.identifier;
 	output = '<div class="title">'+ title +'</div><div class="credit">Found in CDS database</div>' + output;
 	$('#reverseSearchResult').html( output );
