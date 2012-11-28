@@ -132,13 +132,6 @@ function setSearchBehavior()
 	$('canvas').click(function(){
 		$('#equatorialCoordinatesSearchResult').fadeOut(animationDuration);
 	});
-
-	globe.subscribe("startNavigation", function(){
-		if ($reverseNameResolver.css('display') != 'none')
-		{
-			$reverseNameResolver.fadeOut(300);
-		}
-	});
 	
 	$('#equatorialCoordinatesSearchResult').on("click",'.nameResolverResult',function(event){
 		$('#equatorialCoordinatesSearchResult').find('.selected').removeClass('selected');

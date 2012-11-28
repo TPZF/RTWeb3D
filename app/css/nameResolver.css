@@ -1,4 +1,7 @@
-/*** NameResolver Search ***/
+/************************************/
+/*		Name resolver search		*/
+/************************************/
+
 #searchDiv {
 	position: absolute;
 	right: 2px;
@@ -6,23 +9,23 @@
 	top: 10px;
 }
 
+/*** Form for enter validating ***/
 #searchForm {
 	margin-bottom: 0px;
 }
 
 #searchForm fieldset {
 	position: relative;
-	display: block;
 	border: none;
 }
 
+/*** Input div style ***/
 div.input {
 	width: 200px;
 	padding: 5px 15px 7px 15px;
-	border-radius: 20px;
 	border: 1px solid orange;
+	border-radius: 20px;
 	box-shadow: 0 0 6px #FF9E52, inset 0 1px 2px rgba(0, 0, 0, 0.08);
-	float: right;
 	background: #E8EDF1;
 	padding-left: 30px;
 }
@@ -31,20 +34,21 @@ div.input.focus {
 	box-shadow: 0 0 6px #FF9E52, inset 0 1px 2px rgba(0, 0, 0, 0.08);
 }
 
-input#searchInput:focus {
-	outline:none
-}
-
+/*** Object name text input ***/
 #searchInput {
 	width:100%;
 	border:0;
-	border-radius:20px;
 	background:transparent;
 	height:16px;
 	color:#b4bdc4;
 	text-shadow:0 1px 1px #fff;
 }
 
+#searchInput:focus {
+	outline:none
+}
+
+/*** Submit button ***/
 input#searchSubmit {
 	display:block;
 	width:20px;
@@ -58,6 +62,7 @@ input#searchSubmit {
 	cursor:pointer;
 }
 
+/*** Clear button ***/
 input#searchClear {
 	width:20px;
 	height:20px;
@@ -67,21 +72,19 @@ input#searchClear {
 	position:absolute;
 	top: 10px;
 	right: 18px;
-	z-index:5;
 	display:none;
 	cursor:pointer;
 }
 
+/*** Result field ***/
 #equatorialCoordinatesSearchResult {
 	text-align: center;
 	width: 210px;
 	margin-left: 40px;
 	color: white;
-	height: 100%;
 }
 
 #equatorialCoordinatesSearchResult .selected {
-	#background-color: rgba(179, 234, 255, 0.46);
 	box-shadow: 0 0 20px #FF9E52, 0 1px 2px rgba(0, 0, 0, 0.08);
 	border-radius: 20px;
 }
