@@ -30,26 +30,8 @@ MocLayer = function(options)
 		this.style = new FeatureStyle();
 	}
 
-	this.response = null;
 	this.vertexBuffer = null;
 	this.indexBuffer = null;
-
-	var self = this;
-	$.ajax({
-		type: "GET",
-		url: self.serviceUrl,
-		dataType: 'json',
-		success: function(response){
-			self.response = response;
-			if( self.globe )
-			{
-				self.handleDistribution(response);
-			}
-		},
-		error: function (xhr, ajaxOptions, thrownError) {
-			console.error( xhr.responseText );
-		}
-	});
 }
 
 /**************************************************************************************************************/
@@ -95,10 +77,21 @@ MocLayer.prototype._attach = function( g )
 		this.program.createFromSource( vertexShader, fragmentShader );
 	}
 
-	if( (!this.vertexBuffer || !this.indexBuffer) && this.response )
-	{
-		this.handleDistribution(this.response);
-	}
+	// Request MOC data
+	var self = this;
+	$.ajax({
+		type: "GET",
+		url: self.serviceUrl,
+		dataType: 'json',
+		success: function(response){
+				self.handleDistribution(response);
+		},
+		error: function (xhr, ajaxOptions, thrownError) {
+			// TODO publish event ?
+			$('#addLayer_'+self.id).find('label').css("color","red");
+			console.error( xhr.responseText );
+		}
+	});
 }
 
 /**************************************************************************************************************/
@@ -174,35 +167,37 @@ MocLayer.prototype.handleDistribution = function(response)
  */
 MocLayer.prototype.render = function()
 {
-	var renderContext = this.globe.tileManager.renderContext;
-	var gl = renderContext.gl;
+	if( this.vertexBuffer )
+	{
+		var renderContext = this.globe.tileManager.renderContext;
+		var gl = renderContext.gl;
 
-	gl.disable(gl.DEPTH_TEST);
-	gl.enable(gl.BLEND);
-	gl.blendEquation(gl.FUNC_ADD);
-	gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+		gl.disable(gl.DEPTH_TEST);
+		gl.enable(gl.BLEND);
+		gl.blendEquation(gl.FUNC_ADD);
+		gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 
-	this.program.apply();
+		this.program.apply();
 
-	// The shader only needs the viewProjection matrix, use GlobWeb.modelViewMatrix as a temporary storage
-	mat4.multiply(renderContext.projectionMatrix, renderContext.viewMatrix, renderContext.modelViewMatrix)
-	gl.uniformMatrix4fv(this.program.uniforms["viewProjectionMatrix"], false, renderContext.modelViewMatrix);
+		// The shader only needs the viewProjection matrix, use GlobWeb.modelViewMatrix as a temporary storage
+		mat4.multiply(renderContext.projectionMatrix, renderContext.viewMatrix, renderContext.modelViewMatrix)
+		gl.uniformMatrix4fv(this.program.uniforms["viewProjectionMatrix"], false, renderContext.modelViewMatrix);
+			
+		if ( !this._visible
+			|| this._opacity <= 0.0 )
+			return;
+			
+		gl.uniform4f(this.program.uniforms["color"], this.style.strokeColor[0], this.style.strokeColor[1], this.style.strokeColor[2], this._opacity );
 		
-	if ( !this._visible
-		|| this._opacity <= 0.0 )
-		return;
+		gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexBuffer);
+		gl.vertexAttribPointer(this.program.attributes['vertex'], this.vertexBuffer.itemSize, gl.FLOAT, false, 0, 0);
 		
-	gl.uniform4f(this.program.uniforms["color"], this.style.strokeColor[0], this.style.strokeColor[1], this.style.strokeColor[2], this._opacity );
-	
-	gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexBuffer);
-	gl.vertexAttribPointer(this.program.attributes['vertex'], this.vertexBuffer.itemSize, gl.FLOAT, false, 0, 0);
-	
-	gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);	
-	gl.drawElements( gl.LINES, this.indexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
-	
-	gl.enable(gl.DEPTH_TEST);
-	gl.disable(gl.BLEND);
-
+		gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);	
+		gl.drawElements( gl.LINES, this.indexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
+		
+		gl.enable(gl.DEPTH_TEST);
+		gl.disable(gl.BLEND);
+	}
 }
 
 return MocLayer;
