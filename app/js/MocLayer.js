@@ -67,10 +67,7 @@ MocLayer.prototype._attach = function( g )
 {
 	GlobWeb.BaseLayer.prototype._attach.call( this, g );
 
-	if ( this._visible )
-	{
-		this.globe.tileManager.addPostRenderer(this);
-	}
+	this.globe.tileManager.addPostRenderer(this);
 	
 	if (!this.program)
 	{

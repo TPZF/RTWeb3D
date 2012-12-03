@@ -20,7 +20,7 @@
 			"attribution": "SDSS backbround from <object width='48' height='32' data=\"css/images/cds.svg\" type=\"image/svg+xml\"></object>",
 			"icon": "css/images/star_icon.png",
 			"background": true,
-			"visible": false
+			"visible": true
 		},
 		{ 
 			"type": "healpix",
@@ -48,7 +48,7 @@
 			"description": "The most brighten stars from VizieR Catalogue",
 			"nameUrl": "data/Names.tsv",
 			"catalogueUrl": "data/Catalogue.tsv",
-			"visible": false,
+			"visible": true,
 			"opacity": 100
 		},
 		{
@@ -78,6 +78,13 @@
 			"visible": false
 		},
 		{
+			"type": "JSON",
+			"name": "Doradus",
+			"url": "data/doradus.json",
+			"attribution": "Doradus data from ESO",
+			"visible": true
+		},
+		{
 			"type": "StaticOpenSearch",
 			"name": "Static herschel",
 			"url": "/sitools/oherschel/search?",
@@ -94,7 +101,7 @@
 			"type": "DynamicOpenSearch",
 			"name": "Dynamic fuse",
 			"serviceUrl": "/sitools/ofuse/search?",
-			"visible": false,
+			"visible": true,
 			"minOrder": 3,
 			"color": "#FFCC11",
 			"displayProperties": [ "ra", "dec", "src_type", "dateobs", "imageSize" ]
@@ -103,7 +110,7 @@
 			"type": "ClusterLayer",
 			"name": "Clusterisation",
 			"serviceUrl": "/sitools/solr/fuse/select?",
-			"visible": false,
+			"visible": true,
 			"maxOrder": 13,
 			"treshold": 5,
 			"orderDepth": 6
@@ -112,7 +119,7 @@
 			"type": "MocLayer",
 			"name": "Moc",
 			"serviceUrl": "/sitools/ovo/moc",
-			"visible": true
+			"visible": false
 		}
 	]
 }
