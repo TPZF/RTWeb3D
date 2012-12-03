@@ -289,7 +289,7 @@ function handleDrop(evt) {
 			handleEquatorialFeatureCollection ( gwLayer, response );
 			addAdditionalLayer( gwLayer );
 
-			$('#layerManager').getNiceScroll().resize();
+			updateScroll();
 			
 		};
 		reader.readAsText(f);
@@ -346,6 +346,14 @@ function createHtmlForBackgroundLayer( gwLayer )
 }
 
 /**
+ *	Update scroll event
+ */
+function updateScroll()
+{
+	$('#layerManager').getNiceScroll().resize();
+}
+
+/**
  *	Create the Html for addtionnal layers
  */
 function createHtmlForAdditionalLayer( gwLayer )
@@ -382,7 +390,7 @@ function createHtmlForAdditionalLayer( gwLayer )
 	var opacityDiv = $('#opacity_'+currentIndex);
 	opacityDiv.hide();
 	$layerDiv.children().not('.deleteLayer,.ui-button').click( function() {
-			opacityDiv.slideToggle();
+			opacityDiv.slideToggle(updateScroll);
 	});
 		
 	// Manage 'custom' checkbox
@@ -393,13 +401,18 @@ function createHtmlForAdditionalLayer( gwLayer )
 		gwLayer.visible( isOn );
 		$layerDiv.find('.slider').slider( isOn ? "enable" : "disable" );
 		if ( isOn )
-			opacityDiv.slideDown();
+		{
+			opacityDiv.slideDown(updateScroll);
+		}
 		else
-			opacityDiv.slideUp();
+		{
+			opacityDiv.slideUp(updateScroll);
+		}
 		$(this).toggleClass('ui-state-active');
 		$(this).toggleClass('ui-state-default');
 		$(this).find('span').toggleClass('ui-icon-check');
 		$(this).find('span').toggleClass('ui-icon-empty');
+
 	});
 	
 	nbAddLayers++;
@@ -462,7 +475,7 @@ function initGuiEvents ()
 		PickingManager.removePickableLayer( layer );
 		gwAdditionalLayers.splice( layerIndex, 1 );
 
-		$('#layerManager').getNiceScroll().resize();
+		updateScroll();
 	});
 }
 
