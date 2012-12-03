@@ -2,9 +2,9 @@
 /**
  * LayerManager module
  */
-define( [ "jquery.ui", "PickingManager", "StarLayer", "ConstellationLayer", "DynamicOSLayer", "ClusterLayer", "Utils", "ErrorDialog",
+define( [ "jquery.ui", "PickingManager", "StarLayer", "ConstellationLayer", "DynamicOSLayer", "ClusterLayer", "MocLayer", "Utils", "ErrorDialog",
 	"underscore-min", "text!../templates/additionalLayer.html", "jquery.ui.selectmenu", "jquery.nicescroll.min" ], 
-	function($, PickingManager, StarLayer, ConstellationLayer, DynamicOSLayer, ClusterLayer, Utils, ErrorDialog, _, additionalLayerHTMLTemplate) {
+	function($, PickingManager, StarLayer, ConstellationLayer, DynamicOSLayer, ClusterLayer, MocLayer, Utils, ErrorDialog, _, additionalLayerHTMLTemplate) {
 
 /**
  * Private variable for module
@@ -237,6 +237,12 @@ function createLayerFromConf(layer) {
 			options.style = defaultVectorStyle;
 			options.style.iconUrl = "css/images/lensstar.png";
 			gwLayer = new ClusterLayer( options );
+			break;
+
+		case "MocLayer":
+			options.style = defaultVectorStyle;
+			options.serviceUrl = layer.serviceUrl;
+			gwLayer = new MocLayer( options );
 			break;
 			
 		default:
