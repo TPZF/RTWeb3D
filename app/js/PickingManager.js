@@ -229,7 +229,7 @@ function pointInSphere( point, sphere )
 {
 	var point3D = [];
 	var sphere3D = [];
-	var pointTextureHeight = 32; // make parameter ?
+	var pointTextureHeight = 10; // make parameter ?
 
 	// Compute pixel size vector to offset the points from the earth
 	var pixelSizeVector = globe.renderContext.computePixelSizeVector();
