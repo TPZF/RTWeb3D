@@ -271,7 +271,7 @@ function createLayerFromConf(layer) {
 				options.treshold = layer.treshold;
 			
 			options.style = defaultVectorStyle;
-			options.style.iconUrl = "css/images/cluster.png";
+			options.style.iconUrl = layer.iconUrl || "css/images/cluster.png";
 			gwLayer = new ClusterLayer( options );
 			break;
 
@@ -320,7 +320,8 @@ function handleDrop(evt) {
 			var options = {name: name};
 			options.style = new GlobWeb.FeatureStyle({ rendererHint: "Basic", iconUrl: "css/images/star.png", fillColor: rgba, strokeColor: rgba });
 			gwLayer = new GlobWeb.VectorLayer( options );
-			
+			gwLayer.deletable = true;
+
 			// Add geoJson layer
 			handleEquatorialFeatureCollection ( gwLayer, response );
 			addAdditionalLayer( gwLayer );
@@ -430,13 +431,13 @@ function createHtmlForAdditionalLayer( gwLayer )
 	// Init percent input of slider
 	$( "#percentInput_"+currentIndex ).val( $( "#slider_"+currentIndex ).slider( "value" ) + "%" );
 		
-	// Hide the opacity div, open it only when the user clicks on the layer
-	var opacityDiv = $('#opacity_'+currentIndex);
-	opacityDiv.hide();
-	$layerDiv.children().not('.deleteLayer,.ui-button').click( function() {
-		opacityDiv.slideToggle(updateScroll);
+	// Hide the services div, open it only when the user clicks on the layer
+	var servicesDiv = $('#addLayer_'+currentIndex+' .layerServices');
+	servicesDiv.hide();
+	$('#additionalLayers').on("click", '#addLayer_'+currentIndex, function() {
+		servicesDiv.slideToggle(updateScroll);
 	});
-		
+
 	// Manage 'custom' checkbox
 	// jQuery UI button is not sexy enough :)
 	// Toggle some classes when the user clicks on the visibility checkbox
@@ -465,11 +466,11 @@ function createHtmlForAdditionalLayer( gwLayer )
 		$layerDiv.find('.slider').slider( isOn ? "enable" : "disable" );
 		if ( isOn )
 		{
-			opacityDiv.slideDown(updateScroll);
+			servicesDiv.slideDown(updateScroll);
 		}
 		else
 		{
-			opacityDiv.slideUp(updateScroll);
+			servicesDiv.slideUp(updateScroll);
 		}
 		$(this).toggleClass('ui-state-active');
 		$(this).toggleClass('ui-state-default');
@@ -529,10 +530,10 @@ function initGuiEvents ()
 	// Delete layer event
 	$('#additionalLayers').on("click",'.deleteLayer', function(){
 		
-		$(this).parent().fadeOut(300, function(){
+		$(this).parent().parent().fadeOut(300, function(){
 			$(this).remove();
 		});
-		var layerIndex = parseInt( $(this).parent().index() );
+		var layerIndex = parseInt( $(this).parent().parent().index() );
 		var layer = gwAdditionalLayers[ layerIndex ];
 		globe.removeLayer(layer);
 		PickingManager.removePickableLayer( layer );

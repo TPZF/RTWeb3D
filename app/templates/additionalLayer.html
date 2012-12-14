@@ -1,28 +1,36 @@
 <div class="ui-widget addLayer" id="addLayer_<%= currentIndex %>" >
 
-<span class="layerColor" style="background-color: <%= layerColor %>"></span><span id="visible_<%= currentIndex %>" class="<% if (layer.visible()) print('ui-state-active'); else print('ui-state-default'); %> ui-corner-all ui-button">
-	<span class="ui-icon <% if (layer.visible()) print('ui-icon-check'); else print('ui-icon-empty'); %>"></span>
-</span>
+	<span class="layerColor" style="background-color: <%= layerColor %>"></span><span id="visible_<%= currentIndex %>" class="<% if (layer.visible()) print('ui-state-active'); else print('ui-state-default'); %> ui-corner-all ui-button">
+		<span class="ui-icon <% if (layer.visible()) print('ui-icon-check'); else print('ui-icon-empty'); %>"></span>
+	</span>
 
-<% if ( layer.icon )
-{ %>
-	<img class="layerIcon" src="<%= layer.icon %>" />
-<% } %>
+	<% if ( layer.icon )
+	{ %>
+		<img class="layerIcon" src="<%= layer.icon %>" />
+	<% } %>
 
-<label title="<%= layer.description %>" for="addLayerInput_<%= currentIndex %>"><%= layer.name %></label>
+	<label title="<%= layer.description %>" for="addLayerInput_<%= currentIndex %>"><%= layer.name %></label>
 
-<img style="display: none" class="spinner" src="css/images/loading.gif">
-<div class="deleteLayer">
-	<img src="css/images/delete.png" alt="" class="defaultImg" />
-	<img style="opacity: 0" src="css/images/deleteHover.png" alt="" class="hoverImg" />
-</div>
+	<img style="display: none" class="spinner" src="css/images/loading.gif">
 
-<div id="opacity_<%= currentIndex %>">
-	<div>
-		<label for="percentInput_<%= currentIndex %>">Opacity: </label>
-		<input class="percentInput" type="text" id="percentInput_<%= currentIndex %>"" />
+	<div class="layerServices">
+
+		<%
+		if( layer.deletable )
+		{
+		%>
+			<img class="deleteLayer" src="css/images/recycleBin.png" />
+		<%
+		}
+		%>
+
+		<div id="opacity_<%= currentIndex %>">
+			<div>
+				<label for="percentInput_<%= currentIndex %>">Opacity: </label>
+				<input class="percentInput" type="text" id="percentInput_<%= currentIndex %>" />
+			</div>
+			<div class="slider" id="slider_<%= currentIndex %>"></div>
+		</div>
 	</div>
-	<div class="slider" id="slider_<%= currentIndex %>"></div>
-</div>
 
 </div>
