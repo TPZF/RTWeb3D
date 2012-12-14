@@ -271,7 +271,7 @@ function createLayerFromConf(layer) {
 				options.treshold = layer.treshold;
 			
 			options.style = defaultVectorStyle;
-			options.style.iconUrl = "css/images/lensstar.png";
+			options.style.iconUrl = "css/images/cluster.png";
 			gwLayer = new ClusterLayer( options );
 			break;
 

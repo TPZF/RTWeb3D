@@ -38,7 +38,7 @@ ClusterLayer = function(options)
 	else
 	{
 		this.style = new GlobWeb.FeatureStyle({
-			iconUrl: "css/images/lensstar.png"
+			iconUrl: "css/images/cluster.png"
 		});
 	}
 	
