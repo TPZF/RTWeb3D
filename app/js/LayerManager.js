@@ -2,9 +2,9 @@
 /**
  * LayerManager module
  */
-define( [ "jquery.ui", "PickingManager", "StarLayer", "ConstellationLayer", "DynamicOSLayer", "ClusterLayer", "MocLayer", "Utils", "ErrorDialog",
+define( [ "jquery.ui", "PickingManager", "StarLayer", "ConstellationLayer", "ClusterLayer", "MocLayer", "Utils", "ErrorDialog",
 	"underscore-min", "text!../templates/additionalLayer.html", "jquery.ui.selectmenu", "jquery.nicescroll.min" ], 
-	function($, PickingManager, StarLayer, ConstellationLayer, DynamicOSLayer, ClusterLayer, MocLayer, Utils, ErrorDialog, _, additionalLayerHTMLTemplate) {
+	function($, PickingManager, StarLayer, ConstellationLayer, ClusterLayer, MocLayer, Utils, ErrorDialog, _, additionalLayerHTMLTemplate) {
 
 /**
  * Private variable for module
@@ -29,9 +29,14 @@ var additionalLayerTemplate = _.template(additionalLayerHTMLTemplate);
 /**
  *	Handles feature collection
  * 	Recompute geometry from equatorial coordinates to geo for each feature
- *	Adds proxy url to quicklook for each feature
+ *	Add proxy url to quicklook for each feature
+ *	Handle feature services
+ *
+ *	@param gwLayer Layer of feature
+ *	@param features GeoJSON FeatureCollection
+ *
  */
-function handleFeatureCollection( features )
+function handleFeatureCollection( gwLayer, features )
 {
 	var proxyUrl = "/sitools/proxy?external_url=";
 	for ( var i=0; i<features.length; i++ )
@@ -59,6 +64,37 @@ function handleFeatureCollection( features )
 			default:
 				break;
 		}
+
+		if ( currentFeature.services )
+		{
+			handleServices(gwLayer, currentFeature);
+		}
+
+	}
+}
+
+/**
+ *	Handle services of feature
+ */
+function handleServices( gwLayer, feature )
+{
+	for ( var x in feature.services )
+	{
+		var service = feature.services[x];
+		if ( !gwLayer.subLayers )
+		{
+			gwLayer.subLayers = [];
+		}
+		switch (service.type)
+		{
+			case "healpix":
+				service.layer = new GlobWeb.HEALPixLayer({ baseUrl: service.url, name: service.name, visible: false, coordinates: feature.geometry.coordinates[0] });
+				globe.addLayer( service.layer );
+				gwLayer.subLayers.push(service.layer);
+				break;
+			default:
+				break;
+		}
 	}
 }
 
@@ -70,7 +106,7 @@ function handleFeatureCollection( features )
  */
 function handleEquatorialFeatureCollection( gwLayer, featureCollection )
 {
-	handleFeatureCollection( featureCollection.features );
+	handleFeatureCollection( gwLayer, featureCollection.features );
 	gwLayer.addFeatureCollection( featureCollection );
 	PickingManager.addPickableLayer( gwLayer );
 }
@@ -107,7 +143,7 @@ function handleJSONFeatureFromOpenSearch( gwLayer, url, startIndex )
 		type: "GET",
 		url: url + "startIndex=" + startIndex + "&count=500",
 		success: function(response){
-			handleFeatureCollection( response.features );
+			handleFeatureCollection( gwLayer, response.features );
 			gwLayer.addFeatureCollection( response );
 			if ( startIndex + response.features.length < response.totalResults ) {
 				handleJSONFeatureFromOpenSearch( gwLayer, url, startIndex + response.features.length );
@@ -220,10 +256,10 @@ function createLayerFromConf(layer) {
 				options.displayProperties = layer.displayProperties;
 			
 			options.style = defaultVectorStyle;
-			gwLayer = new DynamicOSLayer( options );
+			gwLayer = new GlobWeb.OpenSearchLayer( options );
 			PickingManager.addPickableLayer( gwLayer );
 			break;
-		case "ClusterLayer":
+		case "Cluster":
 			options.serviceUrl = layer.serviceUrl;
 
 			// TODO modify the structure of conf.json maybe ?
@@ -239,7 +275,7 @@ function createLayerFromConf(layer) {
 			gwLayer = new ClusterLayer( options );
 			break;
 
-		case "MocLayer":
+		case "Moc":
 			options.style = defaultVectorStyle;
 			options.serviceUrl = layer.serviceUrl;
 			gwLayer = new MocLayer( options );
@@ -380,6 +416,14 @@ function createHtmlForAdditionalLayer( gwLayer )
 		slide: function( event, ui ) {
 			$( "#percentInput_"+currentIndex ).val( ui.value + "%" );
 			gwLayer.opacity( ui.value/100. );
+
+			if ( gwLayer.subLayers )
+			{
+				for ( var i=0; i<gwLayer.subLayers.length; i++ )
+				{
+					gwLayer.subLayers[i].opacity( ui.value/100.);
+				}
+			}
 		}
 	}).slider( "option", "disabled", !gwLayer.visible() );
 	
@@ -390,7 +434,7 @@ function createHtmlForAdditionalLayer( gwLayer )
 	var opacityDiv = $('#opacity_'+currentIndex);
 	opacityDiv.hide();
 	$layerDiv.children().not('.deleteLayer,.ui-button').click( function() {
-			opacityDiv.slideToggle(updateScroll);
+		opacityDiv.slideToggle(updateScroll);
 	});
 		
 	// Manage 'custom' checkbox
@@ -399,6 +443,25 @@ function createHtmlForAdditionalLayer( gwLayer )
 	$('#visible_'+currentIndex).click( function() {
 		var isOn = !$(this).hasClass('ui-state-active');
 		gwLayer.visible( isOn );
+
+		if ( gwLayer.subLayers )
+		{
+			if ( isOn )
+			{
+				for ( var i=0; i<gwLayer.subLayers.length; i++ )
+				{
+					globe.addLayer( gwLayer.subLayers[i] );
+				}
+			}
+			else
+			{
+				for ( var i=0; i<gwLayer.subLayers.length; i++ )
+				{
+					globe.removeLayer( gwLayer.subLayers[i] );
+				}	
+			}
+		}
+
 		$layerDiv.find('.slider').slider( isOn ? "enable" : "disable" );
 		if ( isOn )
 		{
@@ -527,11 +590,8 @@ return {
 		
 		// Call init layers
 		initLayers(layers);
-	},
-	
-	addAdditionalLayer: function( gwLayer ) {
-		addAdditionalLayer( gwLayer );
 	}
+	
 };
 
 });

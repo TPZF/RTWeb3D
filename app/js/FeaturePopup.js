@@ -146,7 +146,24 @@ return {
 			}
 		});
 
-		// Arrow events
+		// Show/hide HEALPix service
+		$selectedFeatureDiv.on("click", '#healpix', function(event){
+			var selectedFeature = pickingManager.getSelectedFeature();
+			var healpixLayer = selectedFeature.feature.services.healpix.layer;
+
+			if ( healpixLayer.visible() )
+			{
+				$('#healpix').removeClass('selected');
+				healpixLayer.visible(false);
+			}
+			else
+			{
+				$('#healpix').addClass('selected');
+				healpixLayer.visible(true);
+			}
+		});
+
+		// Arrow scroll events
 		$selectedFeatureDiv.on("mousedown", '#scroll-arrow-down.clickable', function(event){
 			$('#selectedFeatureDiv #scroll-arrow-up').css("border-bottom-color", "orange").addClass("clickable");
 			var topValue = parseInt($('#featureList').css("top"), 10) - 60;
@@ -161,7 +178,6 @@ return {
 		}).disableSelection();
 		
 		$selectedFeatureDiv.on("mousedown", '#scroll-arrow-up.clickable', function(event){
-
 			$('#selectedFeatureDiv #scroll-arrow-down').css("border-top-color", "orange").addClass("clickable");
 			
 			var topValue = parseInt($('#featureList').css("top"), 10) + 60;

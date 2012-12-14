@@ -23,7 +23,7 @@
 /*			Common				*/
 /********************************/
 
-#featureList .selected, #quicklook.selected
+#featureList .selected, #quicklook.selected, #healpix.selected
 {
 	box-shadow: inset 0px 0px 3px 1px #F8A102;
 	border-radius: 8px;
@@ -166,7 +166,7 @@
 
 
 /*** Services ***/
-#quicklook
+#quicklook, #healpix
 {
 	cursor: pointer;
 }

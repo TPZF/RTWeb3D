@@ -107,7 +107,7 @@
 			"displayProperties": [ "ra", "dec", "src_type", "dateobs", "imageSize" ]
 		},
 		{
-			"type": "ClusterLayer",
+			"type": "Cluster",
 			"name": "Clusterisation",
 			"serviceUrl": "/sitools/solr/fuse/select?",
 			"visible": true,
@@ -116,7 +116,7 @@
 			"orderDepth": 6
 		},
 		{
-			"type": "MocLayer",
+			"type": "Moc",
 			"name": "Moc",
 			"serviceUrl": "/sitools/ovo/moc",
 			"visible": false
