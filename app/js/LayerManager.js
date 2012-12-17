@@ -2,9 +2,9 @@
 /**
  * LayerManager module
  */
-define( [ "jquery.ui", "PickingManager", "StarLayer", "ConstellationLayer", "ClusterLayer", "MocLayer", "Utils", "ErrorDialog",
+define( [ "jquery.ui", "PickingManager", "ClusterLayer", "MocLayer", "Utils", "ErrorDialog", "JsonProcessor",
 	"underscore-min", "text!../templates/additionalLayer.html", "jquery.ui.selectmenu", "jquery.nicescroll.min" ], 
-	function($, PickingManager, StarLayer, ConstellationLayer, ClusterLayer, MocLayer, Utils, ErrorDialog, _, additionalLayerHTMLTemplate) {
+	function($, PickingManager, ClusterLayer, MocLayer, Utils, ErrorDialog, JsonProcessor, _, additionalLayerHTMLTemplate) {
 
 /**
  * Private variable for module
@@ -18,6 +18,7 @@ var gwAdditionalLayers = [];
 var backgroundLayersIcons = [];
 var nbBackgroundLayers = 0;
 var nbAddLayers = 0;
+var dataProviders = {};
 
 // Template generating the additional layer div in sidemenu
 var additionalLayerTemplate = _.template(additionalLayerHTMLTemplate);
@@ -25,137 +26,6 @@ var additionalLayerTemplate = _.template(additionalLayerHTMLTemplate);
 /**
  * Private functions
  */
-
-/**
- *	Handles feature collection
- * 	Recompute geometry from equatorial coordinates to geo for each feature
- *	Add proxy url to quicklook for each feature
- *	Handle feature services
- *
- *	@param gwLayer Layer of feature
- *	@param features GeoJSON FeatureCollection
- *
- */
-function handleFeatureCollection( gwLayer, features )
-{
-	var proxyUrl = "/sitools/proxy?external_url=";
-	for ( var i=0; i<features.length; i++ )
-	{
-		var currentFeature = features[i];
-		
-		switch ( currentFeature.geometry.type )
-		{
-			case "Point":
-				if ( currentFeature.geometry.coordinates[0] > 180 )
-					currentFeature.geometry.coordinates[0] -= 360;
-				break;
-			case "Polygon":
-				var ring = currentFeature.geometry.coordinates[0];
-				for ( var j = 0; j < ring.length; j++ )
-				{
-					if ( ring[j][0] > 180 )
-						ring[j][0] -= 360;
-				}
-
-				// Add proxy url to quicklook url if not local
-				if ( currentFeature.properties.quicklook && currentFeature.properties.quicklook.substring(0,4) == 'http' )
-					currentFeature.properties.quicklook = proxyUrl+currentFeature.properties.quicklook;
-				break;
-			default:
-				break;
-		}
-
-		if ( currentFeature.services )
-		{
-			handleServices(gwLayer, currentFeature);
-		}
-
-	}
-}
-
-/**
- *	Handle services of feature
- */
-function handleServices( gwLayer, feature )
-{
-	for ( var x in feature.services )
-	{
-		var service = feature.services[x];
-		if ( !gwLayer.subLayers )
-		{
-			gwLayer.subLayers = [];
-		}
-		switch (service.type)
-		{
-			case "healpix":
-				service.layer = new GlobWeb.HEALPixLayer({ baseUrl: service.url, name: service.name, visible: false, coordinates: feature.geometry.coordinates[0] });
-				globe.addLayer( service.layer );
-				gwLayer.subLayers.push(service.layer);
-				break;
-			default:
-				break;
-		}
-	}
-}
-
-/**
- *	Adds feature collection to the layer in GeoJSON format
- *
- *	@param gwLayer GlobWeb layer
- *	@param featureCollection Feature collection in equatorial format	
- */
-function handleEquatorialFeatureCollection( gwLayer, featureCollection )
-{
-	handleFeatureCollection( gwLayer, featureCollection.features );
-	gwLayer.addFeatureCollection( featureCollection );
-	PickingManager.addPickableLayer( gwLayer );
-}
-
-/**
- * 	Load JSON file and add layer to the globe
- *
- *	@param gwLayer GlobWeb layer
- *	@param url Url to JSON containing feature collection in equatorial coordinates
- */
-function handleJSONFeature( gwLayer, url )
-{
-	$.ajax({
-		type: "GET",
-		url: url,
-		success: function(response){
-			handleEquatorialFeatureCollection( gwLayer, response );
-		},
-		error: function (xhr, ajaxOptions, thrownError) {
-			console.error( xhr.responseText );
-		}
-	});
-}
-
-/**
- * 	Load JSON file and add layer to the globe
- *
- *	@param gwLayer GlobWeb layer
- *	@param url Url to JSON containing feature collection in equatorial coordinates
- */
-function handleJSONFeatureFromOpenSearch( gwLayer, url, startIndex )
-{
-	$.ajax({
-		type: "GET",
-		url: url + "startIndex=" + startIndex + "&count=500",
-		success: function(response){
-			handleFeatureCollection( gwLayer, response.features );
-			gwLayer.addFeatureCollection( response );
-			if ( startIndex + response.features.length < response.totalResults ) {
-				handleJSONFeatureFromOpenSearch( gwLayer, url, startIndex + response.features.length );
-			} else {
-				PickingManager.addPickableLayer( gwLayer );
-			}
-		},
-		error: function (xhr, ajaxOptions, thrownError) {
-			console.error( xhr.responseText );
-		}
-	});
-}
 
 /**
  *	Create layer from configuration file
@@ -189,44 +59,16 @@ function createLayerFromConf(layer) {
 				iconUrl: "css/images/star.png",
 				fillColor: rgba,
 				strokeColor: rgba
-			});
+	});
 
+	var pickable = layer.pickable ? layer.pickable : true;
 	switch(layer.type){
 		case "healpix":
 			// Add necessary option
-			options.baseUrl = layer.url;
+			options.baseUrl = layer.baseUrl;
 			gwLayer = new GlobWeb.HEALPixLayer(options);
 			break;
-			
-		case "star":
-			// Create style
-			options.style = new GlobWeb.FeatureStyle({
-				opacity: layer.opacity / 100.,
-				fillColor: [1., 1., 1., 1.]
-			});
-
-			// Add necessary options
-			options.namesUrl = layer.nameUrl;
-			options.catalogueUrl = layer.catalogueUrl;
-			gwLayer = new StarLayer(options);
-			break;
-			
-		case "constellation":
-			// Create style
-			options.style = new GlobWeb.FeatureStyle({
-				strokeColor: [0.03125, 0.23046875, 0.65625, 1.],
-				fillColor: [0.03125, 0.23046875, 0.65625, 1.],
-				rendererHint: "Basic",
-				opacity: layer.opacity / 100.,
-				icon: layer.icon
-			});
-			
-			// Add necessary options
-			options.namesUrl = layer.nameUrl;
-			options.catalogueUrl = layer.catalogueUrl;
-			gwLayer = new ConstellationLayer(options);
-			break;
-			
+				
 		case "equatorialGrid":
 			gwLayer = new GlobWeb.EquatorialGridLayer( {name: layer.name, visible: layer.visible} );
 			break;
@@ -235,16 +77,19 @@ function createLayerFromConf(layer) {
 			gwLayer = new GlobWeb.TileWireframeLayer( {name: layer.name, visible: layer.visible, outline: layer.outline });
 			break;
 			
-		case "JSON":
+		case "GeoJSON":
+
 			options.style = defaultVectorStyle;
 			gwLayer = new GlobWeb.VectorLayer(options);
-			handleJSONFeature( gwLayer, layer.url );
-			break;
-			
-		case "StaticOpenSearch":
-			options.style = defaultVectorStyle;			
-			gwLayer = new GlobWeb.VectorLayer(options);
-			handleJSONFeatureFromOpenSearch( gwLayer, layer.url, 1 );
+
+			if ( dataProviders[layer.data.type] )
+			{
+				var callback = dataProviders[layer.data.type];
+				var data = callback(gwLayer, layer.data);
+			}
+
+			if ( layer.pickable )
+				PickingManager.addPickableLayer( gwLayer );
 			break;
 			
 		case "DynamicOpenSearch":
@@ -284,7 +129,7 @@ function createLayerFromConf(layer) {
 		default:
 			console.error("Not implemented");
 	}
-	
+
 	return gwLayer;
 }
 
@@ -323,7 +168,7 @@ function handleDrop(evt) {
 			gwLayer.deletable = true;
 
 			// Add geoJson layer
-			handleEquatorialFeatureCollection ( gwLayer, response );
+			JsonProcessor.handleEquatorialFeatureCollection ( gwLayer, response );
 			addAdditionalLayer( gwLayer );
 
 			updateScroll();
@@ -434,7 +279,7 @@ function createHtmlForAdditionalLayer( gwLayer )
 	// Hide the services div, open it only when the user clicks on the layer
 	var servicesDiv = $('#addLayer_'+currentIndex+' .layerServices');
 	servicesDiv.hide();
-	$('#additionalLayers').on("click", '#addLayer_'+currentIndex, function() {
+	$('#additionalLayers').on("click", '#addLayer_'+currentIndex+' label', function() {
 		servicesDiv.slideToggle(updateScroll);
 	});
 
@@ -560,15 +405,20 @@ function initLayers(layers)
 		// Define default optionnal parameters
 		if(!layer.opacity)
 			layer.opacity = 100.;
+		if(!layer.pickable)
+			layer.pickable = true;
 	
 		gwLayer = createLayerFromConf(layer);
-		if( layer.background )
+		if ( gwLayer )
 		{
-			addBackgroundLayer( gwLayer );
-		}
-		else
-		{
-			addAdditionalLayer( gwLayer );
+			if( layer.background )
+			{
+				addBackgroundLayer( gwLayer );
+			}
+			else
+			{
+				addAdditionalLayer( gwLayer );
+			}
 		}
 	}
 	
@@ -585,12 +435,29 @@ function initLayers(layers)
 }
 
 return {
-	init: function(gl,layers) {
+	/**
+	 *	Init
+	 *
+	 *	@param gl Globe
+	 *	@param configuration Layers configuration 
+ 	 */
+	init: function(gl,configuration) {
 		// Store the globe in the global module variable
 		globe = gl;
 		
 		// Call init layers
-		initLayers(layers);
+		initLayers(configuration);
+	},
+	
+	/**
+	 *	Register data provider
+	 *
+	 *	@param type Type of data
+	 *	@param loadFunc Callback function loading and adding data to the layer
+	 */
+	registerDataProvider: function( type, loadFunc )
+	{
+		dataProviders[type.toString()] = loadFunc;
 	}
 	
 };

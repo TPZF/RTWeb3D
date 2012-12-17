@@ -37,7 +37,7 @@ require.config({
 /**
  * Main module
  */
-require( ["jquery.ui", "LayerManager", "NameResolver", "ReverseNameResolver", "Utils", "PickingManager", "FeaturePopup", "IFrame"], function($, LayerManager, NameResolver, ReverseNameResolver, Utils, PickingManager, FeaturePopup, IFrame) {
+require( ["jquery.ui", "LayerManager", "NameResolver", "ReverseNameResolver", "Utils", "PickingManager", "FeaturePopup", "IFrame", "StarProvider", "ConstellationProvider", "JsonProvider", "OpenSearchProvider"], function($, LayerManager, NameResolver, ReverseNameResolver, Utils, PickingManager, FeaturePopup, IFrame) {
 
 // Console fix	
 window.console||(console={log:function(){}});

@@ -12,20 +12,49 @@
 	},
 	"layers":
 	[
-		{ 
+		{
+			"type": "GeoJSON",
+			"name": "Brighten stars",
+			"icon": "css/images/star_icon.png",
+			"attribution": "The most brighten stars coming from CDS VizieR catalogue",
+			"description": "The most brighten stars from VizieR Catalogue",
+			"data": {
+				"type": "star",
+				"nameUrl": "data/Names.tsv",
+				"catalogueUrl": "data/Catalogue.tsv"
+			},
+			"visible": true,
+			"opacity": 100,
+			"pickable" : false
+		},
+		{
+			"type": "GeoJSON",
+			"name": "Constellations",
+			"icon": "css/images/constellation_icon.png",
+			"attribution": "Constellation coming from CDS VizieR catalogue",
+			"description": "Constellation shapes from VizieR Catalogue",
+			"data": {
+				"type": "constellation",
+				"nameUrl": "data/ConstellationNames.tsv",
+				"catalogueUrl": "data/bound_20.dat"
+			},
+			"visible": false,
+			"pickable" : false
+		},
+		{
 			"type": "healpix",
 			"name": "SDSS",
-			"url": "/Alasky/SDSS/Color",
+			"baseUrl": "/Alasky/SDSS/Color",
 			"description": "Sloan Digital Sky Survey from CDS",
 			"attribution": "SDSS backbround from <object width='48' height='32' data=\"css/images/cds.svg\" type=\"image/svg+xml\"></object>",
 			"icon": "css/images/star_icon.png",
-			"background": true,
-			"visible": true
+			"visible": true,
+			"background": true
 		},
 		{ 
 			"type": "healpix",
 			"name": "DSS",
-			"url": "/Alasky/DssColor",
+			"baseUrl": "/Alasky/DssColor",
 			"description": "Digital Sky Survey from CDS",
 			"attribution": "DSS backbround from <object width='48' height='32' data=\"css/images/cds.svg\" type=\"image/svg+xml\"></object>",
 			"visible": true,
@@ -34,32 +63,11 @@
 		{
 			"type": "healpix",
 			"name": "Doradus",
-			"url": "http://demonstrator.telespazio.com/doradus",
+			"baseUrl": "http://demonstrator.telespazio.com/doradus",
 			"description": "Doradus",
 			"attribution": "",
 			"visible": false,
 			"background": false
-		},
-		{
-			"type": "star",
-			"name": "Brighten stars",
-			"icon": "css/images/star_icon.png",
-			"attribution": "The most brighten stars coming from CDS VizieR catalogue",
-			"description": "The most brighten stars from VizieR Catalogue",
-			"nameUrl": "data/Names.tsv",
-			"catalogueUrl": "data/Catalogue.tsv",
-			"visible": true,
-			"opacity": 100
-		},
-		{
-			"type": "constellation",
-			"name": "Constellations",
-			"icon": "css/images/constellation_icon.png",
-			"attribution": "Constellation coming from CDS VizieR catalogue",
-			"description": "Constellation shapes from VizieR Catalogue",
-			"nameUrl": "data/ConstellationNames.tsv",
-			"catalogueUrl": "data/bound_20.dat",
-			"visible": false
 		},
 		{
 			"type": "healpixGrid",
@@ -67,27 +75,31 @@
 			"outline": true
 		},
 		{
-			"type": "JSON",
+			"type": "GeoJSON",
 			"name": "Search.json",
-			"url": "data/responseHerschel.json",
+			"data": {
+				"type": "JSON",
+				"url": "data/responseHerschel.json"
+			},
 			"visible": false
 		},
 		{
-			"type": "equatorialGrid",
-			"name": "Equatorial grid(beta)",
-			"visible": false
-		},
-		{
-			"type": "JSON",
+			"type": "GeoJSON",
+			"data": {
+				"type": "JSON",
+				"url": "data/doradus.json"
+			},
 			"name": "Doradus",
-			"url": "data/doradus.json",
 			"attribution": "Doradus data from ESO",
 			"visible": true
 		},
-		{
-			"type": "StaticOpenSearch",
+		{	
+			"type": "GeoJSON",
+			"data": {
+				"type": "OpenSearch",
+				"url": "/sitools/oherschel/search?"
+			},
 			"name": "Static herschel",
-			"url": "/sitools/oherschel/search?",
 			"visible": false
 		},
 		{

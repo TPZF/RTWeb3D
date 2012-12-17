@@ -1,28 +1,61 @@
 /**
- * ConstellationLayer module
+ * ConstellationProvider module
+ *
+ * Specific constellation catalogue provider from VizieR database
+ * @see http://vizier.cfa.harvard.edu/viz-bin/ftp-index?VI/49
+ *
  */
-define( [ "jquery.ui" ], function($) {
+define( [ "jquery.ui", "LayerManager" ], function($, LayerManager) {
+
+
+/**************************************************************************************************************/
+
+var namesFile;
+var catalogueFile;
+
+var constellations = {};
 
 /**
- * 	@constructor
- * 	@class
- * 	Specific constellation layer handling the constellations from VizieR database
- * 	
- * 	@param options Configuration options
- * 		<ul>
-			<li>namesUrl : Url providing the constellations name data(necessary option)</li>
-			<li>catalogueUrl : Url providing all information about each constellation(necessary option)</li>
-		</ul>
- *
- *	@see http://vizier.cfa.harvard.edu/viz-bin/ftp-index?VI/49
- */
-ConstellationLayer = function(options)
+*	Asynchronous request to load constellation data 
+*
+* 	@param configuration Configuration options
+* 		<ul>
+*			<li>nameUrl : Url providing the constellations name data(necessary option)</li>
+*			<li>catalogueUrl : Url providing all information about each constellation(necessary option)</li>
+*		</ul>
+*	@see http://vizier.cfa.harvard.edu/viz-bin/ftp-index?VI/49
+*/
+function loadFiles( gwLayer, configuration )
 {
-	GlobWeb.VectorLayer.prototype.constructor.call( this, options );
-
-	if ( options.namesUrl && options.catalogueUrl )
+	if ( configuration.nameUrl && configuration.catalogueUrl )
 	{
-		this.loadFiles( options.namesUrl, options.catalogueUrl );
+		// loadFiles( configuration.nameUrl, configuration.catalogueUrl );
+		var nameRequest = {
+			type: "GET",
+			url: configuration.nameUrl,
+			success: function(response){
+				namesFile = response;
+			},
+			error: function (xhr, ajaxOptions, thrownError) {
+				console.error( xhr.responseText );
+			}
+		};
+		
+		var catalogueRequest = {
+			type: "GET",
+			url: configuration.catalogueUrl,
+			success: function(response){
+		       catalogueFile = response;
+			},
+			error: function (xhr, ajaxOptions, thrownError) {
+				console.error( xhr.responseText );
+			}
+		};
+	
+		var self = this;
+		// Synchronizing two asynchronious requests with the same callback
+		$.when($.ajax(nameRequest), $.ajax(catalogueRequest))
+			.then( function() { extractDatabase(); handleFeatures(gwLayer); },failure);
 	}
 	else
 	{
@@ -33,68 +66,10 @@ ConstellationLayer = function(options)
 
 /**************************************************************************************************************/
 
-GlobWeb.inherits( GlobWeb.VectorLayer, ConstellationLayer );
-
-/**************************************************************************************************************/
-
-var namesFile;
-var catalogueFile;
-
-var constellations = {};
-
-/**
-*	Asynchronous request to load constellation database
-*
-*	@param namesUrl Url to the file containing correspondance between HR and constellation name
-*	@param catalogueUrl Url to the file containing all information about each constellation
-*
-*	@see http://vizier.cfa.harvard.edu/viz-bin/ftp-index?VI/49
-*/
-ConstellationLayer.prototype.loadFiles = function( namesUrl, catalogueUrl )
-{
-
-	var nameRequest = {
-				type: "GET",
-				url: namesUrl,
-				success: function(response){
-					namesFile = response;
-				},
-				error: function (xhr, ajaxOptions, thrownError) {
-					console.error( xhr.responseText );
-				}
-	};
-	
-	var catalogueRequest = {
-				type: "GET",
-				url: catalogueUrl,
-				success: function(response){
-				       catalogueFile = response;
-				},
-				error: function (xhr, ajaxOptions, thrownError) {
-					console.error( xhr.responseText );
-				}
-	};
-	
-	
-	/*
-	 * 	Failure function
-	 */
-	function failure(){
-		console.error( "Failed to load files" );
-	}
-
-	var self = this;
-	// Synchronizing two asynchronious requests with the same callback
-	$.when($.ajax(nameRequest), $.ajax(catalogueRequest))
-		.then( function() { self.extractDatabase(); self.handleFeatures(); },failure);
-}
-
-/**************************************************************************************************************/
-
 /**
 *	Extract information in "constellation" variables
 */
-ConstellationLayer.prototype.extractDatabase = function()
+function extractDatabase()
 {
 	var constellationNamesTab = namesFile.split("\n");
 	var catalogueTab = catalogueFile.split("\n");
@@ -156,7 +131,7 @@ ConstellationLayer.prototype.extractDatabase = function()
 /**
 * 	Create geoJson features
 */
-ConstellationLayer.prototype.handleFeatures = function()
+function handleFeatures(gwLayer)
 {
 	
 	var constellationNamesFeatures = [];
@@ -208,13 +183,23 @@ ConstellationLayer.prototype.handleFeatures = function()
 	};
 	
 	// Add shapes&names to the layer
-	this.addFeatureCollection( constellationShapesFeatureCollection );
-	this.addFeatureCollection( constellationNameFeatureCollection );
+	gwLayer.addFeatureCollection( constellationShapesFeatureCollection );
+	gwLayer.addFeatureCollection( constellationNameFeatureCollection );
 }
 
 /**************************************************************************************************************/
 
+/*
+ * 	Failure function
+ */
+function failure(){
+	console.error( "Failed to load files" );
+}
 
-return ConstellationLayer;
+/**************************************************************************************************************/
+
+// Register the data provider
+
+LayerManager.registerDataProvider("constellation", loadFiles);
 
 });
