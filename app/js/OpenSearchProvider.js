@@ -32,6 +32,8 @@ function handleJSONFeatureFromOpenSearch( gwLayer, configuration, startIndex )
 /***************************************************************************************************/
 
 // Register the data provider
-LayerManager.registerDataProvider("OpenSearch", handleJSONFeatureFromOpenSearch);
+LayerManager.registerDataProvider("OpenSearch", function(gwLayer, configuration) {
+	handleJSONFeatureFromOpenSearch( gwLayer, configuration, 1 );
+});
 
 });
