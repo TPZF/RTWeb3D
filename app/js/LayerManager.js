@@ -2,9 +2,9 @@
 /**
  * LayerManager module
  */
-define( [ "jquery.ui", "PickingManager", "ClusterLayer", "MocLayer", "Utils", "ErrorDialog", "JsonProcessor",
+define( [ "jquery.ui", "PickingManager", "ClusterLayer", "MocLayer", "MixLayer", "Utils", "ErrorDialog", "JsonProcessor",
 	"underscore-min", "text!../templates/additionalLayer.html", "jquery.ui.selectmenu", "jquery.nicescroll.min" ], 
-	function($, PickingManager, ClusterLayer, MocLayer, Utils, ErrorDialog, JsonProcessor, _, additionalLayerHTMLTemplate) {
+	function($, PickingManager, ClusterLayer, MocLayer, MixLayer, Utils, ErrorDialog, JsonProcessor, _, additionalLayerHTMLTemplate) {
 
 /**
  * Private variable for module
@@ -124,6 +124,19 @@ function createLayerFromConf(layer) {
 			options.style = defaultVectorStyle;
 			options.serviceUrl = layer.serviceUrl;
 			gwLayer = new MocLayer( options );
+			break;
+
+		case "Mix":
+			// Add necessary options
+			options.featureServiceUrl = layer.featureServiceUrl;
+			options.clusterServiceUrl = layer.clusterServiceUrl;
+			options.minOrder = layer.minOrder;
+			if (layer.displayProperties)
+				options.displayProperties = layer.displayProperties;
+			
+			options.style = defaultVectorStyle;
+			gwLayer = new MixLayer( options );
+			PickingManager.addPickableLayer( gwLayer );
 			break;
 			
 		default:

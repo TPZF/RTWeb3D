@@ -132,6 +132,10 @@ function init()
 					// Hide previous popup if any
 					FeaturePopup.hide( function() {
 						// View on center
+						if ( navigation.inertia )
+						{
+							navigation.inertia.stop();
+						}
 						navigation.moveTo( pickPoint, 1000 );
 						window.setTimeout( function(){
 							selection = newSelection;
@@ -225,11 +229,10 @@ function pointInRing( point, ring )
 /**
  *	Determine if a point lies inside a sphere of radius depending on viewport
  */
-function pointInSphere( point, sphere )
+function pointInSphere( point, sphere, pointTextureHeight )
 {
 	var point3D = [];
 	var sphere3D = [];
-	var pointTextureHeight = 10; // make parameter ?
 
 	// Compute pixel size vector to offset the points from the earth
 	var pixelSizeVector = globe.renderContext.computePixelSizeVector();
@@ -262,31 +265,67 @@ function computePickSelection( pickPoint )
 {
 	var newSelection = [];
 	
-	for ( var i=0; i<pickableLayers.length; i++)
+	for ( var i=0; i<pickableLayers.length; i++ )
 	{
 		var pickableLayer = pickableLayers[i];
-		
 		if ( pickableLayer.visible() )
 		{
-			// Search for picked features
-			for ( var j=0; j<pickableLayer.features.length; j++ )
+			if ( pickableLayer instanceof MixLayer )
 			{
-				switch ( pickableLayer.features[j]['geometry'].type )
+				// Extension using layer
+				// Search for features in each tile
+				for ( var j=0; j<globe.tileManager.tilesToRender.length; j++ )
 				{
-					case "Polygon":
-						if ( pointInRing( pickPoint, pickableLayer.features[j]['geometry']['coordinates'][0] ) )
+					var tile = globe.tileManager.tilesToRender[j];
+					var extensionData = tile.extension[pickableLayer.extId];
+
+					if ( extensionData )
+					{
+						for ( w=0; w<extensionData.points.length; w++ )
 						{
-							newSelection.push( { feature: pickableLayer.features[j], layer: pickableLayer } );
+							var point = extensionData.points[w]['geometry']['coordinates'];
+							if ( extensionData.cluster )
+							{	
+								if ( pointInSphere( pickPoint, point, 32 ) )
+								{
+									newSelection.push( { feature: pickableLayer.featuresSet[extensionData.featureIds[w]].feature, layer: pickableLayer } );
+								}
+							}
+							else
+							{
+								if ( pointInSphere( pickPoint, point, 10 ) )
+								{
+									newSelection.push( { feature: pickableLayer.featuresSet[extensionData.featureIds[w]].feature, layer: pickableLayer } );
+								}
+							}
+	
 						}
-						break;
-					case "Point":
-						if ( pointInSphere( pickPoint, pickableLayer.features[j]['geometry']['coordinates'] ) )
-						{
-							newSelection.push( { feature: pickableLayer.features[j], layer: pickableLayer } );
-						}
-						break;
-					default:
-						break;
+					}
+				}	
+			}
+			else
+			{
+				// Vector layer
+				// Search for picked features
+				for ( var j=0; j<pickableLayer.features.length; j++ )
+				{
+					switch ( pickableLayer.features[j]['geometry'].type )
+					{
+						case "Polygon":
+							if ( pointInRing( pickPoint, pickableLayer.features[j]['geometry']['coordinates'][0] ) )
+							{
+								newSelection.push( { feature: pickableLayer.features[j], layer: pickableLayer } );
+							}
+							break;
+						case "Point":
+							if ( pointInSphere( pickPoint, pickableLayer.features[j]['geometry']['coordinates'], 10 ) )
+							{
+								newSelection.push( { feature: pickableLayer.features[j], layer: pickableLayer } );
+							}
+							break;
+						default:
+							break;
+					}
 				}
 			}
 		}

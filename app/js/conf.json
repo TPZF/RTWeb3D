@@ -132,6 +132,18 @@
 			"name": "Moc",
 			"serviceUrl": "/sitools/ovo/moc",
 			"visible": false
+		},
+		{
+			"type": "Mix",
+			"name": "Mix",
+			"minOrder": 3,
+			"maxOrder": 13,
+			"treshold": 5,
+			"orderDepth": 6,
+			"featureServiceUrl": "/sitools/ofuse/search?",
+			"clusterServiceUrl": "/sitools/solr/fuse/select?",
+			"displayProperties": [ "ra", "dec", "src_type", "dateobs", "imageSize" ],
+			"visible": true
 		}
 	]
 }
