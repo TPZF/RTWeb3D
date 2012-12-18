@@ -1,0 +1,33 @@
+<form id="openSearchForm">
+	<%
+	for(var i=0; i<properties.length; i++)
+	{
+		var property = properties[i];
+		%>
+		<label><%= property.title %></label>
+		<%
+		if(property.type == "text" || property.type == "number")
+		{
+		%>
+			<input type="text" id="<%= property.id %>" name="<%= property.id %>"><br/>
+		<%
+		}
+		if(property.type == "enumeration")
+		{
+		%>
+			<select>
+				<%
+				for(var j=0; j<property.son.length; j++)
+				{
+				%>
+					<option value="<%= property.son[j].id  %>"><%= property.son[j].title %>(<%= property.son[j].population %>)</option>
+				<% 
+				}
+				%>
+			</select><br/>
+		<%
+		}
+	}
+	%>
+	<input class="submit" type="submit" value="Save parameters" /> 
+</form>

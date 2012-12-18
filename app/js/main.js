@@ -5,7 +5,7 @@
 require.config({
 	paths: {
 		"jquery": "../externals/jquery-1.8.2.min",
-		"jquery.ui": "../externals/jquery-ui-1.8.23.custom.min",
+		"jquery.ui": "../externals/jquery-ui-1.9.2.custom.min",
 		"jquery.ui.selectmenu": "../externals/jquery.ui.selectmenu",
 		"underscore-min": "../externals/underscore-min",
 		"jquery.nicescroll.min": "../externals/jquery.nicescroll.min"
