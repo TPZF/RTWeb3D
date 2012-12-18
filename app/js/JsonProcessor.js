@@ -21,8 +21,7 @@ function handleServices( gwLayer, feature )
 		switch (service.type)
 		{
 			case "healpix":
-				service.layer = new GlobWeb.HEALPixLayer({ baseUrl: service.url, name: service.name, visible: false, coordinates: feature.geometry.coordinates[0] });
-				globe.addLayer( service.layer );
+				service.layer = new GlobWeb.HEALPixLayer({ baseUrl: service.url, name: service.name, visible: true, coordinates: feature.geometry.coordinates[0] });
 				gwLayer.subLayers.push(service.layer);
 				break;
 			default:
@@ -39,12 +38,15 @@ return {
 	 *	Handle feature services
 	 *
 	 *	@param gwLayer Layer of feature
-	 *	@param features GeoJSON FeatureCollection
+	 *	@param featureCollection GeoJSON FeatureCollection
 	 *
 	 */
-	handleFeatureCollection: function( gwLayer, features )
+	handleFeatureCollection: function( gwLayer, featureCollection )
 	{
 		var proxyUrl = "/sitools/proxy?external_url=";
+
+		var features = featureCollection['features'];
+
 		for ( var i=0; i<features.length; i++ )
 		{
 			var currentFeature = features[i];

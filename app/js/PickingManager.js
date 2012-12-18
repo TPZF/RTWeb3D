@@ -344,7 +344,7 @@ return {
 
 		// Call init
 		init();
-		FeaturePopup.init(this);
+		FeaturePopup.init(this, gl);
 	},
 	
 	addPickableLayer: function( layer )

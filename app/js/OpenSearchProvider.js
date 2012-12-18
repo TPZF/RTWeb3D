@@ -17,7 +17,7 @@ function handleJSONFeatureFromOpenSearch( gwLayer, configuration, startIndex )
 		type: "GET",
 		url: configuration.url + "startIndex=" + startIndex + "&count=500",
 		success: function(response){
-			JsonProcessor.handleFeatureCollection( gwLayer, response.features );
+			JsonProcessor.handleFeatureCollection( gwLayer, response );
 			gwLayer.addFeatureCollection( response );
 			if ( startIndex + response.features.length < response.totalResults ) {
 				handleJSONFeatureFromOpenSearch( gwLayer, configuration.url, startIndex + response.features.length );

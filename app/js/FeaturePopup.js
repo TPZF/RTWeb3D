@@ -6,6 +6,7 @@ define( [ "jquery.ui", "IFrame", "underscore-min", "text!../templates/featureLis
 
 var featureListHTML = '';
 var pickingManager = null;
+var globe = null;
 
 // Create selected feature div
 var selectedFeatureDiv = '<div id="selectedFeatureDiv" class="contentBox ui-widget-content" style="display: none">\
@@ -118,10 +119,12 @@ return {
 	 *	Init
 	 *
 	 *	@param pm <PickingManager>
+	 *	@param gl <GlobWeb.Globe>
 	 */
-	init: function(pm){
+	init: function(pm, gl){
 
 		pickingManager = pm;
+		globe = gl;
 		var self = this;
 
 		// Show/hide quicklook
@@ -151,15 +154,15 @@ return {
 			var selectedFeature = pickingManager.getSelectedFeature();
 			var healpixLayer = selectedFeature.feature.services.healpix.layer;
 
-			if ( healpixLayer.visible() )
+			if ( $('#healpix').is('.selected') )
 			{
 				$('#healpix').removeClass('selected');
-				healpixLayer.visible(false);
+				globe.removeLayer(healpixLayer);
 			}
 			else
 			{
 				$('#healpix').addClass('selected');
-				healpixLayer.visible(true);
+				globe.addLayer(healpixLayer);
 			}
 		});
 
