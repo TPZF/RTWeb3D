@@ -13,15 +13,17 @@
 
 	<img style="display: none" class="spinner" src="css/images/loading.gif">
 
-	<div class="layerTools">
+	<div class="layerTools" class="ui-widget-header ui-corner-all">
 
-		<span class="tool service-off"></span>
+		<input type="checkbox" class="service" id="service_<%= currentIndex %>" /><label for="service_<%= currentIndex %>">Services</label>
 
+		
 		<%
 		if( layer.deletable )
 		{
 		%>
-			<img class="tool deleteLayer" src="css/images/deleteLayer.png" />
+			
+			<button class="deleteLayer">Delete</button>
 		<%
 		}
 		%>
@@ -30,7 +32,8 @@
 		<% if ( layer instanceof GlobWeb.VectorLayer)
 		{
 		%>
-			<img class="tool zoomTo" src="css/images/zoomTo.png" />
+			
+			<button class="zoomTo">zoomTo</button>
 		<%
 		}
 		%>

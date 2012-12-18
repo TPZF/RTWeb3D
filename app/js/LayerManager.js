@@ -296,7 +296,7 @@ function createHtmlForAdditionalLayer( gwLayer )
 	// Hide the tools div, open it only when the user clicks on the layer
 	var servicesDiv = $('#addLayer_'+currentIndex+' .layerTools');
 	servicesDiv.hide();
-	$('#additionalLayers').on("click", '#addLayer_'+currentIndex+' label', function() {
+	$('#additionalLayers').on("click", '#addLayer_'+currentIndex+' > label', function() {
 		servicesDiv.slideToggle(updateScroll);
 	});
 
@@ -378,6 +378,28 @@ function addAdditionalLayer ( gwLayer )
 	globe.subscribe("endLoad", function(id){
 		$('#addLayer_'+id).find('.spinner').fadeOut(500);
 	});
+
+	// Init buttons of tool bar
+	$(".service").button({
+		text: false,
+		icons: {
+			primary: "ui-icon-wrench"
+		}
+	});
+
+	$('.deleteLayer').button({
+		text: false,
+		icons: {
+			primary: "ui-icon-trash"
+		}
+	});
+
+	$('.zoomTo').button({
+		text: false,
+		icons: {
+			primary: "ui-icon-zoomin"
+		}
+	});	
 }
 
 function initGuiEvents ()
@@ -405,18 +427,16 @@ function initGuiEvents ()
 	});
 
 	// Services event
-	$('#additionalLayers').on("click", ".service-off, .service-on", function(){
+	$('#additionalLayers').on("click", ".service", function(){
 		var layerIndex = parseInt( $(this).parent().parent().index() );
 		var layer = gwAdditionalLayers[ layerIndex ];
 
-		if( $(this).is('.service-off') )
+		if( $(this).is(':checked') )
 		{
-			$(this).removeClass('service-off').addClass('service-on');;
 			ServiceBar.addLayer(layer);
 		}
 		else
 		{
-			$(this).removeClass('service-on').addClass('service-off');
 			ServiceBar.removeLayer(layer);
 		}
 	});
