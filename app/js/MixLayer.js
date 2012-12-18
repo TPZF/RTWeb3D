@@ -403,19 +403,23 @@ MixLayer.prototype.addFeature = function( feature, tile )
 /**************************************************************************************************************/
 
 /**
- *	Remove feature from Dynamic OpenSearch layer
+ *	Remove feature from Mix layer
  */
 MixLayer.prototype.removeFeature = function( identifier )
 {
-	if ( this.featuresSet[identifier].counter == 1 )
+	// HACK
+	if ( this.featuresSet[identifier] )
 	{
-		// Last feature
-		delete this.featuresSet[identifier];
-	}
-	else
-	{
-		// Decrease
-		this.featuresSet[identifier]--;
+		if ( this.featuresSet[identifier].counter == 1 )
+		{
+			// Last feature
+			delete this.featuresSet[identifier];
+		}
+		else
+		{
+			// Decrease
+			this.featuresSet[identifier]--;
+		}
 	}
 }
 
