@@ -2,9 +2,9 @@
 /**
  * LayerManager module
  */
-define( [ "jquery.ui", "PickingManager", "ClusterLayer", "MocLayer", "MixLayer", "Utils", "ErrorDialog", "JsonProcessor",
+define( [ "jquery.ui", "PickingManager", "ClusterLayer", "MocLayer", "MixLayer", "Utils", "ErrorDialog", "JsonProcessor", "ServiceBar",
 	"underscore-min", "text!../templates/additionalLayer.html", "jquery.ui.selectmenu", "jquery.nicescroll.min" ], 
-	function($, PickingManager, ClusterLayer, MocLayer, MixLayer, Utils, ErrorDialog, JsonProcessor, _, additionalLayerHTMLTemplate) {
+	function($, PickingManager, ClusterLayer, MocLayer, MixLayer, Utils, ErrorDialog, JsonProcessor, ServiceBar, _, additionalLayerHTMLTemplate) {
 
 /**
  * Private variable for module
@@ -13,6 +13,7 @@ define( [ "jquery.ui", "PickingManager", "ClusterLayer", "MocLayer", "MixLayer",
  // The globe
 var globe;
 var gwLayer;
+var navigation;
 var gwBaseLayers = [];
 var gwAdditionalLayers = [];
 var backgroundLayersIcons = [];
@@ -61,7 +62,7 @@ function createLayerFromConf(layer) {
 				strokeColor: rgba
 	});
 
-	var pickable = layer.pickable ? layer.pickable : true;
+
 	switch(layer.type){
 		case "healpix":
 			// Add necessary option
@@ -181,8 +182,11 @@ function handleDrop(evt) {
 			gwLayer.deletable = true;
 
 			// Add geoJson layer
-			JsonProcessor.handleEquatorialFeatureCollection ( gwLayer, response );
+			JsonProcessor.handleFeatureCollection( gwLayer, response );
+			gwLayer.addFeatureCollection( response );
+
 			addAdditionalLayer( gwLayer );
+			PickingManager.addPickableLayer( gwLayer );
 
 			updateScroll();
 			
@@ -289,8 +293,8 @@ function createHtmlForAdditionalLayer( gwLayer )
 	// Init percent input of slider
 	$( "#percentInput_"+currentIndex ).val( $( "#slider_"+currentIndex ).slider( "value" ) + "%" );
 		
-	// Hide the services div, open it only when the user clicks on the layer
-	var servicesDiv = $('#addLayer_'+currentIndex+' .layerServices');
+	// Hide the tools div, open it only when the user clicks on the layer
+	var servicesDiv = $('#addLayer_'+currentIndex+' .layerTools');
 	servicesDiv.hide();
 	$('#additionalLayers').on("click", '#addLayer_'+currentIndex+' label', function() {
 		servicesDiv.slideToggle(updateScroll);
@@ -399,6 +403,59 @@ function initGuiEvents ()
 
 		updateScroll();
 	});
+
+	// Services event
+	$('#additionalLayers').on("click", ".service-off, .service-on", function(){
+		var layerIndex = parseInt( $(this).parent().parent().index() );
+		var layer = gwAdditionalLayers[ layerIndex ];
+
+		if( $(this).is('.service-off') )
+		{
+			$(this).removeClass('service-off').addClass('service-on');;
+			ServiceBar.addLayer(layer);
+		}
+		else
+		{
+			$(this).removeClass('service-on').addClass('service-off');
+			ServiceBar.removeLayer(layer);
+		}
+	});
+
+	// ZoomTo event (available for GlobWeb.VectorLayers only)
+	$('#additionalLayers').on("click", ".zoomTo", function(){
+		var layerIndex = parseInt( $(this).parent().parent().index() );
+		var layer = gwAdditionalLayers[ layerIndex ];
+
+		var sLon = 0;
+		var sLat = 0;
+		var nbPoints = 0;
+
+		for (var i=0; i<layer.features.length; i++)
+		{
+			var currentGeometry = layer.features[i].geometry;
+			switch (currentGeometry.type)
+			{
+				case "Polygon":
+					for( var j=0; j<currentGeometry.coordinates[0].length; j++ )
+					{
+						sLon+=currentGeometry.coordinates[0][j][0];
+						sLat+=currentGeometry.coordinates[0][j][1];
+						nbPoints++;
+					}
+					break;
+				case "Point":
+					sLon+=currentGeometry.coordinates[0];
+					sLat+=currentGeometry.coordinates[1];
+					nbPoints++;
+					break;
+				default:
+					break;
+			}
+
+		}
+
+		navigation.zoomTo([sLon/nbPoints, sLat/nbPoints], 2.);
+	});
 }
 
 /**
@@ -418,7 +475,7 @@ function initLayers(layers)
 		// Define default optionnal parameters
 		if(!layer.opacity)
 			layer.opacity = 100.;
-		if(!layer.pickable)
+		if(typeof (layer.pickable) === 'undefined')
 			layer.pickable = true;
 	
 		gwLayer = createLayerFromConf(layer);
@@ -454,9 +511,10 @@ return {
 	 *	@param gl Globe
 	 *	@param configuration Layers configuration 
  	 */
-	init: function(gl,configuration) {
+	init: function(gl, nav, configuration) {
 		// Store the globe in the global module variable
 		globe = gl;
+		navigation = nav;
 		
 		// Call init layers
 		initLayers(configuration);

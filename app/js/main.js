@@ -127,7 +127,7 @@ $(function()
 		ReverseNameResolver.init(globe, navigation, data.reverseNameResolver);
 
 		// Create layers from configuration file
-		LayerManager.init(globe, data.layers);
+		LayerManager.init(globe, navigation, data.layers);
 	});
 	
 	// Create data manager

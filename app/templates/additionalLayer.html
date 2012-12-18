@@ -13,13 +13,24 @@
 
 	<img style="display: none" class="spinner" src="css/images/loading.gif">
 
-	<div class="layerServices">
+	<div class="layerTools">
+
+		<span class="tool service-off"></span>
 
 		<%
 		if( layer.deletable )
 		{
 		%>
-			<img class="deleteLayer" src="css/images/recycleBin.png" />
+			<img class="tool deleteLayer" src="css/images/deleteLayer.png" />
+		<%
+		}
+		%>
+
+
+		<% if ( layer instanceof GlobWeb.VectorLayer)
+		{
+		%>
+			<img class="tool zoomTo" src="css/images/zoomTo.png" />
 		<%
 		}
 		%>
