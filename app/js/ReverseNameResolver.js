@@ -7,7 +7,6 @@ define(["jquery.ui", "IFrame", "ErrorDialog", "underscore-min", "text!../templat
 var globe;
 var navigation;
 var configuration = {};
-// var maxOrder = 3;
 
 // Template generating the detailed description of choosen feature
 var featureDescriptionTemplate = _.template(featureDescriptionHTMLTemplate);
@@ -34,6 +33,9 @@ $( "#reverseNameResolver input[type=submit]")
 	.button()
 	.click(function( event ) {
 		event.preventDefault();
+
+		$('#reverseSearchField input[type="submit"]').attr('disabled', 'disabled');
+
 		var pickPoint = globe.getLonLatFromPixel(event.clientX, event.clientY);
 		var equatorialCoordinates = [];
 		GlobWeb.CoordinateSystem.fromGeoToEquatorial( pickPoint, equatorialCoordinates );
@@ -65,7 +67,14 @@ $( "#reverseNameResolver input[type=submit]")
 				showFeature( response.features[0] );
 			},
 			error: function (xhr, ajaxOptions, thrownError) {
-				ErrorDialog.open("Please wait at least 6 seconds between each request to reverse name resolver");
+				if (xhr.status == 503)
+					ErrorDialog.open("Please wait at least 6 seconds between each request to reverse name resolver");
+				if (xhr.status == 500)
+					ErrorDialog.open("Object not found");
+			},
+			complete: function(xhr)
+			{
+				$('#reverseSearchField input[type="submit"]').removeAttr('disabled');
 			}
 		});
 	});

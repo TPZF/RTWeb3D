@@ -13,6 +13,7 @@ var $errorDiv = $(errorDiv)
 						autoOpen: false,
 						resizable: false,
 						width: '300px',
+						minHeight: 'auto',
 						dialogClass: 'errorBox'
 					});
 
