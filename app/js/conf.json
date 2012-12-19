@@ -25,7 +25,8 @@
 			},
 			"visible": true,
 			"opacity": 100,
-			"pickable" : false
+			"pickable" : false,
+			"color": "white"
 		},
 		{
 			"type": "GeoJSON",
@@ -39,7 +40,8 @@
 				"catalogueUrl": "data/bound_20.dat"
 			},
 			"visible": false,
-			"pickable" : false
+			"pickable" : false,
+			"color": "rgb(8, 59, 167)"
 		},
 		{
 			"type": "healpix",
@@ -76,15 +78,6 @@
 		},
 		{
 			"type": "GeoJSON",
-			"name": "Search.json",
-			"data": {
-				"type": "JSON",
-				"url": "data/responseHerschel.json"
-			},
-			"visible": false
-		},
-		{
-			"type": "GeoJSON",
 			"data": {
 				"type": "JSON",
 				"url": "data/doradus.json"
@@ -92,15 +85,6 @@
 			"name": "Doradus",
 			"attribution": "Doradus data from ESO",
 			"visible": true
-		},
-		{	
-			"type": "GeoJSON",
-			"data": {
-				"type": "OpenSearch",
-				"url": "/sitools/oherschel/search?"
-			},
-			"name": "Static herschel",
-			"visible": false
 		},
 		{
 			"type": "DynamicOpenSearch",
