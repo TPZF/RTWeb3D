@@ -1,13 +1,19 @@
 <div class="ui-widget addLayer" id="addLayer_<%= currentIndex %>" >
 
-	<span class="layerColor" style="background-color: <%= layerColor %>"></span><span id="visible_<%= currentIndex %>" class="<% if (layer.visible()) print('ui-state-active'); else print('ui-state-default'); %> ui-corner-all ui-button">
+	<span id="visible_<%= currentIndex %>" class="<% if (layer.visible()) print('ui-state-active'); else print('ui-state-default'); %> ui-corner-all ui-button">
 		<span class="ui-icon <% if (layer.visible()) print('ui-icon-check'); else print('ui-icon-empty'); %>"></span>
 	</span>
 
 	<% if ( layer.icon )
 	{ %>
 		<img class="layerIcon" src="<%= layer.icon %>" />
-	<% } %>
+	<% }
+	else
+	{
+	%>
+		<canvas width="20" height="10" class="legend"></canvas>
+	<%
+	} %>
 
 	<label title="<%= layer.description %>" for="addLayerInput_<%= currentIndex %>"><%= layer.name %></label>
 
@@ -15,8 +21,14 @@
 
 	<div class="layerTools" class="ui-widget-header ui-corner-all">
 
-		<input type="checkbox" class="service" id="service_<%= currentIndex %>" /><label for="service_<%= currentIndex %>">Services</label>
-
+		<%
+		if( layer instanceof MixLayer )
+		{
+		%>
+			<input type="checkbox" class="service" id="service_<%= currentIndex %>" /><label for="service_<%= currentIndex %>">Services</label>
+		<%
+		}
+		%>
 		
 		<%
 		if( layer.deletable )

@@ -88,6 +88,7 @@
 		},
 		{
 			"type": "DynamicOpenSearch",
+			"dataType": "line",
 			"name": "Dynamic herschel",
 			"serviceUrl": "/sitools/oherschel/search?",
 			"visible": false,
@@ -95,9 +96,10 @@
 		},
 		{
 			"type": "DynamicOpenSearch",
+			"dataType": "point",
 			"name": "Dynamic fuse",
 			"serviceUrl": "/sitools/ofuse/search?",
-			"visible": true,
+			"visible": false,
 			"minOrder": 3,
 			"color": "#FFCC11",
 			"displayProperties": [ "ra", "dec", "src_type", "dateobs", "imageSize" ]
@@ -105,8 +107,9 @@
 		{
 			"type": "Cluster",
 			"name": "Clusterisation",
+			"dataType": "point",
 			"serviceUrl": "/sitools/solr/fuse/select?",
-			"visible": true,
+			"visible": false,
 			"maxOrder": 13,
 			"treshold": 5,
 			"orderDepth": 6
@@ -123,10 +126,15 @@
 			"minOrder": 3,
 			"maxOrder": 13,
 			"treshold": 5,
-			"orderDepth": 6,
+			"orderDepth": 2,
 			"featureServiceUrl": "/sitools/ofuse/search?",
 			"clusterServiceUrl": "/sitools/solr/fuse/select?",
 			"displayProperties": [ "ra", "dec", "src_type", "dateobs", "imageSize" ],
+			"visible": false
+		},
+		{
+			"type": "equatorialGrid",
+			"name": "Equetorial grid(beta)",
 			"visible": true
 		}
 	]
