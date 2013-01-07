@@ -10,9 +10,13 @@ define( [ "jquery.ui", "Utils" ], function($, Utils) {
  * 	
  * 	@param options Configuration options
  * 		<ul>
-			<li>serviceUrl : Url of the service providing the OpenSearch data(necessary option)</li>
+			<li>featureServiceUrl : Url of the service providing the OpenSearch feature data(necessary option)</li>
+			<li>clusterServiceUrl : Url of the service providing the OpenSearch cluster data(necessary option)</li>
 			<li>minOrder : Starting order for OpenSearch requests</li>
 			<li>displayProperties : Properties which will be shown in priority</li>
+			<li>treshold : Visibility treshold</li>
+			<li>maxOrder: Maximal cluster refinement order</li>
+			<li>orderDepth: Depth of refinement order</li>
 		</ul>
  */
 MixLayer = function(options)
@@ -22,37 +26,36 @@ MixLayer = function(options)
 	this.type = "MixLayer";
 	this.featureServiceUrl = options.featureServiceUrl;
 	this.clusterServiceUrl = options.clusterServiceUrl;
-	this.minOrder = options.minOrder || 5;
-	if (options.displayProperties)
-		this.displayProperties = options.displayProperties;
-	this.requestProperties = options.requestProperties ||
-	{
-		// "properties.ra": "354.059",
-		// "properties.ra": "2.85292"
-	};
 
-	// Set style
+	// Array containing data of tile to be requested
+	this.tilesToRequest = [];
+
+	// Set default line style
 	if ( options && options['style'] )
 	{
 		this.style = options['style'];
 	}
 	else
 	{
-		this.style = new GlobWeb.FeatureStyle({
-			iconUrl: "css/images/star.png"
-		});
+		this.style = new GlobWeb.FeatureStyle();
 	}
 
+	// Feature style
+	this.featureStyle = new GlobWeb.FeatureStyle({
+		iconUrl: "css/images/star.png",
+		fillColor: this.style.fillColor
+	});
+
+	// Cluster style
 	this.clusterStyle = new GlobWeb.FeatureStyle({
 		iconUrl: "css/images/cluster.png",
 		fillColor: this.style.fillColor
 	});
-	
-	// TODO "os" is overriden by BaseLayer id when attached by globe
+
 	this.extId = "mix";
 
 	// Used for picking management
-	this.featuresSet ={};
+	this.featuresSet = {};
 
 	// Maximum two requests for now
 	this.requests = [ null, null ];
@@ -63,6 +66,14 @@ MixLayer = function(options)
 	this.lineRenderer = null;
 	this.pointRenderer = null;
 
+	// Handle feature service
+	this.minOrder = options.minOrder || 5;
+	if (options.displayProperties)
+		this.displayProperties = options.displayProperties;
+
+	this.requestProperties = options.requestProperties || "";
+
+	// Handle cluster service
 	this.clusterServiceUrl = options.clusterServiceUrl + "q=*:*&rows=0&facet=true&facet.limit=-1&facet.mincount=1&wt=json&indent=true";
 	this.treshold = options.treshold || 5;
 	this.maxOrder = options.maxOrder || 13;
@@ -159,51 +170,9 @@ MixLayer.prototype.addCluster = function(pixelIndex, order, face, tile, pixelDis
 	};
 
 
-	tile.extension[this.extId].points.push(pointRenderData);
-	tile.extension[this.extId].cluster = true;
+	tile.extension[this.extId].clusters.push(pointRenderData);
 	tile.extension[this.extId].featureIds.push(identifier);
-	this.featuresSet[identifier] = { feature: feature, counter: 1, renderable: pointRenderData };
-}
-
-/**************************************************************************************************************/
-
-/**
- *	Recursive function computing tile data for the first called pixelIndex
- *
- *	@param	pixelIndex	Current pixel index
- *	@param	order		Current order
- *	@param	face		Current face
- *	@param 	depth		Current order depth
- *	@param	tile		Tile which TileData will be computed(if exist)
- */
-MixLayer.prototype.computeTileData = function(pixelIndex, order, face, depth, tile)
-{
-	if ( this.distributions[order] )
-	{
-		var pixelDistribution = this.distributions[order][pixelIndex];
-
-		if ( pixelDistribution > this.treshold && order <= this.maxOrder )
-		{
-			if ( depth != 0 )
-			{
-				// Recursive call
-				for ( var i=0; i<4; i++ )
-				{
-					this.computeTileData(pixelIndex*4+i, order + 1, face, depth - 1, tile);
-				}		
-			}
-			else
-			{
-				this.addCluster(pixelIndex, order, face, tile, pixelDistribution);
-			}
-		}
-		else
-		{
-			// TODO launch request & attach the result to tile
-			this.launchRequest(tile, tile.order, tile.pixelIndex);
-		}
-	}
-	return 0;
+	this.featuresSet[identifier] = { feature: feature, counter: 1, renderable: pointRenderData, cluster: true };
 }
 
 /**************************************************************************************************************/
@@ -222,7 +191,7 @@ MixLayer.prototype._attach = function( g )
 	this.pointRenderer = new GlobWeb.PointRenderer( g.tileManager );
 	this.lineRenderer = new GlobWeb.SimpleLineRenderer( g.tileManager );
 	this.polygonRenderer = new GlobWeb.SimplePolygonRenderer( g.tileManager );
-	this.featureBucket = this.pointRenderer.getOrCreateBucket( this, this.style );
+	this.featureBucket = this.pointRenderer.getOrCreateBucket( this, this.featureStyle );
 	this.clusterBucket = this.pointRenderer.getOrCreateBucket( this, this.clusterStyle );
 	g.tileManager.addPostRenderer(this);
 }
@@ -268,10 +237,19 @@ MixLayer.prototype.setRequestProperties = function(properties)
 
 /**************************************************************************************************************/
 
+MixLayer.prototype.launchRequests = function()
+{
+	for ( var i = 0; i < this.tilesToRequest.length; i++ )
+	{
+		var requestData = this.tilesToRequest[i];
+		this.launchRequest( requestData.tile, requestData.childOrder, requestData.pixelIndicesToRequest, i );
+	}
+}
+
 /**
  * 	Launch request to the OpenSearch service
  */
-MixLayer.prototype.launchRequest = function(tile, o, i)
+MixLayer.prototype.launchRequest = function(tile, childOrder, pixelIndicesToRequest, requestIndex)
 {
 	var index = null;
 
@@ -280,18 +258,27 @@ MixLayer.prototype.launchRequest = function(tile, o, i)
 		if ( !this.requests[i] )
 		{
 			this.requests[i] = tile;
+			this.tilesToRequest.splice(requestIndex,1);
 			index = i;
 			break;
 		}
 	}
 	
 	var self = this;
+	var indices = ""
+	for ( var i=0; i<pixelIndicesToRequest.length-1; i++ )
+	{
+		indices+=pixelIndicesToRequest[i]+",";
+	}
+	indices+=pixelIndicesToRequest[i];
+
 	if (index)
 	{	
-		var url = self.featureServiceUrl + "order=" + tile.order + "&healpix=" + tile.pixelIndex;
+		var url = self.featureServiceUrl + "order=" + childOrder + "&healpix=" + indices;
+
 		for (var key in this.requestProperties)
 		{
-			url+='&'+key+'="'+this.requestProperties[key]+'"';
+			url+='&'+key+'='+this.requestProperties[key];
 		}
 		var requestProperties = this.requestProperties;
 		self.globe.publish("startLoad",self.id);
@@ -302,12 +289,9 @@ MixLayer.prototype.launchRequest = function(tile, o, i)
 				// If request properties didn't change
 				if( self.requestProperties == requestProperties )
 				{
-					tile.extension[self.extId] = new MixLayer.TileData(self);
-					tile.extension[self.extId].complete = (response.totalResults == response.features.length);
-					// if(response.totalResults > 0)
-					// 	console.log(tile.order+" "+tile.pixelIndex);
-					if( o && i )
-						console.log(o,i);
+					if ( !tile.extension[self.extId])
+						tile.extension[self.extId] = new MixLayer.TileData(self);
+
 					recomputeFeaturesGeometry(response.features);
 					
 					for ( var i=0; i<response.features.length; i++ )
@@ -315,13 +299,13 @@ MixLayer.prototype.launchRequest = function(tile, o, i)
 						self.addFeature( response.features[i], tile );
 					}
 				}
-
-				self.requests[index] = null;
-				self.globe.publish("endLoad",self.id);
 			},
 			error: function (xhr, ajaxOptions, thrownError) {
-				self.requests[index] = null;
 				console.error( xhr.responseText );
+			},
+			complete: function(xhr){
+				self.requests[index] = null;
+				self.globe.publish("endLoad",self.id);
 			}
 		});
 	}
@@ -344,7 +328,7 @@ MixLayer.prototype.createRenderable = function(geometry)
 			geometry: geometry,
 			pos3d: pos3d,
 			vertical: vertical,
-			color: this.style.fillColor
+			color: this.featureStyle.fillColor
 		};
 		return pointRenderData;
 	} 
@@ -392,7 +376,7 @@ MixLayer.prototype.addFeature = function( feature, tile )
 	// Add feature renderable
 	if ( feature.geometry['type'] == "Point" )
 	{
-		tileData.points.push( renderable );
+		tileData.features.push( renderable );
 	}
 	else if ( feature.geometry['type'] == "Polygon" )
 	{
@@ -418,7 +402,7 @@ MixLayer.prototype.removeFeature = function( identifier )
 		else
 		{
 			// Decrease
-			this.featuresSet[identifier]--;
+			this.featuresSet[identifier].counter--;
 		}
 	}
 }
@@ -464,10 +448,10 @@ MixLayer.TileData = function(layer)
 {
 	this.layer = layer;
 	this.featureIds = []; // exclusive parameter to link with render data
-	this.points = [];
+	this.clusters = [];
+	this.features = [];
 	this.polygons = [];
-	this.cluster = false;
-	this.complete = false;
+	this.complete = true;
 }
 
 /**************************************************************************************************************/
@@ -478,11 +462,13 @@ MixLayer.TileData = function(layer)
  */
 MixLayer.TileData.prototype.dispose = function( renderContext, tilePool )
 {	
-	for( var i=0; i<this.points.length; i++ )
+	for( var i=0; i<this.features.length; i++ )
 	{
 		this.layer.removeFeature( this.featureIds[i] );
 	}
-	this.points.length = 0;
+
+	this.features.length = 0;
+	this.clusters.length = 0;
 }
 
 /**************************************************************************************************************/
@@ -498,7 +484,6 @@ MixLayer.prototype.render = function( tiles )
 		return;
 		
 	// Traverse the tiles to find all available data, and request data for needed tiles
-	
 	var features = [];
 	var clusters = [];
 	var lines = [];
@@ -507,69 +492,92 @@ MixLayer.prototype.render = function( tiles )
 	
 	for ( var i = 0; i < tiles.length; i++ )
 	{
-		var tile = tiles[i];
 
+		var tile = tiles[i];
 		var tileData = tile.extension[this.extId];
-		if( !tileData && tile.order <= this.maxOrder )
+
+		if ( !tileData )
 		{
-			this.computeTileData(tile.pixelIndex, tile.order, tile.face, this.orderDepth, tile);
-			if ( !tile.extension[this.extId] && tile.order >= this.minOrder )
+
+			// Search for available data on tile parent
+			var completeDataFound = false;
+			var prevVisitTile = tile;
+			var visitTile = tile.parent;
+			while ( visitTile && visitTile.order >= this.minOrder )
 			{
-				// Not a cluster!
-				// Search for available data on tile parent
-				var completeDataFound = false;
-				var prevVisitTile = tile;
-				var visitTile = tile.parent;
-				while ( visitTile && visitTile.order >= this.minOrder )
+				tileData = visitTile.extension[this.extId];
+
+				if ( tileData && tileData.complete )
 				{
-					tileData = visitTile.extension[this.extId];
-					if ( tileData )
+					completeDataFound = tileData.complete;
+					var key = visitTile.order + "_" + visitTile.pixelIndex;
+					if ( visitedTiles.hasOwnProperty(key) )	
 					{
-						completeDataFound = tileData.complete;
-						var key = visitTile.order + "_" + visitTile.pixelIndex;
-						if ( visitedTiles.hasOwnProperty(key) )	
-						{
-							tileData = null;
-						}
-						else 
-						{
-							visitedTiles[key] = true;
-						}
-						visitTile = null;
-						
+						tileData = null;
 					}
 					else 
 					{
-						prevVisitTile = visitTile;
-						visitTile = visitTile.parent;
+						visitedTiles[key] = true;
 					}
+					visitTile = null;
+					
 				}
-				
-				// Only request the file if needed, ie if a parent does not already contains all data
-				if ( !completeDataFound && (prevVisitTile.state != GlobWeb.Tile.State.NONE) )
+				else 
 				{
-					this.launchRequest(prevVisitTile);
+					prevVisitTile = visitTile;
+					visitTile = visitTile.parent;
 				}
 			}
-		}
-		else
-		{
-			// no clusterisation
+
+			if ( !completeDataFound )
+			{
+				var pixelIndicesToRequest = [];
+				tile.extension[this.extId] = new MixLayer.TileData(this);
+				tileData = tile.extension[this.extId];
+				
+				var orderDepth = ( tile.order + this.orderDepth >= this.maxOrder ) ? this.maxOrder - tile.order : this.orderDepth; // clipping depth to max order
+				var childOrder = tile.order + orderDepth;
+
+				if( this.distributions[childOrder] )
+				{
+					// Distribution exists
+					var numSubTiles = Math.pow(4,orderDepth); // Number of subtiles depending on order
+					var firstSubTileIndex = tile.pixelIndex * numSubTiles;
+
+					for ( var j=firstSubTileIndex; j<firstSubTileIndex+numSubTiles; j++ )
+					{
+						var pixelDistribution = this.distributions[childOrder][j];
+						if ( pixelDistribution > this.treshold  )
+						{
+							// Cluster child
+							this.addCluster(j, childOrder, tile.face, tile, pixelDistribution);
+							tileData.complete = false;
+						}
+						else if ( pixelDistribution > 0 )
+						{
+							// Feature containing child
+							pixelIndicesToRequest.push(j);
+						}
+					}
+				}
+
+				// Launch request
+				if ( pixelIndicesToRequest.length > 0 )
+					this.tilesToRequest.push({ tile: tile, childOrder: childOrder, pixelIndicesToRequest: pixelIndicesToRequest });
+			}
 		}
 
 		// We have found some available tile data, add it to the current renderables
 		if ( tileData )
 		{
-			if ( tileData.points.length > 0 )
+			if ( tileData.features.length > 0 )
 			{
-				if ( tileData.cluster )
-				{
-					clusters = clusters.concat( tileData.points );
-				}
-				else
-				{
-					features = features.concat( tileData.points );	
-				}
+				features = features.concat( tileData.features );	
+			}
+
+			if ( tileData.clusters.length > 0 )
+			{
+				clusters = clusters.concat( tileData.clusters );
 			}
 				
 			for ( var n = 0; n < tileData.polygons.length; n++ ) {
@@ -580,6 +588,8 @@ MixLayer.prototype.render = function( tiles )
 			}
 		}
 	}
+
+	this.launchRequests();
 	
 	// Render the clusters
 	if ( clusters.length > 0 )

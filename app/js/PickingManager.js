@@ -272,34 +272,93 @@ function computePickSelection( pickPoint )
 		{
 			if ( pickableLayer instanceof MixLayer )
 			{
+				
+				var visitedTiles = {};
+
 				// Extension using layer
 				// Search for features in each tile
 				for ( var j=0; j<globe.tileManager.tilesToRender.length; j++ )
 				{
 					var tile = globe.tileManager.tilesToRender[j];
-					var extensionData = tile.extension[pickableLayer.extId];
+					var tileData = tile.extension[pickableLayer.extId];
 
-					if ( extensionData )
+					if ( !tileData )
 					{
-						for ( w=0; w<extensionData.points.length; w++ )
+						// Search for available data on tile parent
+						var completeDataFound = false;
+						var prevVisitTile = tile;
+						var visitTile = tile.parent;
+						while ( visitTile )
 						{
-							var point = extensionData.points[w]['geometry']['coordinates'];
-							if ( extensionData.cluster )
-							{	
-								if ( pointInSphere( pickPoint, point, 32 ) )
-								{
-									newSelection.push( { feature: pickableLayer.featuresSet[extensionData.featureIds[w]].feature, layer: pickableLayer } );
-								}
-							}
-							else
+							tileData = visitTile.extension[pickableLayer.extId];
+
+							if ( tileData && tileData.complete )
 							{
-								if ( pointInSphere( pickPoint, point, 10 ) )
+								completeDataFound = tileData.complete;
+								var key = visitTile.order + "_" + visitTile.pixelIndex;
+								if ( visitedTiles.hasOwnProperty(key) )	
 								{
-									newSelection.push( { feature: pickableLayer.featuresSet[extensionData.featureIds[w]].feature, layer: pickableLayer } );
+									tileData = null;
 								}
+								else 
+								{
+									visitedTiles[key] = true;
+								}
+								visitTile = null;
+								
 							}
-	
+							else 
+							{
+								prevVisitTile = visitTile;
+								visitTile = visitTile.parent;
+							}
 						}
+					}
+
+					if ( tileData )
+					{
+
+					// if ( extensionData )
+					// {
+						// TODO refactor
+						for( w=0; w<tileData.clusters.length; w++ )
+						{
+							var point = tileData.clusters[w]['geometry']['coordinates'];
+							if ( pointInSphere( pickPoint, point, 32 ) )
+							{
+								newSelection.push( { feature: pickableLayer.featuresSet[tileData.featureIds[w]].feature, layer: pickableLayer } );
+							}
+						}
+
+						for ( w=0; w<tileData.features.length; w++ )
+						{
+							var point = tileData.features[w]['geometry']['coordinates'];
+							if ( pointInSphere( pickPoint, point, 10 ) )
+							{
+								newSelection.push( { feature: pickableLayer.featuresSet[tileData.featureIds[w+tileData.clusters.length]].feature, layer: pickableLayer } );
+							}
+						}
+
+
+						// for ( w=0; w<extensionData.points.length; w++ )
+						// {
+						// 	var point = extensionData.points[w]['geometry']['coordinates'];
+						// 	if ( extensionData.cluster )
+						// 	{	
+						// 		if ( pointInSphere( pickPoint, point, 32 ) )
+						// 		{
+						// 			newSelection.push( { feature: pickableLayer.featuresSet[extensionData.featureIds[w]].feature, layer: pickableLayer } );
+						// 		}
+						// 	}
+						// 	else
+						// 	{
+						// 		if ( pointInSphere( pickPoint, point, 10 ) )
+						// 		{
+						// 			newSelection.push( { feature: pickableLayer.featuresSet[extensionData.featureIds[w]].feature, layer: pickableLayer } );
+						// 		}
+						// 	}
+	
+						// }
 					}
 				}	
 			}
