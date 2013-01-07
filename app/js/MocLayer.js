@@ -121,6 +121,7 @@ MocLayer.prototype.handleDistribution = function(response)
 
 	var vertices = [];
 	var indices = [];
+	var lastIndex = 0;
 
 	// For each order, compute rectangles geometry depending on the pixel index
 	for(var key in response)
@@ -143,8 +144,9 @@ MocLayer.prototype.handleDistribution = function(response)
 			vertices = vertices.concat( GlobWeb.HEALPixBase.fxyf(ix/nside, (iy + 1)/nside, face) );
 
 			// Compute indices
-			indices = indices.concat( [i*4,i*4+1,i*4+1,i*4+2,i*4+2,i*4+3,i*4+3,i*4] );
+			indices = indices.concat( [lastIndex+i*4,lastIndex+i*4+1,lastIndex+i*4+1,lastIndex+i*4+2,lastIndex+i*4+2,lastIndex+i*4+3,lastIndex+i*4+3,lastIndex+i*4] );
 		}
+		lastIndex = indices[indices.length-2] + 1;
 	}
 
 	gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexBuffer);
