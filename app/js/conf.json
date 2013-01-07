@@ -44,6 +44,11 @@
 			"color": "rgb(8, 59, 167)"
 		},
 		{
+			"type": "equatorialGrid",
+			"name": "Equatorial grid",
+			"visible": false
+		},
+		{
 			"type": "healpix",
 			"name": "SDSS",
 			"baseUrl": "/Alasky/SDSS/Color",
@@ -63,15 +68,6 @@
 			"background": true
 		},
 		{
-			"type": "healpix",
-			"name": "Doradus",
-			"baseUrl": "http://demonstrator.telespazio.com/doradus",
-			"description": "Doradus",
-			"attribution": "",
-			"visible": false,
-			"background": false
-		},
-		{
 			"type": "healpixGrid",
 			"name": "Healpix grid",
 			"outline": true
@@ -80,7 +76,7 @@
 			"type": "GeoJSON",
 			"data": {
 				"type": "JSON",
-				"url": "data/doradus.json"
+				"url": "data/serviceHealpix.json"
 			},
 			"name": "Doradus",
 			"attribution": "Doradus data from ESO",
@@ -89,7 +85,7 @@
 		{
 			"type": "DynamicOpenSearch",
 			"dataType": "line",
-			"name": "Dynamic herschel",
+			"name": "Herschel (OpenSearch)",
 			"serviceUrl": "/sitools/oherschel/search?",
 			"visible": false,
 			"minOrder": 3
@@ -97,7 +93,7 @@
 		{
 			"type": "DynamicOpenSearch",
 			"dataType": "point",
-			"name": "Dynamic fuse",
+			"name": "Fuse (OpenSearch)",
 			"serviceUrl": "/sitools/ofuse/search?",
 			"visible": false,
 			"minOrder": 3,
@@ -106,7 +102,7 @@
 		},
 		{
 			"type": "Cluster",
-			"name": "Clusterisation",
+			"name": "Fuse (Cluster)",
 			"dataType": "point",
 			"serviceUrl": "/sitools/solr/fuse/select?",
 			"visible": false,
@@ -116,13 +112,13 @@
 		},
 		{
 			"type": "Moc",
-			"name": "Moc",
+			"name": "Moc example",
 			"serviceUrl": "/sitools/ovo/moc",
 			"visible": false
 		},
 		{
 			"type": "Mix",
-			"name": "Mix",
+			"name": "Fuse (Cluster/OpenSearch)",
 			"minOrder": 3,
 			"maxOrder": 13,
 			"treshold": 5,
@@ -131,11 +127,6 @@
 			"clusterServiceUrl": "/sitools/solr/fuse/select?",
 			"displayProperties": [ "ra", "dec", "src_type", "dateobs", "imageSize" ],
 			"visible": false
-		},
-		{
-			"type": "equatorialGrid",
-			"name": "Equetorial grid(beta)",
-			"visible": true
 		}
 	]
 }
