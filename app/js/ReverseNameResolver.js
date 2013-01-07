@@ -67,10 +67,27 @@ $( "#reverseNameResolver input[type=submit]")
 				showFeature( response.features[0] );
 			},
 			error: function (xhr, ajaxOptions, thrownError) {
-				if (xhr.status == 503)
-					ErrorDialog.open("Please wait at least 6 seconds between each request to reverse name resolver");
-				if (xhr.status == 500)
-					ErrorDialog.open("Object not found");
+				switch (xhr.status)
+				{
+					case 503: 
+						ErrorDialog.open("Please wait at least 6 seconds between each request to reverse name resolver");
+						break;
+					case 500:
+						ErrorDialog.open("Object not found");
+						break;
+					case 404:
+						ErrorDialog.open("Service not found");
+						break;
+					case 400:
+						ErrorDialog.open("Bad input");
+					default:
+						break;
+				}
+
+				// if (xhr.status == 503)
+				// 	ErrorDialog.open("Please wait at least 6 seconds between each request to reverse name resolver");
+				// if (xhr.status == 500)
+				// 	ErrorDialog.open("Object not found");
 			},
 			complete: function(xhr)
 			{
