@@ -80,16 +80,6 @@
 	cursor: pointer;
 }
 
-.service-off
-{
-	background-image: url('images/service-off.png');
-}
-
-.service-on
-{
-	background-image: url('images/service-on.png');
-}
-
 /*** Common ***/
 
 .layerIcon
