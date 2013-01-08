@@ -157,12 +157,12 @@ return {
 			if ( $('#healpix').is('.selected') )
 			{
 				$('#healpix').removeClass('selected');
-				globe.removeLayer(healpixLayer);
+				healpixLayer.visible(false);
 			}
 			else
 			{
 				$('#healpix').addClass('selected');
-				globe.addLayer(healpixLayer);
+				healpixLayer.visible(true);
 			}
 		});
 

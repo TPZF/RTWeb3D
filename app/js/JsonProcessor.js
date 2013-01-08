@@ -21,8 +21,13 @@ function handleServices( gwLayer, feature )
 		switch (service.type)
 		{
 			case "healpix":
-				service.layer = new GlobWeb.HEALPixLayer({ baseUrl: service.url, name: service.name, visible: true, coordinates: feature.geometry.coordinates[0] });
+				service.layer = new GlobWeb.HEALPixLayer({ baseUrl: service.url, name: service.name, visible: false, coordinates: feature.geometry.coordinates[0] });
 				gwLayer.subLayers.push(service.layer);
+				if ( gwLayer.globe && gwLayer.visible() )
+				{
+					// Add sublayer to engine
+					gwLayer.globe.addLayer( service.layer );
+				}
 				break;
 			default:
 				break;
