@@ -15,8 +15,9 @@ define( [ "jquery.ui", "Utils" ], function($, Utils) {
 			<li>minOrder : Starting order for OpenSearch requests</li>
 			<li>displayProperties : Properties which will be shown in priority</li>
 			<li>treshold : Visibility treshold</li>
-			<li>maxOrder: Maximal cluster refinement order</li>
+			<li>maxOrder: Maximal cluster request order</li>
 			<li>orderDepth: Depth of refinement order</li>
+			<li>maxClusterOrder: Maximal cluster order</li>
 		</ul>
  */
 MixLayer = function(options)
@@ -78,6 +79,7 @@ MixLayer = function(options)
 	this.treshold = options.treshold || 5;
 	this.maxOrder = options.maxOrder || 13;
 	this.orderDepth = options.orderDepth || 6;
+	this.maxClusterOrder = options.maxClusterOrder || 8;
 
 	// Compute url from order 3
 	for(var i=3; i<=this.maxOrder; i++)
@@ -547,7 +549,7 @@ MixLayer.prototype.render = function( tiles )
 					for ( var j=firstSubTileIndex; j<firstSubTileIndex+numSubTiles; j++ )
 					{
 						var pixelDistribution = this.distributions[childOrder][j];
-						if ( pixelDistribution > this.treshold  )
+						if ( pixelDistribution > this.treshold && tile.order < this.maxClusterOrder )
 						{
 							// Cluster child
 							this.addCluster(j, childOrder, tile.face, tile, pixelDistribution);
