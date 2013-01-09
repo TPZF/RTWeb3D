@@ -73,10 +73,10 @@ $( "#reverseNameResolver input[type=submit]")
 						ErrorDialog.open("Please wait at least 6 seconds between each request to reverse name resolver");
 						break;
 					case 500:
-						ErrorDialog.open("Object not found");
+						ErrorDialog.open("Internal server error");
 						break;
 					case 404:
-						ErrorDialog.open("Service not found");
+						ErrorDialog.open("Object not found");
 						break;
 					case 400:
 						ErrorDialog.open("Bad input");
