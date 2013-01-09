@@ -49,7 +49,19 @@ sitools.component.globWebModule = Ext.extend(Ext.Panel, {
 				xtype: 'box'} ];
 
         sitools.component.globWebModule.superclass.initComponent.call(this);
-    }
+    },
+
+    /**
+	* method called when trying to save preference
+	* @returns
+	*/
+
+	_getSettings : function () {
+		return {
+			preferencesPath : "/modules",
+			preferencesFileName : this.id
+		};
+	}
 
 });
 
