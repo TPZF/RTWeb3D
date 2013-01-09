@@ -100,6 +100,8 @@ function createLayerFromConf(layer) {
 			options.minOrder = layer.minOrder;
 			if (layer.displayProperties)
 				options.displayProperties = layer.displayProperties;
+			if (layer.proxyUrl)
+				options.proxyUrl = layer.proxyUrl;
 			
 			options.style = defaultVectorStyle;
 			gwLayer = new GlobWeb.OpenSearchLayer( options );
