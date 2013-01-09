@@ -129,11 +129,17 @@ MixLayer.prototype.handleDistribution = function(response)
 
 /**************************************************************************************************************/
 
-MixLayer.prototype.addCluster = function(pixelIndex, order, face, tile, pixelDistribution)
+/**
+ *	Adding cluster geometry to the <MixLayer.TileData>
+ *
+ *	@param pixelIndex Pixel index
+ *	@param order Pixel order
+ *	@param face Face of pixel
+ *	@param pixelDistribution Number of features in cluster
+ *	@param tileData <MixLayer.TileData>
+ */
+MixLayer.prototype.addCluster = function(pixelIndex, order, face, pixelDistribution, tileData)
 {
-	if ( !tile.extension[this.extId] )
-		tile.extension[this.extId] = new MixLayer.TileData(this);
-	
 	var nside = Math.pow(2, order);
 	var pix=pixelIndex&(nside*nside-1);
 	var ix = GlobWeb.HEALPixBase.compress_bits(pix);
@@ -171,9 +177,8 @@ MixLayer.prototype.addCluster = function(pixelIndex, order, face, tile, pixelDis
 		color: this.clusterStyle.fillColor
 	};
 
-
-	tile.extension[this.extId].clusters.push(pointRenderData);
-	tile.extension[this.extId].featureIds.push(identifier);
+	tileData.clusters.push(pointRenderData);
+	tileData.featureIds.push(identifier);
 	this.featuresSet[identifier] = { feature: feature, counter: 1, renderable: pointRenderData, cluster: true };
 }
 
@@ -244,14 +249,14 @@ MixLayer.prototype.launchRequests = function()
 	for ( var i = 0; i < this.tilesToRequest.length; i++ )
 	{
 		var requestData = this.tilesToRequest[i];
-		this.launchRequest( requestData.tile, requestData.childOrder, requestData.pixelIndicesToRequest, i );
+		this.launchRequest( requestData.tile, requestData.childOrder, requestData.tileData, requestData.pixelIndicesToRequest, i );
 	}
 }
 
 /**
  * 	Launch request to the OpenSearch service
  */
-MixLayer.prototype.launchRequest = function(tile, childOrder, pixelIndicesToRequest, requestIndex)
+MixLayer.prototype.launchRequest = function(tile, childOrder, tileData, pixelIndicesToRequest, requestIndex)
 {
 	var index = null;
 
@@ -291,11 +296,12 @@ MixLayer.prototype.launchRequest = function(tile, childOrder, pixelIndicesToRequ
 				// If request properties didn't change
 				if( self.requestProperties == requestProperties )
 				{
-					if ( !tile.extension[self.extId])
-						tile.extension[self.extId] = new MixLayer.TileData(self);
-
 					recomputeFeaturesGeometry(response.features);
-					
+	
+					// Attach to the tile
+					tile.extension[self.extId] = tileData;
+					tile.dataIsBuilding = false;
+
 					for ( var i=0; i<response.features.length; i++ )
 					{
 						self.addFeature( response.features[i], tile );
@@ -494,13 +500,11 @@ MixLayer.prototype.render = function( tiles )
 	
 	for ( var i = 0; i < tiles.length; i++ )
 	{
-
 		var tile = tiles[i];
 		var tileData = tile.extension[this.extId];
 
 		if ( !tileData )
 		{
-
 			// Search for available data on tile parent
 			var completeDataFound = false;
 			var prevVisitTile = tile;
@@ -509,7 +513,7 @@ MixLayer.prototype.render = function( tiles )
 			{
 				tileData = visitTile.extension[this.extId];
 
-				if ( tileData && tileData.complete )
+				if ( tileData )
 				{
 					completeDataFound = tileData.complete;
 					var key = visitTile.order + "_" + visitTile.pixelIndex;
@@ -522,7 +526,6 @@ MixLayer.prototype.render = function( tiles )
 						visitedTiles[key] = true;
 					}
 					visitTile = null;
-					
 				}
 				else 
 				{
@@ -531,11 +534,11 @@ MixLayer.prototype.render = function( tiles )
 				}
 			}
 
-			if ( !completeDataFound )
+			if ( !completeDataFound && !tile.dataIsBuilding )
 			{
+				tile.dataIsBuilding = true; // while requesting
 				var pixelIndicesToRequest = [];
-				tile.extension[this.extId] = new MixLayer.TileData(this);
-				tileData = tile.extension[this.extId];
+				var buildTileData = new MixLayer.TileData(this);
 				
 				var orderDepth = ( tile.order + this.orderDepth >= this.maxOrder ) ? this.maxOrder - tile.order : this.orderDepth; // clipping depth to max order
 				var childOrder = tile.order + orderDepth;
@@ -552,8 +555,8 @@ MixLayer.prototype.render = function( tiles )
 						if ( pixelDistribution > this.treshold && tile.order < this.maxClusterOrder )
 						{
 							// Cluster child
-							this.addCluster(j, childOrder, tile.face, tile, pixelDistribution);
-							tileData.complete = false;
+							this.addCluster(j, childOrder, tile.face, pixelDistribution, buildTileData);
+							buildTileData.complete = false;
 						}
 						else if ( pixelDistribution > 0 )
 						{
@@ -563,9 +566,15 @@ MixLayer.prototype.render = function( tiles )
 					}
 				}
 
-				// Launch request
 				if ( pixelIndicesToRequest.length > 0 )
-					this.tilesToRequest.push({ tile: tile, childOrder: childOrder, pixelIndicesToRequest: pixelIndicesToRequest });
+				{
+					// Add request
+					this.tilesToRequest.push({ tile: tile, tileData: buildTileData, childOrder: childOrder, pixelIndicesToRequest: pixelIndicesToRequest });
+				}
+				else
+				{
+					tile.extension[this.extId] = buildTileData;
+				}
 			}
 		}
 
@@ -595,7 +604,7 @@ MixLayer.prototype.render = function( tiles )
 	
 	this.clusterBucket.points = clusters;
 	this.featureBucket.points = features;
-	
+
 	// Render the points
 	if ( clusters.length > 0 || features.length > 0 )
 	{
