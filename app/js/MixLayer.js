@@ -593,22 +593,12 @@ MixLayer.prototype.render = function( tiles )
 
 	this.launchRequests();
 	
-	// Render the clusters
-	if ( clusters.length > 0 )
-	{
-		this.clusterBucket.points = clusters;
-		this.pointRenderer.render();
-	}
-	else
-	{
-		// remove previous cluster points
-		this.clusterBucket.points.length = 0;
-	}
-
+	this.clusterBucket.points = clusters;
+	this.featureBucket.points = features;
+	
 	// Render the points
-	if ( features.length > 0 )
+	if ( clusters.length > 0 || features.length > 0 )
 	{
-		this.featureBucket.points = features;
 		this.pointRenderer.render();
 	}
 	
