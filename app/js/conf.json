@@ -85,6 +85,7 @@
 		{
 			"type": "DynamicOpenSearch",
 			"dataType": "line",
+			"proxyUrl": "/sitools/proxy?external_url=",
 			"name": "Herschel (OpenSearch)",
 			"serviceUrl": "/sitools/oherschel/search?",
 			"visible": false,
@@ -121,12 +122,21 @@
 			"name": "Fuse (Cluster/OpenSearch)",
 			"minOrder": 3,
 			"maxOrder": 13,
+			"maxClusterOrder": 8,
 			"treshold": 5,
 			"orderDepth": 2,
 			"featureServiceUrl": "/sitools/ofuse/search?",
 			"clusterServiceUrl": "/sitools/solr/fuse/select?",
 			"displayProperties": [ "ra", "dec", "src_type", "dateobs", "imageSize" ],
 			"visible": false
+		},
+		{
+			"type": "DynamicOpenSearch",
+			"dataType": "point",
+			"name": "VO (OpenSearch)",
+			"serviceUrl": "/sitools/ovo/search?",
+			"visible": false,
+			"minOrder": 9
 		}
 	]
 }
