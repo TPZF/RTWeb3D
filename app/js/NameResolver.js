@@ -60,32 +60,47 @@ function setSearchBehavior()
 	// Submit event
 	$('#searchForm').submit(function(event){
 		event.preventDefault();
+		input.blur();
 
 		var objectName = $("#searchInput").val();
 		
 		// regexp used only to distinct equatorial coordinates and objects
 		// TODO more accurate ( "x < 24h", "x < 60mn", etc.. )
+
+		objectName = objectName.replace(/\s{2,}/g, ' '); // Replace multiple spaces by a single one
 		var coordinatesExp = new RegExp("\\d{1,2}h\\d{1,2}m\\d{1,2}([\\.]\\d+)?s\\s[-+]?[\\d]+°\\d{1,2}'\\d{1,2}([\\.]\\d+)?\"", "g");
-		if ( objectName.match( coordinatesExp ) )
+
+		if ( objectName.split(" ").length == 2 )
 		{
-			// Format to equatorial coordinates
-			var word = objectName.split(" "); // [RA, Dec]
-			word[0] = word[0].replace("h"," ");
-			word[0] = word[0].replace("m"," ");
-			word[0] = word[0].replace("s","");
-			
-			word[1] = word[1].replace("°"," ");
-			word[1] = word[1].replace("'"," ");
-			word[1] = word[1].replace("\"","");
-			
-			// Convert to geo and zoom
-			var geoPos = [];
-			GlobWeb.CoordinateSystem.fromEquatorialToGeo([word[0], word[1]], geoPos);
-			astroNavigator.zoomTo(geoPos, configuration.zoomFov);
-			addTarget(geoPos[0], geoPos[1]);
+			if ( objectName.match( coordinatesExp ) )
+			{
+				// Format to equatorial coordinates
+				var word = objectName.split(" "); // [RA, Dec]
+				word[0] = word[0].replace("h"," ");
+				word[0] = word[0].replace("m"," ");
+				word[0] = word[0].replace("s","");
+				
+				word[1] = word[1].replace("°"," ");
+				word[1] = word[1].replace("'"," ");
+				word[1] = word[1].replace("\"","");
+				
+				// Convert to geo and zoom
+				var geoPos = [];
+				GlobWeb.CoordinateSystem.fromEquatorialToGeo([word[0], word[1]], geoPos);
+				astroNavigator.zoomTo(geoPos, configuration.zoomFov);
+				addTarget(geoPos[0], geoPos[1]);
+			}
+			else
+			{
+				$('#equatorialCoordinatesSearchResult').html("Bad input");
+				$('#equatorialCoordinatesSearchResult').fadeIn(animationDuration);
+			}
 		}
 		else
 		{
+			$("#searchSpinner").fadeIn(animationDuration);
+			$('#searchClear').fadeOut(animationDuration);
+
 			// Name of the object which could be potentially found by name resolver
 			var url = configuration.baseUrl + "/" + objectName +"/EQUATORIAL";
 			$('#equatorialCoordinatesSearchResult').fadeOut(animationDuration);
@@ -93,7 +108,6 @@ function setSearchBehavior()
 				type: "GET",
 				url: url,
 				success: function(data){
-					
 					response = data;
 					if(response.type == "FeatureCollection")
 					{
@@ -120,9 +134,14 @@ function setSearchBehavior()
 					}
 				},
 				error: function (xhr, ajaxOptions, thrownError) {
-					$('#equatorialCoordinatesSearchResult').html("Not found or bad request");
+					$('#equatorialCoordinatesSearchResult').html("Not found");
 					$('#equatorialCoordinatesSearchResult').fadeIn(animationDuration);
 					console.error( xhr.responseText );
+				},
+				complete: function(xhr)
+				{
+					$("#searchSpinner").fadeOut(animationDuration);
+					$('#searchClear').fadeIn(animationDuration);
 				}
 			});
 		}

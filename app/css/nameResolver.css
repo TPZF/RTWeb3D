@@ -93,3 +93,14 @@ input#searchClear {
 {
 	cursor: pointer;
 }
+
+#searchSpinner
+{
+	background: url(../css/images/whiteSpinner.gif) no-repeat;
+	width: 15px;
+	height: 15px;
+	background-size: 100%;
+	position: absolute;
+	top: 12px;
+	right: 21px;
+}
