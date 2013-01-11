@@ -182,9 +182,10 @@ function handleDrop(evt) {
 			
 			// Create style
 			var options = { name: name };
-			options.style = new GlobWeb.FeatureStyle({ rendererHint: "Basic", iconUrl: "css/images/star.png", fillColor: rgba, strokeColor: rgba });
+			options.style = new GlobWeb.FeatureStyle({ rendererHint: "Basic", iconUrl: "css/images/star.png", fillColor: rgba, strokeColor: rgba, visible: true });
 			var gwLayer = new GlobWeb.VectorLayer( options );
 			gwLayer.deletable = true;
+			globe.addLayer(gwLayer);
 
 			// Add geoJson layer
 			JsonProcessor.handleFeatureCollection( gwLayer, response );
@@ -327,11 +328,14 @@ function createHtmlForAdditionalLayer( gwLayer )
 			if ( gwLayer.dataType == "point")
 			{
 				generatePointLegend(gwLayer, canvas, gwLayer.style.iconUrl);
-			}
-
-			if ( gwLayer.dataType == "line")
+			} 
+			else if ( gwLayer.dataType == "line")
 			{
 				generateLineLegend( gwLayer, canvas );
+			} 
+			else
+			{
+				$canvas.css("display", "none");			
 			}
 		}
 	}
@@ -431,9 +435,6 @@ function addBackgroundLayer ( gwLayer )
  */
 function addAdditionalLayer ( gwLayer )
 {
-	// Add to engine
-	globe.addLayer( gwLayer );
-	
 	// Add HTML
 	createHtmlForAdditionalLayer( gwLayer );
 
@@ -564,6 +565,9 @@ function initLayers(layers)
 			}
 			else
 			{
+				// Add to engine
+				globe.addLayer( gwLayer );
+
 				addAdditionalLayer( gwLayer );
 			}
 		}

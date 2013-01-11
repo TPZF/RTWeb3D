@@ -59,10 +59,21 @@ return {
 			switch ( currentFeature.geometry.type )
 			{
 				case "Point":
+					if ( !gwLayer.dataType )
+						gwLayer.dataType = "point";
+					else if ( gwLayer.dataType != 'point' )
+						gwLayer.dataType = "none";
+
+
 					if ( currentFeature.geometry.coordinates[0] > 180 )
 						currentFeature.geometry.coordinates[0] -= 360;
 					break;
 				case "Polygon":
+					if ( !gwLayer.dataType )
+						gwLayer.dataType = "line";
+					else if ( gwLayer.dataType != 'line' )
+						gwLayer.dataType = "none";
+					
 					var ring = currentFeature.geometry.coordinates[0];
 					for ( var j = 0; j < ring.length; j++ )
 					{
