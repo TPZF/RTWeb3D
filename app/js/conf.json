@@ -60,6 +60,33 @@
 		},
 		{ 
 			"type": "healpix",
+			"name": "Deep CFHTLS",
+			"baseUrl": "/Alasky/CFHTLS-T0007b/Deep/RGB-UGIm",
+			"description": "Deep CFHTLS from CDS",
+			"attribution": "Deep CFHTLS backbround from <object width='48' height='32' data=\"css/images/cds.svg\" type=\"image/svg+xml\"></object>",
+			"visible": true,
+			"background": true
+		},
+		{ 
+			"type": "healpix",
+			"name": "Mellinger",
+			"baseUrl": "/Alasky/MellingerRGB",
+			"description": "Axel Mellinger survey, healpixed by CDS",
+			"attribution": "Mellinger backbround from <object width='48' height='32' data=\"css/images/cds.svg\" type=\"image/svg+xml\"></object>",
+			"visible": true,
+			"background": true
+		},
+		{ 
+			"type": "healpix",
+			"name": "2MASS",
+			"baseUrl": "/Alasky/2MASS/Color",
+			"description": "Infrared 2MASS colored survey from NASA, healpixed by CDS",
+			"attribution": "2MASS backbround from <object width='48' height='32' data=\"css/images/cds.svg\" type=\"image/svg+xml\"></object>",
+			"visible": true,
+			"background": true
+		},
+		{ 
+			"type": "healpix",
 			"name": "DSS",
 			"baseUrl": "/Alasky/DssColor",
 			"description": "Digital Sky Survey from CDS",
@@ -137,6 +164,14 @@
 			"serviceUrl": "/sitools/ovo/search?",
 			"visible": false,
 			"minOrder": 9
+		},
+		{
+			"type": "DynamicOpenSearch",
+			"dataType": "line",
+			"name": "Sia",
+			"serviceUrl": "/sitools/sia/search?",
+			"visible": false,
+			"minOrder": 3
 		}
 	]
 }
