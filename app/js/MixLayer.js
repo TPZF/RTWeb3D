@@ -163,7 +163,7 @@ MixLayer.prototype.addCluster = function(pixelIndex, order, face, pixelDistribut
 			{
 				featureNum: pixelDistribution,
 				identifier: identifier,
-				title: pixelIndex+"("+order+")",
+				title: "Cluster("+pixelDistribution+")",
 				order: order,
 				pixelIndex: pixelIndex
 			}
