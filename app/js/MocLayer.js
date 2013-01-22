@@ -173,6 +173,10 @@ MocLayer.prototype.handleDistribution = function(response)
  */
 MocLayer.prototype.render = function()
 {
+	if ( !this._visible
+		|| this._opacity <= 0.0 )
+		return;
+		
 	if( this.vertexBuffer )
 	{
 		var renderContext = this.globe.tileManager.renderContext;
@@ -188,11 +192,7 @@ MocLayer.prototype.render = function()
 		// The shader only needs the viewProjection matrix, use GlobWeb.modelViewMatrix as a temporary storage
 		mat4.multiply(renderContext.projectionMatrix, renderContext.viewMatrix, renderContext.modelViewMatrix)
 		gl.uniformMatrix4fv(this.program.uniforms["viewProjectionMatrix"], false, renderContext.modelViewMatrix);
-			
-		if ( !this._visible
-			|| this._opacity <= 0.0 )
-			return;
-			
+						
 		gl.uniform4f(this.program.uniforms["color"], this.style.strokeColor[0], this.style.strokeColor[1], this.style.strokeColor[2], this._opacity );
 		
 		gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexBuffer);

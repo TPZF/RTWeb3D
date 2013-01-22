@@ -20,12 +20,9 @@
 					<img id='quicklook' src="css/images/quicklook.png" class=<%= (properties.style.fill ? 'selected' : '' ) %> />
 				<%
 				}
-				else
-				{
 			 	%>
-					<a href="<%= services ? services.download.url : "" %>" target="_self"><img src="css/images/download1.png"></a>
+				<a href="<%= services ? services.download.url : "" %>" target="_self"><img src="css/images/download1.png"></a>
 				<%
-				}
 			}
 			if ( services.healpix ) { %>
 				<img id='healpix' src="css/images/healpix.png" class=<%= (services.healpix.layer.visible() ? 'selected' : '' ) %> />
