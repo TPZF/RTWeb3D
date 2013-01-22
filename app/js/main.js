@@ -8,7 +8,8 @@ require.config({
 		"jquery.ui": "../externals/jquery-ui-1.9.2.custom.min",
 		"jquery.ui.selectmenu": "../externals/jquery.ui.selectmenu",
 		"underscore-min": "../externals/underscore-min",
-		"jquery.nicescroll.min": "../externals/jquery.nicescroll.min"
+		"jquery.nicescroll.min": "../externals/jquery.nicescroll.min",
+		"fits": "../externals/fits"
 	},
 	shim: {
 		'jquery': {
@@ -37,7 +38,7 @@ require.config({
 /**
  * Main module
  */
-require( ["jquery.ui", "LayerManager", "NameResolver", "ReverseNameResolver", "Utils", "PickingManager", "FeaturePopup", "IFrame", "StarProvider", "ConstellationProvider", "JsonProvider", "OpenSearchProvider"], function($, LayerManager, NameResolver, ReverseNameResolver, Utils, PickingManager, FeaturePopup, IFrame) {
+require( ["jquery.ui", "LayerManager", "NameResolver", "ReverseNameResolver", "Utils", "PickingManager", "FeaturePopup", "IFrame", "ErrorDialog", "StarProvider", "ConstellationProvider", "JsonProvider", "OpenSearchProvider"], function($, LayerManager, NameResolver, ReverseNameResolver, Utils, PickingManager, FeaturePopup, IFrame, ErrorDialog) {
 
 // Console fix	
 window.console||(console={log:function(){}});
@@ -108,7 +109,7 @@ $(function()
 	}, false);
 	
 	// Initialize navigation
-	navigation = new GlobWeb.AstroNavigation(globe, {minFov: 0.05});
+	navigation = new GlobWeb.AstroNavigation(globe, {minFov: 0.001});
 	
 	// Retreive configuration
 	$.getJSON("js/conf.json", function(data) {
@@ -128,6 +129,8 @@ $(function()
 
 		// Create layers from configuration file
 		LayerManager.init(globe, navigation, data.layers);
+	}).error(function(){
+		ErrorDialog.open("JSON parsing error<br/> For more details see http://jsonlint.com/.");
 	});
 	
 	// Create data manager
