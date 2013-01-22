@@ -2,7 +2,7 @@
  * FeaturePopup module
  */
 define( [ "jquery.ui", "IFrame", "underscore-min", "text!../templates/featureList.html", "text!../templates/featureDescription.html", 
-	"text!../templates/descriptionTable.html", "jquery.nicescroll.min" ], function($, IFrame, _, featureListHTMLTemplate, featureDescriptionHTMLTemplate, descriptionTableHTMLTemplate) {
+	"text!../templates/descriptionTable.html", "jquery.nicescroll.min", "fits" ], function($, IFrame, _, featureListHTMLTemplate, featureDescriptionHTMLTemplate, descriptionTableHTMLTemplate) {
 
 var featureListHTML = '';
 var pickingManager = null;
@@ -55,6 +55,102 @@ function computeDivPosition(clientX, clientY)
 			top: mousey + 'px'
 		}
 	);
+}
+
+/**
+ *	Computing data for FITS file
+ *
+ *	@param selectedFeature Feature
+ *	@param style <GlobWeb.FeatureStyle> Modified style of feature
+ *	@param url Url of fits file
+ */
+function computeData(selectedFeature, style, url)
+{
+	// Enable float texture extension to have higher luminance range
+	var ext = globe.renderContext.gl.getExtension("OES_texture_float");
+    if (!ext) {
+        alert("no OES_texture_float");
+        return;
+    }
+	var xhr = new XMLHttpRequest();
+    var FITS = astro.FITS;
+
+    xhr.open('GET', url);
+    
+    // Set the response type to arraybuffer
+    xhr.responseType = 'arraybuffer';
+
+    // Define the onload function
+    xhr.onload = function(e) {
+        // Initialize the FITS.File object using
+        // the array buffer returned from the XHR
+        var fits = new FITS.File(xhr.response);
+        // Grab the first HDU with a data unit
+        var hdu = fits.getHDU();
+        var data = hdu.data;
+
+        var uintPixels;
+        var swapPixels = new Uint8Array( data.view.buffer, data.begin, data.length ); // with gl.UNSIGNED_byte
+
+	    for ( var i=0; i<swapPixels.length; i+=4 )
+	    {
+	        var temp = swapPixels[i];
+	        swapPixels[i] = swapPixels[i+3];
+	        swapPixels[i+3] = temp;
+
+	        temp = swapPixels[i+1];
+	        swapPixels[i+1] = swapPixels[i+2];
+	        swapPixels[i+2] = temp;
+	    }
+
+	    var pixels = new Float32Array( data.view.buffer, data.begin, data.length/4 ); // with gl.FLOAT
+	    var uintPixels = new Uint8Array( data.length/4 );
+	    var max = pixels[0];
+	    var min = pixels[0];
+	    for ( var i=1; i<pixels.length; i++ )
+	    {
+	        var val = pixels[i];
+
+	        if ( max < val )
+	            max = val;
+	        if ( min > val )
+	            min = val;
+	    }
+
+		// Image processing(minmax & log corrections)
+	    // var delta = max - min;
+	    // var a = 10000;
+	    // var logA = Math.log(a);
+	    // for ( var i=0; i<pixels.length; i++ )
+	    // {
+	    //     var x = (pixels[i] - min) / delta;
+	    //     // uintPixels[i] = (Math.log(a*x + 1)/logA) * 255; // log
+	    //     uintPixels[i] = x * 255; // linear
+
+	    //     // uintPixels[i] = ((pixels[i] - min)/delta) * 255;
+	    // }
+
+	    var gl = globe.renderContext.gl;
+	    var tex = gl.createTexture();
+	    gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1);
+        gl.bindTexture(gl.TEXTURE_2D, tex);
+	    gl.texImage2D(
+            gl.TEXTURE_2D, 0, 
+            gl.LUMINANCE, data.width, data.height, 0, 
+            gl.LUMINANCE, gl.FLOAT, pixels);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+	
+		// Attach texture to style
+	    style.texture = tex;
+	    style.texture.min = min;
+	    style.texture.max = max;
+	    selectedFeature.layer.modifyFeatureStyle( selectedFeature.feature, style );
+    }
+
+    xhr.send();
 }
 
 /**
@@ -144,7 +240,16 @@ return {
 				$('#quicklook').addClass('selected');
 				var style = selectedFeature.feature.properties.style;
 				style.fill = true;
-				style.fillTextureUrl = selectedFeature.feature.properties.quicklook;
+
+				if ( selectedFeature.feature.services && selectedFeature.feature.services.download && selectedFeature.feature.services.download.url.search(".fits") )
+				{
+					var url = "/sitools/proxy?external_url=" + selectedFeature.feature.services.download.url;
+					computeData( selectedFeature, style, url );
+				}
+				else
+				{
+					style.fillTextureUrl = selectedFeature.feature.properties.quicklook;
+				}
 				selectedFeature.layer.modifyFeatureStyle( selectedFeature.feature, style );
 			}
 		});
@@ -211,11 +316,13 @@ return {
 		// Choose feature by clicking on its title
 		$selectedFeatureDiv.on("click", '.featureTitle', function(){
 			pickingManager.blurSelectedFeature();
+			$('#featureList div.selected').removeClass('selected');
 			
 			var featureIndexToFocus = $(this).index();
 			pickingManager.focusFeature( featureIndexToFocus );
 			var selectedFeature = pickingManager.getSelectedFeature();
 			
+			$('#featureList div:eq('+featureIndexToFocus+')').addClass('selected');
 			self.showFeatureInformation( selectedFeature.layer, selectedFeature.feature );
 		});
 
@@ -225,20 +332,6 @@ return {
 			IFrame.show(event.target.innerHTML);
 		});
 
-	},
-
-	/**
-	 *	Unselect title in the list of features
-	 */
-	blurTitle: function(index){
-		$('#featureList div:eq('+index+')').removeClass('selected');
-	},
-
-	/**
-	 *	Select title in the list of features
-	 */
-	focusTitle: function(index){
-		$('#featureList div:eq('+index+')').addClass('selected');	
 	},
 
 	/**

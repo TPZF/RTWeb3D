@@ -22,7 +22,7 @@
 	<div class="layerTools" class="ui-widget-header ui-corner-all">
 
 		<%
-		if( layer instanceof MixLayer )
+		if( layer instanceof MixLayer || layer instanceof GlobWeb.OpenSearchLayer )
 		{
 		%>
 			<input type="checkbox" class="service" id="service_<%= currentIndex %>" /><label for="service_<%= currentIndex %>">Services</label>
