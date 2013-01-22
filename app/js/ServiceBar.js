@@ -1,13 +1,10 @@
 
 /**
  * Service bar module
- * (currently specified for OpenSearchLayer only)
+ * (currently specified for OpenSearchLayer & Mix only)
  *
  */
-define( [ "jquery.ui", "underscore-min", "text!../templates/openSearchForm.html" ], function($,_,openSearchFormHTMLTemplate) {
-
-// Template generating the form of properties
-var openSearchFormTemplate = _.template(openSearchFormHTMLTemplate);
+define( [ "jquery.ui", "OpenSearchService", "FitsService" ], function($, OpenSearchService, FitsService) {
 
 // Create selected feature div
 var serviceBar = '<div id="serviceBar" class="ui-widget-content">\
@@ -24,38 +21,45 @@ var tabs = $('#layerServices').tabs({
 	show: { effect: "slideDown", duration: 300 }
 });
 
-// TODO make parameter
-var openSearchFormUrl = '/sitools/ofuse/opensearch.xml';
-var openSearchForm = '';
+/**
+ *	Intersection of two arrays using associative array
+ */
+function getIntersect(arr1, arr2) {
+    var result = [], o = {}, length = arr2.length, i, val;
+    for (i = 0; i < length; i++) {
+        o[arr2[i]] = true;
+    }
+    length = arr1.length;
+    for (i = 0; i < length; i++) {
+        value = arr1[i];
+        if (value in o) {
+            result.push(value);
+        }
+    }
+    return result;
+}
 
-$.ajax({
-	type: "GET",
-	url: openSearchFormUrl,
-	dataType: "xml",
-	success: function(xml) {
-
-		var mspdesc = $(xml).find('Url[rel="mspdesc"]');
-		var describeUrl = $(mspdesc).attr("template");
-
-		$.ajax({
-			type: "GET",
-			url: describeUrl,
-			dataType: "json",
-			success: function(json)
-			{
-				var formProperties = json.filters;
-				openSearchForm = openSearchFormTemplate( { properties: formProperties });
-			}
-		});
-	}
-}); 
-
+/**
+ *	Intersection of two arrays using associative array
+ */
+function intersectServices(arr) {
+	var result = {};
+    length = arr.length;
+    for (i = 0; i < length; i++) {
+        value = arr[i];
+        if (value in services) {
+            result[value] = services[value];
+        }
+    }
+    services = result;
+}
 
 // TODO make generic :
 // mapping between type of a layer and supported services
 var serviceMapping =
 {
-	"DynamicOSLayer": ["OpenSearchService"]
+	"Mix" : [OpenSearchService],
+	"DynamicOpenSearch": [FitsService]
 };
 
 /**
@@ -69,56 +73,21 @@ function isEmpty(o){
 	return true;
 }
 
-$('#layerServices').on("submit", "#openSearchForm", function(event){
-	event.preventDefault();
-
-	var service = $('#layerServices ul li.ui-state-active');
-
-	// find index of activated service
-	var index = service.index();
-
-	var layer = layers[index];
-	// Get array of changed inputs
-	var notEmptyInputs = $('#openSearchForm :input[value!=""]').serializeArray();
-	// Create new properties
-	var properties = {}
-	for(var i=0; i<notEmptyInputs.length; i++)
-	{
-		properties[notEmptyInputs[i].name.toString()] = notEmptyInputs[i].value.toString();
-	}
-
-	// Modify the request properties of choosen layer
-	layer.setRequestProperties(properties);
-
-	tabs.tabs('select',index);
-
-});
+function getLayersLength()
+{
+	Object.keys(layers).length
+}
 
 var layers = [];
-var services = {};
+var services = [];
 
-/**
- *	Add OpenSearchService to the bar
- */
-function addOpenSearchService()
-{
-	tabs.find( ".ui-tabs-nav" ).append('<li><a href="#openSearchService">OpenSearch</a></li>');
-	tabs.append('<div id="openSearchService">'+openSearchForm+'</div>');
-	tabs.tabs("refresh");
-}
 
-function removeService(id)
+function removeAllHTML()
 {
-	// NEVER TESTED...
-	var index = tabs.find( '.ui-tabs-nav li[aria-controls="'+id+'"]').index();
-	tabs.tabs("remove",index);
-}
-
-function removeOpenSearchService()
-{
-	// NEVER TESTED...
-	var index = tabs.find( '.ui-tabs-nav li[aria-controls="openSearchService"]').index();
-	tabs.tabs("remove",index);
+	for ( var i=0; i<services.length; i++ )
+	{
+		services[i].removeService(tabs);
+	}
 }
 
 return {
@@ -128,20 +97,33 @@ return {
 	 */
 	addLayer: function(layer){
 		
-		// TODO make generic
-		// if ( isEmpty(services) )
-		// {
-		// 	// add all services of layer
-		// }
-		// else
-		// {
-		// 	// intersection of services
-		// }
-
-
-		if ( layer instanceof MixLayer )
+		var layerServices = serviceMapping[layer.type]
+		if ( layerServices )
 		{
-			addOpenSearchService();
+			if ( services.length == 0 )
+			{
+				// add all services of layer
+				for ( var i=0; i<layerServices.length; i++)
+				{
+					var service = layerServices[i];
+					// service.addLayer(layer);
+					services.push(service);
+				}
+			}
+			else
+			{
+				// intersection of services
+				_.intersection(services, layerServices);
+				// intersectServices(layerServices);
+			}
+
+			removeAllHTML();
+
+			for ( var i=0; i<services.length; i++ )
+			{
+				services[i].addService(tabs);
+				services[i].addLayer(layer);
+			}
 
 			if ( layers.length == 0 )
 			{
@@ -160,6 +142,7 @@ return {
 			layers.push(layer);
 			this.show();
 		}
+
 	},
 
 	/**
@@ -167,7 +150,7 @@ return {
 	 */
 	removeLayer: function(layer){
 
-		if( layer instanceof MixLayer )
+		if( layer instanceof MixLayer || layer instanceof GlobWeb.OpenSearchLayer )
 		{
 			if ( layers.length == 1 )
 			{
@@ -179,15 +162,50 @@ return {
 				if(layers[i].id == layer.id)
 				{
 					layers.splice(i,1);
-					tabs.tabs("remove",i);
+					// tabs.tabs("remove",i);
 				}
 			}
+
+			removeAllHTML();
+
+			var length = services.length;
+			for ( var i=0; i<length; i++ )
+			{
+				services[i].removeLayer(layer);
+				services.splice(i,1);
+			}
+
 
 			if( layers.length == 1 )
 			{
 				$serviceBar.find('#layerInfo').fadeOut(function(){
 					$(this).html('<b>'+layers[0].name+'</b>').fadeIn();
 				});
+
+				var layerServices = serviceMapping[layers[0].type];
+				// add all services of layer
+				for ( var i=0; i<layerServices.length; i++)
+				{
+					var service = layerServices[i];
+					// service.addLayer(layer);
+					services.push(service);
+				}
+			}
+			else
+			{
+				// Intersection of services between layers
+				for ( var i=0; i<layers.length; i++ )
+				{
+
+					var layerServices = serviceMapping[layers[i].type];
+					intersectServices(layerServices);
+				}
+			}
+			
+			for ( var i=0; i<services.length; i++ )
+			{
+				services[i].addService(tabs);
+				services[i].addLayer(layer);
 			}
 		}
 	},

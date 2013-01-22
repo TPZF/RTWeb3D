@@ -23,8 +23,7 @@ define( [ "jquery.ui", "Utils" ], function($, Utils) {
 MixLayer = function(options)
 {
 	GlobWeb.BaseLayer.prototype.constructor.call( this, options );
-	
-	this.type = "MixLayer";
+
 	this.featureServiceUrl = options.featureServiceUrl;
 	this.clusterServiceUrl = options.clusterServiceUrl;
 

@@ -36,22 +36,22 @@
 	-webkit-border-radius: 0px;
 	border-radius: 0px;
 }
-#layerServices .ui-state-default {
+#layerServices li.ui-state-default {
 	background: transparent;
 	border: none;
 }
-#layerServices .ui-state-active {
+#layerServices li.ui-state-active {
 	background: transparent url(images/uiTabsArrow.png) no-repeat bottom center;
 	border: none;
 }
-#layerServices .ui-state-default a {
+#layerServices li.ui-state-default a {
 	color: #c0c0c0;
 }
-#layerServices .ui-state-active a {
+#layerServices li.ui-state-active a {
 	color: orange;
 	outline: none;
 }
-#layerServices .ui-state-focus a {
+#layerServices li.ui-state-focus a {
 	outline: none;
 }
 

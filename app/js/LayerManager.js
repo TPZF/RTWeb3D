@@ -148,6 +148,7 @@ function createLayerFromConf(layer) {
 		default:
 			console.error("Not implemented");
 	}
+	gwLayer.type = layer.type;
 
 	return gwLayer;
 }
@@ -170,7 +171,7 @@ function handleDrop(evt) {
 		reader.onloadend = function(e) {
 			
 			try {
-				var response = JSON.parse(this.result);
+				var response = $.parseJSON(this.result);
 			} catch (e) {
 				ErrorDialog.open("JSON parsing error : " + e.type + "<br/> For more details see http://jsonlint.com/.");
 				return false;
