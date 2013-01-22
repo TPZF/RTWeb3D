@@ -138,15 +138,19 @@ MocLayer.prototype.handleDistribution = function(response)
 			var iy = GlobWeb.HEALPixBase.compress_bits(pix>>>1);
 			var face = (pixelIndex>>>(2*order));
 
-			vertices = vertices.concat( GlobWeb.HEALPixBase.fxyf(ix/nside, iy/nside, face) );
-			vertices = vertices.concat( GlobWeb.HEALPixBase.fxyf((ix + 1)/nside, iy/nside, face) );
-			vertices = vertices.concat( GlobWeb.HEALPixBase.fxyf((ix + 1)/nside, (iy + 1)/nside, face) );
-			vertices = vertices.concat( GlobWeb.HEALPixBase.fxyf(ix/nside, (iy + 1)/nside, face) );
+			var vert = GlobWeb.HEALPixBase.fxyf(ix/nside, iy/nside, face);
+			vertices.push( vert[0], vert[1], vert[2] );
+			vert =  GlobWeb.HEALPixBase.fxyf((ix + 1)/nside, iy/nside, face);
+			vertices.push( vert[0], vert[1], vert[2] );
+			vert =  GlobWeb.HEALPixBase.fxyf((ix + 1)/nside, (iy + 1)/nside, face);
+			vertices.push( vert[0], vert[1], vert[2] );
+			vert =  GlobWeb.HEALPixBase.fxyf(ix/nside, (iy + 1)/nside, face);
+			vertices.push( vert[0], vert[1], vert[2] );
 
 			// Compute indices
-			indices = indices.concat( [lastIndex+i*4,lastIndex+i*4+1,lastIndex+i*4+1,lastIndex+i*4+2,lastIndex+i*4+2,lastIndex+i*4+3,lastIndex+i*4+3,lastIndex+i*4] );
+			indices.push( lastIndex, lastIndex+1, lastIndex+1, lastIndex+2, lastIndex+2, lastIndex+3, lastIndex+3, lastIndex );
+			lastIndex += 4;
 		}
-		lastIndex = indices[indices.length-2] + 1;
 	}
 
 	gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexBuffer);
