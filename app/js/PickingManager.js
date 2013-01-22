@@ -122,7 +122,7 @@ function init()
 			else
 			{
 				// Remove selected style for previous selection
-				blurSelection();
+				clearSelection();
 
 				// Add selected style for new selection
 				focusSelection( newSelection );
@@ -317,9 +317,6 @@ function computePickSelection( pickPoint )
 
 					if ( tileData )
 					{
-
-					// if ( extensionData )
-					// {
 						// TODO refactor
 						for( w=0; w<tileData.clusters.length; w++ )
 						{
@@ -338,27 +335,6 @@ function computePickSelection( pickPoint )
 								newSelection.push( { feature: pickableLayer.featuresSet[tileData.featureIds[w+tileData.clusters.length]].feature, layer: pickableLayer } );
 							}
 						}
-
-
-						// for ( w=0; w<extensionData.points.length; w++ )
-						// {
-						// 	var point = extensionData.points[w]['geometry']['coordinates'];
-						// 	if ( extensionData.cluster )
-						// 	{	
-						// 		if ( pointInSphere( pickPoint, point, 32 ) )
-						// 		{
-						// 			newSelection.push( { feature: pickableLayer.featuresSet[extensionData.featureIds[w]].feature, layer: pickableLayer } );
-						// 		}
-						// 	}
-						// 	else
-						// 	{
-						// 		if ( pointInSphere( pickPoint, point, 10 ) )
-						// 		{
-						// 			newSelection.push( { feature: pickableLayer.featuresSet[extensionData.featureIds[w]].feature, layer: pickableLayer } );
-						// 		}
-						// 	}
-	
-						// }
 					}
 				}	
 			}
@@ -441,8 +417,6 @@ return {
 					break;
 			}
 			selectedFeature.layer.modifyFeatureStyle( selectedFeature.feature, style );
-
-			FeaturePopup.blurTitle(stackSelectionIndex);
 		}
 	},
 
@@ -453,6 +427,7 @@ return {
 	 */
 	focusFeature: function(index)
 	{
+		blurSelection();
 		var selectedFeature = selection[index];
 		if ( selectedFeature )
 		{
@@ -470,7 +445,6 @@ return {
 					break;
 			}
 			selectedFeature.layer.modifyFeatureStyle( selectedFeature.feature, style );
-			FeaturePopup.focusTitle(stackSelectionIndex);
 		}
 	},
 
