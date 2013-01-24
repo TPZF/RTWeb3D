@@ -4,6 +4,50 @@
 define( [ "jquery.ui", "Utils" ], function($, Utils) {
 
 /**
+ * Find the neighbour of a pixel
+ *
+ * @param the order
+ * @param the pixelIndex
+ * @param the side (0: top, 1: right, 2: bottom, 3: left)
+ */
+var findPixelNeighbour = function( order, pixelIndex, side ) {
+
+	// Check the pixel index to know if the neighbouring search must be recursive
+	// Depends on the side
+	var bit = ( side == 1 || side == 3 ) ? pixelIndex & 1 : pixelIndex & 2;
+	var recursive = ( side == 1 || side == 2 ) ? bit != 0 : bit == 0;
+	
+	if ( recursive ) {
+	
+		// Search recrusively with parent
+		if ( order > 1 ) {
+			// Find parent pixel neighbour
+			var pixelParent = findPixelNeighbour(order-1, pixelIndex >>> 2, side);
+			// Return the child, depends of the side
+			switch (side)
+			{
+			case 0:
+				return pixelParent * 4 + 2 + (pixelIndex & 1);
+			case 1:
+				return pixelParent * 4 + (pixelIndex & 2);
+			case 2:
+				return pixelParent * 4 + (pixelIndex & 1);
+			case 3:
+				return pixelParent * 4 + 1 + (pixelIndex & 2);
+			}
+		} else {
+			return -1;
+		}
+		
+	} else {
+		var diff = ( side == 1 || side == 3 ) ? 1 : 2;
+		var signDiff = ( side == 2 || side == 1 ) ? diff : -diff;
+		return pixelIndex + signDiff;
+		
+	}
+};
+
+/**
  * 	@constructor
  * 	@class
  * 	MocLayer
@@ -121,10 +165,10 @@ MocLayer.prototype.handleDistribution = function(response)
 
 	var vertices = [];
 	var indices = [];
-	var lastIndex = 0;
+/*	var lastIndex = 0;
 
 	// For each order, compute rectangles geometry depending on the pixel index
-	for(var key in response)
+	for (var key in response)
 	{
 		var order = parseInt(key);
 		for(var i=0; i<response[key].length; i++)
@@ -151,12 +195,94 @@ MocLayer.prototype.handleDistribution = function(response)
 			indices.push( lastIndex, lastIndex+1, lastIndex+1, lastIndex+2, lastIndex+2, lastIndex+3, lastIndex+3, lastIndex );
 			lastIndex += 4;
 		}
+	}*/
+	
+	var orders = [];
+	for (var key in response)
+	{
+		orders[ parseInt(key) ] = {
+			pixels : response[key],
+			pixelMap : {}
+		}
+	}
+	
+	var numVertex = 0;
+	
+	for ( var order = orders.length-1; order >= 0; order-- ) {
+	
+		if ( orders[order] ) {
+	
+			for (var p=0; p < orders[order].pixels.length; p++)
+			{
+				var pixelIndex = orders[order].pixels[p];
+				var pixelMap = orders[order].pixelMap;
+				
+				var cornerIndices = [ -1, -1, -1, -1 ];
+				// left, right, top, bottom
+				var existingEdges = [ false, false, false, false ];
+							
+				var leftPixel = findPixelNeighbour( order, pixelIndex, 3 );
+				if ( pixelMap[leftPixel] ) {
+					cornerIndices[0] = pixelMap[leftPixel].cornerIndices[1];
+					cornerIndices[3] = pixelMap[leftPixel].cornerIndices[2];
+					existingEdges[3] = true;
+				} 
+				
+				var rightPixel = findPixelNeighbour( order, pixelIndex, 1 );
+				if ( pixelMap[rightPixel] ) {
+					cornerIndices[1] = pixelMap[rightPixel].cornerIndices[0];
+					cornerIndices[2] = pixelMap[rightPixel].cornerIndices[3];
+					existingEdges[1] = true;
+				} 
+				
+				var topixel = findPixelNeighbour( order, pixelIndex, 0 );
+				if ( pixelMap[topixel] ) {
+					cornerIndices[0] = pixelMap[topixel].cornerIndices[3];
+					cornerIndices[1] = pixelMap[topixel].cornerIndices[2];
+					existingEdges[0] = true;
+				} 
+				
+				var bottomPixel = findPixelNeighbour( order, pixelIndex, 2 );
+				if ( pixelMap[bottomPixel] ) {
+					cornerIndices[3] = pixelMap[bottomPixel].cornerIndices[0];
+					cornerIndices[2] = pixelMap[bottomPixel].cornerIndices[1];
+					existingEdges[2] = true;
+				}
+				
+				for ( var k = 0; k < 4; k ++ ) {
+					if ( cornerIndices[k] < 0 ) {
+						// Compute vertices
+						var nside = Math.pow(2, order);
+						var pix=pixelIndex&(nside*nside-1);
+						var ix = GlobWeb.HEALPixBase.compress_bits(pix);
+						var iy = GlobWeb.HEALPixBase.compress_bits(pix>>>1);
+						var face = (pixelIndex>>>(2*order));
+
+						var i = ((k & 2) == 0) ? (k&1) : (1 - (k&1));
+						var j = (k & 2) >>> 1;
+						var vert = GlobWeb.HEALPixBase.fxyf( (ix+i)/nside, (iy+j)/nside, face);
+						cornerIndices[k] = numVertex;
+						vertices.push( vert[0], vert[1], vert[2] );
+						numVertex++;
+					}
+				}
+				
+				for ( var k = 0; k < 4; k ++ ) {
+					if ( !existingEdges[k] ) {
+						indices.push( cornerIndices[k], cornerIndices[(k+1)%4] );
+					}
+				}
+				
+				pixelMap[pixelIndex] = { cornerIndices: cornerIndices };
+			}
+		
+		}
 	}
 
 	gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexBuffer);
 	gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW);
 	this.vertexBuffer.itemSize = 3;
-	this.vertexBuffer.numItems = vertices.length/3;
+	this.vertexBuffer.numItems = numVertex;
 
 	gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
 	gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(indices), gl.STATIC_DRAW);
