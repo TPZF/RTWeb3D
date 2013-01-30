@@ -23,7 +23,8 @@
 		"jquery.ui": "../externals/jquery-ui-1.9.2.custom.min",
 		"jquery.ui.selectmenu": "../externals/jquery.ui.selectmenu",
 		"underscore-min": "../externals/underscore-min",
-		"jquery.nicescroll.min": "../externals/jquery.nicescroll.min"
+		"jquery.nicescroll.min": "../externals/jquery.nicescroll.min",
+        "fits": "../externals/fits"
     },
     shim: {
         'jquery': {
