@@ -105,7 +105,7 @@
 			"dataType": "line",
 			"proxyUrl": "/sitools/proxy?external_url=",
 			"name": "Herschel (OpenSearch)",
-			"serviceUrl": "/sitools/oherschel/search?",
+			"serviceUrl": "/sitools/oherschel",
 			"visible": false,
 			"minOrder": 3
 		},
@@ -113,7 +113,7 @@
 			"type": "DynamicOpenSearch",
 			"dataType": "point",
 			"name": "Fuse (OpenSearch)",
-			"serviceUrl": "/sitools/ofuse/search?",
+			"serviceUrl": "/sitools/ofuse",
 			"visible": false,
 			"minOrder": 3,
 			"color": "#FFCC11",
@@ -143,7 +143,7 @@
 			"maxClusterOrder": 8,
 			"treshold": 5,
 			"orderDepth": 2,
-			"featureServiceUrl": "/sitools/ofuse/search?",
+			"featureServiceUrl": "/sitools/ofuse",
 			"clusterServiceUrl": "/sitools/solr/fuse/select?",
 			"displayProperties": [ "ra", "dec", "src_type", "dateobs", "imageSize" ],
 			"visible": false
@@ -152,7 +152,7 @@
 			"type": "DynamicOpenSearch",
 			"dataType": "point",
 			"name": "VO (OpenSearch)",
-			"serviceUrl": "/sitools/ovo/search?",
+			"serviceUrl": "/sitools/ovo",
 			"visible": false,
 			"minOrder": 9
 		},
@@ -160,7 +160,15 @@
 			"type": "DynamicOpenSearch",
 			"dataType": "line",
 			"name": "Sia",
-			"serviceUrl": "/sitools/sia/search?",
+			"serviceUrl": "/sitools/sia",
+			"visible": false,
+			"minOrder": 5
+		},
+		{
+			"type": "DynamicOpenSearch",
+			"dataType": "line",
+			"name": "Iso",
+			"serviceUrl": "/sitools/iso",
 			"visible": false,
 			"minOrder": 3
 		}

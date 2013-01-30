@@ -280,7 +280,7 @@ MixLayer.prototype.launchRequest = function(tile, childOrder, tileData, pixelInd
 
 	if (index)
 	{	
-		var url = self.featureServiceUrl + "order=" + childOrder + "&healpix=" + indices;
+		var url = self.featureServiceUrl + "/search?order=" + childOrder + "&healpix=" + indices;
 
 		for (var key in this.requestProperties)
 		{
