@@ -8,7 +8,7 @@
 	left: 300px;
 	width: 700px;
 	display: none;
-	z-index: 9999;
+	z-index: 9003;
 }
 
 /*** Info when one layer selected ***/
@@ -56,7 +56,7 @@
 }
 
 /****************************/
-/*		OpenSearchForm		*/
+/*     OpenSearchService	*/
 /****************************/
 #openSearchForm
 {
@@ -104,4 +104,20 @@
 	color:#09C;
 	box-shadow: 0px 0px 8px rgba(255, 255, 255, 0.75);
 	cursor: pointer;
+}
+
+/****************************/
+/*   	  Moc service		*/
+/****************************/
+
+.mocLayer
+{
+	position: relative;
+}
+
+.mocCoverage
+{
+	position: absolute;
+	top: 0px;
+	right: 0;
 }

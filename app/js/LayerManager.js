@@ -606,6 +606,7 @@ return {
 		
 		// Call init layers
 		initLayers(configuration);
+		ServiceBar.init(gl);
 	},
 	
 	/**

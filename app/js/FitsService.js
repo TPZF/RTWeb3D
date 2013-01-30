@@ -3,59 +3,59 @@
  */
 define( [ "jquery.ui" ], function($) {
 
-// var form = '<div id="fitsOptions">\
-// 				<input class="ui-corner-all ui-button" type="checkbox" id="minmax" /><label for="minmax">min/max</label><br/>\
-// 	  	 		<input class="ui-corner-all ui-button" type="checkbox" id="log" /><label for="log">log</label>\
-// 	  	 	</div>';
-// var $form = $(form).appendTo('serviceBar');
-// $form.find('input').each(function(i){
-// 	$(this).button({ text: false })
-// 			.prop({ "type": "checkbox" });
-// });
+var globe = null;
+var features = [];
+var form = '<div id="fitsOptions">\
+				<input name="fitsScale" type="radio" id="raw" checked="checked" /><label for="raw">Raw</label>\
+				<input name="fitsScale" type="radio" id="minmax" /><label for="minmax">Min/Max</label>\
+	  	 		<input name="fitsScale" type="radio" id="log" /><label for="log">Log</label>\
+	  	 	</div>';
 
 var layers = [];
-var form = 
-  	'<span id="minmax" class="ui-state-default ui-corner-all ui-button">\
-		<span class="ui-icon ui-icon-empty"></span>\
-	</span>Min/Max<br/>\
-	<span id="log" class="ui-state-default ui-corner-all ui-button">\
-		<span class="ui-icon ui-icon-empty"></span>\
-	</span>Log';
 
-// TODO remove body dependence
-$('body').on("click", "#minmax", function(){
+var logFragShader= "\
+	precision highp float; \n\
+	uniform vec4 u_color;\n\
+	varying vec2 vTextureCoord;\n\
+	uniform sampler2D texture; \n\
+	void main(void)\n\
+	{\n\
+		float color = texture2D(texture, vTextureCoord).r;\n\
+		color = log(10000.0*(color/255.) + 1.)/log(10000.);\n\
+		gl_FragColor = vec4(color,color,color,1.) * u_color;\n\
+	}\n\
+	";
 
-	for ( var i=0; i<layers.length; i++ )
-	{
-		var isOn = !$(this).hasClass('ui-state-active');
-		if (isOn)
-			layers[i].minmax = 1;
-		else
-			layers[i].minmax = 0;
-	}
-	$(this).toggleClass('ui-state-active');
-	$(this).toggleClass('ui-state-default');
-	$(this).find('span').toggleClass('ui-icon-check');
-	$(this).find('span').toggleClass('ui-icon-empty');
-});
+var minmaxFragShader = "\
+	precision highp float; \n\
+	uniform vec4 u_color;\n\
+	varying vec2 vTextureCoord;\n\
+	uniform sampler2D texture; \n\
+	uniform float min; \n\
+	uniform float max; \n\
+	void main(void)\n\
+	{\n\
+		float color = texture2D(texture, vTextureCoord).r;\n\
+		color = ((color - min) / (max - min));\n\
+		gl_FragColor = vec4(color,color,color,1.) * u_color;\n\
+	}\n\
+	";
 
-// TODO remove body dependence
-$('body').on("click", "#log", function(){
-	for ( var i=0; i<layers.length; i++ )
-	{
-		var isOn = !$(this).hasClass('ui-state-active');
-		if (isOn)
-			layers[i].logOn = 1;
-		else
-			layers[i].logOn = 0;
-	}
-	$(this).toggleClass('ui-state-active');
-	$(this).toggleClass('ui-state-default');
-	$(this).find('span').toggleClass('ui-icon-check');
-	$(this).find('span').toggleClass('ui-icon-empty');
-});
+var minmaxUniformCallback = function(gl, renderable)
+{
+	gl.uniform1f(renderable.program.uniforms["max"], renderable.texture.max);
+	gl.uniform1f(renderable.program.uniforms["min"], renderable.texture.min);
+}
 
 return {
+
+	init: function(gl)
+	{
+		globe = gl;
+		globe.subscribe("fitsAdded", function( featureData ){
+			features.push(featureData);
+		});
+	},
 
 	/**
 	 *	Add layer to the service
@@ -78,10 +78,61 @@ return {
 
 	addService: function(tabs)
 	{
-		// TODO modify & attach form to FitsService
 		tabs.find( ".ui-tabs-nav" ).append('<li><a href="#FitsService">FitsService</a></li>');
-		tabs.append('<div id="FitsService">'+form+'</div>');
+		tabs.append('<div id="FitsService"></div>');
+		var $form = $(form).appendTo('#FitsService');
+		$form.buttonset();
+		$form.find('input')
+				.each(function(i){
+					$(this)
+						.click(function(){
+							
+							var id = $(this).attr("id");
+							switch(id){
+								case "minmax":
+									for ( var i=0; i<features.length; i++)
+									{
+										var feature = features[i].feature;
+										var targetStyle = new GlobWeb.FeatureStyle( feature.properties.style );
+										targetStyle.fillShader = {
+											fragmentCode: minmaxFragShader,
+											updateUniforms: minmaxUniformCallback
+										};
+										features[i].layer.modifyFeatureStyle( feature, targetStyle );
+									}
+
+									break;
+								case "log":
+									for ( var i=0; i<features.length; i++)
+									{
+										var feature = features[i].feature;
+										var targetStyle = new GlobWeb.FeatureStyle( feature.properties.style );
+										targetStyle.fillShader = {
+											fragmentCode: logFragShader
+										};
+										features[i].layer.modifyFeatureStyle( feature, targetStyle );
+									}
+									break;
+								case "raw":
+									for ( var i=0; i<features.length; i++)
+									{
+										var feature = features[i].feature;
+										var targetStyle = new GlobWeb.FeatureStyle( feature.properties.style );
+										targetStyle.fillShader = {
+											fragmentCode: null,
+											updateUniforms: null
+										};
+										features[i].layer.modifyFeatureStyle( feature, targetStyle );
+									}
+									break;
+								default:
+									break;
+							}
+						});
+				});
+
 		tabs.tabs("refresh");
+
 	},
 
 	removeService: function(tabs)
