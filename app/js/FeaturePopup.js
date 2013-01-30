@@ -7,6 +7,7 @@ define( [ "jquery.ui", "IFrame", "underscore-min", "text!../templates/featureLis
 var featureListHTML = '';
 var pickingManager = null;
 var globe = null;
+var xhr; // Fits request
 
 // Create selected feature div
 var selectedFeatureDiv = '<div id="selectedFeatureDiv" class="contentBox ui-widget-content" style="display: none">\
@@ -18,7 +19,19 @@ var selectedFeatureDiv = '<div id="selectedFeatureDiv" class="contentBox ui-widg
 				</div>\
 				<div class="arrow-left"></div>\
 			</div>';
+
+var progressBarDiv = '<div class="progressDiv contentBox" id="progress">\
+						<div class="progressId"></div>\
+						<div id="progressBar">\
+							<div class="progress-label"></div>\
+						</div>\
+						<button style="margin-left: auto; display: block; margin-top: 10px;" id="cancelXHR">Cancel</button>\
+					</div>';
+
+
 var $selectedFeatureDiv = $(selectedFeatureDiv).appendTo('body');
+var $progressBar = $(progressBarDiv).appendTo('body')
+									.find('button').button();
 
 // Template generating the list of selected features
 var featureListTemplate = _.template(featureListHTMLTemplate);
@@ -31,6 +44,22 @@ var descriptionTableTemplate = _.template(descriptionTableHTMLTemplate);
 
 // PileStash help HTML
 var pileStashHelp = '<div id="pileStashHelp"> Some observations are overlapped. <br/> Click on the observation to see detailed informations about each observation. <br/> </div>';
+
+function hideProgressBar()
+{
+	$('#progress').animate({right: 50}, function(){
+		$(this).animate({right:-260}, 500);
+	});
+}
+
+/**
+ *	Cancel the xhr request
+ */
+function cancelRequest()
+{
+	xhr.abort();
+	hideProgressBar();
+}
 
 /**
  * 	Selected feature div position calculations
@@ -58,6 +87,21 @@ function computeDivPosition(clientX, clientY)
 }
 
 /**
+ *	Update progress bar event
+ */
+function updateProgressbar(evt)
+{
+	if (evt.lengthComputable) 
+	{
+		//evt.loaded the bytes browser receive
+		//evt.total the total bytes seted by the header
+		//
+		var percentComplete = Math.floor( (evt.loaded / evt.total)*100 );
+		$('#progressBar').progressbar( "value", percentComplete );
+	}
+}
+
+/**
  *	Computing data for FITS file
  *
  *	@param selectedFeature Feature
@@ -69,19 +113,22 @@ function computeData(selectedFeature, style, url)
 	// Enable float texture extension to have higher luminance range
 	var ext = globe.renderContext.gl.getExtension("OES_texture_float");
     if (!ext) {
+    	// TODO 
         alert("no OES_texture_float");
         return;
     }
-	var xhr = new XMLHttpRequest();
     var FITS = astro.FITS;
+	xhr = new XMLHttpRequest();
 
     xhr.open('GET', url);
     
     // Set the response type to arraybuffer
     xhr.responseType = 'arraybuffer';
+    xhr.onprogress=updateProgressbar;
 
     // Define the onload function
     xhr.onload = function(e) {
+		hideProgressBar();
         // Initialize the FITS.File object using
         // the array buffer returned from the XHR
         var fits = new FITS.File(xhr.response);
@@ -117,19 +164,6 @@ function computeData(selectedFeature, style, url)
 	            min = val;
 	    }
 
-		// Image processing(minmax & log corrections)
-	    // var delta = max - min;
-	    // var a = 10000;
-	    // var logA = Math.log(a);
-	    // for ( var i=0; i<pixels.length; i++ )
-	    // {
-	    //     var x = (pixels[i] - min) / delta;
-	    //     // uintPixels[i] = (Math.log(a*x + 1)/logA) * 255; // log
-	    //     uintPixels[i] = x * 255; // linear
-
-	    //     // uintPixels[i] = ((pixels[i] - min)/delta) * 255;
-	    // }
-
 	    var gl = globe.renderContext.gl;
 	    var tex = gl.createTexture();
 	    gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1);
@@ -144,13 +178,31 @@ function computeData(selectedFeature, style, url)
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
 	
 		// Attach texture to style
-	    style.texture = tex;
-	    style.texture.min = min;
-	    style.texture.max = max;
+	    style.fillTexture = tex;
+	    style.fillTexture.min = min;
+	    style.fillTexture.max = max;
+	    globe.publish("fitsAdded", selectedFeature);
 	    selectedFeature.layer.modifyFeatureStyle( selectedFeature.feature, style );
     }
 
     xhr.send();
+
+    $('#progress').find('.progressId').html(selectedFeature.feature.properties.identifier);
+    $('#progressBar').progressbar({
+    	value: false,
+    	change: function() {
+    		$('#progressBar .progress-label').text( $('#progressBar').progressbar( "value" ) + "%");
+    	},
+    	complete: function() {
+    		$('#progressBar .progress-label').text( "100%" );
+    	}
+    })
+    $('#progress').animate({right: 50}, 500, function(){
+    	$(this).animate({right:20});
+    });
+
+	// Cancel xhr event
+	$('#cancelXHR').click(cancelRequest);
 }
 
 /**
@@ -206,7 +258,7 @@ function createHTMLSelectedFeatureDiv( layer, feature )
 	var output = featureDescriptionTemplate( { services: feature.services, properties: buildProperties(feature.properties, layer.displayProperties), descriptionTableTemplate: descriptionTableTemplate } );
 	
 	$('#rightDiv').html( output );
-	$('.detailedInfo').niceScroll({autohidemode: false});
+	$('.featureProperties').niceScroll({autohidemode: false});
 }
 
 return {
@@ -301,7 +353,7 @@ return {
 		$selectedFeatureDiv.on("click", '.section', function(event){
 			// TODO slideToggle works with div -> add div to the tab generation
 			$(this).siblings('table').fadeToggle("slow", "linear", function(){
-				$('.detailedInfo').getNiceScroll().resize();
+				$('.featureProperties').getNiceScroll().resize();
 			});/*slideToggle(300)*/;
 			if ( $(this).siblings('#arrow').is('.arrow-right') )
 			{
@@ -340,7 +392,7 @@ return {
 	 *	@param callback Callback 
 	 */
 	hide: function(callback){
-		$('.detailedInfo').getNiceScroll().remove();
+		$('.featureProperties').getNiceScroll().remove();
 		// if ( $selectedFeatureDiv.css('display') != 'none') { 
 			$selectedFeatureDiv.fadeOut(300, callback );
 		// }
@@ -356,7 +408,7 @@ return {
 	show: function(x, y, callback){
 		computeDivPosition(x,y);
 		$selectedFeatureDiv.fadeIn(500, function() {
-			$('.detailedInfo').getNiceScroll().resize();
+			$('.featureProperties').getNiceScroll().resize();
 			if (callback) callback();
 		});
 	},
@@ -386,11 +438,11 @@ return {
 	 * 	Show feature information
 	 */
 	showFeatureInformation: function(layer, feature){
-		$('.detailedInfo').getNiceScroll().remove();
+		$('.featureProperties').getNiceScroll().remove();
 		$('#rightDiv').fadeOut(300, function(){
 			createHTMLSelectedFeatureDiv( layer, feature );
 			$(this).fadeIn(300, function(){
-				$('.detailedInfo').getNiceScroll().resize();
+				$('.featureProperties').getNiceScroll().resize();
 			});
 		});
 	}

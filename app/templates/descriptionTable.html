@@ -10,7 +10,7 @@
 			if ( key == 'crs' )
 			{%>
 				<td class="selectProperty"><em><%= stringKey %>:</em></td>
-				<td class="selectValue"><%= properties[key].properties.name %></td>
+				<td title="<%= properties[key].properties.name %>" class="selectValue"><%= properties[key].properties.name %></td>
 			<% } else { %>
 				<td class="selectProperty" colspan="2">
 					<div id="arrow" class="arrow-right"></div><div class="section"><b><%= stringKey %></b></div>

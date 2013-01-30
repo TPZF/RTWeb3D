@@ -102,17 +102,6 @@
 	display: inline-block;
 }
 
-/*** Detailed info(i.e. thumbnail, table, services) ***/
-.detailedInfo
-{
-	max-height: 400px;
-	max-width: 340px;
-	overflow: hidden;
-	z-index: 10;
-	padding-right: 15px;
-}
-
-
 /*** Thumbnail ***/
 .thumbnail
 {
@@ -125,6 +114,28 @@
 .selectValue
 {
 	color: white;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.selectProperty
+{
+	width: auto;
+}
+
+.featureProperties
+{
+	max-height: 340px;
+	overflow-y: hidden;
+	outline: none;
+	display: inline-block;
+	padding-right: 10px;
+}
+
+.propertiesTable {
+	table-layout: fixed;
+	width: 300px;
 }
 
 .propertiesTable td {
@@ -186,4 +197,33 @@
 #pileStashHelp
 {
 	width: 150px;
+}
+
+/*** Progress bar ***/
+#progress
+{
+	padding: 5px;
+	display: block;
+	position: absolute;
+	top: 60px;
+	right: -150px;
+	z-index: 900
+}
+
+#progress .ui-progressbar-value {
+    background: orange;
+  }
+
+.progressId
+{
+	color: white;
+}
+
+.progress-label
+{
+	float:left;
+	margin-left: 48%;
+	margin-top: 5px;
+	font-weight: bold;
+	text-shadow: 1px 1px 0 #fff;
 }

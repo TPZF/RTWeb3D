@@ -3,19 +3,21 @@
 	{ %>
 		<div class="thumbnail"><img src="<%= properties.thumbnail %>" /></div>
 	<% } %>
-	<table class="propertiesTable" rules="rows">
-		<tbody>
-			<% print(descriptionTableTemplate( { properties: properties, descriptionTableTemplate: descriptionTableTemplate }) ); %>
-		</tbody>
-	</table>
+	<div class="featureProperties">
+		<table class="propertiesTable" rules="rows">
+			<tbody>
+				<% print(descriptionTableTemplate( { properties: properties, descriptionTableTemplate: descriptionTableTemplate }) ); %>
+			</tbody>
+		</table>
+	</div>
 	
 	<div id="services">
 		<% if ( services )
 		{
 			if ( services.download )
 			{
-				var n=services.download.url.search(".fits");
-				if ( n )
+				var isFits=services.download.url.search(".fits");
+				if ( isFits && !properties.quicklook )
 				{ %>
 					<img id='quicklook' src="css/images/quicklook.png" class=<%= (properties.style.fill ? 'selected' : '' ) %> />
 				<%

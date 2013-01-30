@@ -16,7 +16,7 @@ body
 	background: rgb(0,0,0);
 	padding: 0px;
 	margin: 0px;
-	overflow: auto;
+	overflow: hidden;
 }
 
 /************************/
@@ -36,6 +36,7 @@ body
 	padding-top: 300px;
 	text-align: center;
 	display: none;
+	color: white;
 }
 
 /****************************/
@@ -90,7 +91,7 @@ body
 	position: absolute;
 	padding: 15px;
 	background-color: white;
-	z-index: 3;
+	z-index: 9003;
 }
 
 #externalIFrame Iframe
