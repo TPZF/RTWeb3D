@@ -71,7 +71,7 @@ MocLayer = function(options)
 	}
 	else
 	{
-		this.style = new FeatureStyle();
+		this.style = new GlobWeb.FeatureStyle();
 	}
 
 	this.vertexBuffer = null;
