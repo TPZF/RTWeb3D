@@ -150,6 +150,7 @@ function init()
 							{
 								// only one layer, no pile needed, create feature dialogue
 								self.focusFeature( 0 );
+								$('#featureList div:eq(0)').addClass('selected');
 								FeaturePopup.showFeatureInformation( newSelection[stackSelectionIndex].layer, newSelection[stackSelectionIndex].feature )
 								// createHTMLSelectedFeatureDiv( newSelection[stackSelectionIndex].feature );
 							}
@@ -165,7 +166,7 @@ function init()
 	
 	// Hide popup and clear selection when pan/zoom
 	// BUG ! Disables stack onclick action
-	globe.subscribe("startNavigation", function() { 
+	globe.subscribe("start_navigation", function() { 
 		clearSelection();
 		FeaturePopup.hide();
 	});
