@@ -1,10 +1,10 @@
-<form id="openSearchForm">
+<form class="openSearchForm" id="openSearchForm_<%= layer.id %>">
 	<%
 	for(var i=0; i<properties.length; i++)
 	{
 		var property = properties[i];
 		%>
-		<label><%= property.title %></label>
+		<label for="<%= property.id %>"><%= property.title %></label>
 		<%
 		if(property.type == "text" || property.type == "number")
 		{
@@ -12,10 +12,17 @@
 			<input type="text" id="<%= property.id %>" name="<%= property.id %>"><br/>
 		<%
 		}
+		if(property.type == "date")
+		{
+		%>
+			<input type="text" id="<%= property.id %>" name="<%= property.id %>" class="datepicker" />
+		<%
+		}
 		if(property.type == "enumeration")
 		{
 		%>
-			<select>
+			<select name="<%= property.id %>">
+				<option value="">None</option>
 				<%
 				for(var j=0; j<property.son.length; j++)
 				{
@@ -29,5 +36,5 @@
 		}
 	}
 	%>
-	<input class="submit" type="submit" value="Save parameters" /> 
+	<input class="submit" type="submit" value="Save parameters" />
 </form>

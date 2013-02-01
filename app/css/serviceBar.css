@@ -28,7 +28,7 @@
 }
 
 /*** Stylizing tabs ***/
-#layerServices .ui-widget-header {
+#layerServices > .ui-widget-header {
 	background: transparent;
 	border: none;
 	border-bottom: 1px solid #c0c0c0;
@@ -36,35 +36,40 @@
 	-webkit-border-radius: 0px;
 	border-radius: 0px;
 }
-#layerServices li.ui-state-default {
+#layerServices > ul > li.ui-state-default {
 	background: transparent;
 	border: none;
 }
-#layerServices li.ui-state-active {
+#layerServices > ul > li.ui-state-active {
 	background: transparent url(images/uiTabsArrow.png) no-repeat bottom center;
 	border: none;
 }
-#layerServices li.ui-state-default a {
+#layerServices > ul > li.ui-state-default a {
 	color: #c0c0c0;
 }
-#layerServices li.ui-state-active a {
+#layerServices > ul > li.ui-state-active a {
 	color: orange;
 	outline: none;
 }
-#layerServices li.ui-state-focus a {
+#layerServices > ul > li.ui-state-focus a {
 	outline: none;
 }
 
 /****************************/
 /*     OpenSearchService	*/
 /****************************/
-#openSearchForm
+.formProperty
+{
+	padding: 5px;
+}
+
+.openSearchForm
 {
 	font-size: 0.9em;
 }
 
 /*** Key fields ***/
-#openSearchForm > label
+.openSearchForm > label
 {
 	width: 300px;
 	display: inline-block;
@@ -72,21 +77,21 @@
 }
 
 /*** Value fields ***/
-#openSearchForm > select, #openSearchForm > input
+.openSearchForm > select, .openSearchForm > input
 {
 	width: 150px;
 	border: 1px solid #999;
 	box-shadow: 0px 0px 8px rgba(0, 0, 0, 0.3);
 }
 
-#openSearchForm > input:focus
+.openSearchForm > input:focus
 {
 	border: 1px solid #09C;
 	box-shadow: 0px 0px 8px rgba(9, 211, 195, 0.75);
 }
 
 /*** Submit button ***/
-#openSearchForm > input.submit
+.openSearchForm > input.submit
 {
 	margin-top: 20px;
 	margin-left: 250px;
@@ -98,12 +103,24 @@
 	border: none;
 }
 
-#openSearchForm > input.submit:hover
+.openSearchForm > input.submit:hover
 {
 	background:#fff;
 	color:#09C;
 	box-shadow: 0px 0px 8px rgba(255, 255, 255, 0.75);
 	cursor: pointer;
+}
+
+#openSearchTabs
+{
+	border: none;
+	background: none;
+}
+
+#openSearchTabs .ui-tabs-nav
+{
+	border: none;
+	background: none;
 }
 
 /****************************/

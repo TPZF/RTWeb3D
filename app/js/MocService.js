@@ -27,7 +27,7 @@ function createMocSublayer(layer, serviceUrl)
 			var describeUrl = $(mocdesc).attr("template");
 			if ( describeUrl )
 			{
-				var splitIndex = describeUrl.indexOf( "?q" );
+				var splitIndex = describeUrl.indexOf( "?q=" );
 				if ( splitIndex != -1 )
 					handleMocLayer( layer, describeUrl.substring( 0, splitIndex ) );
 				else
@@ -35,8 +35,8 @@ function createMocSublayer(layer, serviceUrl)
 			}
 			else
 			{
-
-				ErrorDialog.open("Moc doesn't exist for "+layer.name+" layer");
+				layer.coverage = "unknown";
+				$("#mocLayer_"+layer.id).find('.mocCoverage').html("Sky coverage: "+layer.coverage+"%");
 			}
 				
 		}
@@ -54,8 +54,7 @@ function requestSkyCoverage(layer, mocServiceUrl)
 		url: mocServiceUrl+"?media=txt",
 		success: function(response){
 			var coverage = Utils.roundNumber(parseFloat(response),5);
-			$("#MocService").find("#mocLayer_"+layer.id)
-			$("#mocLayer_"+layer.id).find('.mocCoverage').html(coverage+"%").end()
+			$("#mocLayer_"+layer.id).find('.mocCoverage').html("Sky coverage: "+coverage+"%").end()
 						.find('.display').removeAttr("disabled").button("refresh");
 			layer.coverage = coverage;
 		}
@@ -131,7 +130,7 @@ return {
 
 	addService: function(tabs)
 	{
-		tabs.find( ".ui-tabs-nav" ).append('<li><a href="#MocService">MocService</a></li>');
+		tabs.find( ".ui-tabs-nav" ).append('<li><a href="#MocService">Moc</a></li>');
 		tabs.append('<div id="MocService"></div>');
 
 		for ( var i=0; i<layers.length; i++ )

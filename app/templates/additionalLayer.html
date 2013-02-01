@@ -25,7 +25,7 @@
 		if( layer instanceof MixLayer || layer instanceof GlobWeb.OpenSearchLayer )
 		{
 		%>
-			<input type="checkbox" class="service" id="service_<%= currentIndex %>" /><label for="service_<%= currentIndex %>">Services</label>
+			<input type="checkbox" class="service" id="service_<%= currentIndex %>" disabled="<% if (layer.visible()) print('disabled'); %>" /><label for="service_<%= currentIndex %>">Services</label>
 		<%
 		}
 		%>

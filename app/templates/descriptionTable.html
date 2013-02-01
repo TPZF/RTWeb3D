@@ -32,7 +32,7 @@
 			if (isUrl) {%>
 				<td class="selectValue"><a href="<%= properties[key] %>"><%= properties[key] %></a></td>
 			<% } else { %>
-				<td class="selectValue"><%= properties[key] %></td>
+				<td class="selectValue" title="<%= properties[key] %>"><%= properties[key] %></td>
 			<% }
 		} %>
 	</tr>
