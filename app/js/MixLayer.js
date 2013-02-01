@@ -10,8 +10,7 @@ define( [ "jquery.ui", "Utils" ], function($, Utils) {
  * 	
  * 	@param options Configuration options
  * 		<ul>
-			<li>featureServiceUrl : Url of the service providing the OpenSearch feature data(necessary option)</li>
-			<li>clusterServiceUrl : Url of the service providing the OpenSearch cluster data(necessary option)</li>
+			<li>serviceUrl : Url of OpenSearch description XML file(necessary option)</li>
 			<li>minOrder : Starting order for OpenSearch requests</li>
 			<li>displayProperties : Properties which will be shown in priority</li>
 			<li>treshold : Visibility treshold</li>
@@ -24,8 +23,7 @@ MixLayer = function(options)
 {
 	GlobWeb.BaseLayer.prototype.constructor.call( this, options );
 
-	this.featureServiceUrl = options.featureServiceUrl;
-	this.clusterServiceUrl = options.clusterServiceUrl;
+	this.serviceUrl = options.serviceUrl;
 
 	// Array containing data of tile to be requested
 	this.tilesToRequest = [];
@@ -66,29 +64,76 @@ MixLayer = function(options)
 	this.lineRenderer = null;
 	this.pointRenderer = null;
 
-	// Handle feature service
-	this.minOrder = options.minOrder || 5;
 	if (options.displayProperties)
 		this.displayProperties = options.displayProperties;
 
+	// Configure feature service options
+	this.minOrder = options.minOrder || 5;
+
 	this.requestProperties = options.requestProperties || "";
 
-	// Handle cluster service
-	this.clusterServiceUrl = options.clusterServiceUrl + "q=*:*&rows=0&facet=true&facet.limit=-1&facet.mincount=1&wt=json&indent=true";
+	// Configure cluster service options
 	this.treshold = options.treshold || 5;
 	this.maxOrder = options.maxOrder || 13;
 	this.orderDepth = options.orderDepth || 6;
 	this.maxClusterOrder = options.maxClusterOrder || 8;
+	
+	this.distributions;
+	this.clusterServiceUrl;
 
-	// Compute url from order 3
-	for(var i=3; i<=this.maxOrder; i++)
-		this.clusterServiceUrl+='&facet.field=order'+i;
+	this.handleClusterService();
+}
 
-	this.distributions = [];
+/**************************************************************************************************************/
+
+GlobWeb.inherits( GlobWeb.BaseLayer, MixLayer );
+
+/**************************************************************************************************************/
+
+/**
+ *	Get cluster service url from OpenSearch description XML file
+ */
+MixLayer.prototype.handleClusterService = function()
+{
 	var self = this;
 	$.ajax({
 		type: "GET",
-		url: self.clusterServiceUrl,
+		url: self.serviceUrl,
+		dataType: "xml",
+		success: function(xml) {
+			var clusterdesc = $(xml).find('Url[rel="clusterdesc"]');
+			var describeUrl = $(clusterdesc).attr("template");
+			if ( describeUrl )
+			{
+				var splitIndex = describeUrl.indexOf( "q=" );
+				if ( splitIndex != -1 )
+				{
+					self.clusterServiceUrl = describeUrl.substring( 0, splitIndex );
+				}
+				else
+				{
+					self.clusterServiceUrl =  describeUrl;
+				}
+				self.updateDistributions()
+			}	
+		}
+	});
+}
+
+/**
+ *	Update cluster distribution
+ */
+MixLayer.prototype.updateDistributions = function()
+{
+	var url = this.clusterServiceUrl;
+	for (var key in this.requestProperties)
+	{
+		url+='&'+key+'='+this.requestProperties[key];
+	}
+	var self = this;
+	$.ajax({
+		type: "GET",
+		url: url,
 		dataType: 'json',
 		success: function(response){
 			self.handleDistribution(response);
@@ -96,12 +141,8 @@ MixLayer = function(options)
 		error: function (xhr, ajaxOptions, thrownError) {
 			console.error( xhr.responseText );
 		}
-	});
+	});	
 }
-
-/**************************************************************************************************************/
-
-GlobWeb.inherits( GlobWeb.BaseLayer, MixLayer );
 
 /**************************************************************************************************************/
 
@@ -113,17 +154,19 @@ GlobWeb.inherits( GlobWeb.BaseLayer, MixLayer );
  */
 MixLayer.prototype.handleDistribution = function(response)
 {
+	var distributions = {};
 	var facet_fields = response.facet_counts.facet_fields;
 	var order = 3;
 	for (var key in facet_fields)
 	{
-		this.distributions[order] = {};
+		distributions[order] = {};
 		for (var i=0; i<facet_fields[key].length; i+=2)
 		{
-			this.distributions[order][facet_fields[key][i]] = facet_fields[key][i+1];
+			distributions[order][facet_fields[key][i]] = facet_fields[key][i+1];
 		}
 		order++;
 	}
+	this.distributions = distributions;
 }
 
 /**************************************************************************************************************/
@@ -226,19 +269,24 @@ MixLayer.prototype.setRequestProperties = function(properties)
 	// Clean old results
 	var self = this;
 	this.globe.tileManager.visitTiles( function(tile) {
+		delete tile.dataIsBuilding;
 		if( tile.extension[self.extId] )
 		{
 			tile.extension[self.extId].dispose();
-			tile.extension[self.extId] = null;
+			delete tile.extension[self.extId];
 		}
 	});
 
 	// Clean renderer buckets
-	// this.clusterBucket.points.length = 0;
+	this.clusterBucket.points.length = 0;
 	this.featureBucket.points.length = 0;
 
 	// Set properties
 	this.requestProperties = properties;
+
+	// Reset distributions
+	this.distributions = null;
+	this.updateDistributions();
 }
 
 /**************************************************************************************************************/
@@ -280,7 +328,7 @@ MixLayer.prototype.launchRequest = function(tile, childOrder, tileData, pixelInd
 
 	if (index)
 	{	
-		var url = self.featureServiceUrl + "/search?order=" + childOrder + "&healpix=" + indices;
+		var url = self.serviceUrl + "/search?order=" + childOrder + "&healpix=" + indices;
 
 		for (var key in this.requestProperties)
 		{
@@ -299,7 +347,7 @@ MixLayer.prototype.launchRequest = function(tile, childOrder, tileData, pixelInd
 	
 					// Attach to the tile
 					tile.extension[self.extId] = tileData;
-					tile.dataIsBuilding = false;
+					delete tile.dataIsBuilding;
 
 					for ( var i=0; i<response.features.length; i++ )
 					{
@@ -497,6 +545,7 @@ MixLayer.prototype.render = function( tiles )
 	var polygons = [];
 	var visitedTiles = {};
 	
+	if ( this.distributions )
 	for ( var i = 0; i < tiles.length; i++ )
 	{
 		var tile = tiles[i];
@@ -542,7 +591,7 @@ MixLayer.prototype.render = function( tiles )
 				var orderDepth = ( tile.order + this.orderDepth >= this.maxOrder ) ? this.maxOrder - tile.order : this.orderDepth; // clipping depth to max order
 				var childOrder = tile.order + orderDepth;
 
-				if( this.distributions[childOrder] )
+				if( this.distributions && this.distributions[childOrder] )
 				{
 					// Distribution exists
 					var numSubTiles = Math.pow(4,orderDepth); // Number of subtiles depending on order

@@ -120,22 +120,6 @@
 			"displayProperties": [ "ra", "dec", "src_type", "dateobs", "imageSize" ]
 		},
 		{
-			"type": "Cluster",
-			"name": "Fuse (Cluster)",
-			"dataType": "point",
-			"serviceUrl": "/sitools/solr/fuse/select?",
-			"visible": false,
-			"maxOrder": 13,
-			"treshold": 5,
-			"orderDepth": 6
-		},
-		{
-			"type": "Moc",
-			"name": "Moc example",
-			"serviceUrl": "/sitools/ovo/moc",
-			"visible": false
-		},
-		{
 			"type": "Mix",
 			"name": "Fuse (Cluster/OpenSearch)",
 			"minOrder": 3,
@@ -143,8 +127,7 @@
 			"maxClusterOrder": 8,
 			"treshold": 5,
 			"orderDepth": 2,
-			"featureServiceUrl": "/sitools/ofuse",
-			"clusterServiceUrl": "/sitools/solr/fuse/select?",
+			"serviceUrl": "/sitools/ofuse",
 			"displayProperties": [ "ra", "dec", "src_type", "dateobs", "imageSize" ],
 			"visible": false
 		},
@@ -162,7 +145,7 @@
 			"name": "Sia",
 			"serviceUrl": "/sitools/sia",
 			"visible": false,
-			"minOrder": 5
+			"minOrder": 3
 		},
 		{
 			"type": "DynamicOpenSearch",

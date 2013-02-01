@@ -134,8 +134,7 @@ function createLayerFromConf(layer) {
 
 		case "Mix":
 			// Add necessary options
-			options.featureServiceUrl = layer.featureServiceUrl;
-			options.clusterServiceUrl = layer.clusterServiceUrl;
+			options.serviceUrl = layer.serviceUrl;
 			options.minOrder = layer.minOrder;
 			if (layer.displayProperties)
 				options.displayProperties = layer.displayProperties;
@@ -369,10 +368,10 @@ function createHtmlForAdditionalLayer( gwLayer )
 	$( "#percentInput_"+currentIndex ).val( $( "#slider_"+currentIndex ).slider( "value" ) + "%" );
 		
 	// Hide the tools div, open it only when the user clicks on the layer
-	var servicesDiv = $('#addLayer_'+currentIndex+' .layerTools');
-	servicesDiv.hide();
+	var toolsDiv = $('#addLayer_'+currentIndex+' .layerTools');
+	toolsDiv.hide();
 	$('#additionalLayers').on("click", '#addLayer_'+currentIndex+' > label', function() {
-		servicesDiv.slideToggle(updateScroll);
+		toolsDiv.slideToggle(updateScroll);
 	});
 
 	// Manage 'custom' checkbox
@@ -401,18 +400,26 @@ function createHtmlForAdditionalLayer( gwLayer )
 		}
 
 		$layerDiv.find('.slider').slider( isOn ? "enable" : "disable" );
-		if ( isOn )
-		{
-			servicesDiv.slideDown(updateScroll);
-		}
-		else
-		{
-			servicesDiv.slideUp(updateScroll);
-		}
+		
 		$(this).toggleClass('ui-state-active');
 		$(this).toggleClass('ui-state-default');
 		$(this).find('span').toggleClass('ui-icon-check');
 		$(this).find('span').toggleClass('ui-icon-empty');
+
+		if ( isOn )
+		{
+			toolsDiv.slideDown(updateScroll);
+			toolsDiv.find('.service').button("option", "disabled", false);
+		}
+		else
+		{
+			toolsDiv.slideUp(updateScroll);
+			// Uncheck service input and remove from service bar
+			var $serviceInput = toolsDiv.find('.service')
+			if ( $serviceInput.is(":checked") )
+				$serviceInput.trigger('click');
+			$serviceInput.button("option","disabled", true);
+		}
 
 	});
 }
@@ -488,8 +495,7 @@ function initToolbarEvents ()
 	});
 
 	// Services event
-	$('#additionalLayers').on("click", ".service", function(){
-
+	$('#additionalLayers').on("change", ".service", function(event){
 		var layer = $(this).parent().parent().data("layer");
 		if( $(this).is(':checked') )
 		{

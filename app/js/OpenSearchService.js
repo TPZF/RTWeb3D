@@ -1,45 +1,27 @@
 /**
  * OpenSearch service
  */
-define( [ "jquery.ui", "underscore-min", "text!../templates/openSearchForm.html" ], function($,_,openSearchFormHTMLTemplate) {
+define( [ "jquery.ui", "underscore-min", "text!../templates/openSearchService.html", "text!../templates/openSearchForm.html" ], function($,_,openSearchServiceHTMLTemplate, openSearchFormHTMLTemplate) {
 
+// Template generating the open search service div
+var openSearchServiceTemplate = _.template(openSearchServiceHTMLTemplate);
 // Template generating the form of properties
 var openSearchFormTemplate = _.template(openSearchFormHTMLTemplate);
 var layers = [];
-// TODO make parameter
-var openSearchFormUrl = '/sitools/ofuse/opensearch.xml';
-var openSearchForm = '';
 
-$.ajax({
-	type: "GET",
-	url: openSearchFormUrl,
-	dataType: "xml",
-	success: function(xml) {
+// Ugly formId-layer mapping
+// TODO replace by smth more .. attractive
+var idMap = {};
 
-		var mspdesc = $(xml).find('Url[rel="mspdesc"]');
-		var describeUrl = $(mspdesc).attr("template");
-
-		$.ajax({
-			type: "GET",
-			url: describeUrl,
-			dataType: "json",
-			success: function(json)
-			{
-				var formProperties = json.filters;
-				openSearchForm = openSearchFormTemplate( { properties: formProperties });
-			}
-		});
-	}
-});
-
-// TODO remove body dependence
-$('body').on("submit", "#openSearchForm", function(event){
+/**
+ *	Handle submit event
+ */
+function handleSubmit(event)
+{
 	event.preventDefault();
 
-	var service = $('#layerServices ul li.ui-state-active');
-
 	// Get array of changed inputs
-	var notEmptyInputs = $('#openSearchForm :input[value!=""]').serializeArray();
+	var notEmptyInputs = $(this).find(':input[value!=""]').serializeArray();
 	// Create new properties
 	var properties = {}
 	for(var i=0; i<notEmptyInputs.length; i++)
@@ -47,17 +29,53 @@ $('body').on("submit", "#openSearchForm", function(event){
 		properties[notEmptyInputs[i].name.toString()] = notEmptyInputs[i].value.toString();
 	}
 
-	// Modify the request properties of choosen layer
-	for ( var i=0; i<layers.length; i++ )
-	{
-		layers[i].setRequestProperties(properties);
-	}
-	// var service = $('#layerServices ul li.ui-state-active');
+	var selectOptions;
+	$(this).find('select').each(function(i){
+		if ( $(this).val() )
+			properties[$(this).attr("name")] = $(this).val();
+		
+	});
 
-	// 	// find index of activated service
-	// 	var index = service.index();
-	// tabs.tabs('select',index);
-});
+	// Modify the request properties of choosen layer
+	idMap[$(this).attr("id")].setRequestProperties(properties);
+}
+
+/**
+ *	Attach open search form to layer
+ *
+ *	@param layer GlobWeb layer
+ */
+function attachForm(layer)
+{
+	$.ajax({
+		type: "GET",
+		url: layer.serviceUrl,
+		dataType: "xml",
+		success: function(xml) {
+
+			var mspdesc = $(xml).find('Url[rel="mspdesc"]');
+			var describeUrl = $(mspdesc).attr("template");
+
+			$.ajax({
+				type: "GET",
+				url: describeUrl,
+				dataType: "json",
+				success: function(json)
+				{
+					var formProperties = json.filters;
+					layer.openSearchForm = openSearchFormTemplate( { layer: layer, properties: formProperties });
+					idMap['openSearchForm_'+layer.id] = layer;
+					$('#osForm_'+layer.id)
+						.html(layer.openSearchForm)
+						.find('.openSearchForm')
+							.submit(handleSubmit).end()
+						.find(".datepicker").datepicker();
+					$('#openSearchTabs').tabs("refresh");
+				}
+			});
+		}
+	});
+}
 
 return {
 	/**
@@ -66,8 +84,14 @@ return {
 	addLayer: function(layer)
 	{
 		layers.push(layer);
+
+		if ( !layer.openSearchForm )
+			attachForm(layer);
 	},
 
+	/**
+	 *	Remove layer from the service
+	 */
 	removeLayer: function(layer)
 	{
 		for(var i=0; i<layers.length; i++)
@@ -79,14 +103,37 @@ return {
 		}
 	},
 
+	/**
+	 *	Add service to jQueryUI tabs
+	 *
+	 *	@param tabs jQueryUI tabs selector
+	 */
 	addService: function(tabs)
 	{
-		// TODO modify & attach form to FitsService
-		tabs.find( ".ui-tabs-nav" ).append('<li><a href="#OpenSearchService">OpenSearchService</a></li>');
-		tabs.append('<div id="OpenSearchService">'+openSearchForm+'</div>');
+		tabs.find( ".ui-tabs-nav" ).append('<li><a href="#OpenSearchService">OpenSearch</a></li>');
+		tabs.append('<div id="OpenSearchService"></div>');
+
+		var openSearchService = openSearchServiceTemplate({ layers: layers });
+
+		$(openSearchService)
+			.appendTo('#OpenSearchService')
+			.tabs({
+				collapsible: true,
+				hide: { effect: "slideUp", duration: 300 },
+				show: { effect: "slideDown", duration: 300 }
+			})
+			.find('.openSearchForm')
+				.submit(handleSubmit).end()
+			.find('.datepicker').datepicker();
+
 		tabs.tabs("refresh");
 	},
 
+	/**
+	 *	Remove service from jQueryUI tabs
+	 *
+	 *	@param tabs jQueryUI tabs selector
+	 */
 	removeService: function(tabs)
 	{
 		var index = tabs.find( '.ui-tabs-nav li[aria-controls="OpenSearchService"]').index();
