@@ -6,7 +6,7 @@
  */
 define( [ "jquery.ui", "OpenSearchService", "FitsService", "MocService" ], function($, OpenSearchService, FitsService, MocService) {
 
-// Create selected feature div
+// Create service bar div
 var serviceBar = '<div id="serviceBar" class="ui-widget-content">\
 						<div id="layerInfo"></div>\
 						<div id="layerServices">\
@@ -28,12 +28,24 @@ var serviceMapping =
 	"DynamicOpenSearch": [FitsService, MocService]
 };
 
-
 var layers = [];
 var services = [];
 
+/**
+ *	Add services HTML to the tabs
+ */
+function addServicesHTML()
+{
+	for ( var i=0; i<services.length; i++ )
+	{
+		services[i].addService(tabs);
+	}
+}
 
-function removeAllHTML()
+/**
+ *	Remove services HTML from the tabs
+ */
+function removeServicesHTML()
 {
 	for ( var i=0; i<services.length; i++ )
 	{
@@ -56,10 +68,16 @@ return {
 		var layerServices = serviceMapping[layer.type]
 		if ( layerServices )
 		{
-			removeAllHTML();
+			removeServicesHTML();
+
+			// Add layer to services
+			for ( var i=0; i<layerServices.length; i++ )
+			{
+				layerServices[i].addLayer(layer);
+			}
 
 			// Compute available services
-			if ( services.length == 0 )
+			if ( layers.length == 0 )
 			{
 				services = layerServices;
 			}
@@ -69,12 +87,7 @@ return {
 				services = _.intersection(services, layerServices);
 			}
 
-			// Add services to the tab
-			for ( var i=0; i<services.length; i++ )
-			{
-				services[i].addLayer(layer);
-				services[i].addService(tabs);
-			}
+			addServicesHTML();
 
 			if ( layers.length == 0 )
 			{
@@ -103,7 +116,14 @@ return {
 
 		if( layer instanceof MixLayer || layer instanceof GlobWeb.OpenSearchLayer )
 		{
-			removeAllHTML();
+			removeServicesHTML();
+
+			// Remove layer from services
+			var layerServices = serviceMapping[layer.type];
+			for ( var i=0; i<layerServices.length; i++ )
+			{
+				layerServices[i].removeLayer( layer );
+			}
 
 			// Remove layer
 			for(var i=0; i<layers.length; i++)
@@ -112,12 +132,6 @@ return {
 				{
 					layers.splice(i,1);
 				}
-			}
-
-			// Remove layer from services
-			for ( var i=0; i<services.length; i++ )
-			{
-				services[i].removeLayer(layer);
 			}
 
 			if ( layers.length > 0 )
@@ -145,10 +159,7 @@ return {
 					}
 				}
 				
-				for ( var i=0; i<services.length; i++ )
-				{
-					services[i].addService(tabs);
-				}
+				addServicesHTML();
 			}
 			else
 			{
