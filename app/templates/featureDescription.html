@@ -12,12 +12,16 @@
 	</div>
 	
 	<div id="services">
+		<%
+		if ( properties.quicklook ) { %>
+			<img id='quicklook' src="css/images/quicklook.png" class=<%= (properties.style.fill ? 'selected' : '' ) %> />
+		<% } %>
+
 		<% if ( services )
 		{
 			if ( services.download )
 			{
-				var isFits=services.download.url.search(".fits");
-				if ( isFits && !properties.quicklook )
+				if ( services.download.mimetype == "image/fits" )
 				{ %>
 					<img id='quicklook' src="css/images/quicklook.png" class=<%= (properties.style.fill ? 'selected' : '' ) %> />
 				<%
@@ -29,10 +33,7 @@
 			if ( services.healpix ) { %>
 				<img id='healpix' src="css/images/healpix.png" class=<%= (services.healpix.layer.visible() ? 'selected' : '' ) %> />
 			<% }
-		}
-		if ( properties.quicklook ) { %>
-			<img id='quicklook' src="css/images/quicklook.png" class=<%= (properties.style.fill ? 'selected' : '' ) %> />
-		<% } %>
+		} %>
 	</div>
 
 </div>
