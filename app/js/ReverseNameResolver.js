@@ -5,7 +5,6 @@
 define(["jquery.ui", "IFrame", "ErrorDialog", "underscore-min", "text!../templates/featureDescription.html", "text!../templates/descriptionTable.html"], function($, IFrame, ErrorDialog, _, featureDescriptionHTMLTemplate, descriptionTableHTMLTemplate) {
 
 var globe;
-var navigation;
 var configuration = {};
 
 // Template generating the detailed description of choosen feature
@@ -27,7 +26,7 @@ var reverseNameResolverHTML =
 		</div>\
 	</div>';
 
-$reverseNameResolver = $(reverseNameResolverHTML).appendTo('body');
+var $reverseNameResolver = $(reverseNameResolverHTML).appendTo('body');
 
 $( "#reverseNameResolver input[type=submit]")
 	.button()
@@ -160,8 +159,8 @@ function showFeature( feature )
 }
 
 return {
-	init: function(gl,nav,conf) {
-		astroNavigator = nav;
+	init: function(gl,conf) {
+
 		globe = gl;
 		for( var x in conf )
 		{
