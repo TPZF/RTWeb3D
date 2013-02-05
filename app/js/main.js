@@ -67,7 +67,16 @@ $(function()
 {	
 	// Create accordeon
 	$( "#accordion" ).accordion( { autoHeight: false, active: 0, collapsible: true } ).show();
-		
+	
+	var confURL = 'js/conf.json'; // default
+
+	// If configuration is defined by SiTools2
+	var splitIndex = window.document.documentURI.indexOf( "?conf=" );
+	if ( splitIndex != -1 )
+	{
+		confURL = window.document.documentURI.substr( splitIndex+6 );
+	}
+
 	var canvas = document.getElementById('GlobWebCanvas');
 
 	// Make canvas fullscreen
@@ -113,7 +122,7 @@ $(function()
 	navigation = new GlobWeb.AstroNavigation(globe, {minFov: 0.001});
 	
 	// Retreive configuration
-	$.getJSON("js/conf.json", function(data) {
+	$.getJSON(confURL, function(data) {
 	
 		// Add stats
 		if ( data.stats.visible ) {

@@ -23,46 +23,60 @@ Ext.namespace('sitools.component');
 sitools.component.globWebModule = Ext.extend(Ext.Panel, {
 
     initComponent : function () {
-	
-		// Two methods : either using a ManagedIFrame (ExtJS component) or directly an iframe with autoEl
-		
-		// Using ManagedIFrame
-        /*var htmlReaderCfg = {
-            defaults : {
-                padding : 10
-            },
-            layout : 'fit',
-            region : 'center',
-			defaultSrc : "../js/modules/globWebModule/app/index.html"
-        };
-
-        this.htmlReader = new Ext.ux.ManagedIFrame.Panel(htmlReaderCfg);
-
-        this.items = [ this.htmlReader ];*/
-		
+        Ext.each(this.listProjectModulesConfig, function (config){
+            switch (config.name){
+            case "configFile" :
+                this.configFile = config.value;
+                break;
+            }
+        }, this);
 		// Using directly an iframe
 		this.items = [ { layout: 'fit', 
-						 region : 'center',
-						 autoEl: { tag: 'iframe',
-								src: '../js/modules/globWebModule/app/index.html'
-						}, 
-				xtype: 'box'} ];
+						region : 'center',
+						autoEl: { tag: 'iframe',
+		  				src: '../js/modules/globWebModule/app/index.html?conf='+this.configFile
+		        		}, 
+					xtype: 'box'}
+					];
 
         sitools.component.globWebModule.superclass.initComponent.call(this);
     },
 
     /**
-	* method called when trying to save preference
-	* @returns
-	*/
+* method called when trying to save preference
+* @returns
+*/
 
-	_getSettings : function () {
-		return {
-			preferencesPath : "/modules",
-			preferencesFileName : this.id
-		};
-	}
+_getSettings : function () {
+return {
+preferencesPath : "/modules",
+preferencesFileName : this.id
+};
+}
 
 });
+
+sitools.component.globWebModule.getParameters = function () {
+    
+    return [{
+        jsObj : "Ext.form.TextField", 
+        config : {
+            fieldLabel : i18n.get("label.urlDatastorage"),
+            allowBlank : false,
+            width : 200,
+            listeners: {
+                render: function(c) {
+                  Ext.QuickTips.register({
+                    target: c,
+                    text: "URI to the configuration file"
+                  });
+                }
+            },
+            name : "configFile",
+            value : undefined
+        }
+    }];
+};
+
 
 Ext.reg('sitools.component.globWebModule', sitools.component.globWebModule);
