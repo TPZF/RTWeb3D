@@ -2,7 +2,7 @@
  * FeaturePopup module
  */
 define( [ "jquery.ui", "IFrame", "underscore-min", "text!../templates/featureList.html", "text!../templates/featureDescription.html", 
-	"text!../templates/descriptionTable.html", "jquery.nicescroll.min", "fits" ], function($, IFrame, _, featureListHTMLTemplate, featureDescriptionHTMLTemplate, descriptionTableHTMLTemplate) {
+	"text!../templates/descriptionTable.html", "jquery.nicescroll.min" ], function($, IFrame, _, featureListHTMLTemplate, featureDescriptionHTMLTemplate, descriptionTableHTMLTemplate) {
 
 var featureListHTML = '';
 var pickingManager = null;
@@ -20,18 +20,7 @@ var selectedFeatureDiv = '<div id="selectedFeatureDiv" class="contentBox ui-widg
 				<div class="arrow-left"></div>\
 			</div>';
 
-var progressBarDiv = '<div class="progressDiv contentBox" id="progress">\
-						<div class="progressId"></div>\
-						<div id="progressBar">\
-							<div class="progress-label"></div>\
-						</div>\
-						<button style="margin-left: auto; display: block; margin-top: 10px;" id="cancelXHR">Cancel</button>\
-					</div>';
-
-
 var $selectedFeatureDiv = $(selectedFeatureDiv).appendTo('body');
-var $progressBar = $(progressBarDiv).appendTo('body')
-									.find('button').button();
 
 // Template generating the list of selected features
 var featureListTemplate = _.template(featureListHTMLTemplate);
@@ -44,22 +33,6 @@ var descriptionTableTemplate = _.template(descriptionTableHTMLTemplate);
 
 // PileStash help HTML
 var pileStashHelp = '<div id="pileStashHelp"> Some observations are overlapped. <br/> Click on the observation to see detailed informations about each observation. <br/> </div>';
-
-function hideProgressBar()
-{
-	$('#progress').animate({right: 50}, function(){
-		$(this).animate({right:-260}, 500);
-	});
-}
-
-/**
- *	Cancel the xhr request
- */
-function cancelRequest()
-{
-	xhr.abort();
-	hideProgressBar();
-}
 
 /**
  * 	Selected feature div position calculations
@@ -84,125 +57,6 @@ function computeDivPosition(clientX, clientY)
 			top: mousey + 'px'
 		}
 	);
-}
-
-/**
- *	Update progress bar event
- */
-function updateProgressbar(evt)
-{
-	if (evt.lengthComputable) 
-	{
-		//evt.loaded the bytes browser receive
-		//evt.total the total bytes seted by the header
-		//
-		var percentComplete = Math.floor( (evt.loaded / evt.total)*100 );
-		$('#progressBar').progressbar( "value", percentComplete );
-	}
-}
-
-/**
- *	Computing data for FITS file
- *
- *	@param selectedFeature Feature
- *	@param style <GlobWeb.FeatureStyle> Modified style of feature
- *	@param url Url of fits file
- */
-function computeData(selectedFeature, style, url)
-{
-	// Enable float texture extension to have higher luminance range
-	var ext = globe.renderContext.gl.getExtension("OES_texture_float");
-    if (!ext) {
-    	// TODO 
-        alert("no OES_texture_float");
-        return;
-    }
-    var FITS = astro.FITS;
-	xhr = new XMLHttpRequest();
-
-    xhr.open('GET', url);
-    
-    // Set the response type to arraybuffer
-    xhr.responseType = 'arraybuffer';
-    xhr.onprogress=updateProgressbar;
-
-    // Define the onload function
-    xhr.onload = function(e) {
-		hideProgressBar();
-        // Initialize the FITS.File object using
-        // the array buffer returned from the XHR
-        var fits = new FITS.File(xhr.response);
-        // Grab the first HDU with a data unit
-        var hdu = fits.getHDU();
-        var data = hdu.data;
-
-        var uintPixels;
-        var swapPixels = new Uint8Array( data.view.buffer, data.begin, data.length ); // with gl.UNSIGNED_byte
-
-	    for ( var i=0; i<swapPixels.length; i+=4 )
-	    {
-	        var temp = swapPixels[i];
-	        swapPixels[i] = swapPixels[i+3];
-	        swapPixels[i+3] = temp;
-
-	        temp = swapPixels[i+1];
-	        swapPixels[i+1] = swapPixels[i+2];
-	        swapPixels[i+2] = temp;
-	    }
-
-	    var pixels = new Float32Array( data.view.buffer, data.begin, data.length/4 ); // with gl.FLOAT
-	    var uintPixels = new Uint8Array( data.length/4 );
-	    var max = pixels[0];
-	    var min = pixels[0];
-	    for ( var i=1; i<pixels.length; i++ )
-	    {
-	        var val = pixels[i];
-
-	        if ( max < val )
-	            max = val;
-	        if ( min > val )
-	            min = val;
-	    }
-
-	    var gl = globe.renderContext.gl;
-	    var tex = gl.createTexture();
-	    gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1);
-        gl.bindTexture(gl.TEXTURE_2D, tex);
-	    gl.texImage2D(
-            gl.TEXTURE_2D, 0, 
-            gl.LUMINANCE, data.width, data.height, 0, 
-            gl.LUMINANCE, gl.FLOAT, pixels);
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
-	
-		// Attach texture to style
-	    style.fillTexture = tex;
-	    style.fillTexture.min = min;
-	    style.fillTexture.max = max;
-	    globe.publish("fitsAdded", selectedFeature);
-	    selectedFeature.layer.modifyFeatureStyle( selectedFeature.feature, style );
-    }
-
-    xhr.send();
-
-    $('#progress').find('.progressId').html(selectedFeature.feature.properties.identifier);
-    $('#progressBar').progressbar({
-    	value: false,
-    	change: function() {
-    		$('#progressBar .progress-label').text( $('#progressBar').progressbar( "value" ) + "%");
-    	},
-    	complete: function() {
-    		$('#progressBar .progress-label').text( "100%" );
-    	}
-    })
-    $('#progress').animate({right: 50}, 500, function(){
-    	$(this).animate({right:20});
-    });
-
-	// Cancel xhr event
-	$('#cancelXHR').click(cancelRequest);
 }
 
 /**
@@ -286,6 +140,8 @@ return {
 				var newStyle = new GlobWeb.FeatureStyle( selectedFeature.feature.properties.style );
 				newStyle.fill = false;
 				selectedFeature.layer.modifyFeatureStyle( selectedFeature.feature, newStyle );
+
+				globe.publish("removeFitsRequested", selectedFeature);
 			} 
 			else
 			{
@@ -296,7 +152,7 @@ return {
 				if ( selectedFeature.feature.services && selectedFeature.feature.services.download && selectedFeature.feature.services.download.url.search(".fits") )
 				{
 					var url = "/sitools/proxy?external_url=" + selectedFeature.feature.services.download.url;
-					computeData( selectedFeature, style, url );
+					globe.publish("fitsRequested", { selectedFeature: selectedFeature, url: url });
 				}
 				else
 				{
