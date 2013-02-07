@@ -110,17 +110,18 @@ return {
 	 */
 	addService: function(tabs)
 	{
-		tabs.find( ".ui-tabs-nav" ).append('<li><a href="#OpenSearchService">OpenSearch</a></li>');
+		tabs.children( ".ui-tabs-nav" ).append('<li><a href="#OpenSearchService">OpenSearch</a></li>');
 		tabs.append('<div id="OpenSearchService"></div>');
 
 		var openSearchService = openSearchServiceTemplate({ layers: layers });
 
+		// TODO add HTML in addLayer
 		$(openSearchService)
 			.appendTo('#OpenSearchService')
 			.tabs({
 				collapsible: true,
-				hide: { effect: "slideUp", duration: 300 },
-				show: { effect: "slideDown", duration: 300 }
+				hide: { effect: "fadeOut", duration: 300 },
+				show: { effect: "fadeIn", duration: 300 }
 			})
 			.find('.openSearchForm')
 				.submit(handleSubmit).end()

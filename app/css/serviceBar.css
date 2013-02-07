@@ -4,17 +4,11 @@
 #serviceBar
 {
 	position: absolute;
-	top: 20px;
+	top: 15px;
 	left: 300px;
 	width: 700px;
 	display: none;
 	z-index: 9003;
-}
-
-/*** Info when one layer selected ***/
-#layerInfo
-{
-	text-align: center;
 }
 
 /*****************************
@@ -65,7 +59,7 @@
 
 .openSearchForm
 {
-	font-size: 0.9em;
+	font-size: 1.1em;
 }
 
 /*** Key fields ***/
@@ -73,7 +67,7 @@
 {
 	width: 300px;
 	display: inline-block;
-	margin-left: 75px;
+	margin-left: 55px;
 }
 
 /*** Value fields ***/
@@ -94,13 +88,16 @@
 .openSearchForm > input.submit
 {
 	margin-top: 20px;
-	margin-left: 250px;
-	background:#09C;
-	color:#fff;
-	height:30px;
+	margin-left: auto;
+	margin-right: auto;
+	background: #09C;
+	color: white;
+	height: 30px;
 	border-radius: 15px;
 	box-shadow: 0px 0px 8px rgba(9, 211, 195, 0.75);
 	border: none;
+	width: 150px;
+	display: block;
 }
 
 .openSearchForm > input.submit:hover
@@ -123,6 +120,36 @@
 	background: none;
 }
 
+#openSearchTabs > ul > li
+{
+	margin-right: 5px;
+}
+
+#openSearchTabs > ul > li.ui-state-default
+{
+	border-radius: 6px;
+}
+
+#openSearchTabs > ul > li.ui-state-active
+{
+	border-width: 1px;
+	border-color: #F58400;
+	#border-bottom-left-radius: 0px;
+	#border-bottom-right-radius: 0px;
+	box-shadow: 0 0 10px #F58400, inset 0 1px 2px rgba(0, 0, 0, 0.08);
+}
+
+#openSearchTabs > div
+{
+	position: relative;
+	top: 10px;
+	padding-top: 15px;
+ 	border-color: orange;
+	#border-width: 1px;
+	border-radius: 3px 6px 6px 6px;
+	box-shadow: 0px 0px 15px 2px orange, inset 0 1px 2px rgba(0, 0, 0, 0.08);
+}
+
 /****************************/
 /*   	  Moc service		*/
 /****************************/
@@ -137,4 +164,12 @@
 	position: absolute;
 	top: 0px;
 	right: 0;
+}
+
+#intersectMoc
+{
+	margin-left: auto;
+	margin-right: auto;
+	width: 150px;
+	display: block;
 }

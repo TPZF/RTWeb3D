@@ -303,7 +303,7 @@ return {
 	 */
 	addService: function(tabs)
 	{
-		tabs.find( ".ui-tabs-nav" ).append('<li><a href="#FitsService">Fits</a></li>');
+		tabs.children( ".ui-tabs-nav" ).append('<li><a href="#FitsService">Fits</a></li>');
 		tabs.append('<div id="FitsService"></div>');
 		var $form = $(form).appendTo('#FitsService');
 		$form.buttonset();
