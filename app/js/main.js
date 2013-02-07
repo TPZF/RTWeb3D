@@ -135,12 +135,12 @@ $(function()
 		NameResolver.init(globe, navigation, data.nameResolver);
 	
 		// Initialize the reverse name resolver
-		ReverseNameResolver.init(globe, navigation, data.reverseNameResolver);
+		ReverseNameResolver.init(globe, data.reverseNameResolver);
 
 		// Create layers from configuration file
 		LayerManager.init(globe, navigation, data.layers);
 	}).error(function(){
-		ErrorDialog.open("JSON parsing error<br/> For more details see http://jsonlint.com/.");
+		ErrorDialog.open("Configuration error<br/> For more details see http://jsonlint.com/.");
 	});
 	
 	// Create data manager
