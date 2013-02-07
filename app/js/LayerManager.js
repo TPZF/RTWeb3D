@@ -44,14 +44,14 @@ function createLayerFromConf(layer) {
 
 	if ( layer.color )
 	{
-		var rgb = GlobWeb.FeatureStyle.fromStringToColor( layer.color );
+		var rgba = GlobWeb.FeatureStyle.fromStringToColor( layer.color );
 	}
 	else
 	{
 		// generate random color
 		var rgb = Utils.generateColor();
+		var rgba = rgb.concat([1]);
 	}
-	var rgba = rgb.concat([1]);
 	
 	var defaultVectorStyle = new GlobWeb.FeatureStyle({ 
 				rendererHint: "Basic", 
@@ -406,19 +406,17 @@ function createHtmlForAdditionalLayer( gwLayer )
 		$(this).find('span').toggleClass('ui-icon-check');
 		$(this).find('span').toggleClass('ui-icon-empty');
 
+		var layer = $(this).parent().data("layer");
+
 		if ( isOn )
 		{
 			toolsDiv.slideDown(updateScroll);
-			toolsDiv.find('.service').button("option", "disabled", false);
+			ServiceBar.addLayer(layer);
 		}
 		else
 		{
 			toolsDiv.slideUp(updateScroll);
-			// Uncheck service input and remove from service bar
-			var $serviceInput = toolsDiv.find('.service')
-			if ( $serviceInput.is(":checked") )
-				$serviceInput.trigger('click');
-			$serviceInput.button("option","disabled", true);
+			ServiceBar.removeLayer(layer);
 		}
 
 	});
@@ -455,13 +453,6 @@ function addAdditionalLayer ( gwLayer )
 	});
 
 	// Init buttons of tool bar
-	$(".service").button({
-		text: false,
-		icons: {
-			primary: "ui-icon-wrench"
-		}
-	});
-
 	$('.deleteLayer').button({
 		text: false,
 		icons: {
@@ -492,19 +483,6 @@ function initToolbarEvents ()
 		PickingManager.removePickableLayer( layer );
 
 		updateScroll();
-	});
-
-	// Services event
-	$('#additionalLayers').on("change", ".service", function(event){
-		var layer = $(this).parent().parent().data("layer");
-		if( $(this).is(':checked') )
-		{
-			ServiceBar.addLayer(layer);
-		}
-		else
-		{
-			ServiceBar.removeLayer(layer);
-		}
 	});
 
 	// ZoomTo event (available for GlobWeb.VectorLayers only)

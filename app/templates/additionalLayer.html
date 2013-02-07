@@ -20,15 +20,6 @@
 	<img style="display: none" class="spinner" src="css/images/loading.gif">
 
 	<div class="layerTools" class="ui-widget-header ui-corner-all">
-
-		<%
-		if( layer instanceof MixLayer || layer instanceof GlobWeb.OpenSearchLayer )
-		{
-		%>
-			<input type="checkbox" class="service" id="service_<%= currentIndex %>" disabled="<% if (layer.visible()) print('disabled'); %>" /><label for="service_<%= currentIndex %>">Services</label>
-		<%
-		}
-		%>
 		
 		<%
 		if( layer.deletable )
