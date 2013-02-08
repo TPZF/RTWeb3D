@@ -1,5 +1,6 @@
 /**
- * Moc service
+ * Moc display & Moc xMatch services
+ * // TODO refactor to two different services
  */
 define( [ "jquery.ui", "MocLayer", "ErrorDialog", "Utils", "underscore-min", "text!../templates/mocService.html", "text!../templates/xMatchService.html" ], function($, MocLayer, ErrorDialog, Utils, _, mocServiceHTMLTemplate, xMatchServiceHTMLTemplate) {
 
@@ -12,6 +13,7 @@ var coverageServiceUrl = 'http://localhost:8182/sitools/rtwebgl/plugin/coverage?
 
 var layers = [];
 var intersectionLayer;
+
 /**
  *	Create moc sublayer
  *
@@ -40,8 +42,10 @@ function createMocSublayer(layer, serviceUrl)
 			{
 				// No moc
 				layer.coverage = "unknown";
-				$("#MocService #mocLayer_"+layer.id).find('.mocCoverage').html("Sky coverage: "+layer.coverage+"%");
-				$("#xMatchService #mocLayer_"+layer.id).find('.mocCoverage').html("Sky coverage: "+layer.coverage+"%");
+				$("#MocService #mocLayer_"+layer.id).find('.mocCoverage').html("Sky coverage: "+layer.coverage+"%").end()
+													.find('.mocStatus').html('Not found');
+				$("#xMatchService #mocLayer_"+layer.id).find('.mocCoverage').html("Sky coverage: "+layer.coverage+"%").end()
+													.find('.mocStatus').html('Not found');
 			}
 				
 		}
@@ -72,10 +76,7 @@ function requestSkyCoverage(layer, mocServiceUrl)
  */
 function findMocSublayer(layer)
 {
-	if ( layer instanceof MocLayer )
-	{
-		return layer;
-	} else if ( layer.subLayers )
+	if ( layer.subLayers )
 	{
 		for ( var j=0; j<layer.subLayers.length; j++ )
 		{
@@ -97,6 +98,11 @@ function findMocSublayer(layer)
 function handleMocLayer(layer, mocServiceUrl)
 {
 	var serviceLayer = new MocLayer({ serviceUrl: mocServiceUrl, style: layer.style, visible: false });
+	if ( layer.globe )
+	{
+		// Add sublayer to engine
+		layer.globe.addLayer( serviceLayer );
+	}
 
 	// Enable checkboxes
 	$("#MocService #mocLayer_"+layer.id).find('input[type="checkbox"]').removeAttr("disabled").button("refresh");
@@ -104,17 +110,20 @@ function handleMocLayer(layer, mocServiceUrl)
 
 	layer.subLayers.push(serviceLayer);
 	requestSkyCoverage( layer, mocServiceUrl+"?media=txt" );
-	if ( layer.globe && layer.visible() )
-	{
-		// Add sublayer to engine
-		layer.globe.addLayer( serviceLayer );
-	}
 }
 
-function displayClick()
+/**
+ *	Event for display button
+ */
+function displayClickEvent()
 {
 	var layer = $(this).parent().data("layer");
-	var serviceLayer = findMocSublayer(layer);
+
+	var serviceLayer;
+	if ( !(layer instanceof MocLayer) )
+		serviceLayer = findMocSublayer(layer);
+	else
+		serviceLayer = layer; 
 
 	// Change visibility
 	if ( serviceLayer )
@@ -130,6 +139,9 @@ function displayClick()
 	}
 }
 
+/**
+ *	Add HTML of moc layer
+ */
 function addHTMLMocLayer(layer)
 {
 	var form = mocServiceTemplate( { layer: layer });
@@ -137,12 +149,16 @@ function addHTMLMocLayer(layer)
 	$(form)
 		.appendTo('#MocService .mocLayers')
 		.data("layer", layer)
-		.find(".display").attr("checked", (serviceLayer && serviceLayer.visible()) ? true : false)
-							.attr("disabled", (serviceLayer) ? false : true)
-							.button()
-							.click(displayClick);
+		.find('input[type="checkbox"]')
+				.attr("checked", (serviceLayer && serviceLayer.visible()) ? true : false)
+				.attr("disabled", (serviceLayer) ? false : true)
+				.button()
+				.click(displayClickEvent);
 }
 
+/**
+ *	Add HTML of xMatch layer
+ */
 function addHTMLXMatchLayer(layer)
 {
 	var form = xMatchServiceTemplate( { layer: layer } );
@@ -151,22 +167,25 @@ function addHTMLXMatchLayer(layer)
 		.appendTo('#xMatchService .mocLayers')
 		.data("layer",layer)
 		.find('input[type="checkbox"]')
-		.attr("disabled", (serviceLayer) ? false : true)
-		.button({
-			text:false,
-			icons: {
-				primary: "ui-icon-empty"
-			}
-		})
-		.click(function(){
-			$(this).button("option", {
+			.attr("disabled", (serviceLayer) ? false : true)
+			.button({
+				text:false,
 				icons: {
-            		primary: $(this).is(':checked') ? "ui-icon-check" : "ui-icon-empty"
-            	}
-            });
-		});
+					primary: "ui-icon-empty"
+				}
+			})
+			.click(function(){
+				$(this).button("option", {
+					icons: {
+	            		primary: $(this).is(':checked') ? "ui-icon-check" : "ui-icon-empty"
+	            	}
+	            });
+			});
 }
 
+/**
+ *	Add HTML of intersection layer
+ */
 function addHTMLIntersectionLayer()
 {
 	// Add HTML
@@ -176,23 +195,29 @@ function addHTMLIntersectionLayer()
 		.data("layer", intersectionLayer)
 		.find(".display")
 			.button()
-			.click(displayClick);
+			.click(displayClickEvent);
 	$('#intersectResult').slideDown();
+	$('#intersectMocBtn').removeAttr("disabled").button("refresh");
 }
 
-function addIntersectionLayer(checkedLayers)
+/**
+ *	Create & add intersection layer
+ *
+ *	@param layersToIntersect Layers to intersect
+ */
+function addIntersectionLayer(layersToIntersect)
 {
 	// Construct url & layerNames
 	var url = coverageServiceUrl;
 	var layerNames = "";
-	for ( var i=0; i<checkedLayers.length; i++ )
+	for ( var i=0; i<layersToIntersect.length; i++ )
 	{
-		var layer = checkedLayers[i];
+		var layer = layersToIntersect[i];
 
 		var mocLayer = findMocSublayer(layer);
 		layerNames += layer.name;
 		url += mocLayer.serviceUrl;
-		if ( i != checkedLayers.length-1 )
+		if ( i != layersToIntersect.length-1 )
 		{
 			url += ';'
 			layerNames += ' x ';
@@ -241,8 +266,14 @@ return {
 		{
 			createMocSublayer( layer, layer.serviceUrl );
 		}
+
+		addHTMLMocLayer( layer );
+		addHTMLXMatchLayer( layer );	
 	},
 
+	/**
+	 *	Remove layer from the service
+	 */
 	removeLayer: function(layer)
 	{
 		for(var i=0; i<layers.length; i++)
@@ -252,22 +283,34 @@ return {
 				layers.splice(i,1);
 			}
 		}
+
+		$( "#MocService #mocLayer_"+layer.id ).remove();
+		$( "#xMatchService #mocLayer_"+layer.id ).remove();
 	},
 
+	/**
+	 *	Add service to jQueryUI tabs
+	 *
+	 *	@param tabs jQueryUI tabs selector
+	 */
 	addService: function(tabs)
 	{
-		tabs.children( ".ui-tabs-nav" ).append('<li><a href="#MocService">Moc</a></li>\
-											<li><a href="#xMatchService">xMatch</a></li>');
+		// Append headers
+		$('<li style="display: none;"><a href="#MocService">Moc</a></li>\
+		<li style="display: none;"><a href="#xMatchService">xMatch</a></li>')
+			.appendTo( tabs.children( ".ui-tabs-nav" ) )
+			.fadeIn(300);
+
+		// Append content
 		tabs.append('<div id="MocService">\
 						<div class="mocLayers"></div>\
 					</div>\
 					<div id="xMatchService">\
 						<div class="mocLayers"></div>\
-						<button id="intersectMoc">Intersect</button>\
+						<button id="intersectMocBtn">Intersect</button>\
 						<div id="intersectResult"></div>\
 					</div>');
 
-		// TODO add/remove HTML in addLayer/removeLayer
 		for ( var i=0; i<layers.length; i++ )
 		{
 			var layer = layers[i];
@@ -275,18 +318,22 @@ return {
 			addHTMLXMatchLayer( layer );	
 		}
 
-		$( '#intersectMoc' )
+		$( '#intersectMocBtn' )
 			.button()
 			.click(function(){
-				$('#intersectResult').stop().slideUp(function(){
+				$(this).attr("disabled","disabled").button("refresh");
+				$('#intersectResult').clearQueue().stop().slideUp(function(){
 					var checkedInputs = $(this).parent().find('input:checked');
 					if ( checkedInputs.length < 2 )
 					{
 						$('#intersectResult').html('Check at least two layers')
-								.slideDown().delay(700).slideUp();
+								.slideDown().delay(700).slideUp(function(){
+									$('#intersectMocBtn').removeAttr("disabled").button("refresh");
+								});
 					}
 					else
-					{					
+					{
+						$('#intersectResult').html('');
 						var checkedLayers = [];
 						checkedInputs.each(function(i){
 							checkedLayers.push( $.data(checkedInputs[i].parentElement, "layer") );
@@ -296,14 +343,23 @@ return {
 					}
 				});
 			});
-		tabs.tabs("refresh");
 	},
 
+	/**
+	 *	Remove service from jQueryUI tabs
+	 *
+	 *	@param tabs jQueryUI tabs selector
+	 */
 	removeService: function(tabs)
 	{
-		var index = tabs.find( '.ui-tabs-nav li[aria-controls="MocService"]').index();
-		tabs.tabs("remove",index); // Remove MocService
-		tabs.tabs("remove",index); // Remove xMatchService
+		tabs.find( '.ui-tabs-nav li[aria-controls="MocService"]').fadeOut(300, function(){
+			var index = $(this).index();
+			tabs.tabs("remove",index);
+		});
+		tabs.find( '.ui-tabs-nav li[aria-controls="xMatchService"]').fadeOut(300, function(){
+			var index = $(this).index();
+			tabs.tabs("remove",index);
+		});
 
 		if ( intersectionLayer )
 		{

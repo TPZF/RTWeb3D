@@ -9,10 +9,6 @@ var openSearchServiceTemplate = _.template(openSearchServiceHTMLTemplate);
 var openSearchFormTemplate = _.template(openSearchFormHTMLTemplate);
 var layers = [];
 
-// Ugly formId-layer mapping
-// TODO replace by smth more .. attractive
-var idMap = {};
-
 /**
  *	Handle submit event
  */
@@ -20,6 +16,7 @@ function handleSubmit(event)
 {
 	event.preventDefault();
 
+	var layer = $(this).data("layer");
 	// Get array of changed inputs
 	var notEmptyInputs = $(this).find(':input[value!=""]').serializeArray();
 	// Create new properties
@@ -37,7 +34,21 @@ function handleSubmit(event)
 	});
 
 	// Modify the request properties of choosen layer
-	idMap[$(this).attr("id")].setRequestProperties(properties);
+	layer.setRequestProperties(properties);
+}
+
+/**
+ *	Add OpenSearch form and handle jQuery stuff(events & widgets)
+ */
+function handleForm(layer)
+{
+	$('#osForm_'+layer.id)
+	.html(layer.openSearchForm ? layer.openSearchForm : "loading")
+	.find('.openSearchForm')
+		.data("layer", layer)
+		.submit(handleSubmit).end()
+	.find(".datepicker").datepicker();
+	$('#openSearchTabs').tabs("refresh");
 }
 
 /**
@@ -64,13 +75,7 @@ function attachForm(layer)
 				{
 					var formProperties = json.filters;
 					layer.openSearchForm = openSearchFormTemplate( { layer: layer, properties: formProperties });
-					idMap['openSearchForm_'+layer.id] = layer;
-					$('#osForm_'+layer.id)
-						.html(layer.openSearchForm)
-						.find('.openSearchForm')
-							.submit(handleSubmit).end()
-						.find(".datepicker").datepicker();
-					$('#openSearchTabs').tabs("refresh");
+					handleForm(layer);
 				}
 			});
 		}
@@ -87,6 +92,10 @@ return {
 
 		if ( !layer.openSearchForm )
 			attachForm(layer);
+
+		$('#openSearchTabs').children( ".ui-tabs-nav" ).append('<li><a href="#osForm_'+layer.id+'">'+layer.name+'</a></li>');
+		$('#openSearchTabs').append('<div id="osForm_'+layer.id+'">'+layer.openSearchForm+'</div>');
+		handleForm(layer);
 	},
 
 	/**
@@ -101,6 +110,10 @@ return {
 				layers.splice(i,1);
 			}
 		}
+
+		var index = $('#openSearchTabs').find( '.ui-tabs-nav li[aria-controls="osForm_'+layer.id+'"]').index();
+		$('#openSearchTabs').tabs("remove",index);
+		$('#openSearchTabs').tabs("refresh");
 	},
 
 	/**
@@ -110,12 +123,15 @@ return {
 	 */
 	addService: function(tabs)
 	{
-		tabs.children( ".ui-tabs-nav" ).append('<li><a href="#OpenSearchService">OpenSearch</a></li>');
+		// Append header
+		$('<li style="display: none;"><a href="#OpenSearchService">OpenSearch</a></li>')
+			.appendTo( tabs.children( ".ui-tabs-nav" ) )
+			.fadeIn(300);
+		// Append content
 		tabs.append('<div id="OpenSearchService"></div>');
 
 		var openSearchService = openSearchServiceTemplate({ layers: layers });
 
-		// TODO add HTML in addLayer
 		$(openSearchService)
 			.appendTo('#OpenSearchService')
 			.tabs({
@@ -127,7 +143,6 @@ return {
 				.submit(handleSubmit).end()
 			.find('.datepicker').datepicker();
 
-		tabs.tabs("refresh");
 	},
 
 	/**
@@ -137,8 +152,10 @@ return {
 	 */
 	removeService: function(tabs)
 	{
-		var index = tabs.find( '.ui-tabs-nav li[aria-controls="OpenSearchService"]').index();
-		tabs.tabs("remove",index);
+		tabs.find( '.ui-tabs-nav li[aria-controls="OpenSearchService"]').fadeOut(300, function(){
+			var index = $(this).index();
+			tabs.tabs("remove",index);
+		});
 	}
 }
 

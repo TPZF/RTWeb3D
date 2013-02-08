@@ -303,8 +303,14 @@ return {
 	 */
 	addService: function(tabs)
 	{
-		tabs.children( ".ui-tabs-nav" ).append('<li><a href="#FitsService">Fits</a></li>');
+		// Append header
+		$('<li style="display : none;"><a href="#FitsService">Fits</a></li>')
+			.appendTo( tabs.children( ".ui-tabs-nav" ) )
+			.fadeIn(300);
+		// Append content
 		tabs.append('<div id="FitsService"></div>');
+
+		// Define click actions for inputs
 		var $form = $(form).appendTo('#FitsService');
 		$form.buttonset();
 		$form.find('input')
@@ -355,9 +361,6 @@ return {
 							}
 						});
 				});
-
-		tabs.tabs("refresh");
-
 	},
 
 	/**
@@ -367,8 +370,10 @@ return {
 	 */
 	removeService: function(tabs)
 	{
-		var index = tabs.find( '.ui-tabs-nav li[aria-controls="FitsService"]').index();
-		tabs.tabs("remove",index);
+		tabs.find( '.ui-tabs-nav li[aria-controls="FitsService"]').fadeOut(300, function(){
+			var index = $(this).index();
+			tabs.tabs("remove",index);
+		});
 	}
 }
 
