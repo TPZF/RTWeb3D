@@ -74,7 +74,10 @@ $(function()
 	var splitIndex = window.document.documentURI.indexOf( "?conf=" );
 	if ( splitIndex != -1 )
 	{
-		confURL = window.document.documentURI.substr( splitIndex+6 );
+		var url = window.document.documentURI.substr( splitIndex+6 );
+		if ( url != 'undefined' ) {
+			confURL = url;
+		}
 	}
 
 	var canvas = document.getElementById('GlobWebCanvas');
