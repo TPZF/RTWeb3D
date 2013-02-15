@@ -9,6 +9,11 @@ var form = '<div id="fitsOptions">\
 				<input name="fitsScale" type="radio" id="raw" checked="checked" /><label for="raw">Raw</label>\
 				<input name="fitsScale" type="radio" id="minmax" /><label for="minmax">Min/Max</label>\
 	  	 		<input name="fitsScale" type="radio" id="log" /><label for="log">Log</label>\
+	  	 		<div id="contrastDiv">\
+	  	 			<label for="contrastValue">Contrast level:</label>\
+					<input type="text" id="contrastValue" style="border: 0; background-color: transparent; width: 40px; color: #F6931F; font-weight: bold;" />\
+					<div style="width: 150px" id="contrastSlider"></div>\
+				</div>\
 	  	 	</div>';
 
 var progressBarDiv = '<div class="progressDiv contentBox" id="progress">\
@@ -97,11 +102,12 @@ var logFragShader= "\
 	uniform vec4 u_color;\n\
 	varying vec2 vTextureCoord;\n\
 	uniform sampler2D texture; \n\
+	uniform float contrast; \n\
 	void main(void)\n\
 	{\n\
 		float color = texture2D(texture, vTextureCoord).r;\n\
 		color = log(10000.0*(color/255.) + 1.)/log(10000.);\n\
-		gl_FragColor = vec4(color,color,color,1.) * u_color;\n\
+		gl_FragColor = ((vec4(color,color,color,1.) - 0.5) * contrast + 0.5 ) * u_color;\n\
 	}\n\
 	";
 
@@ -110,13 +116,14 @@ var minmaxFragShader = "\
 	uniform vec4 u_color;\n\
 	varying vec2 vTextureCoord;\n\
 	uniform sampler2D texture; \n\
+	uniform float contrast; \n\
 	uniform float min; \n\
 	uniform float max; \n\
 	void main(void)\n\
 	{\n\
 		float color = texture2D(texture, vTextureCoord).r;\n\
 		color = ((color - min) / (max - min));\n\
-		gl_FragColor = vec4(color,color,color,1.) * u_color;\n\
+		gl_FragColor = ((vec4(color,color,color,1.) - 0.5) * contrast + 0.5 ) * u_color;\n\
 	}\n\
 	";
 
@@ -124,6 +131,12 @@ var minmaxUniformCallback = function(gl, renderable)
 {
 	gl.uniform1f(renderable.program.uniforms["max"], renderable.texture.max);
 	gl.uniform1f(renderable.program.uniforms["min"], renderable.texture.min);
+	gl.uniform1f(renderable.program.uniforms["contrast"], renderable.style.contrast);
+}
+
+var logUniformCallback = function(gl, renderable)
+{
+	gl.uniform1f(renderable.program.uniforms["contrast"], renderable.style.contrast);
 }
 
 /**
@@ -321,6 +334,7 @@ return {
 							var id = $(this).attr("id");
 							switch(id){
 								case "minmax":
+									$( "#contrastSlider" ).slider( "enable" );
 									for ( var i=0; i<features.length; i++)
 									{
 										var feature = features[i].feature;
@@ -329,22 +343,27 @@ return {
 											fragmentCode: minmaxFragShader,
 											updateUniforms: minmaxUniformCallback
 										};
+										targetStyle.contrast = $( "#contrastSlider" ).slider( "value" );
 										features[i].layer.modifyFeatureStyle( feature, targetStyle );
 									}
 
 									break;
 								case "log":
+									$( "#contrastSlider" ).slider( "enable" );
 									for ( var i=0; i<features.length; i++)
 									{
 										var feature = features[i].feature;
 										var targetStyle = new GlobWeb.FeatureStyle( feature.properties.style );
 										targetStyle.fillShader = {
-											fragmentCode: logFragShader
+											fragmentCode: logFragShader,
+											updateUniforms: logUniformCallback
 										};
+										targetStyle.contrast = $( "#contrastSlider" ).slider( "value" );
 										features[i].layer.modifyFeatureStyle( feature, targetStyle );
 									}
 									break;
 								case "raw":
+									$( "#contrastSlider" ).slider( "disable" );
 									for ( var i=0; i<features.length; i++)
 									{
 										var feature = features[i].feature;
@@ -361,6 +380,24 @@ return {
 							}
 						});
 				});
+			
+		$( "#contrastSlider" ).slider({
+			value:1,
+			min: 0,
+			max: 10,
+			step: 0.1,
+			slide: function( event, ui ) {
+				for ( var i=0; i<features.length; i++)
+				{
+					var feature = features[i].feature;
+					var targetStyle = new GlobWeb.FeatureStyle( feature.properties.style );
+					targetStyle.contrast = ui.value;
+					features[i].layer.modifyFeatureStyle( feature, targetStyle );
+				}
+				$( "#contrastValue" ).val( ui.value );
+			}
+		}).slider("disable");
+		$( "#contrastValue" ).val( $( "#contrastSlider" ).slider( "value" ) );
 	},
 
 	/**
