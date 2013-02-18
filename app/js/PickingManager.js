@@ -12,6 +12,7 @@ var stackSelectionIndex = -1;
 var selectedStyle = new GlobWeb.FeatureStyle( { strokeColor: [1., 1., 0., 1.], fillColor: [1., 1., 0., 1.] } );
 var quicklookStyle = new GlobWeb.FeatureStyle( { fill: true, strokeColor: [1., 1., 0., 1.] } );
 var pickableLayers = [];
+var selectedTile = null;
 
 /**
  * 	Revert style of selection
@@ -90,6 +91,9 @@ function init()
 		if ( Math.abs(mouseXStart - event.clientX) < epsilon && Math.abs(mouseYStart - event.clientY) < epsilon )
 		{
 			var pickPoint = globe.getLonLatFromPixel(event.clientX, event.clientY);
+
+			selectedTile = globe.tileManager.getVisibleTile(pickPoint[0], pickPoint[1]);
+
 			var newSelection = computePickSelection(pickPoint);
 			
 			if ( isSelectionEqual(newSelection) && newSelection.length != 0 ){
@@ -139,6 +143,7 @@ function init()
 						navigation.moveTo( pickPoint, 1000 );
 						window.setTimeout( function(){
 							selection = newSelection;
+							selection.selectedTile = selectedTile;
 							FeaturePopup.createFeatureList( newSelection );
 							if ( newSelection.length > 1 )
 							{
@@ -345,18 +350,19 @@ function computePickSelection( pickPoint )
 				// Search for picked features
 				for ( var j=0; j<pickableLayer.features.length; j++ )
 				{
-					switch ( pickableLayer.features[j]['geometry'].type )
+					var feature =  pickableLayer.features[j];
+					switch ( feature['geometry'].type )
 					{
 						case "Polygon":
-							if ( pointInRing( pickPoint, pickableLayer.features[j]['geometry']['coordinates'][0] ) )
+							if ( pointInRing( pickPoint, feature['geometry']['coordinates'][0] ) )
 							{
-								newSelection.push( { feature: pickableLayer.features[j], layer: pickableLayer } );
+								newSelection.push( { feature: feature, layer: pickableLayer } );
 							}
 							break;
 						case "Point":
-							if ( pointInSphere( pickPoint, pickableLayer.features[j]['geometry']['coordinates'], 10 ) )
+							if ( pointInSphere( pickPoint, feature['geometry']['coordinates'], 10 ) )
 							{
-								newSelection.push( { feature: pickableLayer.features[j], layer: pickableLayer } );
+								newSelection.push( { feature: feature, layer: pickableLayer } );
 							}
 							break;
 						default:
@@ -452,6 +458,11 @@ return {
 	getSelectedFeature: function()
 	{
 		return selection[stackSelectionIndex];
+	},
+
+	getSelection: function()
+	{
+		return selection;
 	}
 };
 

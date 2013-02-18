@@ -23,7 +23,7 @@
 /*			Common				*/
 /********************************/
 
-#featureList .selected, #quicklook.selected, #healpix.selected
+#featureList .selected, #quicklook.selected, #healpix.selected, #solarObjects.selected
 {
 	box-shadow: inset 0px 0px 3px 1px #F8A102;
 	border-radius: 8px;
@@ -177,7 +177,7 @@
 
 
 /*** Services ***/
-#quicklook, #healpix
+#quicklook, #healpix, #solarObjects
 {
 	cursor: pointer;
 }

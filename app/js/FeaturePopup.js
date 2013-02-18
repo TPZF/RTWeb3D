@@ -1,8 +1,8 @@
 /**
  * FeaturePopup module
  */
-define( [ "jquery.ui", "IFrame", "underscore-min", "text!../templates/featureList.html", "text!../templates/featureDescription.html", 
-	"text!../templates/descriptionTable.html", "jquery.nicescroll.min" ], function($, IFrame, _, featureListHTMLTemplate, featureDescriptionHTMLTemplate, descriptionTableHTMLTemplate) {
+define( [ "jquery.ui", "IFrame", "JsonProcessor", "underscore-min", "text!../templates/featureList.html", "text!../templates/featureDescription.html", 
+	"text!../templates/descriptionTable.html", "jquery.nicescroll.min" ], function($, IFrame, JsonProcessor, _, featureListHTMLTemplate, featureDescriptionHTMLTemplate, descriptionTableHTMLTemplate) {
 
 var featureListHTML = '';
 var pickingManager = null;
@@ -149,7 +149,7 @@ return {
 				var style = selectedFeature.feature.properties.style;
 				style.fill = true;
 
-				if ( selectedFeature.feature.services && selectedFeature.feature.services.download && selectedFeature.feature.services.download.url.search(".fits") )
+				if ( selectedFeature.feature.services && selectedFeature.feature.services.download && selectedFeature.feature.services.download.mimetype == "image/fits" )
 				{
 					var url = "/sitools/proxy?external_url=" + selectedFeature.feature.services.download.url;
 					globe.publish("fitsRequested", { selectedFeature: selectedFeature, url: url });
@@ -176,6 +176,69 @@ return {
 			{
 				$('#healpix').addClass('selected');
 				healpixLayer.visible(true);
+			}
+		});
+
+		// Show/hide Solar object service
+		$selectedFeatureDiv.on("click", '#solarObjects', function(event){
+			var selectedFeature = pickingManager.getSelectedFeature();
+			var selection = pickingManager.getSelection();
+
+			var solarObjectsLayer;
+			var layer = selectedFeature.layer;
+
+			if ( selectedFeature.feature.services.solarObjects )
+			{
+				solarObjectsLayer = selectedFeature.feature.services.solarObjects.layer;
+			}
+			else
+			{
+				// Create solar object layer
+				var defaultVectorStyle = new GlobWeb.FeatureStyle({ 
+					rendererHint: "Basic", 
+					iconUrl: "css/images/star.png"
+				});
+
+				var options = {
+					name: "SolarObjectsSublayer",
+					style: defaultVectorStyle
+				};
+
+				solarObjectsLayer = new GlobWeb.VectorLayer( options );
+				layer.globe.addLayer(solarObjectsLayer);
+				pickingManager.addPickableLayer(solarObjectsLayer);
+
+				var url = "/sitools/rtwebgl/plugin/solarObjects?order=" + selection.selectedTile.order + "&healpix=" + selection.selectedTile.pixelIndex;
+	
+				$.ajax({
+					type: "GET",
+					url: url,
+					success: function(response){
+						console.log(response);
+						JsonProcessor.handleFeatureCollection( solarObjectsLayer, response );
+						solarObjectsLayer.addFeatureCollection(response);
+					}
+				});
+
+				if ( !layer.subLayers )
+				{
+					layer.subLayers = [];
+				}
+				selectedFeature.feature.services.solarObjects = {
+					layer: solarObjectsLayer
+				}
+				layer.subLayers.push(solarObjectsLayer);
+			}
+
+			if ( $('#solarObjects').is('.selected') )
+			{
+				$('#solarObjects').removeClass('selected');
+				solarObjectsLayer.visible(false);
+			}
+			else
+			{
+				$('#solarObjects').addClass('selected');
+				solarObjectsLayer.visible(true);
 			}
 		});
 

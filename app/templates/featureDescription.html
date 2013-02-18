@@ -14,7 +14,7 @@
 	<div id="services">
 		<%
 		if ( properties.quicklook ) { %>
-			<img id='quicklook' src="css/images/quicklook.png" class=<%= (properties.style.fill ? 'selected' : '' ) %> />
+			<img title="Quicklook" id='quicklook' src="css/images/quicklook.png" class=<%= (properties.style.fill ? 'selected' : '' ) %> />
 		<% } %>
 
 		<% if ( services )
@@ -23,15 +23,16 @@
 			{
 				if ( services.download.mimetype == "image/fits" )
 				{ %>
-					<img id='quicklook' src="css/images/quicklook.png" class=<%= (properties.style.fill ? 'selected' : '' ) %> />
+					<img title="Quicklook" id='quicklook' src="css/images/quicklook.png" class=<%= (properties.style.fill ? 'selected' : '' ) %> />
+					<img title="Solar object service" id="solarObjects" src="css/images/solarObjectsService.png" class=<%= (services.solarObjects && services.solarObjects.layer.visible() ? 'selected' : '' ) %> />
 				<%
 				}
 			 	%>
-				<a href="<%= services ? services.download.url : "" %>" target="_self"><img src="css/images/download1.png"></a>
+				<a href="<%= services ? services.download.url : "" %>" target="_self"><img title="Download" src="css/images/download1.png"></a>
 				<%
 			}
 			if ( services.healpix ) { %>
-				<img id='healpix' src="css/images/healpix.png" class=<%= (services.healpix.layer.visible() ? 'selected' : '' ) %> />
+				<img title="Healpix service" id='healpix' src="css/images/healpix.png" class=<%= (services.healpix.layer.visible() ? 'selected' : '' ) %> />
 			<% }
 		} %>
 	</div>
