@@ -58,11 +58,15 @@ function showProgressBar(featureData)
  */
 function hideProgressBar()
 {
-	$progress.animate({right: 50}, function(){
-		$(this).animate({right:-260}, 500, function(){
-			$('#progress .progressId').html("");
+	// If not hidden
+	if (parseInt($progress.css("right")) > 0)
+	{
+		$progress.animate({right: 50}, function(){
+			$(this).animate({right:-260}, 500, function(){
+				$('#progress .progressId').html("");
+			});
 		});
-	});
+	}
 }
 
 /**
@@ -283,6 +287,7 @@ return {
 		});
 
 		globe.subscribe("removeFitsRequested", function( selectedFeature ){
+			cancelRequest();
 			removeFits(selectedFeature);
 		});
 	},
