@@ -121,21 +121,24 @@ MocLayer.prototype._attach = function( g )
 		this.program.createFromSource( vertexShader, fragmentShader );
 	}
 
-	// Request MOC data
-	var self = this;
-	$.ajax({
-		type: "GET",
-		url: self.serviceUrl,
-		dataType: 'json',
-		success: function(response){
-				self.handleDistribution(response);
-		},
-		error: function (xhr, ajaxOptions, thrownError) {
-			// TODO publish event ?
-			$('#addLayer_'+self.id).find('label').css("color","red");
-			console.error( xhr.responseText );
-		}
-	});
+	// Request MOC data if needed
+	if ( !this.vertexBuffer )
+	{
+		var self = this;
+		$.ajax({
+			type: "GET",
+			url: self.serviceUrl,
+			dataType: 'json',
+			success: function(response){
+					self.handleDistribution(response);
+			},
+			error: function (xhr, ajaxOptions, thrownError) {
+				// TODO publish event ?
+				$('#addLayer_'+self.id).find('label').css("color","red");
+				console.error( xhr.responseText );
+			}
+		});
+	}
 }
 
 /**************************************************************************************************************/
