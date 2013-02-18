@@ -8,11 +8,22 @@ define( [ "jquery.ui", "MocLayer", "ErrorDialog", "Utils", "underscore-min", "te
 var mocServiceTemplate = _.template(mocServiceHTMLTemplate);
 var xMatchServiceTemplate = _.template(xMatchServiceHTMLTemplate);
 
-// TODO make option
-var coverageServiceUrl = 'http://localhost:8182/sitools/rtwebgl/plugin/coverage?moc=';
-
+var coverageServiceUrl;
+var globe = null;
 var layers = [];
 var intersectionLayer;
+
+/**
+ *	Update HTML layer status when no moc layer has been found
+ */
+function noMocFound(layer)
+{
+	layer.coverage = "unknown";
+	$("#MocService #mocLayer_"+layer.id).find('.mocCoverage').html("Sky coverage: "+layer.coverage+"%").end()
+										.find('.mocStatus').html('Not found');
+	$("#xMatchService #mocLayer_"+layer.id).find('.mocCoverage').html("Sky coverage: "+layer.coverage+"%").end()
+										.find('.mocStatus').html('Not found');
+}
 
 /**
  *	Create moc sublayer
@@ -40,14 +51,11 @@ function createMocSublayer(layer, serviceUrl)
 			}
 			else
 			{
-				// No moc
-				layer.coverage = "unknown";
-				$("#MocService #mocLayer_"+layer.id).find('.mocCoverage').html("Sky coverage: "+layer.coverage+"%").end()
-													.find('.mocStatus').html('Not found');
-				$("#xMatchService #mocLayer_"+layer.id).find('.mocCoverage').html("Sky coverage: "+layer.coverage+"%").end()
-													.find('.mocStatus').html('Not found');
+				noMocFound(layer);
 			}
-				
+		},
+		error: function(xhr){
+			noMocFound(layer);
 		}
 	});
 }
@@ -207,45 +215,58 @@ function addHTMLIntersectionLayer()
  */
 function addIntersectionLayer(layersToIntersect)
 {
-	// Construct url & layerNames
-	var url = coverageServiceUrl;
-	var layerNames = "";
-	for ( var i=0; i<layersToIntersect.length; i++ )
+	if ( coverageServiceUrl )
 	{
-		var layer = layersToIntersect[i];
-
-		var mocLayer = findMocSublayer(layer);
-		layerNames += layer.name;
-		url += mocLayer.serviceUrl;
-		if ( i != layersToIntersect.length-1 )
+		// Construct url & layerNames
+		var url = coverageServiceUrl;
+		var layerNames = "";
+		for ( var i=0; i<layersToIntersect.length; i++ )
 		{
-			url += ';'
-			layerNames += ' x ';
+			var layer = layersToIntersect[i];
+
+			var mocLayer = findMocSublayer(layer);
+			layerNames += layer.name;
+			url += mocLayer.serviceUrl;
+			if ( i != layersToIntersect.length-1 )
+			{
+				url += ';'
+				layerNames += ' x ';
+			}
 		}
+
+		if ( intersectionLayer )
+			globe.removeLayer(intersectionLayer);
+
+		// Create intersection MOC layer
+		intersectionLayer = new MocLayer({
+				name: "Intersection( "+layerNames+" )",
+				serviceUrl: url + "&media=json",
+				style: new GlobWeb.FeatureStyle({
+					rendererHint: "Basic"
+				}),
+				visible: false
+			});
+		globe.addLayer(intersectionLayer);
+
+		requestSkyCoverage( intersectionLayer, url + "&media=txt" );
+		addHTMLIntersectionLayer();
 	}
-
-	// HACK+TODO add globe into the module by init
-	var globe = layers[0].globe;
-
-	if ( intersectionLayer )
-		globe.removeLayer(intersectionLayer);
-
-	// Create intersection MOC layer
-	intersectionLayer = new MocLayer({
-			name: "Intersection( "+layerNames+" )",
-			serviceUrl: url + "&media=json",
-			style: new GlobWeb.FeatureStyle({
-				rendererHint: "Basic"
-			}),
-			visible: false
-		});
-	globe.addLayer(intersectionLayer);
-
-	requestSkyCoverage( intersectionLayer, url + "&media=txt" );
-	addHTMLIntersectionLayer();
+	else
+	{
+		ErrorDialog.open("Coverage service URL isn't defined in configuration file");
+	}
 }
 
 return {
+
+	init: function(gl, configuration)
+	{
+		globe = gl;
+		if ( configuration.coverageService )
+		{
+			coverageServiceUrl = configuration.coverageService.baseUrl;
+		}
+	},
 
 	/**
 	 *	Add layer to the service

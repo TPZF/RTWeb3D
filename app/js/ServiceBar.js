@@ -60,8 +60,9 @@ function removeServicesHTML()
 
 return {
 
-	init: function(gl)
+	init: function(gl, configuration)
 	{
+		MocService.init(gl, configuration);
 		FitsService.init(gl);
 		$( "#serviceBar" ).accordion( { autoHeight: false, active: false, collapsible: true } ).show();
 	},

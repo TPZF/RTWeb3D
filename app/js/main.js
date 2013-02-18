@@ -141,7 +141,7 @@ $(function()
 		ReverseNameResolver.init(globe, data.reverseNameResolver);
 
 		// Create layers from configuration file
-		LayerManager.init(globe, navigation, data.layers);
+		LayerManager.init(globe, navigation, data);
 	}).error(function(){
 		ErrorDialog.open("Configuration error<br/> For more details see http://jsonlint.com/.");
 	});

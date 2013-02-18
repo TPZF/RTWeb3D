@@ -589,8 +589,8 @@ return {
 		navigation = nav;
 		
 		// Call init layers
-		initLayers(configuration);
-		ServiceBar.init(gl);
+		initLayers(configuration.layers);
+		ServiceBar.init(gl, configuration);
 	},
 	
 	/**

@@ -6,6 +6,9 @@
 	"reverseNameResolver": {
 		"baseUrl": "/sitools/rtwebgl/plugin/reverseNameResolver/"
 	},
+	"coverageService": {
+		"baseUrl": "/sitools/rtwebgl/plugin/coverage?moc="
+	},
 	"stats": {
 		"verbose": false,
 		"visible": true
