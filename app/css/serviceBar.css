@@ -195,3 +195,34 @@
 {
 	overflow: none;
 }
+
+
+/****************************/
+/*   	  Fits service		*/
+/****************************/
+#progress
+{
+	padding: 5px;
+	display: block;
+	position: absolute;
+	top: 60px;
+	right: -150px;
+	z-index: 900
+}
+
+#progress .ui-progressbar-value {
+    background: orange;
+  }
+
+.progressId
+{
+	color: white;
+}
+
+.progress-label
+{
+	float:left;
+	margin-left: 48%;
+	margin-top: 5px;
+	font-weight: bold;
+}
