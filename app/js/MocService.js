@@ -317,10 +317,13 @@ return {
 	addService: function(tabs)
 	{
 		// Append headers
-		$('<li style="display: none;"><a href="#MocService">Moc</a></li>\
-		<li style="display: none;"><a href="#xMatchService">xMatch</a></li>')
+		$('<li style="display: none;"><a href="#MocService">Moc</a></li>')
 			.appendTo( tabs.children( ".ui-tabs-nav" ) )
 			.fadeIn(300);
+		$('<li style="display: none;"><a href="#xMatchService">xMatch</a></li>')
+			.appendTo( tabs.children( ".ui-tabs-nav" ) )
+			.fadeIn(300);
+		
 
 		// Append content
 		tabs.append('<div id="MocService">\
@@ -328,7 +331,7 @@ return {
 					</div>\
 					<div id="xMatchService">\
 						<div class="mocLayers"></div>\
-						<button id="intersectMocBtn">Intersect</button>\
+							<button id="intersectMocBtn">Intersect</button>\
 						<div id="intersectResult"></div>\
 					</div>');
 
