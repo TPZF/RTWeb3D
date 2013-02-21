@@ -1,4 +1,9 @@
 {
+	/**/
+	/* 
+	 * Comment block
+	 */
+	// Comment on one line
 	"nameResolver": {
 		"baseUrl": "/sitools/rtwebgl/plugin/nameResolver",
 		"zoomFov": 2
@@ -157,6 +162,25 @@
 			"serviceUrl": "/sitools/iso",
 			"visible": false,
 			"minOrder": 3
+		},
+		{
+			"type": "DynamicOpenSearch",
+			"dataType": "point",
+			"name": "SPM4",
+            "description":"The SPM4 Catalog contains absolute proper motions, celestial coordinates, and B,V photometry for 103,319,647 stars and galaxies between the south celestial pole and -20 degrees declination. The  catalog is roughly complete to V=17.5. It is based on photographic  and CCD observations taken with the Yale Southern Observatory's  double-astrograph at Cesco Observatory in El Leoncito, Argentina. The first-epoch survey, taken from 1965 to 1979, was entirely photographic. The second-epoch survey is approximately 1/3 photographic (taken from 1988 to 1998) and 2/3 CCD-based (taken  from 2004 through 2008). Full details about the creation of the SPM4.0 catalog can be found in the paper, and also in  the document \"spm4_doc.txt\" file which describes the original files, accessible from tttp://www.astro.yale.edu/astrom/spm4cat/",
+			"serviceUrl": "/sitools/i320",
+			"visible": false,
+			"minOrder": 9
+		},
+		{
+			"type": "DynamicOpenSearch",
+			"dataType": "point",
+			"name": "USNO-B1.0",
+            "description":" The USNO-B1.0 is a catalog that presents positions, proper motions, magnitudes in various optical passbands, and star/galaxy estimators for 1,045,913,669 objects derived from 3,648,832,040 separate observations. The data were taken from scans of 7,435 Schmidt plates taken from various sky surveys during the last 50 years. The catalog is expected to be complete down to V=21; the estimated accuracies are 0.2arcsec for the positions at J2000, 0.3mag in up to 5 colors, and 85% accuracy for distinguishing stars from non-stellar objects.",
+            "attribution": "USNOB1 coming from CDS VizieR catalogue",
+			"serviceUrl": "/sitools/ovo",
+			"visible": false,
+			"minOrder": 9
 		}
 	]
 }

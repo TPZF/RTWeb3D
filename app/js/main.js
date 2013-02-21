@@ -15,7 +15,7 @@
 * 
 * You should have received a copy of the GNU General Public License 
 * along with SITools2. If not, see <http://www.gnu.org/licenses/>. 
-******************************************************************************/ 
+******************************************************************************/
 
 /**
  * Configuration for require.js
@@ -81,6 +81,16 @@ function updateFov()
 	$('#fov').html( "Fov : " + fovx + " x " + fovy );
 }
 
+function removeComments(string)
+{
+	var starCommentRe = new RegExp("/\\\*(.|[\r\n])*?\\\*/", "g");
+	var slashCommentRe = new RegExp("[^:]//.*\n", "g");
+	string = string.replace(slashCommentRe, "");
+	string = string.replace(starCommentRe, "");
+
+	return string;
+}
+
 $(function()
 {	
 	// Create accordeon
@@ -143,25 +153,41 @@ $(function()
 	navigation = new GlobWeb.AstroNavigation(globe, {minFov: 0.001});
 	
 	// Retreive configuration
-	$.getJSON(confURL, function(data) {
-	
-		// Add stats
-		if ( data.stats.visible ) {
-			new GlobWeb.Stats( globe, { element: "fps", verbose: data.stats.verbose });
-		} else  {
-			$("#fps").hide();
-		}
-		
-		// Initialize the name resolver
-		NameResolver.init(globe, navigation, data.nameResolver);
-	
-		// Initialize the reverse name resolver
-		ReverseNameResolver.init(globe, data.reverseNameResolver);
+	$.ajax({
+		type: "GET",
+		url: confURL,
+		dataType: "text",
+		success: function(response) {
+			response = removeComments(response);
+			try
+			{
+				var data = $.parseJSON(response);
+			}
+			catch (e) {
+				ErrorDialog.open("Configuration parsing error<br/> For more details see http://jsonlint.com/.");
+				console.error(data);
+				return false;
+			}
 
-		// Create layers from configuration file
-		LayerManager.init(globe, navigation, data);
-	}).error(function(){
-		ErrorDialog.open("Configuration error<br/> For more details see http://jsonlint.com/.");
+			// Add stats
+			if ( data.stats.visible ) {
+				new GlobWeb.Stats( globe, { element: "fps", verbose: data.stats.verbose });
+			} else  {
+				$("#fps").hide();
+			}
+			
+			// Initialize the name resolver
+			NameResolver.init(globe, navigation, data.nameResolver);
+		
+			// Initialize the reverse name resolver
+			ReverseNameResolver.init(globe, data.reverseNameResolver);
+
+			// Create layers from configuration file
+			LayerManager.init(globe, navigation, data);
+		},
+		error: function(xhr){
+			ErrorDialog.open("Couldn't open : "+confURL);
+		}
 	});
 	
 	// Create data manager
