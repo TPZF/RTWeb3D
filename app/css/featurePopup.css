@@ -198,3 +198,13 @@
 {
 	width: 150px;
 }
+
+#solarObjectsSpinner
+{
+	float: left;
+	left: 360px;
+	top: 363px;
+	width: 15px;
+	position: absolute;
+	display: inline-block;
+}

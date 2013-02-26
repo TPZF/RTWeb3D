@@ -25,6 +25,7 @@
 				{ %>
 					<img title="Quicklook" id='quicklook' src="css/images/quicklook.png" class=<%= (properties.style.fill ? 'selected' : '' ) %> />
 					<img title="Solar object service" id="solarObjects" src="css/images/solarObjectsService.png" class=<%= (services.solarObjects && services.solarObjects.layer.visible() ? 'selected' : '' ) %> />
+					<img style="display: none" id="solarObjectsSpinner" src="css/images/loading.gif" />
 				<%
 				}
 			 	%>
@@ -35,6 +36,7 @@
 				<img title="Healpix service" id='healpix' src="css/images/healpix.png" class=<%= (services.healpix.layer.visible() ? 'selected' : '' ) %> />
 			<% }
 		} %>
+		<div style="display: none;" id="serviceStatus"></div>
 	</div>
 
 </div>

@@ -156,16 +156,14 @@ return {
 			{
 				$('#quicklook').removeClass('selected');
 
-				var newStyle = new GlobWeb.FeatureStyle( selectedFeature.feature.properties.style );
-				newStyle.fill = false;
-				selectedFeature.layer.modifyFeatureStyle( selectedFeature.feature, newStyle );
-
 				globe.publish("removeFitsRequested", selectedFeature);
 			} 
 			else
 			{
 				$('#quicklook').addClass('selected');
-				var style = selectedFeature.feature.properties.style;
+
+				// Set fill to true while loading
+				var style = new GlobWeb.FeatureStyle( selectedFeature.feature.properties.style );
 				style.fill = true;
 
 				if ( selectedFeature.feature.services && selectedFeature.feature.services.download && selectedFeature.feature.services.download.mimetype == "image/fits" )
@@ -227,15 +225,22 @@ return {
 				layer.globe.addLayer(solarObjectsLayer);
 				pickingManager.addPickableLayer(solarObjectsLayer);
 
-				var url = "/sitools/rtwebgl/plugin/solarObjects?order=" + selection.selectedTile.order + "&healpix=" + selection.selectedTile.pixelIndex;
-	
+				var url = "/sitools/rtwebgl/plugin/solarObjects?order=" + selection.selectedTile.order + "&healpix=" + selection.selectedTile.pixelIndex + "&EPOCH=" + selectedFeature.feature.properties['date-obs'];
+				$('#solarObjectsSpinner').show();
 				$.ajax({
 					type: "GET",
 					url: url,
 					success: function(response){
-						console.log(response);
 						JsonProcessor.handleFeatureCollection( solarObjectsLayer, response );
+						$('#serviceStatus').html(response.totalResults + ' objects found').slideDown().delay(400).slideUp();
 						solarObjectsLayer.addFeatureCollection(response);
+					},
+					complete: function(xhr){
+						$('#solarObjectsSpinner').hide();
+					},
+					error: function(xhr)
+					{
+						$('#serviceStatus').html('No data found').slideDown().delay(400).slideUp();
 					}
 				});
 
