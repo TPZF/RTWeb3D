@@ -120,6 +120,8 @@ function createLayerFromConf(layer) {
 				options.displayProperties = layer.displayProperties;
 			if (layer.proxyUrl)
 				options.proxyUrl = layer.proxyUrl;
+			if (layer.useCluster)
+				options.useCluster = layer.useCluster;
 			
 			options.style = defaultVectorStyle;
 			gwLayer = new GlobWeb.OpenSearchLayer( options );

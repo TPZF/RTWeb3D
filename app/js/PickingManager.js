@@ -40,7 +40,7 @@ function blurSelection()
 {
 	for ( var i=0; i < selection.length; i++ ) {
 		var selectedFeature = selection[i];
-		var style = selection[i].feature.properties.style;
+		var style = new GlobWeb.FeatureStyle( selection[i].feature.properties.style );
 		switch ( selectedFeature.feature.geometry.type )
 		{
 			case "Polygon":
@@ -67,7 +67,7 @@ function focusSelection( newSelection )
 
 		if ( newSelection[i].feature.properties.style )
 		{
-			style = newSelection[i].feature.properties.style;	
+			style = new GlobWeb.FeatureStyle( newSelection[i].feature.properties.style );	
 		}
 		else
 		{
@@ -112,6 +112,7 @@ function init()
 			var pickPoint = globe.getLonLatFromPixel(event.clientX, event.clientY);
 
 			selectedTile = globe.tileManager.getVisibleTile(pickPoint[0], pickPoint[1]);
+			//console.log("order: " + selectedTile.order + " index: "+selectedTile.pixelIndex);
 
 			var newSelection = computePickSelection(pickPoint);
 			
@@ -295,70 +296,57 @@ function computePickSelection( pickPoint )
 		var pickableLayer = pickableLayers[i];
 		if ( pickableLayer.visible() )
 		{
-			if ( pickableLayer instanceof MixLayer )
+			if ( pickableLayer instanceof GlobWeb.OpenSearchLayer )
 			{
-				
 				var visitedTiles = {};
-
 				// Extension using layer
 				// Search for features in each tile
-				for ( var j=0; j<globe.tileManager.tilesToRender.length; j++ )
+				var tile = selectedTile;
+				var tileData = tile.extension[pickableLayer.extId];
+
+				if ( !tileData || tileData.state != GlobWeb.OpenSearchLayer.TileState.LOADED )
 				{
-					var tile = globe.tileManager.tilesToRender[j];
-					var tileData = tile.extension[pickableLayer.extId];
-
-					if ( !tileData )
+					while ( !tileData || (tile.parent 
+						&& tileData.state != GlobWeb.OpenSearchLayer.TileState.LOADED) )
 					{
-						// Search for available data on tile parent
-						var completeDataFound = false;
-						var prevVisitTile = tile;
-						var visitTile = tile.parent;
-						while ( visitTile )
-						{
-							tileData = visitTile.extension[pickableLayer.extId];
-
-							if ( tileData && tileData.complete )
-							{
-								completeDataFound = tileData.complete;
-								var key = visitTile.order + "_" + visitTile.pixelIndex;
-								if ( visitedTiles.hasOwnProperty(key) )	
-								{
-									tileData = null;
-								}
-								else 
-								{
-									visitedTiles[key] = true;
-								}
-								visitTile = null;
-								
-							}
-							else 
-							{
-								prevVisitTile = visitTile;
-								visitTile = visitTile.parent;
-							}
-						}
+						tile = tile.parent;
+						tileData = tile.extension[pickableLayer.extId];
 					}
+				}
 
-					if ( tileData )
+				if ( tileData )
+				{
+					for ( var j=0; j<tileData.featureIds.length; j++ )
 					{
-						// TODO refactor
-						for( w=0; w<tileData.clusters.length; w++ )
-						{
-							var point = tileData.clusters[w]['geometry']['coordinates'];
-							if ( pointInSphere( pickPoint, point, 32 ) )
-							{
-								newSelection.push( { feature: pickableLayer.featuresSet[tileData.featureIds[w]].feature, layer: pickableLayer } );
-							}
-						}
+						var feature = pickableLayer.features[pickableLayer.featuresSet[tileData.featureIds[j]].index];
 
-						for ( w=0; w<tileData.features.length; w++ )
+						switch ( feature['geometry'].type )
 						{
-							var point = tileData.features[w]['geometry']['coordinates'];
-							if ( pointInSphere( pickPoint, point, 10 ) )
-							{
-								newSelection.push( { feature: pickableLayer.featuresSet[tileData.featureIds[w+tileData.clusters.length]].feature, layer: pickableLayer } );
-							}
+							case "Polygon":
+								if ( pointInRing( pickPoint, feature['geometry']['coordinates'][0] ) )
+								{
+									newSelection.push( { feature: feature, layer: pickableLayer } );
+								}
+								break;
+							case "Point":
+								var point = feature['geometry']['coordinates'];
+								if ( feature.cluster )
+								{
+									if ( pointInSphere( pickPoint, point, 32 ) )
+									{
+										newSelection.push( { feature: feature, layer: pickableLayer } );
+									}
+								}
+								else
+								{
+									if ( pointInSphere( pickPoint, point, 10 ) )
+									{
+										newSelection.push( { feature: feature, layer: pickableLayer } );
+									}
+								}
+								break;
+							default:
+								break;
 						}
 					}
 				}	
@@ -430,7 +418,7 @@ return {
 		var selectedFeature = selection[stackSelectionIndex];
 		if ( selectedFeature )
 		{
-			var style = selectedFeature.feature.properties.style;
+			var style = new GlobWeb.FeatureStyle( selectedFeature.feature.properties.style );
 			switch ( selectedFeature.feature.geometry.type )
 			{
 				case "Polygon":
@@ -458,7 +446,7 @@ return {
 		if ( selectedFeature )
 		{
 			stackSelectionIndex = index;
-			var style = selectedFeature.feature.properties.style;
+			var style = new GlobWeb.FeatureStyle( selectedFeature.feature.properties.style );
 			switch ( selectedFeature.feature.geometry.type )
 			{
 				case "Polygon":

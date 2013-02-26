@@ -48,7 +48,7 @@ function showProgressBar(featureData)
     	}
     });
 
-    $progress.animate({right: 50}, 500, function(){
+    $progress.show().animate({right: 50}, 500, function(){
     	$(this).animate({right:20});
     });
 }
@@ -63,7 +63,7 @@ function hideProgressBar()
 	{
 		$progress.animate({right: 50}, function(){
 			$(this).animate({right:-260}, 500, function(){
-				$('#progress .progressId').html("");
+				$('#progress').hide();
 			});
 		});
 	}
@@ -78,7 +78,7 @@ function cancelRequest()
 	hideProgressBar();
 	
 	var selectedFeature = $progress.data("feature");
- 	var style = selectedFeature.feature.properties.style;
+ 	var style = new GlobWeb.FeatureStyle( selectedFeature.feature.properties.style );
  	style.fill = false;
 	selectedFeature.layer.modifyFeatureStyle( selectedFeature.feature, style );
 	$('#quicklook').removeClass('selected');
@@ -100,24 +100,25 @@ function updateProgressbar(evt)
 }
 
 var layers = [];
+var contrast = 1.;
 
 var logFragShader= "\
 	precision highp float; \n\
-	uniform vec4 u_color;\n\
+	uniform vec4 color;\n\
 	varying vec2 vTextureCoord;\n\
 	uniform sampler2D texture; \n\
 	uniform float contrast; \n\
 	void main(void)\n\
 	{\n\
-		float color = texture2D(texture, vTextureCoord).r;\n\
-		color = log(10000.0*(color/255.) + 1.)/log(10000.);\n\
-		gl_FragColor = ((vec4(color,color,color,1.) - 0.5) * contrast + 0.5 ) * u_color;\n\
+		float texColor = texture2D(texture, vTextureCoord).r;\n\
+		texColor = log(10000.0*(texColor/255.) + 1.)/log(10000.);\n\
+		gl_FragColor = ((vec4(texColor,texColor,texColor,1.) - 0.5) * contrast + 0.5 ) * color;\n\
 	}\n\
 	";
 
 var minmaxFragShader = "\
 	precision highp float; \n\
-	uniform vec4 u_color;\n\
+	uniform vec4 color;\n\
 	varying vec2 vTextureCoord;\n\
 	uniform sampler2D texture; \n\
 	uniform float contrast; \n\
@@ -125,23 +126,33 @@ var minmaxFragShader = "\
 	uniform float max; \n\
 	void main(void)\n\
 	{\n\
-		float color = texture2D(texture, vTextureCoord).r;\n\
-		color = ((color - min) / (max - min));\n\
-		gl_FragColor = ((vec4(color,color,color,1.) - 0.5) * contrast + 0.5 ) * u_color;\n\
+		float texColor = texture2D(texture, vTextureCoord).r;\n\
+		texColor = ((texColor - min) / (max - min));\n\
+		gl_FragColor = ((vec4(texColor,texColor,texColor,1.) - 0.5) * contrast + 0.5 ) * color;\n\
 	}\n\
 	";
 
 var minmaxUniformCallback = function(gl, renderable)
 {
-	gl.uniform1f(renderable.program.uniforms["max"], renderable.texture.max);
-	gl.uniform1f(renderable.program.uniforms["min"], renderable.texture.min);
-	gl.uniform1f(renderable.program.uniforms["contrast"], renderable.style.contrast);
+	gl.uniform1f(renderable.polygonProgram.uniforms["max"], renderable.style.fillTexture.max);
+	gl.uniform1f(renderable.polygonProgram.uniforms["min"], renderable.style.fillTexture.min);
+	gl.uniform1f(renderable.polygonProgram.uniforms["contrast"], contrast);
 }
 
 var logUniformCallback = function(gl, renderable)
 {
-	gl.uniform1f(renderable.program.uniforms["contrast"], renderable.style.contrast);
+	gl.uniform1f(renderable.polygonProgram.uniforms["contrast"], contrast);
 }
+
+var minmaxFillShader = {
+	fragmentCode: minmaxFragShader,
+	updateUniforms: minmaxUniformCallback
+}
+
+var logFillShader = {
+	fragmentCode: logFragShader,
+	updateUniforms: logUniformCallback
+};
 
 /**
  *	Parse fits file
@@ -211,7 +222,11 @@ function removeFits(featureData)
 	{
 		gl.deleteTexture( texture );
 	}
-	featureData.feature.properties.style.fillTexture = null;
+ 	var style = new GlobWeb.FeatureStyle( featureData.feature.properties.style );
+	style.fillTexture = null;
+	style.fill = false;
+	featureData.layer.modifyFeatureStyle( featureData.feature, style );
+	$('#quicklook').removeClass('selected');
 }
 
 /**
@@ -287,7 +302,8 @@ return {
 		});
 
 		globe.subscribe("removeFitsRequested", function( selectedFeature ){
-			cancelRequest();
+			xhr.abort();
+			hideProgressBar();
 			removeFits(selectedFeature);
 		});
 	},
@@ -344,11 +360,7 @@ return {
 									{
 										var feature = features[i].feature;
 										var targetStyle = new GlobWeb.FeatureStyle( feature.properties.style );
-										targetStyle.fillShader = {
-											fragmentCode: minmaxFragShader,
-											updateUniforms: minmaxUniformCallback
-										};
-										targetStyle.contrast = $( "#contrastSlider" ).slider( "value" );
+										targetStyle.fillShader = minmaxFillShader;
 										features[i].layer.modifyFeatureStyle( feature, targetStyle );
 									}
 
@@ -359,11 +371,7 @@ return {
 									{
 										var feature = features[i].feature;
 										var targetStyle = new GlobWeb.FeatureStyle( feature.properties.style );
-										targetStyle.fillShader = {
-											fragmentCode: logFragShader,
-											updateUniforms: logUniformCallback
-										};
-										targetStyle.contrast = $( "#contrastSlider" ).slider( "value" );
+										targetStyle.fillShader = logFillShader;
 										features[i].layer.modifyFeatureStyle( feature, targetStyle );
 									}
 									break;
@@ -373,10 +381,7 @@ return {
 									{
 										var feature = features[i].feature;
 										var targetStyle = new GlobWeb.FeatureStyle( feature.properties.style );
-										targetStyle.fillShader = {
-											fragmentCode: null,
-											updateUniforms: null
-										};
+										targetStyle.fillShader = null;
 										features[i].layer.modifyFeatureStyle( feature, targetStyle );
 									}
 									break;
@@ -392,13 +397,7 @@ return {
 			max: 10,
 			step: 0.1,
 			slide: function( event, ui ) {
-				for ( var i=0; i<features.length; i++)
-				{
-					var feature = features[i].feature;
-					var targetStyle = new GlobWeb.FeatureStyle( feature.properties.style );
-					targetStyle.contrast = ui.value;
-					features[i].layer.modifyFeatureStyle( feature, targetStyle );
-				}
+				contrast = ui.value;
 				$( "#contrastValue" ).val( ui.value );
 			}
 		}).slider("disable");
