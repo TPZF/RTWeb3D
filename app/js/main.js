@@ -84,7 +84,7 @@ function updateFov()
 function removeComments(string)
 {
 	var starCommentRe = new RegExp("/\\\*(.|[\r\n])*?\\\*/", "g");
-	var slashCommentRe = new RegExp("[^:]//.*\n", "g");
+	var slashCommentRe = new RegExp("[^:]//.*[\r\n]", "g");
 	string = string.replace(slashCommentRe, "");
 	string = string.replace(starCommentRe, "");
 
