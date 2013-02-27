@@ -87,8 +87,28 @@ function setSearchBehavior()
 
 		objectName = objectName.replace(/\s{2,}/g, ' '); // Replace multiple spaces by a single one
 		var coordinatesExp = new RegExp("\\d{1,2}h\\d{1,2}m\\d{1,2}([\\.]\\d+)?s\\s[-+]?[\\d]+°\\d{1,2}'\\d{1,2}([\\.]\\d+)?\"", "g");
+		var healpixRE = /^healpix\((\d)+,(\d+)\)/;
+		var matchHealpix = healpixRE.exec(objectName);
+		if ( matchHealpix ) 
+		{
+			var order = parseInt(matchHealpix[1]);
+			var pixelIndex = parseInt(matchHealpix[2]);
+			
+			// Compute vertices
+			var nside = Math.pow(2, order);
+			var pix=pixelIndex&(nside*nside-1);
+			var ix = GlobWeb.HEALPixBase.compress_bits(pix);
+			var iy = GlobWeb.HEALPixBase.compress_bits(pix>>>1);
+			var face = (pixelIndex>>>(2*order));
 
-		if ( objectName.match( coordinatesExp ) )
+			var i = 0.5;
+			var j = 0.5;
+			var vert = GlobWeb.HEALPixBase.fxyf( (ix+i)/nside, (iy+j)/nside, face);
+			var geoPos = [];
+			GlobWeb.CoordinateSystem.from3DToGeo(vert, geoPos);
+			astroNavigator.zoomTo(geoPos, configuration.zoomFov);
+		}
+		else if ( objectName.match( coordinatesExp ) )
 		{
 			// Format to equatorial coordinates
 			var word = objectName.split(" "); // [RA, Dec]
