@@ -156,7 +156,17 @@ return {
 			{
 				$('#quicklook').removeClass('selected');
 
-				globe.publish("removeFitsRequested", selectedFeature);
+				if ( selectedFeature.feature.services && selectedFeature.feature.services.download && selectedFeature.feature.services.download.mimetype == "image/fits" )
+				{
+					globe.publish("removeFitsRequested", selectedFeature);
+				}
+				else 
+				{
+					var style = selectedFeature.feature.properties.style;
+					style.fill = false;
+					style.fillTextureUrl = null;
+					selectedFeature.layer.modifyFeatureStyle( selectedFeature.feature, style );
+				}
 			} 
 			else
 			{
@@ -174,6 +184,7 @@ return {
 				else
 				{
 					style.fillTextureUrl = selectedFeature.feature.properties.quicklook;
+					// For DEBUG : 'upload/ADP_WFI_30DOR_RGB_V1.0_degraded.jpg';
 				}
 				selectedFeature.layer.modifyFeatureStyle( selectedFeature.feature, style );
 			}
