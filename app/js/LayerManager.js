@@ -20,9 +20,9 @@
 /**
  * LayerManager module
  */
-define( [ "jquery.ui", "PickingManager", "ClusterLayer", "MocLayer", "MixLayer", "Utils", "ErrorDialog", "JsonProcessor", "ServiceBar",
+define( [ "jquery.ui", "PickingManager", "ClusterLayer", "MocLayer", "Utils", "ErrorDialog", "JsonProcessor", "ServiceBar",
 	"underscore-min", "text!../templates/additionalLayer.html", "jquery.ui.selectmenu", "jquery.nicescroll.min" ], 
-	function($, PickingManager, ClusterLayer, MocLayer, MixLayer, Utils, ErrorDialog, JsonProcessor, ServiceBar, _, additionalLayerHTMLTemplate) {
+	function($, PickingManager, ClusterLayer, MocLayer, Utils, ErrorDialog, JsonProcessor, ServiceBar, _, additionalLayerHTMLTemplate) {
 
 /**
  * Private variable for module
@@ -152,18 +152,6 @@ function createLayerFromConf(layer) {
 			options.style.fillColor[3] = 0.3 // make transparent
 			gwLayer = new MocLayer( options );
 			gwLayer.dataType = layer.dataType || "line";
-			break;
-
-		case "Mix":
-			// Add necessary options
-			options.serviceUrl = layer.serviceUrl;
-			options.minOrder = layer.minOrder;
-			if (layer.displayProperties)
-				options.displayProperties = layer.displayProperties;
-			
-			options.style = defaultVectorStyle;
-			gwLayer = new MixLayer( options );
-			PickingManager.addPickableLayer( gwLayer );
 			break;
 			
 		default:

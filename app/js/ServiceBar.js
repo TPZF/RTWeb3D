@@ -47,7 +47,6 @@ var tabs = $('#layerServices').tabs({
 // Mapping between type of a layer and supported services
 var serviceMapping =
 {
-	"Mix" : [OpenSearchService, MocService],
 	"DynamicOpenSearch": [FitsService, MocService]
 };
 
@@ -123,7 +122,7 @@ return {
 	removeLayer: function(layer){
 
 			
-		if( layer instanceof MixLayer || layer instanceof GlobWeb.OpenSearchLayer )
+		if( layer instanceof GlobWeb.OpenSearchLayer )
 		{
 			// Remove layer from services
 			var layerServices = serviceMapping[layer.type];

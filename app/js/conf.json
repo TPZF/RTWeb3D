@@ -129,18 +129,6 @@
 			"useCluster": true
 		},
 		{
-			"type": "Mix",
-			"name": "Fuse (Cluster/OpenSearch)",
-			"minOrder": 3,
-			"maxOrder": 13,
-			"maxClusterOrder": 8,
-			"treshold": 5,
-			"orderDepth": 2,
-			"serviceUrl": "/sitools/ofuse",
-			"displayProperties": [ "ra", "dec", "src_type", "dateobs", "imageSize" ],
-			"visible": false
-		},
-		{
 			"type": "DynamicOpenSearch",
 			"dataType": "point",
 			"name": "VO (OpenSearch)",

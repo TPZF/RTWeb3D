@@ -161,6 +161,9 @@ function handleFeatures(gwLayer)
 	{
 		var current = constellations[i];
 		
+		// Close the polygon
+		current.coord.push( current.coord[0] );
+		
 		var constellationShape = {
 			geometry: {
 				type: "Polygon",
