@@ -124,7 +124,10 @@ function findMocSublayer(layer)
  */
 function handleMocLayer(layer, mocServiceUrl)
 {
-	var serviceLayer = new MocLayer({ serviceUrl: mocServiceUrl, style: layer.style, visible: false });
+	var style = layer.style;
+	style.fill = true;
+	style.fillColor[3] = 0.3;
+	var serviceLayer = new MocLayer({ serviceUrl: mocServiceUrl, style: style, visible: false });
 	if ( layer.globe )
 	{
 		// Add sublayer to engine
@@ -261,7 +264,9 @@ function addIntersectionLayer(layersToIntersect)
 				name: "Intersection( "+layerNames+" )",
 				serviceUrl: url + "&media=json",
 				style: new GlobWeb.FeatureStyle({
-					rendererHint: "Basic"
+					rendererHint: "Basic",
+					fill: true,
+					fillColor: [1.,0.,0.,0.3]
 				}),
 				visible: false
 			});
@@ -366,7 +371,7 @@ return {
 			.click(function(){
 				$(this).attr("disabled","disabled").button("refresh");
 				$('#intersectResult').clearQueue().stop().slideUp(function(){
-					var checkedInputs = $(this).parent().find('input:checked');
+					var checkedInputs = $(this).parent().find('.mocLayers .mocLayer input:checked');
 					if ( checkedInputs.length < 2 )
 					{
 						$('#intersectResult').html('Check at least two layers')

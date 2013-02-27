@@ -148,6 +148,8 @@ function createLayerFromConf(layer) {
 		case "Moc":
 			options.style = defaultVectorStyle;
 			options.serviceUrl = layer.serviceUrl;
+			options.style.fill = true;
+			options.style.fillColor[3] = 0.3 // make transparent
 			gwLayer = new MocLayer( options );
 			gwLayer.dataType = layer.dataType || "line";
 			break;
@@ -440,6 +442,7 @@ function createHtmlForAdditionalLayer( gwLayer )
 		}
 
 	});
+	updateScroll();
 }
 
 /**
