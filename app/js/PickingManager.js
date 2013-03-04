@@ -29,7 +29,6 @@ var self;
 var selection = [];
 var stackSelectionIndex = -1;
 var selectedStyle = new GlobWeb.FeatureStyle( { strokeColor: [1., 1., 0., 1.], fillColor: [1., 1., 0., 1.] } );
-var quicklookStyle = new GlobWeb.FeatureStyle( { fill: true, strokeColor: [1., 1., 0., 1.] } );
 var pickableLayers = [];
 var selectedTile = null;
 
@@ -39,42 +38,42 @@ var selectedTile = null;
 function blurSelection()
 {
 	for ( var i=0; i < selection.length; i++ ) {
-		var selectedFeature = selection[i];
-		var style = new GlobWeb.FeatureStyle( selection[i].feature.properties.style );
-		switch ( selectedFeature.feature.geometry.type )
+		var selectedData = selection[i];
+		var style = new GlobWeb.FeatureStyle( selectedData.feature.properties.style );
+		switch ( selectedData.feature.geometry.type )
 		{
 			case "Polygon":
-				style.strokeColor = selection[i].layer.style.strokeColor;
+				style.strokeColor = selectedData.layer.style.strokeColor;
 				break;
 			case "Point":
-				style.fillColor = selection[i].layer.style.fillColor;
+				style.fillColor = selectedData.layer.style.fillColor;
 				break;
 			default:
 				break;
 		}
-		selection[i].layer.modifyFeatureStyle( selection[i].feature, style );
+		selectedData.layer.modifyFeatureStyle( selectedData.feature, style );
 	}
 }
 
 /**
  * 	Apply selectedStyle to selection
  */
-function focusSelection( newSelection )
+function focusSelection()
 {
 	var style;
-	for ( var i=0; i < newSelection.length; i++ ) {
-		var selectedFeature = newSelection[i];
+	for ( var i=0; i < selection.length; i++ ) {
+		var selectedData = selection[i];
 
-		if ( newSelection[i].feature.properties.style )
+		if ( selectedData.feature.properties.style )
 		{
-			style = new GlobWeb.FeatureStyle( newSelection[i].feature.properties.style );	
+			style = new GlobWeb.FeatureStyle( selectedData.feature.properties.style );	
 		}
 		else
 		{
-			style = new GlobWeb.FeatureStyle( newSelection[i].layer.style );
+			style = new GlobWeb.FeatureStyle( selectedData.layer.style );
 		}
 
-		switch ( selectedFeature.feature.geometry.type )
+		switch ( selectedData.feature.geometry.type )
 		{
 			case "Polygon":
 				style.strokeColor = selectedStyle.strokeColor;
@@ -85,7 +84,7 @@ function focusSelection( newSelection )
 			default:
 				break;
 		}
-		newSelection[i].layer.modifyFeatureStyle( newSelection[i].feature, style );
+		selectedData.layer.modifyFeatureStyle( selectedData.feature, style );
 	}
 }
 
@@ -114,83 +113,52 @@ function init()
 			selectedTile = globe.tileManager.getVisibleTile(pickPoint[0], pickPoint[1]);
 			//console.log("order: " + selectedTile.order + " index: "+selectedTile.pixelIndex);
 
-			var newSelection = computePickSelection(pickPoint);
-			
-			if ( isSelectionEqual(newSelection) && newSelection.length != 0 ){
-				
-				var selectedFeature = selection[stackSelectionIndex];
-				// Reset previous selected feature
-				if ( stackSelectionIndex == -1 ) {
-					// Blur all selected features
-					blurSelection();
-					
-				} else {
-					// Blur only previous feature
-					self.blurSelectedFeature();
-				}
-				
-				stackSelectionIndex++;
-				selectedFeature = selection[stackSelectionIndex];
-				
-				// Select individual feature
-				if ( stackSelectionIndex == selection.length ) {
-					selection = [];
-					FeaturePopup.hide();
-					stackSelectionIndex = -1;
-				} else {
-					// Focus current feature
-					self.focusFeature( stackSelectionIndex );
-					FeaturePopup.showFeatureInformation( selectedFeature.layer, selectedFeature.feature );
-				}
-			}
-			else
-			{
-				// Remove selected style for previous selection
-				clearSelection();
+			// Remove selected style for previous selection
+			clearSelection();
 
-				// Add selected style for new selection
-				focusSelection( newSelection );
-				
-				if ( newSelection.length > 0 )
-				{
-					// Hide previous popup if any
-					FeaturePopup.hide( function() {
-						// View on center
-						if ( navigation.inertia )
+			selection = computePickSelection(pickPoint);
+			
+			// Add selected style for new selection
+			focusSelection();
+			
+			if ( selection.length > 0 )
+			{
+				// Hide previous popup if any
+				FeaturePopup.hide( function() {
+					// View on center
+					if ( navigation.inertia )
+					{
+						navigation.inertia.stop();
+					}
+					navigation.moveTo( pickPoint, 1000 );
+					window.setTimeout( function(){
+						// selection = newSelection;
+						selection.selectedTile = selectedTile;
+						FeaturePopup.createFeatureList( selection );
+						if ( selection.length > 1 )
 						{
-							navigation.inertia.stop();
+							// Create dialogue for the first selection call
+							FeaturePopup.createHelp();
+							stackSelectionIndex = -1;
 						}
-						navigation.moveTo( pickPoint, 1000 );
-						window.setTimeout( function(){
-							selection = newSelection;
-							selection.selectedTile = selectedTile;
-							FeaturePopup.createFeatureList( newSelection );
-							if ( newSelection.length > 1 )
-							{
-								// Create dialogue for the first selection call
-								FeaturePopup.createHelp();
-								stackSelectionIndex = -1;
-							}
-							else
-							{
-								// only one layer, no pile needed, create feature dialogue
-								self.focusFeature( 0 );
-								$('#featureList div:eq(0)').addClass('selected');
-								FeaturePopup.showFeatureInformation( newSelection[stackSelectionIndex].layer, newSelection[stackSelectionIndex].feature )
-								// createHTMLSelectedFeatureDiv( newSelection[stackSelectionIndex].feature );
-							}
-							FeaturePopup.show(globe.renderContext.canvas.width/2, globe.renderContext.canvas.height/2);
-						}, 1000 );
-					});
-				} else {
-					FeaturePopup.hide();
-				}
+						else
+						{
+							// only one layer, no pile needed, create feature dialogue
+							self.focusFeature( 0 );
+							$('#featureList div:eq(0)').addClass('selected');
+							FeaturePopup.showFeatureInformation( selection[stackSelectionIndex].layer, selection[stackSelectionIndex].feature )
+							// createHTMLSelectedFeatureDiv( newSelection[stackSelectionIndex].feature );
+						}
+						FeaturePopup.show(globe.renderContext.canvas.width/2, globe.renderContext.canvas.height/2);
+					}, 1000 );
+				});
+			} else {
+				FeaturePopup.hide();
 			}
 		}
 	});
 	
 	// Hide popup and clear selection when pan/zoom
-	// BUG ! Disables stack onclick action
 	globe.subscribe("start_navigation", function() { 
 		clearSelection();
 		FeaturePopup.hide();
@@ -205,24 +173,6 @@ function clearSelection()
 {
 	blurSelection();
 	selection = [];
-}
-
-/**
- * 	Test if a new selection is equal to the previous selection
- */
-function isSelectionEqual( newSelection )
-{
-	if ( selection.length == newSelection.length) {
-		for ( var i=0; i < selection.length; i++ ) {
-			if ( selection[i].feature != newSelection[i].feature )
-				return false;
-		}
-		return true;
-	}
-	else
-	{
-		return false;
-	}
 }
 
 
@@ -298,7 +248,6 @@ function computePickSelection( pickPoint )
 		{
 			if ( pickableLayer instanceof GlobWeb.OpenSearchLayer )
 			{
-				var visitedTiles = {};
 				// Extension using layer
 				// Search for features in each tile
 				var tile = selectedTile;
@@ -415,22 +364,22 @@ return {
 	 */
 	blurSelectedFeature: function()
 	{
-		var selectedFeature = selection[stackSelectionIndex];
-		if ( selectedFeature )
+		var selectedData = selection[stackSelectionIndex];
+		if ( selectedData )
 		{
-			var style = new GlobWeb.FeatureStyle( selectedFeature.feature.properties.style );
-			switch ( selectedFeature.feature.geometry.type )
+			var style = new GlobWeb.FeatureStyle( selectedData.feature.properties.style );
+			switch ( selectedData.feature.geometry.type )
 			{
 				case "Polygon":
-					style.strokeColor = selectedFeature.layer.style.strokeColor; 
+					style.strokeColor = selectedData.layer.style.strokeColor; 
 					break;
 				case "Point":
-					style.fillColor = selectedFeature.layer.style.fillColor; 
+					style.fillColor = selectedData.layer.style.fillColor; 
 					break;
 				default:
 					break;
 			}
-			selectedFeature.layer.modifyFeatureStyle( selectedFeature.feature, style );
+			selectedData.layer.modifyFeatureStyle( selectedData.feature, style );
 		}
 	},
 
@@ -442,12 +391,12 @@ return {
 	focusFeature: function(index)
 	{
 		blurSelection();
-		var selectedFeature = selection[index];
-		if ( selectedFeature )
+		var selectedData = selection[index];
+		if ( selectedData )
 		{
 			stackSelectionIndex = index;
-			var style = new GlobWeb.FeatureStyle( selectedFeature.feature.properties.style );
-			switch ( selectedFeature.feature.geometry.type )
+			var style = new GlobWeb.FeatureStyle( selectedData.feature.properties.style );
+			switch ( selectedData.feature.geometry.type )
 			{
 				case "Polygon":
 					style.strokeColor = selectedStyle.strokeColor;
@@ -458,11 +407,11 @@ return {
 				default:
 					break;
 			}
-			selectedFeature.layer.modifyFeatureStyle( selectedFeature.feature, style );
+			selectedData.layer.modifyFeatureStyle( selectedData.feature, style );
 		}
 	},
 
-	getSelectedFeature: function()
+	getSelectedData: function()
 	{
 		return selection[stackSelectionIndex];
 	},

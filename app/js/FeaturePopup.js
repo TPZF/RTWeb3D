@@ -150,22 +150,22 @@ return {
 
 		// Show/hide quicklook
 		$selectedFeatureDiv.on("click", '#quicklook', function(event){
-			var selectedFeature = pickingManager.getSelectedFeature();
+			var selectedData = pickingManager.getSelectedData();
 			
-			if ( selectedFeature.feature.properties.style.fill == true )
+			if ( selectedData.feature.properties.style.fill == true )
 			{
 				$('#quicklook').removeClass('selected');
 
-				if ( selectedFeature.feature.services && selectedFeature.feature.services.download && selectedFeature.feature.services.download.mimetype == "image/fits" )
+				if ( selectedData.feature.services && selectedData.feature.services.download && selectedData.feature.services.download.mimetype == "image/fits" )
 				{
-					globe.publish("removeFitsRequested", selectedFeature);
+					globe.publish("removeFitsRequested", selectedData);
 				}
 				else 
 				{
-					var style = selectedFeature.feature.properties.style;
+					var style = selectedData.feature.properties.style;
 					style.fill = false;
 					style.fillTextureUrl = null;
-					selectedFeature.layer.modifyFeatureStyle( selectedFeature.feature, style );
+					selectedData.layer.modifyFeatureStyle( selectedData.feature, style );
 				}
 			} 
 			else
@@ -173,27 +173,27 @@ return {
 				$('#quicklook').addClass('selected');
 
 				// Set fill to true while loading
-				var style = new GlobWeb.FeatureStyle( selectedFeature.feature.properties.style );
+				var style = new GlobWeb.FeatureStyle( selectedData.feature.properties.style );
 				style.fill = true;
 
-				if ( selectedFeature.feature.services && selectedFeature.feature.services.download && selectedFeature.feature.services.download.mimetype == "image/fits" )
+				if ( selectedData.feature.services && selectedData.feature.services.download && selectedData.feature.services.download.mimetype == "image/fits" )
 				{
-					var url = "/sitools/proxy?external_url=" + selectedFeature.feature.services.download.url;
-					globe.publish("fitsRequested", { selectedFeature: selectedFeature, url: url });
+					var url = "/sitools/proxy?external_url=" + selectedData.feature.services.download.url;
+					globe.publish("fitsRequested", { selectedData: selectedData, url: url });
 				}
 				else
 				{
-					style.fillTextureUrl = selectedFeature.feature.properties.quicklook;
+					style.fillTextureUrl = "/sitools/proxy?external_url=" + selectedData.feature.properties.quicklook;
 					// For DEBUG : 'upload/ADP_WFI_30DOR_RGB_V1.0_degraded.jpg';
 				}
-				selectedFeature.layer.modifyFeatureStyle( selectedFeature.feature, style );
+				selectedData.layer.modifyFeatureStyle( selectedData.feature, style );
 			}
 		});
 
 		// Show/hide HEALPix service
 		$selectedFeatureDiv.on("click", '#healpix', function(event){
-			var selectedFeature = pickingManager.getSelectedFeature();
-			var healpixLayer = selectedFeature.feature.services.healpix.layer;
+			var selectedData = pickingManager.getSelectedData();
+			var healpixLayer = selectedData.feature.services.healpix.layer;
 
 			if ( $('#healpix').is('.selected') )
 			{
@@ -209,15 +209,15 @@ return {
 
 		// Show/hide Solar object service
 		$selectedFeatureDiv.on("click", '#solarObjects', function(event){
-			var selectedFeature = pickingManager.getSelectedFeature();
+			var selectedData = pickingManager.getSelectedData();
 			var selection = pickingManager.getSelection();
 
 			var solarObjectsLayer;
-			var layer = selectedFeature.layer;
+			var layer = selectedData.layer;
 
-			if ( selectedFeature.feature.services.solarObjects )
+			if ( selectedData.feature.services.solarObjects )
 			{
-				solarObjectsLayer = selectedFeature.feature.services.solarObjects.layer;
+				solarObjectsLayer = selectedData.feature.services.solarObjects.layer;
 			}
 			else
 			{
@@ -236,7 +236,7 @@ return {
 				layer.globe.addLayer(solarObjectsLayer);
 				pickingManager.addPickableLayer(solarObjectsLayer);
 
-				var url = "/sitools/rtwebgl/plugin/solarObjects?order=" + selection.selectedTile.order + "&healpix=" + selection.selectedTile.pixelIndex + "&EPOCH=" + selectedFeature.feature.properties['date-obs'];
+				var url = "/sitools/rtwebgl/plugin/solarObjects?order=" + selection.selectedTile.order + "&healpix=" + selection.selectedTile.pixelIndex + "&EPOCH=" + selectedData.feature.properties['date-obs'];
 				$('#solarObjectsSpinner').show();
 				$.ajax({
 					type: "GET",
@@ -259,7 +259,7 @@ return {
 				{
 					layer.subLayers = [];
 				}
-				selectedFeature.feature.services.solarObjects = {
+				selectedData.feature.services.solarObjects = {
 					layer: solarObjectsLayer
 				}
 				layer.subLayers.push(solarObjectsLayer);
@@ -326,10 +326,10 @@ return {
 			
 			var featureIndexToFocus = $(this).index();
 			pickingManager.focusFeature( featureIndexToFocus );
-			var selectedFeature = pickingManager.getSelectedFeature();
+			var selectedData = pickingManager.getSelectedData();
 			
 			$('#featureList div:eq('+featureIndexToFocus+')').addClass('selected');
-			self.showFeatureInformation( selectedFeature.layer, selectedFeature.feature );
+			self.showFeatureInformation( selectedData.layer, selectedData.feature );
 		});
 
 		// Show/hide external resource
