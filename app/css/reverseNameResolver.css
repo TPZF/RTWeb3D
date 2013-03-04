@@ -16,3 +16,24 @@
 	font-weight:bold;
 	text-align: center
 }
+
+#equatorialCoordinates em
+{
+	width: 150px;
+	display: inline-block;
+}
+
+#reverseSearchField input[type="submit"]
+{
+	margin-left: auto;
+	margin-right: auto;
+	display: block;
+	margin-top: 10px;
+}
+
+#healpixInfo
+{
+	border-bottom: solid 1px white;
+	margin-bottom: 10px;
+	text-align: center;
+}

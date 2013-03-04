@@ -34,8 +34,9 @@ var descriptionTableTemplate = _.template(descriptionTableHTMLTemplate);
 var reverseNameResolverHTML =
 	'<div id="reverseNameResolver" class="contentBox ui-widget-content" style="display: none;">\
 		<div id="reverseSearchField">\
-			<input type="submit" value="Find Object Name" />\
+			<div id="healpixInfo"></div>\
 			<div id="equatorialCoordinates"></div>\
+			<input type="submit" value="Find Object Name" />\
 		</div>\
 		<div id="reverseSearchResult"></div>\
 		<div class="closeBtn">\
@@ -54,6 +55,7 @@ $( "#reverseNameResolver input[type=submit]")
 		$('#reverseSearchField input[type="submit"]').attr('disabled', 'disabled');
 
 		var pickPoint = globe.getLonLatFromPixel(event.clientX, event.clientY);
+
 		var equatorialCoordinates = [];
 		GlobWeb.CoordinateSystem.fromGeoToEquatorial( pickPoint, equatorialCoordinates );
 
@@ -100,11 +102,6 @@ $( "#reverseNameResolver input[type=submit]")
 					default:
 						break;
 				}
-
-				// if (xhr.status == 503)
-				// 	ErrorDialog.open("Please wait at least 6 seconds between each request to reverse name resolver");
-				// if (xhr.status == 500)
-				// 	ErrorDialog.open("Object not found");
 			},
 			complete: function(xhr)
 			{
@@ -138,9 +135,13 @@ function setBehavior()
 
 			var equatorial = [];
 			geo = globe.getLonLatFromPixel(event.clientX, event.clientY);
+
+			var selectedTile = globe.tileManager.getVisibleTile(geo[0], geo[1]);
+			$('#reverseSearchField #healpixInfo').html('<b>Healpix index/order: </b>&nbsp'+selectedTile.pixelIndex + '/' + selectedTile.order);
+
 			GlobWeb.CoordinateSystem.fromGeoToEquatorial ( geo, equatorial );
-			$("#equatorialCoordinates").html("<em>Right ascension:</em> <br/>&nbsp&nbsp&nbsp&nbsp" + equatorial[0] +
-											"<br/><em>Declination :</em> <br/>&nbsp&nbsp&nbsp&nbsp" + equatorial[1]);
+			$("#equatorialCoordinates").html("<em>Right ascension:</em>" + equatorial[0] +
+											"<br/><em>Declination :</em>" + equatorial[1]);
 
 			$('#reverseSearchField').css("display","block");
 			$reverseNameResolver.css({
@@ -157,7 +158,7 @@ function setBehavior()
 		IFrame.show(event.target.innerHTML);
 	});
 
-	globe.subscribe("startNavigation", function(){
+	globe.subscribe("start_navigation", function(){
 		if ($reverseNameResolver.css('display') != 'none')
 		{
 			$reverseNameResolver.fadeOut(300);
