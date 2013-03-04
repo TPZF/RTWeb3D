@@ -1,7 +1,10 @@
 /**
  * Fits service
  */
-define( [ "jquery.ui", "fits" ], function($) {
+define( [ "jquery.ui", "underscore-min", "text!../templates/progressBar.html", "fits" ], function($,_, progressBarHTMLTemplate) {
+
+// Template generating the progress bar div
+var progressBarTemplate = _.template(progressBarHTMLTemplate);
 
 var globe = null;
 var features = [];
@@ -16,72 +19,72 @@ var form = '<div id="fitsOptions">\
 				</div>\
 	  	 	</div>';
 
-var progressBarDiv = '<div class="progressDiv contentBox" id="progress">\
-						<div class="progressId"></div>\
-						<div id="progressBar">\
-							<div class="progress-label"></div>\
-						</div>\
-						<button style="margin-left: auto; display: block; margin-top: 10px;" id="cancelFitsRequest">Cancel</button>\
-					</div>';
+var progressBars = '<div id="progressBars"></div>';
+var $progressBars = $(progressBars).appendTo('body');
 
-var $progress = $(progressBarDiv).appendTo('body');
-$progress.find('button').button().end()
-		.find('#cancelFitsRequest').click(cancelRequest);
+var layers = [];
+var contrast = 1.;
 
+// TODO create ProgressBar module
 /**
  *	Show progress bar
  *
  *	@param featureData Feature data
  */
-function showProgressBar(featureData)
+function showProgressBar(featureData, xhr)
 {
-	$progress.data("feature", featureData);
-	$progress.find('.progressId').html(featureData.feature.properties.identifier);
-    $progress.find('#progressBar').progressbar({
-    	value: false,
-    	change: function() {
-    		$(this).find('.progress-label').text( $(this).progressbar( "value" ) + "%");
-    	},
-    	complete: function() {
-    		hideProgressBar();
-    		$(this).find('.progress-label').text( "100%" );
-    	}
-    });
+	var progressDiv = progressBarTemplate( { featureId: featureData.feature.properties.identifier });
 
-    $progress.show().animate({right: 50}, 500, function(){
-    	$(this).animate({right:20});
-    });
+	$(progressDiv)
+		.appendTo('#progressBars')
+		.data("progressData", { featureData: featureData, xhr: xhr })
+		.find('.progressBar').progressbar({
+			value: 0,
+			create: function(){
+				$(this).find('.progress-label').text( "0%" );
+			},
+			change: function() {
+				$(this).find('.progress-label').text( $(this).progressbar( "value" ) + "%");
+			},
+			complete: function() {
+				hideProgressBar(featureData.feature.properties.identifier);
+				$(this).find('.progress-label').text( "100%" );
+			}	
+		}).end()
+		.find('button').button().end()
+		.find('#cancelFitsRequest').click(function(){
+			cancelRequest(featureData.feature.properties.identifier);
+			removeFits(featureData);
+		}).end()
+		.show().animate({right: 50}, 500, function(){
+			$(this).animate({right:0});
+		});
 }
 
 /**
  *	Hide progress bar
+ *
+ *	@param id Feature id
  */
-function hideProgressBar()
+function hideProgressBar(id)
 {
-	// If not hidden
-	if (parseInt($progress.css("right")) > 0)
-	{
-		$progress.animate({right: 50}, function(){
-			$(this).animate({right:-260}, 500, function(){
-				$('#progress').hide();
+	$('#progress_'+id)
+		.animate({right: 50}, function(){
+			$(this).animate({right:-360}, 500, function(){
+				$(this).remove();
 			});
 		});
-	}
 }
 
 /**
  *	Cancel the xhr request
+ *
+ *	@param id Feature id
  */
-function cancelRequest()
+function cancelRequest(id)
 {
-	xhr.abort();
-	hideProgressBar();
-	
-	var selectedFeature = $progress.data("feature");
- 	var style = new GlobWeb.FeatureStyle( selectedFeature.feature.properties.style );
- 	style.fill = false;
-	selectedFeature.layer.modifyFeatureStyle( selectedFeature.feature, style );
-	$('#quicklook').removeClass('selected');
+	$('#progress_'+id).data("progressData").xhr.abort();
+	hideProgressBar(id);
 }
 
 /**
@@ -95,12 +98,9 @@ function updateProgressbar(evt)
 		//evt.total the total bytes seted by the header
 
 		var percentComplete = Math.floor( (evt.loaded / evt.total)*100 );
-		$('#progressBar').progressbar( "value", percentComplete );
+		$('#progress_'+this.featureId).find(".progressBar").progressbar( "value", percentComplete );
 	}
 }
-
-var layers = [];
-var contrast = 1.;
 
 var logFragShader= "\
 	precision highp float; \n\
@@ -244,9 +244,9 @@ function computeFits(featureData, url)
         alert("no OES_texture_float");
         return;
     }
-	xhr = new XMLHttpRequest();
+	var xhr = new XMLHttpRequest();
     xhr.open('GET', url);
-    
+    xhr.featureId = featureData.feature.properties.identifier;
     xhr.responseType = 'arraybuffer';
     xhr.onprogress = updateProgressbar;
     xhr.onload = function(e) {
@@ -254,7 +254,7 @@ function computeFits(featureData, url)
     }
     xhr.send();
 
-    showProgressBar(featureData);
+    showProgressBar(featureData, xhr);
 }
 
 /**
@@ -298,13 +298,16 @@ return {
 		globe = gl;
 		var self = this;
 		globe.subscribe("fitsRequested", function( context ){
-			computeFits(context.selectedFeature, context.url);
+			computeFits(context.selectedData, context.url);
 		});
 
-		globe.subscribe("removeFitsRequested", function( selectedFeature ){
-			xhr.abort();
-			hideProgressBar();
-			removeFits(selectedFeature);
+		globe.subscribe("removeFitsRequested", function( selectedData ){
+			var isInProgress = ( $('#progress_'+selectedData.feature.properties.identifier).length > 0 );
+			if ( isInProgress )
+			{
+				cancelRequest(selectedData.feature.properties.identifier);
+			}
+			removeFits(selectedData);
 		});
 	},
 
@@ -381,7 +384,10 @@ return {
 									{
 										var feature = features[i].feature;
 										var targetStyle = new GlobWeb.FeatureStyle( feature.properties.style );
-										targetStyle.fillShader = null;
+										targetStyle.fillShader = {
+											fragmentCode: null,
+											updateUniforms: null
+										};
 										features[i].layer.modifyFeatureStyle( feature, targetStyle );
 									}
 									break;

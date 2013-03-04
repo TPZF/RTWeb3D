@@ -57,11 +57,6 @@
 	padding: 5px;
 }
 
-.openSearchForm
-{
-	font-size: 1.1em;
-}
-
 /*** Key fields ***/
 .openSearchForm > label
 {
@@ -141,6 +136,7 @@
 
 #openSearchTabs > div
 {
+	font-size: 1.1em;
 	position: relative;
 	top: 15px;
 	padding-top: 15px;
@@ -200,19 +196,27 @@
 /****************************/
 /*   	  Fits service		*/
 /****************************/
-#progress
+
+#progressBars
 {
-	padding: 5px;
-	display: block;
 	position: absolute;
+	right: 20px;
 	top: 60px;
-	right: -150px;
-	z-index: 900
 }
 
-#progress .ui-progressbar-value {
-    background: orange;
-  }
+.progressDiv
+{
+	position: relative;
+	right: -220px;
+	z-index: 9000;
+	padding: 5px;
+	margin: 5px;
+}
+
+.progressBar .ui-progressbar-value 
+{
+	background: orange;
+}
 
 .progressId
 {
