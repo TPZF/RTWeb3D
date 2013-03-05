@@ -20,9 +20,9 @@
 /**
  * LayerManager module
  */
-define( [ "jquery.ui", "PickingManager", "ClusterLayer", "MocLayer", "Utils", "ErrorDialog", "JsonProcessor", "ServiceBar",
+define( [ "jquery.ui", "PickingManager", "ClusterOpenSearchLayer", "MocLayer", "Utils", "ErrorDialog", "JsonProcessor", "ServiceBar",
 	"underscore-min", "text!../templates/additionalLayer.html", "jquery.ui.selectmenu", "jquery.nicescroll.min" ], 
-	function($, PickingManager, ClusterLayer, MocLayer, Utils, ErrorDialog, JsonProcessor, ServiceBar, _, additionalLayerHTMLTemplate) {
+	function($, PickingManager, ClusterOpenSearchLayer, MocLayer, Utils, ErrorDialog, JsonProcessor, ServiceBar, _, additionalLayerHTMLTemplate) {
 
 /**
  * Private variable for module
@@ -120,29 +120,24 @@ function createLayerFromConf(layer) {
 				options.displayProperties = layer.displayProperties;
 			if (layer.proxyUrl)
 				options.proxyUrl = layer.proxyUrl;
-			if (layer.useCluster)
-				options.useCluster = layer.useCluster;
-			
+
 			options.style = defaultVectorStyle;
-			gwLayer = new GlobWeb.OpenSearchLayer( options );
+			if ( layer.useCluster == true )
+			{
+				if( layer.maxClusterOrder )
+					options.maxClusterOrder = layer.maxClusterOrder;
+				if ( layer.treshold )
+					options.treshold = layer.treshold;
+
+				gwLayer = new ClusterOpenSearchLayer( options );
+			}
+			else
+			{
+				gwLayer = new GlobWeb.OpenSearchLayer( options );
+			}
+
 			gwLayer.dataType = layer.dataType;
 			PickingManager.addPickableLayer( gwLayer );
-			break;
-		case "Cluster":
-			options.serviceUrl = layer.serviceUrl;
-
-			// TODO modify the structure of conf.json maybe ?
-			if( layer.maxOrder )
-				options.maxOrder = layer.maxOrder;
-			if ( layer.orderDepth )
-				options.orderDepth = layer.orderDepth;
-			if ( layer.treshold )
-				options.treshold = layer.treshold;
-			
-			options.style = defaultVectorStyle;
-			options.style.iconUrl = layer.iconUrl || "css/images/cluster.png";
-			gwLayer = new ClusterLayer( options );
-			gwLayer.dataType = layer.dataType || "point";
 			break;
 
 		case "Moc":
@@ -331,7 +326,7 @@ function createHtmlForAdditionalLayer( gwLayer )
 	var $canvas = $layerDiv.find('.legend');
 	var canvas = $canvas[0];
 
-	if ( gwLayer instanceof GlobWeb.OpenSearchLayer || gwLayer instanceof ClusterLayer || gwLayer instanceof MocLayer || gwLayer instanceof GlobWeb.VectorLayer )
+	if ( gwLayer instanceof GlobWeb.OpenSearchLayer || gwLayer instanceof MocLayer || gwLayer instanceof GlobWeb.VectorLayer )
 	{
 		if ( !gwLayer.icon )
 		{
