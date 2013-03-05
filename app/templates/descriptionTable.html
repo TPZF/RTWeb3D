@@ -2,23 +2,22 @@
 { 
 	if ( key != 'style' && key != 'title' && key != 'quicklook' && key != 'thumbnail' )
 	{	
-		var stringKey = key.charAt(0).toUpperCase() + key.substring(1).toLowerCase(); %>
+		var stringKey = key.toString(); %>
 	<tr height="30%">
 		<% // Test if section
 		if (typeof (properties[key]) === "object" )
 		{	
 			if ( key == 'crs' )
 			{%>
-				<td class="selectProperty"><em><%= stringKey %>:</em></td>
+				<td id="<%=stringKey%>" title="<%=dictionary[stringKey]%>" class="selectProperty"><em><%= stringKey %>:</em></td>
 				<td title="<%= properties[key].properties.name %>" class="selectValue"><%= properties[key].properties.name %></td>
 			<% } else { %>
-				<td class="selectProperty" colspan="2">
+				<td  id="<%=stringKey%>" title="<%=dictionary[stringKey]%>" class="selectProperty" colspan="2">
 					<div id="arrow" class="arrow-right"></div><div class="section"><b><%= stringKey %></b></div>
 					<table style="display: none; margin-left: 10px" rules="rows">
 						<tbody>
-							<% var output = descriptionTableTemplate( { properties: properties[key], descriptionTableTemplate: descriptionTableTemplate });
+							<% print( descriptionTableTemplate( { dictionary: dictionary, properties: properties[key], descriptionTableTemplate: descriptionTableTemplate }) );
 							 %>
-							 <%= output %>
 						</tbody>
 					</table>
 				</td>
@@ -26,7 +25,7 @@
 		}
 		else
 		{%>
-			<td class="selectProperty"><em><%= stringKey %>:</em></td>
+			<td  id="<%=stringKey%>" title="<%=dictionary[stringKey]%>" class="selectProperty"><em><%= stringKey %>:</em></td>
 			<% 
 			var isUrl = ( typeof (properties[key]) === "string" && properties[key].substr(0,4) == 'http' ) ? true : false;
 			if (isUrl) {%>

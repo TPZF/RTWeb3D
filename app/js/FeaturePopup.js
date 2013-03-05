@@ -124,11 +124,82 @@ function buildProperties(properties, displayProperties)
 }
 
 /**
+ *	Add property description to the dictionary 
+ *
+ *	@param describeUrl Open Search describe document url
+ *	@param property Property
+ *	@param dictionary Dictionary to complete
+ */
+function addPropertyDescription(describeUrl, property, dictionary)
+{
+	$.ajax({
+		type: "GET",
+		url: describeUrl+property,
+		dataType: 'text',
+		success: function(response){
+			dictionary[property] = response;
+			$('#'+key).attr("title", response);
+		},
+		error: function (xhr, ajaxOptions, thrownError) {
+			// console.error(xhr);
+		}
+	});
+}
+
+/**
+ *	Create dictionary
+ *
+ *	@param layer Layer
+ *	@param properties Feature properties
+ */
+function createDictionary( layer, properties )
+{
+	layer.dictionary = {};
+	// Get dictionary template from open search description document
+	$.ajax({
+		type: "GET",
+		url: layer.serviceUrl,
+		dataType: "xml",
+		success: function(xml) {
+			var dicodesc = $(xml).find('Url[rel="dicodesc"]');
+			var describeUrl = $(dicodesc).attr("template");
+
+			if ( describeUrl )
+			{
+				// Cut unused part
+				var splitIndex = describeUrl.indexOf( "{" );
+				if ( splitIndex != -1 )
+					describeUrl = describeUrl.substring( 0, splitIndex );
+
+				for ( var key in properties )
+				{
+					addPropertyDescription(describeUrl, key, layer.dictionary);
+				}
+			}
+			else
+			{
+				// No dico found
+			}
+		},
+		error: function(xhr){
+			// No dico found
+		}
+	});
+
+
+}
+
+/**
  * 	Insert HTML code of choosen feature
  */
 function createHTMLSelectedFeatureDiv( layer, feature )
-{	
-	var output = featureDescriptionTemplate( { services: feature.services, properties: buildProperties(feature.properties, layer.displayProperties), descriptionTableTemplate: descriptionTableTemplate } );
+{
+	if ( !layer.hasOwnProperty('dictionary') )
+	{
+		createDictionary(layer, feature.properties);
+	}
+
+	var output = featureDescriptionTemplate( { dictionary: layer.dictionary, services: feature.services, properties: buildProperties(feature.properties, layer.displayProperties), descriptionTableTemplate: descriptionTableTemplate } );
 	
 	$('#rightDiv').html( output );
 	$('.featureProperties').niceScroll({autohidemode: false});
