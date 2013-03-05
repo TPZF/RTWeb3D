@@ -19,7 +19,7 @@
 
 /**
  * Service bar module
- * (currently specified for OpenSearchLayer & Mix only)
+ * (currently specified only for OpenSearchLayer)
  *
  */
 define( [ "jquery.ui", "OpenSearchService", "FitsService", "MocService" ], function($, OpenSearchService, FitsService, MocService) {
@@ -47,7 +47,7 @@ var tabs = $('#layerServices').tabs({
 // Mapping between type of a layer and supported services
 var serviceMapping =
 {
-	"DynamicOpenSearch": [FitsService, MocService]
+	"DynamicOpenSearch": [OpenSearchService, FitsService, MocService]
 };
 
 var layers = [];
@@ -88,6 +88,7 @@ return {
 	 *	Add layer services to the bar
 	 */
 	addLayer: function(layer){
+
 		var layerServices = serviceMapping[layer.type]
 		if ( layerServices )
 		{
@@ -121,11 +122,10 @@ return {
 	 */
 	removeLayer: function(layer){
 
-			
-		if( layer instanceof GlobWeb.OpenSearchLayer )
+		var layerServices = serviceMapping[layer.type];
+		if ( layerServices )
 		{
 			// Remove layer from services
-			var layerServices = serviceMapping[layer.type];
 			for ( var i=0; i<layerServices.length; i++ )
 			{
 				layerServices[i].removeLayer( layer );
