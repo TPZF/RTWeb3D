@@ -51,7 +51,7 @@ MocLayer = function(options)
 
 	this.polygonRenderer = null;
 	this.polygonBucket = null;
-	this.featuresSet = {};
+	this.featuresSet = null;
 }
 
 /**************************************************************************************************************/
@@ -72,24 +72,20 @@ MocLayer.prototype._attach = function( g )
 	this.polygonRenderer = this.globe.vectorRendererManager.getRenderer("ConvexPolygon"); 
 	this.polygonBucket = this.polygonRenderer.getOrCreateBucket( this, this.style );
 
-	// Request MOC data if needed
-	if ( !this.vertexBuffer )
-	{
-		var self = this;
-		$.ajax({
-			type: "GET",
-			url: self.serviceUrl,
-			dataType: 'json',
-			success: function(response){
-					self.handleDistribution(response);
-			},
-			error: function (xhr, ajaxOptions, thrownError) {
-				// TODO publish event ?
-				$('#addLayer_'+self.id).find('label').css("color","red");
-				console.error( xhr.responseText );
-			}
-		});
-	}
+	var self = this;
+	$.ajax({
+		type: "GET",
+		url: self.serviceUrl,
+		dataType: 'json',
+		success: function(response){
+				self.handleDistribution(response);
+		},
+		error: function (xhr, ajaxOptions, thrownError) {
+			// TODO publish event ?
+			$('#addLayer_'+self.id).find('label').css("color","red");
+			console.error( xhr.responseText );
+		}
+	});
 }
 
 /**************************************************************************************************************/
@@ -99,8 +95,14 @@ MocLayer.prototype._attach = function( g )
  */
 MocLayer.prototype._detach = function()
 {
+	for ( var x in this.featuresSet )
+	{
+		this.polygonRenderer.removeGeometryFromTile(this.featuresSet[x].geometry, this.featuresSet[x].tile);
+	}
+	this.featuresSet = null;
+	this.polygonRenderer = null;
+	this.polygonBucket = null;
 
-	// TODO removeGeometryFromTile
 	GlobWeb.BaseLayer.prototype._detach.call(this);
 }
 
@@ -151,7 +153,7 @@ MocLayer.prototype.findParentIndex = function(index, order)
 MocLayer.prototype.handleDistribution = function(response)
 {	
 	var gl = this.globe.tileManager.renderContext.gl;
-
+	this.featuresSet = {};
 	// For each order, compute rectangles geometry depending on the pixel index
 	for (var key in response)
 	{
@@ -178,6 +180,7 @@ MocLayer.prototype.handleDistribution = function(response)
 
 			var geometry = {
 				type: "Polygon",
+				gid: "moc"+this.id+"_"+order+"_"+pixelIndex,
 				coordinates: [[]]
 			};
 
@@ -236,7 +239,10 @@ MocLayer.prototype.handleDistribution = function(response)
 				
 			var parentTile = this.globe.tileManager.level0Tiles[parentIndex];
 
-			// TODO add gid to each geometry and stock it in featuresSet
+			this.featuresSet[ geometry.gid ] = {
+				geometry: geometry,
+				tile: parentTile
+			};
 
 			this.polygonRenderer.addGeometryToTile( this.polygonBucket, geometry, parentTile );
 		}
