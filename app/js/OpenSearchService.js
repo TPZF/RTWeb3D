@@ -62,7 +62,7 @@ function handleSubmit(event)
 function handleForm(layer)
 {
 	$('#osForm_'+layer.id)
-	.html(layer.openSearchForm ? layer.openSearchForm : "loading")
+	.html(layer.openSearchForm ? layer.openSearchForm : "Loading...")
 	.find('.openSearchForm')
 		.data("layer", layer)
 		.submit(handleSubmit).end()
@@ -95,6 +95,11 @@ function attachForm(layer)
 					var formProperties = json.filters;
 					layer.openSearchForm = openSearchFormTemplate( { layer: layer, properties: formProperties });
 					handleForm(layer);
+				},
+				error: function()
+				{
+					$('#osForm_'+layer.id)
+						.html(layer.openSearchForm ? layer.openSearchForm : "OpenSearch parameter isn't available");
 				}
 			});
 		}
