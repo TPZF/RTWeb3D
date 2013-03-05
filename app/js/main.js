@@ -180,7 +180,7 @@ $(function()
 			NameResolver.init(globe, navigation, data.nameResolver);
 		
 			// Initialize the reverse name resolver
-			ReverseNameResolver.init(globe, data.reverseNameResolver);
+			ReverseNameResolver.init(globe, data);
 
 			// Create layers from configuration file
 			LayerManager.init(globe, navigation, data);
