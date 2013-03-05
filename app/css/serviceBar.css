@@ -159,24 +159,22 @@
 
 .mocName
 {
-	width: 380px;
 	display: inline-block;
 	vertical-align: inherit;
+	margin-right: 5px;
 }
 
 .mocStatus
 {
-	position: absolute;
-	left: -55px;
 	color: red;
-	top: 3px;
+	vertical-align: inherit;
 }
 
 .mocCoverage
 {
-	position: absolute;
-	top: 0px;
-	right: 0px;
+	float: right;
+	top: 4px;
+	position: relative;
 }
 
 #intersectMocBtn

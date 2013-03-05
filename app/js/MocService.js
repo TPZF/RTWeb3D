@@ -37,11 +37,11 @@ var intersectionLayer;
  */
 function noMocFound(layer)
 {
-	layer.coverage = "unknown";
-	$("#MocService #mocLayer_"+layer.id).find('.mocCoverage').html("Sky coverage: "+layer.coverage+"%").end()
-										.find('.mocStatus').html('Not found');
-	$("#xMatchService #mocLayer_"+layer.id).find('.mocCoverage').html("Sky coverage: "+layer.coverage+"%").end()
-										.find('.mocStatus').html('Not found');
+	layer.coverage = "Not avaliable";
+	$("#MocService #mocLayer_"+layer.id).find('.mocCoverage').html("Sky coverage: Not avaliable").end()
+										.find('.mocStatus').html('(Not found)');
+	$("#xMatchService #mocLayer_"+layer.id).find('.mocCoverage').html("Sky coverage: Not avaliable").end()
+										.find('.mocStatus').html('(Not found)');
 }
 
 /**
