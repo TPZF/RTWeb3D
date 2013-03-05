@@ -34,9 +34,9 @@ var descriptionTableTemplate = _.template(descriptionTableHTMLTemplate);
 var reverseNameResolverHTML =
 	'<div id="reverseNameResolver" class="contentBox ui-widget-content" style="display: none;">\
 		<div id="reverseSearchField">\
-			<div id="healpixInfo"></div>\
-			<div id="equatorialCoordinates"></div>\
 			<input type="submit" value="Find Object Name" />\
+			<div id="equatorialCoordinates"></div>\
+			<div id="healpixInfo"></div>\
 		</div>\
 		<div id="reverseSearchResult"></div>\
 		<div class="closeBtn">\
@@ -137,11 +137,12 @@ function setBehavior()
 			geo = globe.getLonLatFromPixel(event.clientX, event.clientY);
 
 			var selectedTile = globe.tileManager.getVisibleTile(geo[0], geo[1]);
-			$('#reverseSearchField #healpixInfo').html('<b>Healpix index/order: </b>&nbsp'+selectedTile.pixelIndex + '/' + selectedTile.order);
+			if ( configuration.debug )
+				$('#reverseSearchField #healpixInfo').html('<em>Healpix index/order: </em>&nbsp;&nbsp;&nbsp;&nbsp;'+selectedTile.pixelIndex + '/' + selectedTile.order);
 
 			GlobWeb.CoordinateSystem.fromGeoToEquatorial ( geo, equatorial );
-			$("#equatorialCoordinates").html("<em>Right ascension:</em>" + equatorial[0] +
-											"<br/><em>Declination :</em>" + equatorial[1]);
+			$("#equatorialCoordinates").html("<em>Right ascension:</em><br/>&nbsp;&nbsp;&nbsp;&nbsp;" + equatorial[0] +
+											"<br/><em>Declination :</em><br/>&nbsp;&nbsp;&nbsp;&nbsp;" + equatorial[1]);
 
 			$('#reverseSearchField').css("display","block");
 			$reverseNameResolver.css({
@@ -168,7 +169,7 @@ function setBehavior()
 
 function showFeature( feature )
 {
-	var output = featureDescriptionTemplate( { services: feature.services, properties: feature.properties, descriptionTableTemplate: descriptionTableTemplate } );
+	var output = featureDescriptionTemplate( { dictionary: {}, services: feature.services, properties: feature.properties, descriptionTableTemplate: descriptionTableTemplate } );
 	var title = ( feature.properties.title ) ? feature.properties.title : feature.properties.identifier;
 	output = '<div class="title">'+ title +'</div><div class="credit">Found in CDS database</div>' + output;
 	$('#reverseSearchResult').html( output );
@@ -181,10 +182,11 @@ return {
 	init: function(gl,conf) {
 
 		globe = gl;
-		for( var x in conf )
+		for( var x in conf.reverseNameResolver )
 		{
-			configuration[x] = conf[x];
+			configuration[x] = conf.reverseNameResolver[x];
 		}
+		configuration.debug = conf.debug;
 
 		setBehavior();
 	}
