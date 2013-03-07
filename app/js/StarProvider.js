@@ -23,7 +23,7 @@
  *	Specific star catalogue provider of the Brightest Stars (Ochsenbein+ 1988) from VizieR database
  * 	@see Search Catalogue of the Brightest Stars (Ochsenbein+ 1988) in VizieR database for more details
  */
-define( [ "jquery.ui", "LayerManager" ], function($, LayerManager) {
+define( [ "jquery.ui", "gw/CoordinateSystem", "gw/FeatureStyle", "LayerManager" ], function($, CoordinateSystem, FeatureStyle, LayerManager) {
 
 /**************************************************************************************************************/
 
@@ -109,17 +109,18 @@ function handleFeatures(gwLayer)
 				var declString = word[7]; // declinaton format : "degrees minutes seconds"
 				
 				var geo = [];
-				GlobWeb.CoordinateSystem.fromEquatorialToGeo([raString, declString], geo);
+				CoordinateSystem.fromEquatorialToGeo([raString, declString], geo);
 				
 				// Add poi layer
 				var poi = {
 					geometry: {
 						type: "Point",
+						gid: "star_"+starName,
 						coordinates: [geo[0],geo[1]]
 					},
 					properties: {
 						name: starName,
-						style: new GlobWeb.FeatureStyle({ label: starName, fillColor: [1.,1.,1.,1.] })
+						style: new FeatureStyle({ label: starName, fillColor: [1.,1.,1.,1.] })
 					}
 				};
 				pois.push(poi);

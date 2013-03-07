@@ -21,7 +21,8 @@
  * Moc display & Moc xMatch services
  * // TODO refactor to two different services
  */
-define( [ "jquery.ui", "MocLayer", "ErrorDialog", "Utils", "underscore-min", "text!../templates/mocService.html", "text!../templates/xMatchService.html" ], function($, MocLayer, ErrorDialog, Utils, _, mocServiceHTMLTemplate, xMatchServiceHTMLTemplate) {
+define( [ "jquery.ui", "gw/FeatureStyle", "MocLayer", "ErrorDialog", "Utils", "underscore-min", "text!../templates/mocService.html", "text!../templates/xMatchService.html" ],
+		function($, FeatureStyle, MocLayer, ErrorDialog, Utils, _, mocServiceHTMLTemplate, xMatchServiceHTMLTemplate) {
 
 // Template generating the services html
 var mocServiceTemplate = _.template(mocServiceHTMLTemplate);
@@ -125,9 +126,9 @@ function findMocSublayer(layer)
 function handleMocLayer(layer, mocServiceUrl)
 {
 	var style = layer.style;
-	style.fill = true;
-	style.fillColor[3] = 0.3;
-	var serviceLayer = new MocLayer({ serviceUrl: mocServiceUrl, style: style, visible: false });
+	var serviceLayer = new MocLayer({ serviceUrl: mocServiceUrl, style: layer.style, visible: false });
+	serviceLayer.style.fill = true;
+	serviceLayer.style.fillColor[3] = 0.3;
 	if ( layer.globe )
 	{
 		// Add sublayer to engine
@@ -263,7 +264,7 @@ function addIntersectionLayer(layersToIntersect)
 		intersectionLayer = new MocLayer({
 				name: "Intersection( "+layerNames+" )",
 				serviceUrl: url + "&media=json",
-				style: new GlobWeb.FeatureStyle({
+				style: new FeatureStyle({
 					rendererHint: "Basic",
 					fill: true,
 					fillColor: [1.,0.,0.,0.3]

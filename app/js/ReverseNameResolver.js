@@ -20,7 +20,8 @@
 /**
  * Name resolver module : search object name and zoom to them
  */
-define(["jquery.ui", "IFrame", "ErrorDialog", "underscore-min", "text!../templates/featureDescription.html", "text!../templates/descriptionTable.html"], function($, IFrame, ErrorDialog, _, featureDescriptionHTMLTemplate, descriptionTableHTMLTemplate) {
+define(["jquery.ui", "gw/CoordinateSystem", "IFrame", "ErrorDialog", "underscore-min", "text!../templates/featureDescription.html", "text!../templates/descriptionTable.html"],
+	function($, CoordinateSystem, IFrame, ErrorDialog, _, featureDescriptionHTMLTemplate, descriptionTableHTMLTemplate) {
 
 var globe;
 var configuration = {};
@@ -57,7 +58,7 @@ $( "#reverseNameResolver input[type=submit]")
 		var pickPoint = globe.getLonLatFromPixel(event.clientX, event.clientY);
 
 		var equatorialCoordinates = [];
-		GlobWeb.CoordinateSystem.fromGeoToEquatorial( pickPoint, equatorialCoordinates );
+		CoordinateSystem.fromGeoToEquatorial( pickPoint, equatorialCoordinates );
 
 		// Format to equatorial coordinates
 		equatorialCoordinates[0] = equatorialCoordinates[0].replace("h ",":");
@@ -140,7 +141,7 @@ function setBehavior()
 			if ( configuration.debug )
 				$('#reverseSearchField #healpixInfo').html('<em>Healpix index/order: </em>&nbsp;&nbsp;&nbsp;&nbsp;'+selectedTile.pixelIndex + '/' + selectedTile.order);
 
-			GlobWeb.CoordinateSystem.fromGeoToEquatorial ( geo, equatorial );
+			CoordinateSystem.fromGeoToEquatorial ( geo, equatorial );
 			$("#equatorialCoordinates").html("<em>Right ascension:</em><br/>&nbsp;&nbsp;&nbsp;&nbsp;" + equatorial[0] +
 											"<br/><em>Declination :</em><br/>&nbsp;&nbsp;&nbsp;&nbsp;" + equatorial[1]);
 

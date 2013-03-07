@@ -24,8 +24,7 @@
  * @see http://vizier.cfa.harvard.edu/viz-bin/ftp-index?VI/49
  *
  */
-define( [ "jquery.ui", "LayerManager" ], function($, LayerManager) {
-
+define( [ "jquery.ui", "LayerManager", "gw/CoordinateSystem", "gw/FeatureStyle" ], function($, LayerManager, CoordinateSystem, FeatureStyle) {
 
 /**************************************************************************************************************/
 
@@ -135,7 +134,7 @@ function extractDatabase()
 		// Calculate the center of constillation
 		var pos3d = [];
 		// Need to convert to 3D because of 0h -> 24h notation
-		GlobWeb.CoordinateSystem.fromGeoTo3D([RA, Decl], pos3d);
+		CoordinateSystem.fromGeoTo3D([RA, Decl], pos3d);
 		constellations[ currentAbb ].x+=pos3d[0];
 		constellations[ currentAbb ].y+=pos3d[1];
 		constellations[ currentAbb ].z+=pos3d[2];
@@ -167,6 +166,7 @@ function handleFeatures(gwLayer)
 		var constellationShape = {
 			geometry: {
 				type: "Polygon",
+				gid: "constellationShape_"+this.name,
 				coordinates: [current.coord]
 			},
 			properties: {
@@ -179,16 +179,17 @@ function handleFeatures(gwLayer)
 		// Compute mean value to show the constellation name in the center of constellation..
 		// .. sometimes out of constellation's perimeter because of the awkward constellation's shape(ex. "Hydra" or "Draco" constellations)
 		var geoPos = [];
-		GlobWeb.CoordinateSystem.from3DToGeo([current.x/current.nbStars, current.y/current.nbStars, current.z/current.nbStars], geoPos);
+		CoordinateSystem.from3DToGeo([current.x/current.nbStars, current.y/current.nbStars, current.z/current.nbStars], geoPos);
 		
 		var constellationName = {
 			geometry: {
 				type: "Point",
+				gid: "constellationName_"+this.name,
 				coordinates: [geoPos[0], geoPos[1]]
 			},
 			properties: {
 				name: current.name,
-				style: new GlobWeb.FeatureStyle({ textColor: '#083BA8', fillColor: [1.,1.,1.,1.], label: current.name })
+				style: new FeatureStyle({ textColor: '#083BA8', fillColor: [1.,1.,1.,1.], label: current.name })
 			}
 		};
 		constellationNamesFeatures.push( constellationName );
@@ -221,7 +222,6 @@ function failure(){
 /**************************************************************************************************************/
 
 // Register the data provider
-
 LayerManager.registerDataProvider("constellation", loadFiles);
 
 });

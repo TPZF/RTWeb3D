@@ -1,7 +1,8 @@
 /**
  * Fits service
  */
-define( [ "jquery.ui", "underscore-min", "text!../templates/progressBar.html", "fits" ], function($,_, progressBarHTMLTemplate) {
+define( [ "jquery.ui", "gw/FeatureStyle", "underscore-min", "text!../templates/progressBar.html", "fits" ],
+			function($, FeatureStyle,_, progressBarHTMLTemplate) {
 
 // Template generating the progress bar div
 var progressBarTemplate = _.template(progressBarHTMLTemplate);
@@ -222,7 +223,7 @@ function removeFits(featureData)
 	{
 		gl.deleteTexture( texture );
 	}
- 	var style = new GlobWeb.FeatureStyle( featureData.feature.properties.style );
+ 	var style = new FeatureStyle( featureData.feature.properties.style );
 	style.fillTexture = null;
 	style.fill = false;
 	featureData.layer.modifyFeatureStyle( featureData.feature, style );
@@ -362,7 +363,7 @@ return {
 									for ( var i=0; i<features.length; i++)
 									{
 										var feature = features[i].feature;
-										var targetStyle = new GlobWeb.FeatureStyle( feature.properties.style );
+										var targetStyle = new FeatureStyle( feature.properties.style );
 										targetStyle.fillShader = minmaxFillShader;
 										features[i].layer.modifyFeatureStyle( feature, targetStyle );
 									}
@@ -373,7 +374,7 @@ return {
 									for ( var i=0; i<features.length; i++)
 									{
 										var feature = features[i].feature;
-										var targetStyle = new GlobWeb.FeatureStyle( feature.properties.style );
+										var targetStyle = new FeatureStyle( feature.properties.style );
 										targetStyle.fillShader = logFillShader;
 										features[i].layer.modifyFeatureStyle( feature, targetStyle );
 									}
@@ -383,7 +384,7 @@ return {
 									for ( var i=0; i<features.length; i++)
 									{
 										var feature = features[i].feature;
-										var targetStyle = new GlobWeb.FeatureStyle( feature.properties.style );
+										var targetStyle = new FeatureStyle( feature.properties.style );
 										targetStyle.fillShader = {
 											fragmentCode: null,
 											updateUniforms: null

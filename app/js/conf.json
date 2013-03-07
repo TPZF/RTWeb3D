@@ -61,7 +61,7 @@
 			"name": "SDSS",
 			"baseUrl": "/Alasky/SDSS/Color",
 			"description": "Sloan Digital Sky Survey from CDS",
-			"attribution": "SDSS backbround from <object width='48' height='32' data=\"css/images/cds.svg\" type=\"image/svg+xml\"></object>",
+			"attribution": "SDSS backbround from <img width='48' height='32' src=\"css/images/cds.svg\" />",
 			"icon": "css/images/star_icon.png",
 			"visible": true,
 			"background": true
@@ -71,7 +71,7 @@
 			"name": "Deep CFHTLS",
 			"baseUrl": "/Alasky/CFHTLS-T0007b/Deep/RGB-UGIm",
 			"description": "Deep CFHTLS from CDS",
-			"attribution": "Deep CFHTLS backbround from <object width='48' height='32' data=\"css/images/cds.svg\" type=\"image/svg+xml\"></object>",
+			"attribution": "Deep CFHTLS backbround from <img width='48' height='32' src=\"css/images/cds.svg\" />",
 			"visible": true,
 			"background": true
 		},
@@ -80,7 +80,7 @@
 			"name": "2MASS",
 			"baseUrl": "/Alasky/2MASS/Color",
 			"description": "Infrared 2MASS colored survey from NASA, healpixed by CDS",
-			"attribution": "2MASS backbround from <object width='48' height='32' data=\"css/images/cds.svg\" type=\"image/svg+xml\"></object>",
+			"attribution": "2MASS backbround from <img width='48' height='32' src=\"css/images/cds.svg\" />",
 			"visible": true,
 			"background": true
 		},
@@ -89,7 +89,7 @@
 			"name": "DSS",
 			"baseUrl": "/Alasky/DssColor",
 			"description": "Digital Sky Survey from CDS",
-			"attribution": "DSS backbround from <object width='48' height='32' data=\"css/images/cds.svg\" type=\"image/svg+xml\"></object>",
+			"attribution": "DSS backbround from <img width='48' height='32' src=\"css/images/cds.svg\" />",
 			"visible": true,
 			"background": true
 		},
@@ -111,7 +111,6 @@
 		{
 			"type": "DynamicOpenSearch",
 			"dataType": "line",
-			"proxyUrl": "/sitools/proxy?external_url=",
 			"name": "Herschel (OpenSearch)",
 			"serviceUrl": "/sitools/oherschel",
 			"visible": false,

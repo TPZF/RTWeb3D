@@ -17,6 +17,8 @@
 * along with SITools2. If not, see <http://www.gnu.org/licenses/>. 
 ******************************************************************************/ 
 
+define( [ "jquery.ui", "gw/FeatureStyle", "gw/Utils", "gw/OpenSearchLayer", "gw/HEALPixBase", "gw/CoordinateSystem", "gw/RendererTileData" ],
+		function($, FeatureStyle, Utils, OpenSearchLayer, HEALPixBase, CoordinateSystem, RendererTileData) {
 
 /**************************************************************************************************************/
 
@@ -33,12 +35,9 @@
 			<li>maxClusterOrder: Maximal cluster refinement order</li>
 		</ul>
 */
-define( [ "jquery.ui" ], function($) {
+var ClusterOpenSearchLayer = function(options){
 
-
-ClusterOpenSearchLayer = function(options){
-
-	GlobWeb.OpenSearchLayer.prototype.constructor.call( this, options );
+	OpenSearchLayer.prototype.constructor.call( this, options );
 
 	// Configure cluster service options
 	this.treshold = options.treshold || 5;
@@ -50,14 +49,14 @@ ClusterOpenSearchLayer = function(options){
 
 	this.handleClusterService();
 
-	this.clusterStyle = new GlobWeb.FeatureStyle(this.style);
+	this.clusterStyle = new FeatureStyle(this.style);
 	this.clusterStyle.iconUrl = options.clusterIconUrl || "css/images/cluster.png";
 	this.clusterBucket = null;
 }
 
 /**************************************************************************************************************/
 
-GlobWeb.inherits( GlobWeb.OpenSearchLayer, ClusterOpenSearchLayer );
+Utils.inherits( OpenSearchLayer, ClusterOpenSearchLayer );
 
 /**************************************************************************************************************/
 
@@ -66,7 +65,7 @@ GlobWeb.inherits( GlobWeb.OpenSearchLayer, ClusterOpenSearchLayer );
  */
 ClusterOpenSearchLayer.prototype._detach = function()
 {
-	GlobWeb.OpenSearchLayer.prototype._detach.call( this );
+	OpenSearchLayer.prototype._detach.call( this );
 	this.clusterBucket = null;
 }
 
@@ -114,13 +113,13 @@ ClusterOpenSearchLayer.prototype.handleClusterService = function()
 				if ( i == urls.length )
 				{
 					// Cluster description doesn't exist, use open search without clusters
-					self.prototype = GlobWeb.OpenSearchLayer.prototype;
+					self.prototype = OpenSearchLayer.prototype;
 				}
 			}
 			else
 			{
 				// Cluster description doesn't exist, use open search without clusters
-				self.prototype = GlobWeb.OpenSearchLayer.prototype;
+				self.prototype = OpenSearchLayer.prototype;
 			}
 		}
 	};
@@ -193,11 +192,11 @@ ClusterOpenSearchLayer.prototype.addCluster = function(pixelIndex, order, face, 
 	// Create geometry
 	var nside = Math.pow(2, order);
 	var pix=pixelIndex&(nside*nside-1);
-	var ix = GlobWeb.HEALPixBase.compress_bits(pix);
-	var iy = GlobWeb.HEALPixBase.compress_bits(pix>>>1);
-	var center = GlobWeb.HEALPixBase.fxyf((ix+0.5)/nside, (iy+0.5)/nside, face);
+	var ix = HEALPixBase.compress_bits(pix);
+	var iy = HEALPixBase.compress_bits(pix>>>1);
+	var center = HEALPixBase.fxyf((ix+0.5)/nside, (iy+0.5)/nside, face);
 
-	var geo = GlobWeb.CoordinateSystem.from3DToGeo( center );
+	var geo = CoordinateSystem.from3DToGeo( center );
 	var pos3d = center;
 	var vertical = vec3.create();
 	vec3.normalize(pos3d, vertical);
@@ -217,7 +216,7 @@ ClusterOpenSearchLayer.prototype.addCluster = function(pixelIndex, order, face, 
 			title: "Cluster("+pixelDistribution+")",
 			order: order,
 			pixelIndex: pixelIndex,
-			style: new GlobWeb.FeatureStyle(this.clusterStyle)
+			style: new FeatureStyle(this.clusterStyle)
 		},
 		cluster : true
 	};
@@ -230,7 +229,7 @@ ClusterOpenSearchLayer.prototype.addCluster = function(pixelIndex, order, face, 
 /**
  * 	Launch request to the OpenSearch service
  */
-GlobWeb.OpenSearchLayer.prototype.launchRequest = function(tile, url)
+ClusterOpenSearchLayer.prototype.launchRequest = function(tile, url)
 {
 	var tileData = tile.extension[this.extId];
 	var index = null;
@@ -241,7 +240,7 @@ GlobWeb.OpenSearchLayer.prototype.launchRequest = function(tile, url)
 	}
 	
 	// Set that the tile is loading its data for OpenSearch
-	tileData.state = GlobWeb.OpenSearchLayer.TileState.LOADING;
+	tileData.state = OpenSearchLayer.TileState.LOADING;
 
 	// Add request properties to length
 	if ( this.requestProperties != "" )
@@ -284,7 +283,7 @@ GlobWeb.OpenSearchLayer.prototype.launchRequest = function(tile, url)
 				else
 				{
 					// HACK to avoid multiple rendering of parent features
-					tile.extension.pointSprite  = new GlobWeb.RendererTileData();
+					tile.extension.pointSprite  = new RendererTileData();
 				}
 			}
 			else if ( xhr.status >= 400 )
@@ -292,7 +291,7 @@ GlobWeb.OpenSearchLayer.prototype.launchRequest = function(tile, url)
 				console.error( xhr.responseText );
 			}
 			
-			tileData.state = GlobWeb.OpenSearchLayer.TileState.LOADED;
+			tileData.state = OpenSearchLayer.TileState.LOADED;
 			self.freeRequests.push( xhr );
 			self.globe.publish("endLoad",self.id);
 		}
@@ -353,15 +352,15 @@ ClusterOpenSearchLayer.prototype.buildUrl = function( tile )
 				// Empty tile
 				tile.extension[this.extId].complete = true;
 				// HACK to avoid multiple rendering of parent features
-				tile.extension.pointSprite = new GlobWeb.RendererTileData();
+				tile.extension.pointSprite = new RendererTileData();
 			}
-			tile.extension[this.extId].state = GlobWeb.OpenSearchLayer.TileState.LOADED;
+			tile.extension[this.extId].state = OpenSearchLayer.TileState.LOADED;
 			return null;
 		}
 	}
 	else
 	{
-		return GlobWeb.OpenSearchLayer.prototype.buildUrl.call( this, tile );
+		return OpenSearchLayer.prototype.buildUrl.call( this, tile );
 	}
 }
 
@@ -388,7 +387,7 @@ ClusterOpenSearchLayer.prototype.addFeatureToRenderer = function( feature, tile 
  */
 ClusterOpenSearchLayer.prototype.setRequestProperties = function(properties)
 {
-	GlobWeb.OpenSearchLayer.prototype.setRequestProperties.call( this, properties );
+	OpenSearchLayer.prototype.setRequestProperties.call( this, properties );
 	// Reset distributions
 	this.distributions = null;
 	this.updateDistributions(this);
@@ -401,7 +400,7 @@ ClusterOpenSearchLayer.prototype.setRequestProperties = function(properties)
  */
 ClusterOpenSearchLayer.prototype.updateFeatures = function(features)
 {
-	GlobWeb.OpenSearchLayer.prototype.updateFeatures.call( this, features );
+	OpenSearchLayer.prototype.updateFeatures.call( this, features );
 }
 
 return ClusterOpenSearchLayer;

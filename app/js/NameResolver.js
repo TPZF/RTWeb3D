@@ -20,7 +20,8 @@
 /**
  * Name resolver module : search object name and zoom to them
  */
-define(["jquery.ui", "Utils", "underscore-min", "text!../templates/nameResolverResult.html"], function($, Utils, _, nameResolverResultHTMLTemplate) {
+define(["jquery.ui", "gw/FeatureStyle", "gw/VectorLayer", "gw/HEALPixBase", "gw/CoordinateSystem", "Utils", "underscore-min", "text!../templates/nameResolverResult.html"],
+	function($, FeatureStyle, VectorLayer, HEALPixBase, CoordinateSystem, Utils, _, nameResolverResultHTMLTemplate) {
 
 // Template generating the list of selected features
 var nameResolverResultTemplate = _.template(nameResolverResultHTMLTemplate);
@@ -31,11 +32,11 @@ var configuration = {zoomFov: 15.};
 var response;
 
 // Target layer
-var style = new GlobWeb.FeatureStyle({
+var style = new FeatureStyle({
 	iconUrl: "css/images/target.png",
 	fillColor: [1., 1., 1., 1.]
  });
-var targetLayer = new GlobWeb.VectorLayer({ style: style });
+var targetLayer = new VectorLayer({ style: style });
 // Zooming destination feature
 var targetFeature;
 
@@ -97,15 +98,15 @@ function setSearchBehavior()
 			// Compute vertices
 			var nside = Math.pow(2, order);
 			var pix=pixelIndex&(nside*nside-1);
-			var ix = GlobWeb.HEALPixBase.compress_bits(pix);
-			var iy = GlobWeb.HEALPixBase.compress_bits(pix>>>1);
+			var ix = HEALPixBase.compress_bits(pix);
+			var iy = HEALPixBase.compress_bits(pix>>>1);
 			var face = (pixelIndex>>>(2*order));
 
 			var i = 0.5;
 			var j = 0.5;
-			var vert = GlobWeb.HEALPixBase.fxyf( (ix+i)/nside, (iy+j)/nside, face);
+			var vert = HEALPixBase.fxyf( (ix+i)/nside, (iy+j)/nside, face);
 			var geoPos = [];
-			GlobWeb.CoordinateSystem.from3DToGeo(vert, geoPos);
+			CoordinateSystem.from3DToGeo(vert, geoPos);
 			astroNavigator.zoomTo(geoPos, configuration.zoomFov);
 		}
 		else if ( objectName.match( coordinatesExp ) )
@@ -122,7 +123,7 @@ function setSearchBehavior()
 			
 			// Convert to geo and zoom
 			var geoPos = [];
-			GlobWeb.CoordinateSystem.fromEquatorialToGeo([word[0], word[1]], geoPos);
+			CoordinateSystem.fromEquatorialToGeo([word[0], word[1]], geoPos);
 			astroNavigator.zoomTo(geoPos, configuration.zoomFov);
 			addTarget(geoPos[0], geoPos[1]);
 		}
@@ -149,7 +150,7 @@ function setSearchBehavior()
 						for ( var i=0; i<response.features.length; i++)
 						{
 							var equatorial = [];
-							GlobWeb.CoordinateSystem.fromGeoToEquatorial([response.features[i].geometry.coordinates[0], response.features[i].geometry.coordinates[1]], equatorial);
+							CoordinateSystem.fromGeoToEquatorial([response.features[i].geometry.coordinates[0], response.features[i].geometry.coordinates[1]], equatorial);
 
 							var result = nameResolverResultTemplate( { properties: response.features[i].properties, ra: equatorial[0], dec: equatorial[1] } );
 							output+=result;

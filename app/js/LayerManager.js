@@ -20,9 +20,9 @@
 /**
  * LayerManager module
  */
-define( [ "jquery.ui", "PickingManager", "ClusterOpenSearchLayer", "MocLayer", "Utils", "ErrorDialog", "JsonProcessor", "ServiceBar",
+define( [ "jquery.ui", "gw/FeatureStyle", "gw/HEALPixLayer", "gw/VectorLayer", "gw/EquatorialGridLayer", "gw/TileWireframeLayer", "gw/OpenSearchLayer", "PickingManager", "ClusterOpenSearchLayer", "MocLayer", "Utils", "ErrorDialog", "JsonProcessor", "ServiceBar",
 	"underscore-min", "text!../templates/additionalLayer.html", "jquery.ui.selectmenu", "jquery.nicescroll.min" ], 
-	function($, PickingManager, ClusterOpenSearchLayer, MocLayer, Utils, ErrorDialog, JsonProcessor, ServiceBar, _, additionalLayerHTMLTemplate) {
+	function($, FeatureStyle, HEALPixLayer, VectorLayer, EquatorialGridLayer, TileWireframeLayer, OpenSearchLayer, PickingManager, ClusterOpenSearchLayer, MocLayer, Utils, ErrorDialog, JsonProcessor, ServiceBar, _, additionalLayerHTMLTemplate) {
 
 /**
  * Private variable for module
@@ -62,7 +62,7 @@ function createLayerFromConf(layer) {
 
 	if ( layer.color )
 	{
-		var rgba = GlobWeb.FeatureStyle.fromStringToColor( layer.color );
+		var rgba = FeatureStyle.fromStringToColor( layer.color );
 	}
 	else
 	{
@@ -71,7 +71,7 @@ function createLayerFromConf(layer) {
 		var rgba = rgb.concat([1]);
 	}
 	
-	var defaultVectorStyle = new GlobWeb.FeatureStyle({ 
+	var defaultVectorStyle = new FeatureStyle({ 
 				rendererHint: "Basic", 
 				opacity: layer.opacity/100.,
 				iconUrl: "css/images/star.png",
@@ -83,21 +83,22 @@ function createLayerFromConf(layer) {
 		case "healpix":
 			// Add necessary option
 			options.baseUrl = layer.baseUrl;
-			gwLayer = new GlobWeb.HEALPixLayer(options);
+			gwLayer = new HEALPixLayer(options);
 			break;
 				
 		case "equatorialGrid":
-			gwLayer = new GlobWeb.EquatorialGridLayer( {name: layer.name, visible: layer.visible} );
+			gwLayer = new EquatorialGridLayer( {name: layer.name, visible: layer.visible} );
 			break;
 			
 		case "healpixGrid":
-			gwLayer = new GlobWeb.TileWireframeLayer( {name: layer.name, visible: layer.visible, outline: layer.outline });
+			gwLayer = new TileWireframeLayer( {name: layer.name, visible: layer.visible, outline: layer.outline });
+			gwLayer.style = defaultVectorStyle;
 			break;
 			
 		case "GeoJSON":
 
 			options.style = defaultVectorStyle;
-			gwLayer = new GlobWeb.VectorLayer(options);
+			gwLayer = new VectorLayer(options);
 
 			if ( dataProviders[layer.data.type] )
 			{
@@ -133,7 +134,7 @@ function createLayerFromConf(layer) {
 			}
 			else
 			{
-				gwLayer = new GlobWeb.OpenSearchLayer( options );
+				gwLayer = new OpenSearchLayer( options );
 			}
 
 			gwLayer.dataType = layer.dataType;
@@ -150,7 +151,8 @@ function createLayerFromConf(layer) {
 			break;
 			
 		default:
-			console.error("Not implemented");
+			console.error(layer.type+" isn't not implemented");
+			return null;
 	}
 	gwLayer.type = layer.type;
 
@@ -187,8 +189,8 @@ function handleDrop(evt) {
 			
 			// Create style
 			var options = { name: name };
-			options.style = new GlobWeb.FeatureStyle({ rendererHint: "Basic", iconUrl: "css/images/star.png", fillColor: rgba, strokeColor: rgba, visible: true });
-			var gwLayer = new GlobWeb.VectorLayer( options );
+			options.style = new FeatureStyle({ rendererHint: "Basic", iconUrl: "css/images/star.png", fillColor: rgba, strokeColor: rgba, visible: true });
+			var gwLayer = new VectorLayer( options );
 			gwLayer.deletable = true;
 			globe.addLayer(gwLayer);
 
@@ -307,7 +309,7 @@ function generateLineLegend( gwLayer, canvas )
 	context.lineWidth = 1;
 
 	// set line color
-	context.strokeStyle = GlobWeb.FeatureStyle.fromColorToString(gwLayer.style.fillColor);
+	context.strokeStyle = FeatureStyle.fromColorToString(gwLayer.style.fillColor);
 	context.stroke();
 }
 
@@ -326,7 +328,7 @@ function createHtmlForAdditionalLayer( gwLayer )
 	var $canvas = $layerDiv.find('.legend');
 	var canvas = $canvas[0];
 
-	if ( gwLayer instanceof GlobWeb.OpenSearchLayer || gwLayer instanceof MocLayer || gwLayer instanceof GlobWeb.VectorLayer )
+	if ( gwLayer instanceof OpenSearchLayer || gwLayer instanceof MocLayer || gwLayer instanceof VectorLayer )
 	{
 		if ( !gwLayer.icon )
 		{

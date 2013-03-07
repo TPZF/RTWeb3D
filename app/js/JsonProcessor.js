@@ -23,7 +23,9 @@
  *	Module processing feature collection
  *
  */
-define([], function() {
+define(["gw/HEALPixLayer"], function(HEALPixLayer) {
+
+var gid = 0;
 
 /**
  *	Handle services of feature
@@ -40,7 +42,7 @@ function handleServices( gwLayer, feature )
 		switch (service.type)
 		{
 			case "healpix":
-				service.layer = new GlobWeb.HEALPixLayer({ baseUrl: service.url, name: service.name, visible: false, coordinates: feature.geometry.coordinates[0] });
+				service.layer = new HEALPixLayer({ baseUrl: service.url, name: service.name, visible: false, coordinates: feature.geometry.coordinates[0] });
 				gwLayer.subLayers.push(service.layer);
 				if ( gwLayer.globe && gwLayer.visible() )
 				{
@@ -58,8 +60,8 @@ return {
 	/**
 	 *	Handles feature collection
 	 * 	Recompute geometry from equatorial coordinates to geo for each feature
-	 *	Add proxy url to quicklook for each feature
 	 *	Handle feature services
+	 *	Add gid
 	 *
 	 *	@param gwLayer Layer of feature
 	 *	@param featureCollection GeoJSON FeatureCollection
@@ -67,8 +69,6 @@ return {
 	 */
 	handleFeatureCollection: function( gwLayer, featureCollection )
 	{
-		var proxyUrl = "/sitools/proxy?external_url=";
-
 		var features = featureCollection['features'];
 
 		for ( var i=0; i<features.length; i++ )
@@ -83,7 +83,7 @@ return {
 					else if ( gwLayer.dataType != 'point' )
 						gwLayer.dataType = "none";
 
-
+					// Convert to geographic representation
 					if ( currentFeature.geometry.coordinates[0] > 180 )
 						currentFeature.geometry.coordinates[0] -= 360;
 					break;
@@ -96,17 +96,36 @@ return {
 					var ring = currentFeature.geometry.coordinates[0];
 					for ( var j = 0; j < ring.length; j++ )
 					{
+						// Convert to geographic representation
 						if ( ring[j][0] > 180 )
 							ring[j][0] -= 360;
 					}
+					break;
+				case "MultiPolygon":
 
-					// Add proxy url to quicklook url if not local
-					if ( currentFeature.properties.quicklook && currentFeature.properties.quicklook.substring(0,4) == 'http' )
-						currentFeature.properties.quicklook = proxyUrl+currentFeature.properties.quicklook;
+					if ( !gwLayer.dataType )
+						gwLayer.dataType = "line";
+					else if ( gwLayer.dataType != 'line' )
+						gwLayer.dataType = "none";
+
+					var polygons = currentFeature.geometry.coordinates;
+					for ( var j=0; j<polygons.length; j++ )
+					{
+						var ring = polygons[j][0];
+						for ( var k = 0; k<ring.length; k++ )
+						{
+							// Convert to geographic representation
+							if ( ring[k][0] > 180 )
+								ring[k][0] -= 360;
+						}
+					}
+
 					break;
 				default:
 					break;
 			}
+			currentFeature.geometry.gid = "jsonProc_"+gid;
+			gid++;
 
 			if ( currentFeature.services )
 			{

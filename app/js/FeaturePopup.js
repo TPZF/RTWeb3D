@@ -20,8 +20,8 @@
 /**
  * FeaturePopup module
  */
-define( [ "jquery.ui", "IFrame", "JsonProcessor", "underscore-min", "text!../templates/featureList.html", "text!../templates/featureDescription.html", 
-	"text!../templates/descriptionTable.html", "jquery.nicescroll.min" ], function($, IFrame, JsonProcessor, _, featureListHTMLTemplate, featureDescriptionHTMLTemplate, descriptionTableHTMLTemplate) {
+define( [ "jquery.ui", "IFrame", "JsonProcessor", "gw/FeatureStyle", "gw/VectorLayer", "underscore-min", "text!../templates/featureList.html", "text!../templates/featureDescription.html", "text!../templates/descriptionTable.html", "jquery.nicescroll.min" ],
+	function($, IFrame, JsonProcessor, FeatureStyle, VectorLayer, _, featureListHTMLTemplate, featureDescriptionHTMLTemplate, descriptionTableHTMLTemplate) {
 
 var featureListHTML = '';
 var pickingManager = null;
@@ -138,7 +138,7 @@ function addPropertyDescription(describeUrl, property, dictionary)
 		dataType: 'text',
 		success: function(response){
 			dictionary[property] = response;
-			$('#'+key).attr("title", response);
+			$('#'+property).attr("title", response);
 		},
 		error: function (xhr, ajaxOptions, thrownError) {
 			// console.error(xhr);
@@ -244,7 +244,7 @@ return {
 				$('#quicklook').addClass('selected');
 
 				// Set fill to true while loading
-				var style = new GlobWeb.FeatureStyle( selectedData.feature.properties.style );
+				var style = new FeatureStyle( selectedData.feature.properties.style );
 				style.fill = true;
 
 				if ( selectedData.feature.services && selectedData.feature.services.download && selectedData.feature.services.download.mimetype == "image/fits" )
@@ -293,7 +293,7 @@ return {
 			else
 			{
 				// Create solar object layer
-				var defaultVectorStyle = new GlobWeb.FeatureStyle({ 
+				var defaultVectorStyle = new FeatureStyle({ 
 					rendererHint: "Basic", 
 					iconUrl: "css/images/star.png"
 				});
@@ -303,7 +303,7 @@ return {
 					style: defaultVectorStyle
 				};
 
-				solarObjectsLayer = new GlobWeb.VectorLayer( options );
+				solarObjectsLayer = new VectorLayer( options );
 				layer.globe.addLayer(solarObjectsLayer);
 				pickingManager.addPickableLayer(solarObjectsLayer);
 

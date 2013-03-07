@@ -27,7 +27,8 @@ require.config({
 		"jquery.ui.selectmenu": "../externals/jquery.ui.selectmenu",
 		"underscore-min": "../externals/underscore-min",
 		"jquery.nicescroll.min": "../externals/jquery.nicescroll.min",
-		"fits": "../externals/fits"
+		"fits": "../externals/fits",
+		"gw": "../externals/GlobWeb/src/"
 	},
 	shim: {
 		'jquery': {
@@ -57,7 +58,10 @@ require.config({
 /**
  * Main module
  */
-require( ["jquery.ui", "LayerManager", "NameResolver", "ReverseNameResolver", "Utils", "PickingManager", "FeaturePopup", "IFrame", "ErrorDialog", "StarProvider", "ConstellationProvider", "JsonProvider", "OpenSearchProvider"], function($, LayerManager, NameResolver, ReverseNameResolver, Utils, PickingManager, FeaturePopup, IFrame, ErrorDialog) {
+require( ["jquery.ui", "gw/CoordinateSystem", "gw/Globe", "gw/Stats", "gw/AstroNavigation",
+	"LayerManager", "NameResolver", "ReverseNameResolver", "Utils", "PickingManager", "FeaturePopup", "IFrame", "ErrorDialog", "StarProvider", "ConstellationProvider", "JsonProvider", "OpenSearchProvider",
+	"gw/EquatorialCoordinateSystem", "gw/ConvexPolygonRenderer", "gw/PointSpriteRenderer", "gw/PointRenderer"],
+	function($, CoordinateSystem, Globe, Stats, AstroNavigation, LayerManager, NameResolver, ReverseNameResolver, Utils, PickingManager, FeaturePopup, IFrame, ErrorDialog) {
 
 // Console fix	
 window.console||(console={log:function(){}});
@@ -75,9 +79,9 @@ function updateFov()
 {
 	var fov = navigation.getFov();
 	var fovx = Utils.roundNumber( fov[0], 2 ) ;
-	fovx = GlobWeb.CoordinateSystem.fromDegreesToDMS( fovx );
+	fovx = CoordinateSystem.fromDegreesToDMS( fovx );
 	var fovy = Utils.roundNumber( fov[1], 2 ) ;
-	fovy = GlobWeb.CoordinateSystem.fromDegreesToDMS( fovy );
+	fovy = CoordinateSystem.fromDegreesToDMS( fovy );
 	$('#fov').html( "Fov : " + fovx + " x " + fovy );
 }
 
@@ -125,7 +129,7 @@ $(function()
 	// Initialize globe
 	try
 	{
-		globe = new GlobWeb.Globe( { 
+		globe = new Globe( { 
 			canvas: canvas, 
 			tileErrorTreshold: 1.5,
 			continuousRendering: true
@@ -150,7 +154,7 @@ $(function()
 	}, false);
 	
 	// Initialize navigation
-	navigation = new GlobWeb.AstroNavigation(globe, {minFov: 0.001});
+	navigation = new AstroNavigation(globe, {minFov: 0.001, inertia: true});
 	
 	// Retreive configuration
 	$.ajax({
@@ -171,7 +175,7 @@ $(function()
 
 			// Add stats
 			if ( data.stats.visible ) {
-				new GlobWeb.Stats( globe, { element: "fps", verbose: data.stats.verbose });
+				new Stats( globe, { element: "fps", verbose: data.stats.verbose });
 			} else  {
 				$("#fps").hide();
 			}

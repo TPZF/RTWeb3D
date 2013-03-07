@@ -20,7 +20,8 @@
 /**
  * PickingManager module
  */
-define( [ "jquery.ui", "FeaturePopup" ], function($, FeaturePopup) {
+define( [ "jquery.ui", "gw/FeatureStyle", "gw/CoordinateSystem", "gw/OpenSearchLayer", "FeaturePopup" ],
+		function($, FeatureStyle, CoordinateSystem, OpenSearchLayer, FeaturePopup) {
 
 var globe;
 var navigation;
@@ -28,7 +29,7 @@ var self;
 
 var selection = [];
 var stackSelectionIndex = -1;
-var selectedStyle = new GlobWeb.FeatureStyle( { strokeColor: [1., 1., 0., 1.], fillColor: [1., 1., 0., 1.] } );
+var selectedStyle = new FeatureStyle( { strokeColor: [1., 1., 0., 1.], fillColor: [1., 1., 0., 1.] } );
 var pickableLayers = [];
 var selectedTile = null;
 
@@ -39,10 +40,11 @@ function blurSelection()
 {
 	for ( var i=0; i < selection.length; i++ ) {
 		var selectedData = selection[i];
-		var style = new GlobWeb.FeatureStyle( selectedData.feature.properties.style );
+		var style = new FeatureStyle( selectedData.feature.properties.style );
 		switch ( selectedData.feature.geometry.type )
 		{
 			case "Polygon":
+			case "MultiPolygon":
 				style.strokeColor = selectedData.layer.style.strokeColor;
 				break;
 			case "Point":
@@ -66,16 +68,17 @@ function focusSelection()
 
 		if ( selectedData.feature.properties.style )
 		{
-			style = new GlobWeb.FeatureStyle( selectedData.feature.properties.style );	
+			style = new FeatureStyle( selectedData.feature.properties.style );	
 		}
 		else
 		{
-			style = new GlobWeb.FeatureStyle( selectedData.layer.style );
+			style = new FeatureStyle( selectedData.layer.style );
 		}
 
 		switch ( selectedData.feature.geometry.type )
 		{
 			case "Polygon":
+			case "MultiPolygon":
 				style.strokeColor = selectedStyle.strokeColor;
 				break;
 			case "Point":
@@ -213,8 +216,8 @@ function pointInSphere( point, sphere, pointTextureHeight )
 	// Compute pixel size vector to offset the points from the earth
 	var pixelSizeVector = globe.renderContext.computePixelSizeVector();
 
-	GlobWeb.CoordinateSystem.fromGeoTo3D( point, point3D );
-	GlobWeb.CoordinateSystem.fromGeoTo3D( sphere, sphere3D );
+	CoordinateSystem.fromGeoTo3D( point, point3D );
+	CoordinateSystem.fromGeoTo3D( sphere, sphere3D );
 
 	var radius = pointTextureHeight * (pixelSizeVector[0] * sphere3D[0] + pixelSizeVector[1] * sphere3D[1] + pixelSizeVector[2] * sphere3D[2] + pixelSizeVector[3]);
 
@@ -246,17 +249,17 @@ function computePickSelection( pickPoint )
 		var pickableLayer = pickableLayers[i];
 		if ( pickableLayer.visible() )
 		{
-			if ( pickableLayer instanceof GlobWeb.OpenSearchLayer )
+			if ( pickableLayer instanceof OpenSearchLayer )
 			{
 				// Extension using layer
 				// Search for features in each tile
 				var tile = selectedTile;
 				var tileData = tile.extension[pickableLayer.extId];
 
-				if ( !tileData || tileData.state != GlobWeb.OpenSearchLayer.TileState.LOADED )
+				if ( !tileData || tileData.state != OpenSearchLayer.TileState.LOADED )
 				{
 					while ( !tileData || (tile.parent 
-						&& tileData.state != GlobWeb.OpenSearchLayer.TileState.LOADED) )
+						&& tileData.state != OpenSearchLayer.TileState.LOADED) )
 					{
 						tile = tile.parent;
 						tileData = tile.extension[pickableLayer.extId];
@@ -275,6 +278,16 @@ function computePickSelection( pickPoint )
 								if ( pointInRing( pickPoint, feature['geometry']['coordinates'][0] ) )
 								{
 									newSelection.push( { feature: feature, layer: pickableLayer } );
+								}
+								break;
+							case "MultiPolygon":
+								for ( var p=0; p<feature['geometry']['coordinates'].length; p++ )
+								{
+									var ring = feature['geometry']['coordinates'][p][0];
+									if( pointInRing( pickPoint, ring ) )
+									{
+										newSelection.push( { feature: feature, layer: pickableLayer } );
+									}
 								}
 								break;
 							case "Point":
@@ -313,6 +326,16 @@ function computePickSelection( pickPoint )
 							if ( pointInRing( pickPoint, feature['geometry']['coordinates'][0] ) )
 							{
 								newSelection.push( { feature: feature, layer: pickableLayer } );
+							}
+							break;
+						case "MultiPolygon":
+							for ( var p=0; p<feature['geometry']['coordinates'].length; p++ )
+							{
+								var ring = feature['geometry']['coordinates'][p][0];
+								if( pointInRing( pickPoint, ring ) )
+								{
+									newSelection.push( { feature: feature, layer: pickableLayer } );
+								}
 							}
 							break;
 						case "Point":
@@ -367,10 +390,11 @@ return {
 		var selectedData = selection[stackSelectionIndex];
 		if ( selectedData )
 		{
-			var style = new GlobWeb.FeatureStyle( selectedData.feature.properties.style );
+			var style = new FeatureStyle( selectedData.feature.properties.style );
 			switch ( selectedData.feature.geometry.type )
 			{
 				case "Polygon":
+				case "MultiPolygon":
 					style.strokeColor = selectedData.layer.style.strokeColor; 
 					break;
 				case "Point":
@@ -395,10 +419,11 @@ return {
 		if ( selectedData )
 		{
 			stackSelectionIndex = index;
-			var style = new GlobWeb.FeatureStyle( selectedData.feature.properties.style );
+			var style = new FeatureStyle( selectedData.feature.properties.style );
 			switch ( selectedData.feature.geometry.type )
 			{
 				case "Polygon":
+				case "MultiPolygon":
 					style.strokeColor = selectedStyle.strokeColor;
 					break;
 				case "Point":

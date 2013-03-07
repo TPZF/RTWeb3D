@@ -24,7 +24,8 @@
 		"jquery.ui.selectmenu": "../externals/jquery.ui.selectmenu",
 		"underscore-min": "../externals/underscore-min",
 		"jquery.nicescroll.min": "../externals/jquery.nicescroll.min",
-        "fits": "../externals/fits"
+        "fits": "../externals/fits",
+		"gw": "../externals/GlobWeb/src"
     },
     shim: {
         'jquery': {
@@ -49,5 +50,5 @@
         }
     },
 
-    fileExclusionRegExp: /^GlobWeb$|^upload$|^build$/
+    fileExclusionRegExp: /^upload$|^build$|^demo$|^data$|^release$/
 }

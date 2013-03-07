@@ -20,7 +20,8 @@
 /**
  * Moc renderer/layer module
  */
-define( [ "jquery.ui" ], function($) {
+define( [ "jquery.ui", "gw/BaseLayer", 'gw/FeatureStyle', "gw/Utils", "gw/HEALPixBase", "gw/CoordinateSystem" ],
+		function($, BaseLayer, FeatureStyle, Utils, HEALPixBase, CoordinateSystem) {
 
 /**
  * 	@constructor
@@ -32,21 +33,21 @@ define( [ "jquery.ui" ], function($) {
  *			<li>serviceUrl : Url of the service providing the MOC data(necessary option)</li>
  *		</ul>
  */
-MocLayer = function(options)
+var MocLayer = function(options)
 {
 
-	GlobWeb.BaseLayer.prototype.constructor.call( this, options );
+	BaseLayer.prototype.constructor.call( this, options );
 
 	this.serviceUrl = options.serviceUrl;
 
 	// Set style
 	if ( options && options['style'] )
 	{
-		this.style = options['style'];
+		this.style = new FeatureStyle(options['style']);
 	}
 	else
 	{
-		this.style = new GlobWeb.FeatureStyle();
+		this.style = new FeatureStyle();
 	}
 
 	this.polygonRenderer = null;
@@ -56,7 +57,7 @@ MocLayer = function(options)
 
 /**************************************************************************************************************/
 
-GlobWeb.inherits( GlobWeb.BaseLayer, MocLayer );
+Utils.inherits( BaseLayer, MocLayer );
 
 /**************************************************************************************************************/
 
@@ -67,7 +68,7 @@ GlobWeb.inherits( GlobWeb.BaseLayer, MocLayer );
  */
 MocLayer.prototype._attach = function( g )
 {
-	GlobWeb.BaseLayer.prototype._attach.call( this, g );
+	BaseLayer.prototype._attach.call( this, g );
 	
 	this.polygonRenderer = this.globe.vectorRendererManager.getRenderer("ConvexPolygon"); 
 	this.polygonBucket = this.polygonRenderer.getOrCreateBucket( this, this.style );
@@ -103,7 +104,7 @@ MocLayer.prototype._detach = function()
 	this.polygonRenderer = null;
 	this.polygonBucket = null;
 
-	GlobWeb.BaseLayer.prototype._detach.call(this);
+	BaseLayer.prototype._detach.call(this);
 }
 
 /**************************************************************************************************************/
@@ -197,8 +198,8 @@ MocLayer.prototype.handleDistribution = function(response)
 			
 			var nside = Math.pow(2, order);
 			var pix=pixelIndex&(nside*nside-1);
-			var ix = GlobWeb.HEALPixBase.compress_bits(pix);
-			var iy = GlobWeb.HEALPixBase.compress_bits(pix>>>1);
+			var ix = HEALPixBase.compress_bits(pix);
+			var iy = HEALPixBase.compress_bits(pix>>>1);
 			var face = (pixelIndex>>>(2*order));
 
 			var vertice, geo;
@@ -206,8 +207,8 @@ MocLayer.prototype.handleDistribution = function(response)
 			// Horizontal boudaries
 			for(var u = 0; u < 2; u++ ) {
 				for(var v = 0; v < size; v++){
-					vertice = GlobWeb.HEALPixBase.fxyf((ix+u*(size-1)*step)/nside, (iy+v*step)/nside, face);
-					geo = GlobWeb.CoordinateSystem.from3DToGeo( vertice );
+					vertice = HEALPixBase.fxyf((ix+u*(size-1)*step)/nside, (iy+v*step)/nside, face);
+					geo = CoordinateSystem.from3DToGeo( vertice );
 					if ( u == 0 )
 					{
 						// Invert to clockwise sense
@@ -223,8 +224,8 @@ MocLayer.prototype.handleDistribution = function(response)
 			// Vertical boundaries
 			for(var v = 0; v < 2; v++ ) {
 				for(var u = 0; u < size; u++ ){
-					vertice = GlobWeb.HEALPixBase.fxyf((ix+u*step)/nside, (iy+v*(size-1)*step)/nside, face);
-					geo = GlobWeb.CoordinateSystem.from3DToGeo( vertice );
+					vertice = HEALPixBase.fxyf((ix+u*step)/nside, (iy+v*(size-1)*step)/nside, face);
+					geo = CoordinateSystem.from3DToGeo( vertice );
 					if ( v==1 )
 					{
 						// Invert to clockwise sense
