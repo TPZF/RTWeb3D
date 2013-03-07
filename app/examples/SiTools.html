@@ -1,10 +1,9 @@
 <html>
 
 <head>
-<title>GlobWeb example</title>
+<title>AstroWeb example</title>
 <meta http-equiv="content-type" content="text/html; charset=ISO-8859-1">
-
-<script type="text/javascript" src="../externals/GlobWeb/src/GlobWeb.js"></script>
+<script  src="../js/require.min.js"></script>
 <script type="text/javascript" src="http://code.jquery.com/jquery-1.7.1.min.js"></script>
 
 <style>
@@ -42,35 +41,35 @@ li.poi:hover
 
 <script type="text/javascript">
 	
-    function webGLStart() 
+	require(['../externals/GlobWeb/src/AstroWeb'], function (AstroWeb) 
 	{	
 		// Init globe
 		// - canvas: Id of canvas HTML element
 		// - continuousRendering: Boolean defining that rendering will be done continuously
-		var globe = new GlobWeb.Globe({
+		var globe = new AstroWeb.Globe({
 			canvas: "GlobWebCanvas",
 			continuousRendering: true
 		});
 		
 		// Create the navigation object to contol the camera
-		var astroNavigator = new GlobWeb.AstroNavigation(globe);
+		var astroNavigator = new AstroWeb.AstroNavigation(globe);
 		
-		// Create the object to show the statistic of GlobWeb
+		// Create the object to show the statistic of AstroWeb
 		// - element: Id of statistic HTML element
 		// - verbose: If true, detailed information will be shown
-		new GlobWeb.Stats(globe,{element: "fps", verbose: true});
+		new AstroWeb.Stats(globe,{element: "fps", verbose: true});
 	
 		// Set background layer
 		// - baseUrl: Url to background images provider in HEALPix format
 		//		Note: must pass by proxy due to Cross-domain resource sharing issue
 		//			  For more details see: https://developer.mozilla.org/en-US/docs/HTTP_access_control
-		var cdsLayer = new GlobWeb.HEALPixLayer( { baseUrl: "/Alasky/DssColor/"} );
+		var cdsLayer = new AstroWeb.HEALPixLayer( { baseUrl: "/Alasky/DssColor/"} );
 		globe.setBaseImagery( cdsLayer );
 
 		// Define rendering options for OpenSearch layer
 		// - fillColor: Color of features
 		// - iconUrl: Url of image for texture
-		var layerStyle = new GlobWeb.FeatureStyle({ 
+		var layerStyle = new AstroWeb.FeatureStyle({ 
 			fillColor: [255, 204, 0,06, 1.],
 			iconUrl: "../css/images/star.png"
 		});
@@ -88,7 +87,7 @@ li.poi:hover
 		};
 
 		// Create OpenSearch layer with choosen options
-		var openSearchLayer = new GlobWeb.OpenSearchLayer( options );
+		var openSearchLayer = new AstroWeb.OpenSearchLayer( options );
 
 		// Add layer to the globe
 		globe.addLayer( openSearchLayer );
@@ -106,7 +105,7 @@ li.poi:hover
 		$('#openSearchLayer').click( function(event) {
 			openSearchLayer.visible( $(this).is(':checked') );
 		});
-   }
+	});
 
 
 </script>
@@ -114,7 +113,7 @@ li.poi:hover
 </head>
 
 
-<body onload="webGLStart();">
+<body>
 	<div id="options">
 		<ul id="poiMenu">
 			<li class="poi" data-ra="57.290594102" data-dec="24.053416748">Atlas</li>
