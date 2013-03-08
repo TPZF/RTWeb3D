@@ -1,11 +1,27 @@
+/******************************************************************************* 
+* Copyright 2012, 2013 CNES - CENTRE NATIONAL d'ETUDES SPATIALES 
+* 
+* This file is part of SITools2. 
+* 
+* SITools2 is free software: you can redistribute it and/or modify 
+* it under the terms of the GNU General Public License as published by 
+* the Free Software Foundation, either version 3 of the License, or 
+* (at your option) any later version. 
+* 
+* SITools2 is distributed in the hope that it will be useful, 
+* but WITHOUT ANY WARRANTY; without even the implied warranty of 
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the 
+* GNU General Public License for more details. 
+* 
+* You should have received a copy of the GNU General Public License 
+* along with SITools2. If not, see <http://www.gnu.org/licenses/>. 
+******************************************************************************/ 
+
 /**
  * Fits service
  */
-define( [ "jquery.ui", "gw/FeatureStyle", "underscore-min", "text!../templates/progressBar.html", "fits" ],
-			function($, FeatureStyle,_, progressBarHTMLTemplate) {
-
-// Template generating the progress bar div
-var progressBarTemplate = _.template(progressBarHTMLTemplate);
+define( [ "jquery.ui", "gw/FeatureStyle", "ProgressBar", "fits" ],
+			function($, FeatureStyle, ProgressBar) {
 
 var globe = null;
 var features = [];
@@ -20,88 +36,13 @@ var form = '<div id="fitsOptions">\
 				</div>\
 	  	 	</div>';
 
-var progressBars = '<div id="progressBars"></div>';
-var $progressBars = $(progressBars).appendTo('body');
+var progressBarsDiv = '<div id="progressBars"></div>';
+var $progressBars = $(progressBarsDiv).appendTo('body');
+
+var progressBars = {};
 
 var layers = [];
 var contrast = 1.;
-
-// TODO create ProgressBar module
-/**
- *	Show progress bar
- *
- *	@param featureData Feature data
- */
-function showProgressBar(featureData, xhr)
-{
-	var progressDiv = progressBarTemplate( { featureId: featureData.feature.properties.identifier });
-
-	$(progressDiv)
-		.appendTo('#progressBars')
-		.data("progressData", { featureData: featureData, xhr: xhr })
-		.find('.progressBar').progressbar({
-			value: 0,
-			create: function(){
-				$(this).find('.progress-label').text( "0%" );
-			},
-			change: function() {
-				$(this).find('.progress-label').text( $(this).progressbar( "value" ) + "%");
-			},
-			complete: function() {
-				hideProgressBar(featureData.feature.properties.identifier);
-				$(this).find('.progress-label').text( "100%" );
-			}	
-		}).end()
-		.find('button').button().end()
-		.find('#cancelFitsRequest').click(function(){
-			cancelRequest(featureData.feature.properties.identifier);
-			removeFits(featureData);
-		}).end()
-		.show().animate({right: 50}, 500, function(){
-			$(this).animate({right:0});
-		});
-}
-
-/**
- *	Hide progress bar
- *
- *	@param id Feature id
- */
-function hideProgressBar(id)
-{
-	$('#progress_'+id)
-		.animate({right: 50}, function(){
-			$(this).animate({right:-360}, 500, function(){
-				$(this).remove();
-			});
-		});
-}
-
-/**
- *	Cancel the xhr request
- *
- *	@param id Feature id
- */
-function cancelRequest(id)
-{
-	$('#progress_'+id).data("progressData").xhr.abort();
-	hideProgressBar(id);
-}
-
-/**
- *	Update progress bar event
- */
-function updateProgressbar(evt)
-{
-	if (evt.lengthComputable) 
-	{
-		//evt.loaded the bytes browser receive
-		//evt.total the total bytes seted by the header
-
-		var percentComplete = Math.floor( (evt.loaded / evt.total)*100 );
-		$('#progress_'+this.featureId).find(".progressBar").progressbar( "value", percentComplete );
-	}
-}
 
 var logFragShader= "\
 	precision highp float; \n\
@@ -247,15 +188,14 @@ function computeFits(featureData, url)
     }
 	var xhr = new XMLHttpRequest();
     xhr.open('GET', url);
-    xhr.featureId = featureData.feature.properties.identifier;
     xhr.responseType = 'arraybuffer';
-    xhr.onprogress = updateProgressbar;
     xhr.onload = function(e) {
+    	delete progressBars[featureData.feature.properties.identifier];
 		handleFits(xhr.response, featureData);
     }
     xhr.send();
 
-    showProgressBar(featureData, xhr);
+    progressBars[ featureData.feature.properties.identifier ] = new ProgressBar(globe, featureData, xhr);
 }
 
 /**
@@ -303,10 +243,12 @@ return {
 		});
 
 		globe.subscribe("removeFitsRequested", function( selectedData ){
-			var isInProgress = ( $('#progress_'+selectedData.feature.properties.identifier).length > 0 );
-			if ( isInProgress )
+
+			var progress = progressBars[selectedData.feature.properties.identifier];
+			if ( progress )
 			{
-				cancelRequest(selectedData.feature.properties.identifier);
+				progress.cancel();
+				delete progressBars[selectedData.feature.properties.identifier];
 			}
 			removeFits(selectedData);
 		});
