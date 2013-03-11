@@ -249,7 +249,7 @@ ClusterOpenSearchLayer.prototype.launchRequest = function(tile, url)
 	}
 		
 	var xhr = this.freeRequests.pop();
-	this.globe.publish("startLoad",this.id);
+	this.globe.publish("startLoad",this);
 	
 	var self = this;
 	xhr.onreadystatechange = function(e)
@@ -293,7 +293,7 @@ ClusterOpenSearchLayer.prototype.launchRequest = function(tile, url)
 			
 			tileData.state = OpenSearchLayer.TileState.LOADED;
 			self.freeRequests.push( xhr );
-			self.globe.publish("endLoad",self.id);
+			self.globe.publish("endLoad",self);
 		}
 	};
 	xhr.open("GET", url );

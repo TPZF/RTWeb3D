@@ -83,6 +83,7 @@ function createLayerFromConf(layer) {
 		case "healpix":
 			// Add necessary option
 			options.baseUrl = layer.baseUrl;
+			options.coordSystem = layer.coordSystem || "EQUATORIAL";
 			gwLayer = new HEALPixLayer(options);
 			break;
 				
@@ -453,11 +454,11 @@ function addAdditionalLayer ( gwLayer )
 	createHtmlForAdditionalLayer( gwLayer );
 
 	// Spinner event
-	globe.subscribe("startLoad", function(id){
-		$('#addLayer_'+id).find('.spinner').stop(true,true).fadeIn('fast');
+	globe.subscribe("startLoad", function(layer){
+		$('#addLayer_'+layer.id).find('.spinner').stop(true,true).fadeIn('fast');
 	});
-	globe.subscribe("endLoad", function(id){
-		$('#addLayer_'+id).find('.spinner').fadeOut(500);
+	globe.subscribe("endLoad", function(layer){
+		$('#addLayer_'+layer.id).find('.spinner').fadeOut(500);
 	});
 
 	// Init buttons of tool bar
