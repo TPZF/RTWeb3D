@@ -579,6 +579,14 @@ function initLayers(layers)
 	});
 	
 	initToolbarEvents();
+
+	// Background spinner events
+	globe.subscribe("startBackgroundLoad", function(layer){
+		$('#backgroundSpinner').fadeIn('fast');
+	});
+	globe.subscribe("endBackgroundLoad", function(layer){
+		$('#backgroundSpinner').fadeOut('fast');
+	});
 	
 	// Setup the drag & drop listeners.
 	$('canvas').on('dragover', handleDragOver);
