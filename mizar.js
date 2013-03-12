@@ -20,7 +20,7 @@
 
 Ext.namespace('sitools.component');
 
-sitools.component.globWebModule = Ext.extend(Ext.Panel, {
+sitools.component.mizarModule = Ext.extend(Ext.Panel, {
 
     initComponent : function () {
         Ext.each(this.listProjectModulesConfig, function (config){
@@ -30,39 +30,39 @@ sitools.component.globWebModule = Ext.extend(Ext.Panel, {
                 break;
             }
         }, this);
-		// Using directly an iframe
-		this.items = [ { layout: 'fit', 
-						region : 'center',
-						autoEl: { tag: 'iframe',
-		  				src: '../js/modules/globWebModule/app/index.html?conf='+this.configFile
-		        		}, 
-					xtype: 'box'}
-					];
+        // Using directly an iframe
+        this.items = [ { layout: 'fit', 
+                        region : 'center',
+                        autoEl: { tag: 'iframe',
+                        src: '../js/modules/mizarModule/app/index.html?conf='+this.configFile
+                        }, 
+                    xtype: 'box'}
+                    ];
 
-        sitools.component.globWebModule.superclass.initComponent.call(this);
+        sitools.component.mizarModule.superclass.initComponent.call(this);
     },
 
-    /**
+/**
 * method called when trying to save preference
 * @returns
 */
 
 _getSettings : function () {
-return {
-preferencesPath : "/modules",
-preferencesFileName : this.id
-};
+    return {
+        preferencesPath : "/modules",
+        preferencesFileName : this.id
+    };
 }
 
 });
 
-sitools.component.globWebModule.getParameters = function () {
+sitools.component.mizarModule.getParameters = function () {
     
     return [{
         jsObj : "Ext.form.TextField", 
         config : {
             fieldLabel : i18n.get("label.urlDatastorage"),
-            allowBlank : false,
+            allowBlank : true,
             width : 200,
             listeners: {
                 render: function(c) {
@@ -79,4 +79,4 @@ sitools.component.globWebModule.getParameters = function () {
 };
 
 
-Ext.reg('sitools.component.globWebModule', sitools.component.globWebModule);
+Ext.reg('sitools.component.mizarModule', sitools.component.mizarModule);
