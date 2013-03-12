@@ -107,7 +107,7 @@ $(function()
 	if ( splitIndex != -1 )
 	{
 		var url = window.document.documentURI.substr( splitIndex+6 );
-		if ( url != 'undefined' ) {
+		if ( url != 'undefined' && url != '' ) {
 			confURL = url;
 		}
 	}
