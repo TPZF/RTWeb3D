@@ -4,6 +4,7 @@
 	 * Comment block
 	 */
 	// Comment on one line
+    //"debug": true,
 	"nameResolver": {
 		"baseUrl": "/sitools/rtwebgl/plugin/nameResolver",
 		"zoomFov": 2
@@ -58,13 +59,13 @@
 		},
 		{
 			"type": "healpix",
-			"name": "SDSS",
-			"baseUrl": "/Alasky/SDSS/Color",
-			"description": "Sloan Digital Sky Survey from CDS",
-			"attribution": "SDSS backbround from <img width='48' height='32' src=\"css/images/cds.svg\" />",
+			"name": "IRIS",
+			"baseUrl": "/Alasky/IRISColor",
+			"description": "IRIS color",
 			"icon": "css/images/star_icon.png",
 			"visible": true,
-			"background": true
+			"background": true,
+			"coordSystem": "GALACTIC"
 		},
 		{ 
 			"type": "healpix",
@@ -72,6 +73,16 @@
 			"baseUrl": "/Alasky/CFHTLS-T0007b/Deep/RGB-UGIm",
 			"description": "Deep CFHTLS from CDS",
 			"attribution": "Deep CFHTLS backbround from <img width='48' height='32' src=\"css/images/cds.svg\" />",
+			"visible": true,
+			"background": true,
+            "numberOfLevels": 12
+		},
+        { 
+			"type": "healpix",
+			"name": "CFHTLS Wide",
+			"baseUrl": "/Alasky/CFHTLS-T0007b/Wide/RGB-UGIm",
+			"description": "CFHTLS-W-Colored (UGI)",
+                        "attribution": "TERAPIX - Healpixed by CDS",
 			"visible": true,
 			"background": true
 		},
@@ -90,6 +101,33 @@
 			"baseUrl": "/Alasky/DssColor",
 			"description": "Digital Sky Survey from CDS",
 			"attribution": "DSS backbround from <img width='48' height='32' src=\"css/images/cds.svg\" />",
+			"visible": true,
+			"background": true
+		},
+        { 
+			"type": "healpix",
+			"name": "RASS",
+			"baseUrl": "/Alasky/RASS",
+			"description": "RASS-ROSAT X-Ray All-Sky Survey",
+			"attribution": "Distributed by MPE - Healpixed by CDS",
+			"visible": true,
+			"background": true
+		},
+        { 
+			"type": "healpix",
+			"name": "NVSS",
+			"baseUrl": "/Alasky/NVSS/intensity",
+			"description": "NVSS intensity maps (1.4GHz)",
+			"visible": true,
+			"background": true
+		},
+		{
+			"type": "healpix",
+			"name": "SDSS",
+			"baseUrl": "/Alasky/SDSS/Color",
+			"description": "Sloan Digital Sky Survey from CDS",
+			"attribution": "SDSS backbround from <img width='48' height='32' src=\"css/images/cds.svg\" />",
+			"icon": "css/images/star_icon.png",
 			"visible": true,
 			"background": true
 		},
@@ -138,7 +176,7 @@
 		{
 			"type": "DynamicOpenSearch",
 			"dataType": "line",
-			"name": "Sia",
+			"name": "HST",
 			"serviceUrl": "/sitools/sia",
 			"visible": false,
 			"minOrder": 3
@@ -169,6 +207,13 @@
 			"serviceUrl": "/sitools/ovo",
 			"visible": false,
 			"minOrder": 9
+		},
+		{
+			"type": "DynamicOpenSearch",
+			"dataType": "point",
+			"name": "IMCCE",
+			"serviceUrl": "/sitools/solar",
+			"minOrder": 7
 		}
 	]
 }
