@@ -248,9 +248,14 @@ ClusterOpenSearchLayer.prototype.launchRequest = function(tile, url)
 		url += '&' + this.requestProperties;
 	}
 		
+	// Publish the start load event, only if there is no pending requests
+	if ( this.maxRequests == this.freeRequests.length )
+	{
+		this.globe.publish("startLoad",this);
+	}
+
 	var xhr = this.freeRequests.pop();
-	this.globe.publish("startLoad",this);
-	
+
 	var self = this;
 	xhr.onreadystatechange = function(e)
 	{
@@ -293,7 +298,12 @@ ClusterOpenSearchLayer.prototype.launchRequest = function(tile, url)
 			
 			tileData.state = OpenSearchLayer.TileState.LOADED;
 			self.freeRequests.push( xhr );
-			self.globe.publish("endLoad",self);
+			
+			// Publish the end load event, only if there is no pending requests
+			if ( self.maxRequests == self.freeRequests.length )
+			{
+				self.globe.publish("endLoad",self);
+			}
 		}
 	};
 	xhr.open("GET", url );
