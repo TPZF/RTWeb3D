@@ -60,11 +60,11 @@ function blurSelection()
 /**
  * 	Apply selectedStyle to selection
  */
-function focusSelection()
+function focusSelection(newSelection)
 {
 	var style;
-	for ( var i=0; i < selection.length; i++ ) {
-		var selectedData = selection[i];
+	for ( var i=0; i < newSelection.length; i++ ) {
+		var selectedData = newSelection[i];
 
 		if ( selectedData.feature.properties.style )
 		{
@@ -114,17 +114,16 @@ function init()
 			var pickPoint = globe.getLonLatFromPixel(event.clientX, event.clientY);
 
 			selectedTile = globe.tileManager.getVisibleTile(pickPoint[0], pickPoint[1]);
-			//console.log("order: " + selectedTile.order + " index: "+selectedTile.pixelIndex);
 
 			// Remove selected style for previous selection
 			clearSelection();
 
-			selection = computePickSelection(pickPoint);
+			var newSelection = computePickSelection(pickPoint);
 			
 			// Add selected style for new selection
-			focusSelection();
+			focusSelection(newSelection);
 			
-			if ( selection.length > 0 )
+			if ( newSelection.length > 0 )
 			{
 				// Hide previous popup if any
 				FeaturePopup.hide( function() {
@@ -135,7 +134,7 @@ function init()
 					}
 					navigation.moveTo( pickPoint, 1000 );
 					window.setTimeout( function(){
-						// selection = newSelection;
+						selection = newSelection;
 						selection.selectedTile = selectedTile;
 						FeaturePopup.createFeatureList( selection );
 						if ( selection.length > 1 )
@@ -150,7 +149,6 @@ function init()
 							self.focusFeature( 0 );
 							$('#featureList div:eq(0)').addClass('selected');
 							FeaturePopup.showFeatureInformation( selection[stackSelectionIndex].layer, selection[stackSelectionIndex].feature )
-							// createHTMLSelectedFeatureDiv( newSelection[stackSelectionIndex].feature );
 						}
 						FeaturePopup.show(globe.renderContext.canvas.width/2, globe.renderContext.canvas.height/2);
 					}, 1000 );
@@ -163,7 +161,7 @@ function init()
 	
 	// Hide popup and clear selection when pan/zoom
 	globe.subscribe("startNavigation", function() { 
-		clearSelection();
+		blurSelection();
 		FeaturePopup.hide();
 	});
 
