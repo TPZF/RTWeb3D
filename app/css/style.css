@@ -40,6 +40,25 @@ body
 }
 
 /****************************/
+/*		Attributions		*/
+/****************************/
+
+#attributions
+{
+	z-index: 10;
+	text-align: right;
+	position: absolute;
+	right: 0px;
+	bottom: 2px;
+	pointer-events: none;
+}
+
+#attributions div
+{
+	color: white;
+}
+
+/****************************/
 /*		Statistics box		*/
 /****************************/
 

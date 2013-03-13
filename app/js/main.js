@@ -58,10 +58,10 @@ require.config({
 /**
  * Main module
  */
-require( ["jquery.ui", "gw/CoordinateSystem", "gw/Globe", "gw/Stats", "gw/AstroNavigation",
+require( ["jquery.ui", "gw/CoordinateSystem", "gw/Globe", "gw/Stats", "gw/AstroNavigation", "gw/AttributionHandler",
 	"LayerManager", "NameResolver", "ReverseNameResolver", "Utils", "PickingManager", "FeaturePopup", "IFrame", "ErrorDialog", "StarProvider", "ConstellationProvider", "JsonProvider", "OpenSearchProvider",
 	"gw/EquatorialCoordinateSystem", "gw/ConvexPolygonRenderer", "gw/PointSpriteRenderer", "gw/PointRenderer"],
-	function($, CoordinateSystem, Globe, Stats, AstroNavigation, LayerManager, NameResolver, ReverseNameResolver, Utils, PickingManager, FeaturePopup, IFrame, ErrorDialog) {
+	function($, CoordinateSystem, Globe, Stats, AstroNavigation, AttributionHandler, LayerManager, NameResolver, ReverseNameResolver, Utils, PickingManager, FeaturePopup, IFrame, ErrorDialog) {
 
 // Console fix	
 window.console||(console={log:function(){}});
@@ -179,6 +179,9 @@ $(function()
 			} else  {
 				$("#fps").hide();
 			}
+
+			// Add attribution handler
+			new AttributionHandler( globe, {element: 'attributions'});
 			
 			// Initialize the name resolver
 			NameResolver.init(globe, navigation, data.nameResolver);
