@@ -120,8 +120,6 @@ function createLayerFromConf(layer) {
 			options.minOrder = layer.minOrder;
 			if (layer.displayProperties)
 				options.displayProperties = layer.displayProperties;
-			if (layer.proxyUrl)
-				options.proxyUrl = layer.proxyUrl;
 
 			options.style = defaultVectorStyle;
 			if ( layer.useCluster == true )
@@ -139,7 +137,8 @@ function createLayerFromConf(layer) {
 			}
 
 			gwLayer.dataType = layer.dataType;
-			PickingManager.addPickableLayer( gwLayer );
+			if ( layer.pickable )
+				PickingManager.addPickableLayer( gwLayer );
 			break;
 
 		case "Moc":
@@ -148,7 +147,7 @@ function createLayerFromConf(layer) {
 			options.style.fill = true;
 			options.style.fillColor[3] = 0.3 // make transparent
 			gwLayer = new MocLayer( options );
-			gwLayer.dataType = layer.dataType || "line";
+			gwLayer.dataType = "line";
 			break;
 			
 		default:
@@ -224,34 +223,28 @@ function handleDragOver(evt)
 function createHtmlForBackgroundLayer( gwLayer )
 {
 	// Add HTML
-	var currentClass;
-	
-	var layerDiv ='<option>'+ gwLayer.name + '</option>"';
+	var $layerDiv = $('<option>'+ gwLayer.name + '</option>')
+			.appendTo('#backgroundLayers')
+			.data("layer", gwLayer);
+
 	
 	if ( gwLayer.icon )
-	{
-		// Create icon style
-		var sheet = document.createElement('style');
-		sheet.innerHTML = ".backgroundLayer_" + nbBackgroundLayers + " .ui-selectmenu-item-icon { background: url("+gwLayer.icon+") 0 0 no-repeat; }";
-		document.body.appendChild(sheet);
-		
+	{		
 		backgroundLayersIcons.push( {find: ".backgroundLayer_" + nbBackgroundLayers} );
-		currentClass = 'backgroundLayer_'+ nbBackgroundLayers;
+		$layerDiv.addClass('backgroundLayer_'+ nbBackgroundLayers)
+				.data("bgImage", "url("+gwLayer.icon+")" );
 	}
 	else
 	{
 		// Use default style
 		backgroundLayersIcons.push( {find: ".unknown"} );
-		currentClass = 'unknown';
+		$layerDiv.addClass('unknown');
 	}
-	$(layerDiv).appendTo('#backgroundLayers')
-				.addClass(currentClass)
-				.data("layer", gwLayer);
 
 	// Set visible layer on top of selector
 	if ( gwLayer.visible() )
 	{
-		$('#backgroundLayers').val( $(layerDiv).val() );
+		$('#backgroundLayers').val( $layerDiv.val() );
 	}
 	
 	nbBackgroundLayers++;
@@ -570,6 +563,9 @@ function initLayers(layers)
 	// Init select menu
 	$('select#backgroundLayers').selectmenu({
 		icons: backgroundLayersIcons,
+		bgImage: function() {
+			return this.data('bgImage');
+		},
 		select: function(e)
 		{
 			var index = $(this).data('selectmenu').index();
