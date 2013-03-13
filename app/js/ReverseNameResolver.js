@@ -160,7 +160,7 @@ function setBehavior()
 		IFrame.show(event.target.innerHTML);
 	});
 
-	globe.subscribe("start_navigation", function(){
+	globe.subscribe("startNavigation", function(){
 		if ($reverseNameResolver.css('display') != 'none')
 		{
 			$reverseNameResolver.fadeOut(300);

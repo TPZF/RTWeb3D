@@ -162,7 +162,7 @@ function init()
 	});
 	
 	// Hide popup and clear selection when pan/zoom
-	globe.subscribe("start_navigation", function() { 
+	globe.subscribe("startNavigation", function() { 
 		clearSelection();
 		FeaturePopup.hide();
 	});
