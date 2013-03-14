@@ -22,7 +22,7 @@ Installation du module à partir du dépôt Git :
 	* Rendre visible le module sur le portail utilisateur
 		* Cliquer sur Access Managements/Projects/Projects 
 		* Désactiver le projet, éditer le et activer la visibilité pour le module Mizar
-			* Dans le champ "Module parameters" mettre `/sitools/%uri de votre projet%/plugin/globWeb`
+			* Dans le champ "Module parameters" mettre `undefined`
 
  * Ajouter un proxy pour l'affichage des données de base
  	 * Aller sur l'interface d'admin
@@ -43,16 +43,31 @@ Installation des services:
 Tout d'abord il faut ajouter l'extension astronomique qui contient les services disponibles
  * Télécharger fr.cnes.sitools.astronomy.jar [ici](http://sourceforge.net/projects/sitools2/files/Extensions/V2.0/)
  * Copier ce jar dans %SiTools2%\workspace\fr.cnes.sitools.core\ext
- * Rélancer SiTools2 avec la commande `%SiTools2%/sitools.sh restart` pour les OS de type Unix ou `%SiTools2%/sitools.bat restart` pour Windows
+ * Relancer SiTools2 avec la commande `%SiTools2%/sitools.sh restart` pour les OS de type Unix ou `%SiTools2%/sitools.bat restart` pour Windows
 
 Ajouter les services dans le projet
  * Aller sur l'interface d'admin
  * Cliquer sur Access Management/Projects/Project services
- * Ajouter les services suivantes
-   * Name Resolver Service, qui permet de trouver l'objet céléste à partir de son nom
+ * Ajouter les services suivants
+   * Name Resolver Service, qui permet de trouver l'objet céleste à partir de son nom
    * Reverse Name Resolver Service, qui permet de trouver le nom d'objet à partir de sa position
-   * Solar Objects Service, qui permet de trouver les objets céléstes qui se trouvent dans le système solaire
+   * Solar Objects Service, qui permet de trouver les objets célestes qui se trouvent dans le système solaire
    * GlobWeb Server, qui permet de configurer le module Mizar à partir de SiTools2
-    	* Mettre dans le champ 'conf' la valeur  `mizarConf.ftl`
-    	* Créer un fichier 'mizarConf.ftl' dans freemarker/..., ce fichier peut être initialisé à partir du contenu du fichier conf/configuration.json.
-   * Couverage Service, qui permet de visualiser les données qui réprésentent la coverture du ciel(fichiers MOC)
+      * Mettre dans le champ 'conf' la valeur `mizarConf.ftl`
+    	* Créer un fichier 'mizarConf.ftl' dans `%SiTools%/data/freemarker/`, ce fichier peut être initialisé à partir du contenu du fichier `js/conf.json`
+      * Cliquer sur Access Managements/Projects/Projects, choisir votre projet, mettre `/sitools/%uri de votre projet%/plugin/globWeb` dans le champ "Module Parameters" de Mizar
+   * Couverage Service, qui permet de visualiser les données qui réprésentent la couverture du ciel(fichiers MOC)
+
+Build
+---
+Pour générer une version minifiée, il est nécessaire d'avoir installé [NodeJS](http://nodejs.org/download/).
+
+Une fois installé, lancez `app/build/build.bat` pour les utilisateurs de Windows ou `app/build/node r.js -o build.js` pour les utilisateurs d'OS de type Unix.
+Le script va générer les fichiers minifiés dans le répertoire "generated".
+Les fichiers intéressants à récupèrer sont:
+  * css
+  * externals/*.js (sans GlobWeb)
+  * js
+  * index.html
+
+Il suffit donc de placer ces fichiers dans le repertoire de production `mizarModule/app/`
