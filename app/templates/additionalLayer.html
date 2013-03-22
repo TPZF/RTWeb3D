@@ -4,16 +4,7 @@
 		<span class="ui-icon <% if (layer.visible()) print('ui-icon-check'); else print('ui-icon-empty'); %>"></span>
 	</span>
 
-	<% if ( layer.icon )
-	{ %>
-		<img class="layerIcon" src="<%= layer.icon %>" />
-	<% }
-	else
-	{
-	%>
-		<canvas width="20" height="10" class="legend"></canvas>
-	<%
-	} %>
+	<canvas width="20" height="10" class="legend"></canvas>
 
 	<label title="<%= layer.description %>" for="addLayerInput_<%= currentIndex %>"><%= layer.name %></label>
 

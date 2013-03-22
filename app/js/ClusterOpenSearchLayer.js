@@ -33,6 +33,7 @@ define( [ "jquery.ui", "gw/FeatureStyle", "gw/Utils", "gw/OpenSearchLayer", "gw/
 			<li>displayProperties : Properties which will be shown in priority</li>
 			<li>treshold : Visibility treshold</li>
 			<li>maxClusterOrder: Maximal cluster refinement order</li>
+			<li>accuracyOrder : Accuracy order</li>
 		</ul>
 */
 var ClusterOpenSearchLayer = function(options){
@@ -42,6 +43,7 @@ var ClusterOpenSearchLayer = function(options){
 	// Configure cluster service options
 	this.treshold = options.treshold || 5;
 	this.maxClusterOrder = options.maxClusterOrder || 8;
+	this.accuracyOrder = options.accuracyOrder || 10;
 
 	// Handle distributions
 	this.distributions = null;
@@ -317,8 +319,8 @@ ClusterOpenSearchLayer.prototype.buildUrl = function( tile )
 	if ( this.distributions && tile.order < this.maxClusterOrder  )
 	{
 		var pixelIndicesToRequest = [];
-		var orderDepth = this.maxClusterOrder - tile.order;
-		var childOrder = this.maxClusterOrder;
+		var orderDepth = this.accuracyOrder - tile.order;
+		var childOrder = this.accuracyOrder;
 
 		if(  this.distributions[childOrder] )
 		{
@@ -332,7 +334,7 @@ ClusterOpenSearchLayer.prototype.buildUrl = function( tile )
 				if ( pixelDistribution > this.treshold )
 				{
 					// Cluster child
-					this.addCluster(j, this.maxClusterOrder, tile.face, pixelDistribution, tile);
+					this.addCluster(j, this.accuracyOrder, tile.face, pixelDistribution, tile);
 				}
 				else if ( pixelDistribution > 0 )
 				{
@@ -411,6 +413,16 @@ ClusterOpenSearchLayer.prototype.setRequestProperties = function(properties)
 ClusterOpenSearchLayer.prototype.updateFeatures = function(features)
 {
 	OpenSearchLayer.prototype.updateFeatures.call( this, features );
+}
+
+/**************************************************************************************************************/
+
+/**
+ * 	Generate features
+ */
+ClusterOpenSearchLayer.prototype.generate = function(tile)
+{
+	OpenSearchLayer.prototype.generate.call( this, tile );
 }
 
 return ClusterOpenSearchLayer;

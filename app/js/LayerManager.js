@@ -30,6 +30,7 @@ define( [ "jquery.ui", "gw/FeatureStyle", "gw/HEALPixLayer", "gw/VectorLayer", "
  
 var globe;
 var navigation;
+var gwLayers = [];
 
 // Necessary for selectmenu initialization
 var backgroundLayersIcons = []; 
@@ -74,7 +75,7 @@ function createLayerFromConf(layer) {
 	var defaultVectorStyle = new FeatureStyle({ 
 				rendererHint: "Basic", 
 				opacity: layer.opacity/100.,
-				iconUrl: "css/images/star.png",
+				iconUrl: layer.icon ? layer.icon : "css/images/star.png",
 				fillColor: rgba,
 				strokeColor: rgba
 	});
@@ -128,6 +129,8 @@ function createLayerFromConf(layer) {
 					options.maxClusterOrder = layer.maxClusterOrder;
 				if ( layer.treshold )
 					options.treshold = layer.treshold;
+				if ( layer.accuracyOrder )
+					options.accuracyOrder
 
 				gwLayer = new ClusterOpenSearchLayer( options );
 			}
@@ -324,20 +327,17 @@ function createHtmlForAdditionalLayer( gwLayer )
 
 	if ( gwLayer instanceof OpenSearchLayer || gwLayer instanceof MocLayer || gwLayer instanceof VectorLayer )
 	{
-		if ( !gwLayer.icon )
+		if ( gwLayer.dataType == "point")
 		{
-			if ( gwLayer.dataType == "point")
-			{
-				generatePointLegend(gwLayer, canvas, gwLayer.style.iconUrl);
-			} 
-			else if ( gwLayer.dataType == "line")
-			{
-				generateLineLegend( gwLayer, canvas );
-			} 
-			else
-			{
-				$canvas.css("display", "none");			
-			}
+			generatePointLegend(gwLayer, canvas, gwLayer.style.iconUrl);
+		} 
+		else if ( gwLayer.dataType == "line")
+		{
+			generateLineLegend( gwLayer, canvas );
+		} 
+		else
+		{
+			$canvas.css("display", "none");			
 		}
 	}
 	else
@@ -558,6 +558,7 @@ function initLayers(layers)
 				addAdditionalLayer( gwLayer );
 			}
 		}
+		gwLayers.push(gwLayer);
 	}
 	
 	// Init select menu
@@ -571,6 +572,20 @@ function initLayers(layers)
 			var index = $(this).data('selectmenu').index();
 			var layer = $(this).children().eq(index).data("layer");
 			globe.setBaseImagery( layer );
+
+			// Add all previously added layers to the new imagery
+			for ( var i=0; i<gwLayers.length; i++ )
+			{
+				var currentLayer = gwLayers[i];
+				if ( currentLayer.subLayers )
+				{
+					for ( var j=0; j<currentLayer.subLayers.length; j++ )
+					{
+						globe.addLayer( currentLayer.subLayers[j] );
+					}
+
+				}
+			}
 		}
 	});
 	
