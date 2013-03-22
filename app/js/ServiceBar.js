@@ -75,6 +75,27 @@ function removeServicesHTML()
 	}
 }
 
+/**
+ *	Update width
+ */
+function updateWidth()
+{
+	var minWidth = 600; // arbitrary value
+	var nameResolverLeftOffset = $('#searchDiv').offset().left;
+	var serviceBarRightOffset = $('#serviceBar').offset().left + $('#serviceBar').width();
+	var difference = serviceBarRightOffset - nameResolverLeftOffset
+
+	// Update width if it overlaps name resolver or fit it to min width for better OpenSearch service form layout
+	if ( serviceBarRightOffset > nameResolverLeftOffset )
+	{
+		$('#serviceBar').css('width', $('#serviceBar').width() - difference - 5);
+	}
+	else if ( $('#serviceBar').width() < minWidth )
+	{
+		$('#serviceBar').css('width', minWidth);	
+	}
+}
+
 return {
 
 	init: function(gl, configuration)
@@ -82,6 +103,11 @@ return {
 		MocService.init(gl, configuration);
 		FitsService.init(gl);
 		$( "#serviceBar" ).accordion( { autoHeight: false, active: false, collapsible: true } ).show();
+		$(window).resize(function()
+		{
+			updateWidth();
+		})
+		updateWidth();
 	},
 
 	/**
