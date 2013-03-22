@@ -292,14 +292,14 @@ function computePickSelection( pickPoint )
 								var point = feature['geometry']['coordinates'];
 								if ( feature.cluster )
 								{
-									if ( pointInSphere( pickPoint, point, 32 ) )
+									if ( pointInSphere( pickPoint, point, pickableLayer.clusterBucket.textureHeight ) )
 									{
 										newSelection.push( { feature: feature, layer: pickableLayer } );
 									}
 								}
 								else
 								{
-									if ( pointInSphere( pickPoint, point, 10 ) )
+									if ( pointInSphere( pickPoint, point, pickableLayer.pointBucket.textureHeight ) )
 									{
 										newSelection.push( { feature: feature, layer: pickableLayer } );
 									}
