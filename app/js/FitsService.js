@@ -193,9 +193,8 @@ function computeFits(featureData, url)
     	delete progressBars[featureData.feature.properties.identifier];
 		handleFits(xhr.response, featureData);
     }
-    xhr.send();
-
     progressBars[ featureData.feature.properties.identifier ] = new ProgressBar(globe, featureData, xhr);
+    xhr.send();
 }
 
 /**
