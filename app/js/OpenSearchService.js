@@ -20,7 +20,7 @@
 /**
  * OpenSearch service
  */
-define( [ "jquery.ui", "underscore-min", "text!../templates/openSearchService.html", "text!../templates/openSearchForm.html" ], function($,_,openSearchServiceHTMLTemplate, openSearchFormHTMLTemplate) {
+define( [ "jquery.ui", "underscore-min", "text!../templates/openSearchService.html", "text!../templates/openSearchForm.html", "jquery.ui.timepicker" ], function($,_,openSearchServiceHTMLTemplate, openSearchFormHTMLTemplate) {
 
 // Template generating the open search service div
 var openSearchServiceTemplate = _.template(openSearchServiceHTMLTemplate);
@@ -66,7 +66,12 @@ function handleForm(layer)
 	.find('.openSearchForm')
 		.data("layer", layer)
 		.submit(handleSubmit).end()
-	.find(".datepicker").datepicker();
+	.find(".datepicker").datetimepicker({
+		showSecond: true,
+		separator: 'T',
+		timeSuffix: 'Z',
+		timeFormat: 'HH:mm:ss'
+	});
 	$('#openSearchTabs').tabs("refresh");
 }
 
@@ -165,7 +170,12 @@ return {
 			})
 			.find('.openSearchForm')
 				.submit(handleSubmit).end()
-			.find('.datepicker').datepicker();
+			.find('.datepicker').datetimepicker({
+				showSecond: true,
+				separator: 'T',
+				timeSuffix: 'Z',
+				timeFormat: 'HH:mm:ss'
+			});
 
 	},
 

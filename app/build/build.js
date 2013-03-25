@@ -12,7 +12,8 @@
                 "jquery.ui",
 				"jquery.ui.selectmenu",
                 "underscore-min",
-				"jquery.nicescroll.min"
+				"jquery.nicescroll.min",
+                "jquery.ui.timepicker"
             ]
         }
     ],
@@ -25,6 +26,7 @@
 		"underscore-min": "../externals/underscore-min",
 		"jquery.nicescroll.min": "../externals/jquery.nicescroll.min",
         "fits": "../externals/fits",
+        "jquery.ui.timepicker": "../externals/jquery.ui.timepicker",
 		"gw": "../externals/GlobWeb/src"
     },
     shim: {
@@ -37,6 +39,10 @@
             exports: 'jQuery'
         },
         'jquery.ui.selectmenu': {
+            deps: ['jquery.ui'],
+            exports: 'jQuery'
+        },
+        'jquery.ui.timepicker': {
             deps: ['jquery.ui'],
             exports: 'jQuery'
         },

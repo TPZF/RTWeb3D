@@ -28,6 +28,7 @@ require.config({
 		"underscore-min": "../externals/underscore-min",
 		"jquery.nicescroll.min": "../externals/jquery.nicescroll.min",
 		"fits": "../externals/fits",
+		"jquery.ui.timepicker": "../externals/jquery.ui.timepicker",
 		"gw": "../externals/GlobWeb/src/"
 	},
 	shim: {
@@ -40,6 +41,10 @@ require.config({
 			exports: 'jQuery'
 		},
 		'jquery.ui.selectmenu': {
+			deps: ['jquery.ui'],
+			exports: 'jQuery'
+		},
+		'jquery.ui.timepicker': {
 			deps: ['jquery.ui'],
 			exports: 'jQuery'
 		},
@@ -142,8 +147,13 @@ $(function()
 		document.getElementById('webGLNotAvailable').style.display = "block";
 	}
 	
-	// When  base layer is ready, hide loading
+	// When base layer is ready, hide loading
 	globe.subscribe("baseLayersReady", hideLoading);
+
+	// When base layer failed to load, open error dialog
+	globe.subscribe("baseLayersError", function(){
+		ErrorDialog.open("Can not load HEALPix base imagery");
+	});
 	
 	// Context lost listener
 	canvas.addEventListener("webglcontextlost", function(event) {
@@ -154,7 +164,7 @@ $(function()
 	}, false);
 	
 	// Initialize navigation
-	navigation = new AstroNavigation(globe, {minFov: 0.001, inertia: true});
+	navigation = new AstroNavigation(globe, {minFov: 0.001, inertia: true, zoomFactor: 0});
 	
 	// Retreive configuration
 	$.ajax({
