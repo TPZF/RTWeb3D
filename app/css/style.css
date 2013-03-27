@@ -112,6 +112,23 @@ body
 	z-index: 9003;
 }
 
+#IFrameToolbar
+{
+	position: absolute;
+	padding: 5px;
+	display: inline-block;
+	width: auto;
+	top: -15px;
+	left: -20px;
+	height: 20px;
+}
+
+#IFrameToolbar button
+{
+	height: 20px;
+	width: 20px;
+}
+
 #externalIFrame Iframe
 {
 	min-width: 500px;

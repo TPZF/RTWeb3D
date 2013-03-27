@@ -24,6 +24,10 @@ define(["jquery.ui"], function($) {
 
 var iframe = 
 	'<div id="externalIFrame" class="contentBox">\
+		<div id="IFrameToolbar" class="ui-widget-header ui-widget-header ui-corner-all">\
+		  <button id="previous">Previous page</button>\
+		  <button id="next">Next page</button>\
+		</div>\
 		<div class="closeBtn">\
 			<img src="css/images/close_button.png" alt="" class="defaultImg" />\
 			<img style="opacity: 0" src="css/images/close_buttonHover.png" alt="" class="hoverImg" />\
@@ -31,6 +35,68 @@ var iframe =
 		<iframe src=""><p>Your browser does not support iframes.</p></iframe>\
 	</div>';
 var $iframeDiv = $(iframe).appendTo('body');
+
+var history = {
+	pile : [],
+	index: 0,
+	clicked: false,
+	clean: function()
+	{
+		this.pile.length = 0;
+		this.index = 0;
+		this.clicked = false;
+	}
+};
+
+$( "#previous" ).button({
+	width: 20,
+	height: 20,
+	text: false,
+	icons: {
+    	primary: "ui-icon-circle-triangle-w"
+	}
+}).click(function(event){
+	event.preventDefault();
+	console.log('prev : '+history.index);
+	if ( history.index > 1 )
+	{
+		history.index--;
+		history.clicked = true;
+		$iframeDiv.find('iframe')[0].contentWindow.history.back();
+	}
+});
+
+$( "#next" ).button({
+	width: 20,
+	height: 20,
+	text: false,
+	icons: {
+		secondary: "ui-icon-circle-triangle-e"
+	}
+}).click(function(event){
+	event.preventDefault();
+	console.log('next : '+history.index);
+	if ( history.index != history.pile.length )
+	{
+		history.index++;
+		history.clicked = true;
+		$iframeDiv.find('iframe')[0].contentWindow.history.forward();
+	}
+});
+
+$iframeDiv.find('iframe').on('load', function(){
+	console.log('onLoad : clicked: '+history.clicked+'index : '+history.index);
+	if ( history.clicked )
+	{
+		history.clicked = false;
+		return false;
+	}
+	
+	// Update history
+	history.pile.splice(history.index);
+	history.pile.push($iframeDiv.find('iframe')[0].attributes.src.nodeValue);
+	history.index++;
+});
 
 return {
 	hide: function(){
@@ -43,6 +109,8 @@ return {
 	 *	@param html External link url
 	 */
 	show: function( html ){
+		history.clean();
+		historyClick = false;
 		var canvasWidth = parseInt( $('#GlobWebCanvas').css("width") );
 		var canvasHeight = parseInt( $('#GlobWebCanvas').css("height") );
 		var optimalWidth = canvasWidth * 0.8;
