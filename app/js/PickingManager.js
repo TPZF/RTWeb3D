@@ -256,8 +256,7 @@ function computePickSelection( pickPoint )
 
 				if ( !tileData || tileData.state != OpenSearchLayer.TileState.LOADED )
 				{
-					while ( !tileData || (tile.parent 
-						&& tileData.state != OpenSearchLayer.TileState.LOADED) )
+					while ( tile.parent && (!tileData || tileData.state != OpenSearchLayer.TileState.LOADED) )
 					{
 						tile = tile.parent;
 						tileData = tile.extension[pickableLayer.extId];
