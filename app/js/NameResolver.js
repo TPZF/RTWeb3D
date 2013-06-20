@@ -139,7 +139,20 @@ function setSearchBehavior()
 			$('#searchClear').fadeOut(animationDuration);
 
 			// Name of the object which could be potentially found by name resolver
-			var url = configuration.baseUrl + "/" + objectName +"/EQUATORIAL";
+			var url = configuration.baseUrl + "/" + objectName;
+
+			switch ( CoordinateSystem.type ) {
+				case "EQ":
+					url += "/EQUATORIAL"
+					break;
+				case "GAL":
+					url += "/GALACTIC";
+					break;
+				default:
+					console.error("Not implemented");
+					return;
+			}
+
 			$('#equatorialCoordinatesSearchResult').fadeOut(animationDuration);
 			$.ajax({
 				type: "GET",
