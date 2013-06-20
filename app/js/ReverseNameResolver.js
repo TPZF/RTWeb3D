@@ -36,7 +36,7 @@ var reverseNameResolverHTML =
 	'<div id="reverseNameResolver" class="contentBox ui-widget-content" style="display: none;">\
 		<div id="reverseSearchField">\
 			<input type="submit" value="Find Object Name" />\
-			<div id="equatorialCoordinates"></div>\
+			<div id="coordinatesInfo"></div>\
 			<div id="healpixInfo"></div>\
 		</div>\
 		<div id="reverseSearchResult"></div>\
@@ -56,6 +56,13 @@ $( "#reverseNameResolver input[type=submit]")
 		$('#reverseSearchField input[type="submit"]').attr('disabled', 'disabled');
 
 		var pickPoint = globe.getLonLatFromPixel(event.clientX, event.clientY);
+
+		// Converting to equatorial system due to protocol of reverseNameResolver
+		// TODO wait for sitools update to remove this hack
+		if ( CoordinateSystem.type != "EQ" )
+		{
+			pickPoint = CoordinateSystem.convertFromDefault(pickPoint, "EQ");
+		}
 
 		var equatorialCoordinates = [];
 		CoordinateSystem.fromGeoToEquatorial( pickPoint, equatorialCoordinates );
@@ -137,13 +144,21 @@ function setBehavior()
 			var equatorial = [];
 			geo = globe.getLonLatFromPixel(event.clientX, event.clientY);
 
+			if ( CoordinateSystem.type == "EQ" ) {
+				$("#coordinatesInfo").html("<em>Right ascension:</em><br/>&nbsp;&nbsp;&nbsp;&nbsp;" + equatorial[0] +
+											"<br/><em>Declination :</em><br/>&nbsp;&nbsp;&nbsp;&nbsp;" + equatorial[1]);
+			} else if ( CoordinateSystem.type == "GAL" ) {
+				// TODO better layout
+				$("#coordinatesInfo").html("<em>Latitude:</em><br/>&nbsp;&nbsp;&nbsp;&nbsp;" + geo[0] +
+											"<br/><em>Longitude:</em><br/>&nbsp;&nbsp;&nbsp;&nbsp;" + geo[1]);
+			}
+
 			var selectedTile = globe.tileManager.getVisibleTile(geo[0], geo[1]);
 			if ( configuration.debug )
 				$('#reverseSearchField #healpixInfo').html('<em>Healpix index/order: </em>&nbsp;&nbsp;&nbsp;&nbsp;'+selectedTile.pixelIndex + '/' + selectedTile.order);
 
 			CoordinateSystem.fromGeoToEquatorial ( geo, equatorial );
-			$("#equatorialCoordinates").html("<em>Right ascension:</em><br/>&nbsp;&nbsp;&nbsp;&nbsp;" + equatorial[0] +
-											"<br/><em>Declination :</em><br/>&nbsp;&nbsp;&nbsp;&nbsp;" + equatorial[1]);
+			
 
 			$('#reverseSearchField').css("display","block");
 			$reverseNameResolver.css({
