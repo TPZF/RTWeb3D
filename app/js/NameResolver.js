@@ -270,9 +270,9 @@ return {
 		globe = gl;
 		astroNavigator = nav;
 
-		for( var x in conf )
+		for( var x in conf.nameResolver )
 		{
-			configuration[x] = conf[x];
+			configuration[x] = conf.nameResolver[x];
 		}
 
 		setSearchBehavior();
