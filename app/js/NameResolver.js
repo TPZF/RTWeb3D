@@ -87,9 +87,11 @@ function setSearchBehavior()
 		// TODO more accurate ( "x < 24h", "x < 60mn", etc.. )
 
 		objectName = objectName.replace(/\s{2,}/g, ' '); // Replace multiple spaces by a single one
-		var coordinatesExp = new RegExp("\\d{1,2}h\\d{1,2}m\\d{1,2}([\\.]\\d+)?s\\s[-+]?[\\d]+°\\d{1,2}'\\d{1,2}([\\.]\\d+)?\"", "g");
+		var coordinatesExp = new RegExp("\\d{1,2}[h|:]\\d{1,2}[m|:]\\d{1,2}([\\.]\\d+)?s?\\s[-+]?[\\d]+[°|:]\\d{1,2}['|:]\\d{1,2}([\\.]\\d+)?\"?", "g");
 		var healpixRE = /^healpix\((\d)+,(\d+)\)/;
+		var degRE = /^(\d+(\.\d+)?)\s(-?\d+(\.\d+)?)/;
 		var matchHealpix = healpixRE.exec(objectName);
+		var matchDegree = degRE.exec(objectName);
 		if ( matchHealpix ) 
 		{
 			var order = parseInt(matchHealpix[1]);
@@ -113,19 +115,23 @@ function setSearchBehavior()
 		{
 			// Format to equatorial coordinates
 			var word = objectName.split(" "); // [RA, Dec]
-			word[0] = word[0].replace("h"," ");
-			word[0] = word[0].replace("m"," ");
-			word[0] = word[0].replace("s","");
-			
-			word[1] = word[1].replace("°"," ");
-			word[1] = word[1].replace("'"," ");
-			word[1] = word[1].replace("\"","");
+
+			word[0] = word[0].replace(/h|m|:/g," ");
+			word[0] = word[0].replace("s", "");
+			word[1] = word[1].replace(/°|'|:/g," ");
+			word[0] = word[0].replace("\"", "");
 			
 			// Convert to geo and zoom
 			var geoPos = [];
 			CoordinateSystem.fromEquatorialToGeo([word[0], word[1]], geoPos);
 			astroNavigator.zoomTo(geoPos, configuration.zoomFov);
 			addTarget(geoPos[0], geoPos[1]);
+		}
+		else if ( matchDegree ) {
+			var lon = parseFloat(matchDegree[1]);
+			var lat = parseFloat(matchDegree[3]);
+			astroNavigator.zoomTo([lon, lat], configuration.zoomFov);
+			addTarget(lon, lat);
 		}
 		else
 		{
