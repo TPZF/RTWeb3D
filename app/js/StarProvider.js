@@ -110,6 +110,12 @@ function handleFeatures(gwLayer)
 				
 				var geo = [];
 				CoordinateSystem.fromEquatorialToGeo([raString, declString], geo);
+
+				// Convert to default coordinate system
+				if ( CoordinateSystem.type != "EQ" )
+				{
+					geo = CoordinateSystem.convertToDefault(geo, "EQ");
+				}
 				
 				// Add poi layer
 				var poi = {

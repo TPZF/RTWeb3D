@@ -131,16 +131,23 @@ function extractDatabase()
 			}
 		}
 		
+		// Convert to default coordinate system
+		var posGeo = [RA, Decl];
+		if ( CoordinateSystem.type != "EQ" )
+		{
+			posGeo = CoordinateSystem.convertToDefault(posGeo, "EQ");
+		}
+
 		// Calculate the center of constillation
 		var pos3d = [];
 		// Need to convert to 3D because of 0h -> 24h notation
-		CoordinateSystem.fromGeoTo3D([RA, Decl], pos3d);
+		CoordinateSystem.fromGeoTo3D(posGeo, pos3d);
 		constellations[ currentAbb ].x+=pos3d[0];
 		constellations[ currentAbb ].y+=pos3d[1];
 		constellations[ currentAbb ].z+=pos3d[2];
 		constellations[ currentAbb ].nbStars++;
 
-		constellations[ currentAbb ].coord.push([RA, Decl]);
+		constellations[ currentAbb ].coord.push(posGeo);
 	}
 }
 
