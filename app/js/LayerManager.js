@@ -20,9 +20,9 @@
 /**
  * LayerManager module
  */
-define( [ "jquery.ui", "gw/FeatureStyle", "gw/HEALPixLayer", "gw/VectorLayer", "gw/EquatorialGridLayer", "gw/TileWireframeLayer", "gw/OpenSearchLayer", "PickingManager", "ClusterOpenSearchLayer", "MocLayer", "Utils", "ErrorDialog", "JsonProcessor", "ServiceBar",
+define( [ "jquery.ui", "gw/FeatureStyle", "gw/HEALPixLayer", "gw/VectorLayer", "gw/CoordinateGridLayer", "gw/TileWireframeLayer", "gw/OpenSearchLayer", "PickingManager", "ClusterOpenSearchLayer", "MocLayer", "Utils", "ErrorDialog", "JsonProcessor", "ServiceBar",
 	"underscore-min", "text!../templates/additionalLayer.html", "jquery.ui.selectmenu", "jquery.nicescroll.min" ], 
-	function($, FeatureStyle, HEALPixLayer, VectorLayer, EquatorialGridLayer, TileWireframeLayer, OpenSearchLayer, PickingManager, ClusterOpenSearchLayer, MocLayer, Utils, ErrorDialog, JsonProcessor, ServiceBar, _, additionalLayerHTMLTemplate) {
+	function($, FeatureStyle, HEALPixLayer, VectorLayer, CoordinateGridLayer, TileWireframeLayer, OpenSearchLayer, PickingManager, ClusterOpenSearchLayer, MocLayer, Utils, ErrorDialog, JsonProcessor, ServiceBar, _, additionalLayerHTMLTemplate) {
 
 /**
  * Private variable for module
@@ -84,12 +84,19 @@ function createLayerFromConf(layer) {
 		case "healpix":
 			// Add necessary option
 			options.baseUrl = layer.baseUrl;
-			options.coordSystem = layer.coordSystem || "EQUATORIAL";
+			options.coordSystem = layer.coordSystem || "EQ";
 			gwLayer = new HEALPixLayer(options);
 			break;
 				
-		case "equatorialGrid":
-			gwLayer = new EquatorialGridLayer( {name: layer.name, visible: layer.visible} );
+		case "coordinateGrid":
+			gwLayer = new CoordinateGridLayer( {
+				name: layer.name,
+				visible: layer.visible,
+				longFormat: layer.longFormat,
+				latFormat: layer.latFormat,
+				coordSystem: layer.coordSystem,
+				color: rgba
+			} );
 			break;
 			
 		case "healpixGrid":

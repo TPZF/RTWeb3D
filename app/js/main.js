@@ -163,9 +163,6 @@ $(function()
 		document.getElementById('webGLContextLost').style.display = "block";
 	}, false);
 	
-	// Initialize navigation
-	navigation = new AstroNavigation(globe, {minFov: 0.001, inertia: true, zoomFactor: 0});
-	
 	// Retreive configuration
 	$.ajax({
 		type: "GET",
@@ -190,25 +187,33 @@ $(function()
 				$("#fps").hide();
 			}
 
+			if ( data.coordSystem )
+				CoordinateSystem.type = data.coordSystem;
+
+			// Initialize navigation
+			navigation = new AstroNavigation(globe, data.navigation);
+
 			// Add attribution handler
 			new AttributionHandler( globe, {element: 'attributions'});
 			
 			// Initialize the name resolver
-			NameResolver.init(globe, navigation, data.nameResolver);
+			NameResolver.init(globe, navigation, data);
 		
 			// Initialize the reverse name resolver
 			ReverseNameResolver.init(globe, data);
 
 			// Create layers from configuration file
 			LayerManager.init(globe, navigation, data);
+
+			// Create data manager
+			PickingManager.init(globe, navigation);
+
+			updateFov();
 		},
 		error: function(xhr){
 			ErrorDialog.open("Couldn't open : "+confURL);
 		}
 	});
-	
-	// Create data manager
-	PickingManager.init(globe, navigation);
 	
 	/*** Refactor into common ? ***/
 	// Fade hover styled image effect
@@ -239,7 +244,6 @@ $(function()
 	});
 	/***********************************/
 	
-	updateFov();
 	// Update fov when moving
 	globe.subscribe("endNavigation", updateFov);
 });

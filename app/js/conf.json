@@ -5,6 +5,14 @@
 	 */
 	// Comment on one line
     //"debug": true,
+    "coordSystem": "GAL", // Default coordinate system
+    "navigation": {
+    	"initTarget": [0,0],
+    	"initFov": 50,
+    	"inertia": true,
+    	"minFov": 0.001,
+    	"zoomFactor": 0
+    },
 	"nameResolver": {
 		"baseUrl": "/sitools/rtwebgl/plugin/nameResolver",
 		"zoomFov": 2
@@ -53,9 +61,21 @@
 			"color": "rgb(8, 59, 167)"
 		},
 		{
-			"type": "equatorialGrid",
+			"type": "coordinateGrid",
 			"name": "Equatorial grid",
-			"visible": false
+			"visible": false,
+			"coordSystem": "EQ",
+			"formatLong": "HMS",
+			"formatLat": "DMS"
+		},
+		{
+			"type": "coordinateGrid",
+			"name": "Galactic grid",
+			"visible": false,
+			"coordSystem": "GAL",
+			"formatLong": "Deg",
+			"formatLat": "Deg",
+			"color": "red"
 		},
 		{
 			"type": "healpix",
@@ -65,7 +85,7 @@
 			"icon": "css/images/star_icon.png",
 			"visible": true,
 			"background": true,
-			"coordSystem": "GALACTIC"
+			"coordSystem": "GAL"
 		},
 		{ 
 			"type": "healpix",
