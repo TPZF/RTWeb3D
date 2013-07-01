@@ -64,9 +64,9 @@ require.config({
  * Main module
  */
 require( ["jquery.ui", "gw/CoordinateSystem", "gw/Globe", "gw/Stats", "gw/AstroNavigation", "gw/AttributionHandler",
-	"LayerManager", "NameResolver", "ReverseNameResolver", "Utils", "PickingManager", "FeaturePopup", "IFrame", "ErrorDialog", "StarProvider", "ConstellationProvider", "JsonProvider", "OpenSearchProvider",
+	"LayerManager", "NameResolver", "ReverseNameResolver", "Utils", "PickingManager", "FeaturePopup", "IFrame", "Compass", "ErrorDialog", "StarProvider", "ConstellationProvider", "JsonProvider", "OpenSearchProvider",
 	"gw/EquatorialCoordinateSystem", "gw/ConvexPolygonRenderer", "gw/PointSpriteRenderer", "gw/PointRenderer"],
-	function($, CoordinateSystem, Globe, Stats, AstroNavigation, AttributionHandler, LayerManager, NameResolver, ReverseNameResolver, Utils, PickingManager, FeaturePopup, IFrame, ErrorDialog) {
+	function($, CoordinateSystem, Globe, Stats, AstroNavigation, AttributionHandler, LayerManager, NameResolver, ReverseNameResolver, Utils, PickingManager, FeaturePopup, IFrame, Compass, ErrorDialog) {
 
 // Console fix	
 window.console||(console={log:function(){}});
@@ -182,7 +182,7 @@ $(function()
 
 			// Add stats
 			if ( data.stats.visible ) {
-				new Stats( globe, { element: "fps", verbose: data.stats.verbose });
+				new Stats( globe.renderContext, { element: "fps", verbose: data.stats.verbose });
 			} else  {
 				$("#fps").hide();
 			}
@@ -207,6 +207,9 @@ $(function()
 
 			// Create data manager
 			PickingManager.init(globe, navigation);
+
+			// Compass component
+			new Compass({ element : "objectCompass", globe : globe, navigation : navigation, coordSystem : data.coordSystem });
 
 			updateFov();
 		},
@@ -243,7 +246,22 @@ $(function()
 		}
 	});
 	/***********************************/
-	
+
+	/*** Mollweide ***/
+	// TODO
+	$('#slideArrow').on('click', function(){
+		if ( parseFloat($(this).parent().css('right')) < -100 )
+		{
+			// Slide left
+			$(this).parent().animate({right: '0px'}, 300);
+		}
+		else
+		{
+			// Slide right
+			$(this).parent().animate({right: '-202px'}, 300);
+		}
+	});
+
 	// Update fov when moving
 	globe.subscribe("endNavigation", updateFov);
 });

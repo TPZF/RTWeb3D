@@ -33,18 +33,37 @@
 			</div>
 		</div>
 		
-		<div id="searchDiv">
-			<form id="searchForm">
-				<fieldset>
-					<div class="input">
-						<input title="Enter an object name (e.g. m31) or coordinate (e.g 23h45m30.5s -45&#186;30'30&rdquo;)" type="text" name="searchInput" id="searchInput" value="Object name or coordinates" />
-					</div>
-					<input type="submit" id="searchSubmit" value="" />
-					<div style="display: none" id="searchSpinner"></div>
-					<input type="button" id="searchClear" value="" style="display: none;"/>
-				</fieldset>
-			</form>
-			<div style="display: none" id="equatorialCoordinatesSearchResult"></div>
+		<div id="navigationDiv">
+			<div id="searchDiv">
+				<form id="searchForm">
+					<fieldset>
+						<div class="input">
+							<input title="Enter an object name (e.g. m31) or coordinate (e.g 23h45m30.5s -45&#186;30'30&rdquo;)" type="text" name="searchInput" id="searchInput" value="Object name or coordinates" />
+						</div>
+						<input type="submit" id="searchSubmit" value="" />
+						<div style="display: none" id="searchSpinner"></div>
+						<input type="button" id="searchClear" value="" style="display: none;"/>
+					</fieldset>
+				</form>
+				<div style="display: none" id="equatorialCoordinatesSearchResult"></div>
+			</div>
+
+			<div id="compassDiv" style="pointer-events: auto; overflow: none; margin-top: 10px; margin-left: 160px;">
+				<object id="objectCompass" width='100px' height='100px' data="css/images/compass.svg" type="image/svg+xml"></object>
+			</div>
+
+<!-- TODO mollweide projection layout
+			<div style="pointer-events: auto; margin-top: 10px;" id="mollweideDiv">
+				<div style="position: absolute; right: -202px; overflow: hidden;">
+					<span id="slideArrow" style="border: 1px solid orange; border-radius: 5px 0px 0px 5px; vertical-align: top; position: relative; display: inline-block;">
+						<img width='20px' height='20px' src="css/images/arrow.png"/>
+					</span>
+					<span id="mollweideProjection" style="margin-left: -5px; display: inline-block; width: 200px; height: 100px; border: 1px solid orange; border-radius: 0px 10px 10px 10px;">
+						<img width='200px' height='100px' src="css/images/Milky_Way_infrared.png"/>
+					</span>
+				</div>
+			</div> -->
+			
 		</div>
 		
 		<!-- <img src="images/logos.png" id="telespazio"></img> -->

@@ -2,13 +2,6 @@
 /*		Name resolver search		*/
 /************************************/
 
-#searchDiv {
-	position: absolute;
-	right: 2px;
-	margin: 5px;
-	top: 10px;
-}
-
 /*** Form for enter validating ***/
 #searchForm {
 	margin-bottom: 0px;

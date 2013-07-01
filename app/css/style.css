@@ -160,6 +160,14 @@ body
 	top: 50%;
 }
 
+/*** Navigation options block(nameResolver, compass) ***/
+#navigationDiv {
+	position: absolute;
+	right: 2px;
+	margin: 5px;
+	top: 10px;
+}
+
 /*** Stylized fade on hover effect ***/
 .defaultImg
 {
