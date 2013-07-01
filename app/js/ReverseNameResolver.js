@@ -25,6 +25,7 @@ define(["jquery.ui", "gw/CoordinateSystem", "IFrame", "ErrorDialog", "underscore
 
 var globe;
 var configuration = {};
+var geoPick = [];
 
 // Template generating the detailed description of choosen feature
 var featureDescriptionTemplate = _.template(featureDescriptionHTMLTemplate);
@@ -55,17 +56,15 @@ $( "#reverseNameResolver input[type=submit]")
 
 		$('#reverseSearchField input[type="submit"]').attr('disabled', 'disabled');
 
-		var pickPoint = globe.getLonLatFromPixel(event.clientX, event.clientY);
-
 		// Converting to equatorial system due to protocol of reverseNameResolver
 		// TODO wait for sitools update to remove this hack
 		if ( CoordinateSystem.type != "EQ" )
 		{
-			pickPoint = CoordinateSystem.convertFromDefault(pickPoint, "EQ");
+			geoPick = CoordinateSystem.convertFromDefault(geoPick, "EQ");
 		}
 
 		var equatorialCoordinates = [];
-		CoordinateSystem.fromGeoToEquatorial( pickPoint, equatorialCoordinates );
+		CoordinateSystem.fromGeoToEquatorial( geoPick, equatorialCoordinates );
 
 		// Format to equatorial coordinates
 		equatorialCoordinates[0] = equatorialCoordinates[0].replace("h ",":");
@@ -142,23 +141,21 @@ function setBehavior()
 			$('#reverseSearchResult').css("display","none");
 
 			var equatorial = [];
-			geo = globe.getLonLatFromPixel(event.clientX, event.clientY);
+			geoPick = globe.getLonLatFromPixel(event.clientX, event.clientY);
 
 			if ( CoordinateSystem.type == "EQ" ) {
 				$("#coordinatesInfo").html("<em>Right ascension:</em><br/>&nbsp;&nbsp;&nbsp;&nbsp;" + equatorial[0] +
 											"<br/><em>Declination :</em><br/>&nbsp;&nbsp;&nbsp;&nbsp;" + equatorial[1]);
 			} else if ( CoordinateSystem.type == "GAL" ) {
 				// TODO better layout
-				$("#coordinatesInfo").html("<em>Latitude:</em><br/>&nbsp;&nbsp;&nbsp;&nbsp;" + geo[0] +
-											"<br/><em>Longitude:</em><br/>&nbsp;&nbsp;&nbsp;&nbsp;" + geo[1]);
+				$("#coordinatesInfo").html("<em>Latitude:</em><br/>&nbsp;&nbsp;&nbsp;&nbsp;" + geoPick[0] +
+											"<br/><em>Longitude:</em><br/>&nbsp;&nbsp;&nbsp;&nbsp;" + geoPick[1]);
 			}
 
-			var selectedTile = globe.tileManager.getVisibleTile(geo[0], geo[1]);
+			var selectedTile = globe.tileManager.getVisibleTile(geoPick[0], geoPick[1]);
 			if ( configuration.debug )
 				$('#reverseSearchField #healpixInfo').html('<em>Healpix index/order: </em>&nbsp;&nbsp;&nbsp;&nbsp;'+selectedTile.pixelIndex + '/' + selectedTile.order);
 
-			CoordinateSystem.fromGeoToEquatorial ( geo, equatorial );
-			
 
 			$('#reverseSearchField').css("display","block");
 			$reverseNameResolver.css({
