@@ -133,9 +133,7 @@ var Compass = function(options){
 	});
 
     // Update fov when moving
-    // TODO subscribe to navigation.modified in future
-	globe.subscribe("animated", updateNorth);
-	globe.subscribe("moving", updateNorth);
+	navigation.subscribe("modified", updateNorth);
 };
 
 return Compass;

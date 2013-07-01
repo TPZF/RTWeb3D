@@ -200,7 +200,7 @@ $(function()
 			NameResolver.init(globe, navigation, data);
 		
 			// Initialize the reverse name resolver
-			ReverseNameResolver.init(globe, data);
+			ReverseNameResolver.init(globe, navigation, data);
 
 			// Create layers from configuration file
 			LayerManager.init(globe, navigation, data);
@@ -211,6 +211,8 @@ $(function()
 			// Compass component
 			new Compass({ element : "objectCompass", globe : globe, navigation : navigation, coordSystem : data.coordSystem });
 
+			// Update fov when moving
+			globe.subscribe("modified", updateFov);
 			updateFov();
 		},
 		error: function(xhr){
@@ -261,9 +263,6 @@ $(function()
 			$(this).parent().animate({right: '-202px'}, 300);
 		}
 	});
-
-	// Update fov when moving
-	globe.subscribe("endNavigation", updateFov);
 });
 
 });

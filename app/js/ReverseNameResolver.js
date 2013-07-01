@@ -26,6 +26,7 @@ define(["jquery.ui", "gw/CoordinateSystem", "IFrame", "ErrorDialog", "underscore
 var globe;
 var configuration = {};
 var geoPick = [];
+var navigation = null;
 
 // Template generating the detailed description of choosen feature
 var featureDescriptionTemplate = _.template(featureDescriptionHTMLTemplate);
@@ -144,6 +145,8 @@ function setBehavior()
 			geoPick = globe.getLonLatFromPixel(event.clientX, event.clientY);
 
 			if ( CoordinateSystem.type == "EQ" ) {
+				var equatorial = [];
+			    CoordinateSystem.fromGeoToEquatorial(geoPick, equatorial);
 				$("#coordinatesInfo").html("<em>Right ascension:</em><br/>&nbsp;&nbsp;&nbsp;&nbsp;" + equatorial[0] +
 											"<br/><em>Declination :</em><br/>&nbsp;&nbsp;&nbsp;&nbsp;" + equatorial[1]);
 			} else if ( CoordinateSystem.type == "GAL" ) {
@@ -172,7 +175,7 @@ function setBehavior()
 		IFrame.show(event.target.innerHTML);
 	});
 
-	globe.subscribe("startNavigation", function(){
+	navigation.subscribe("modified", function(){
 		if ($reverseNameResolver.css('display') != 'none')
 		{
 			$reverseNameResolver.fadeOut(300);
@@ -192,9 +195,11 @@ function showFeature( feature )
 }
 
 return {
-	init: function(gl,conf) {
+	init: function(gl, nav, conf) {
 
 		globe = gl;
+		navigation = nav;
+
 		for( var x in conf.reverseNameResolver )
 		{
 			configuration[x] = conf.reverseNameResolver[x];

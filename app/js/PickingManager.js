@@ -132,8 +132,7 @@ function init()
 					{
 						navigation.inertia.stop();
 					}
-					navigation.moveTo( pickPoint, 1000 );
-					window.setTimeout( function(){
+					navigation.moveTo( pickPoint, 1000, function(){
 						selection = newSelection;
 						selection.selectedTile = selectedTile;
 						FeaturePopup.createFeatureList( selection );
@@ -151,7 +150,8 @@ function init()
 							FeaturePopup.showFeatureInformation( selection[stackSelectionIndex].layer, selection[stackSelectionIndex].feature )
 						}
 						FeaturePopup.show(globe.renderContext.canvas.width/2, globe.renderContext.canvas.height/2);
-					}, 1000 );
+						}
+					);
 				});
 			} else {
 				FeaturePopup.hide();
@@ -160,7 +160,7 @@ function init()
 	});
 	
 	// Hide popup and clear selection when pan/zoom
-	globe.subscribe("startNavigation", function() { 
+	navigation.subscribe("modified", function() { 
 		blurSelection();
 		FeaturePopup.hide();
 	});

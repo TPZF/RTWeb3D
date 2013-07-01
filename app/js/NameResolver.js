@@ -43,7 +43,7 @@ var targetFeature;
 function setSearchBehavior()
 {
 	globe.addLayer( targetLayer );
-	globe.subscribe("startNavigation", removeTarget);
+	astroNavigator.subscribe("modified", removeTarget);
 
 	var input = $('#searchInput');
 	var clear = $('#searchClear');
@@ -227,8 +227,9 @@ function setSearchBehavior()
  */
 function zoomTo(feature)
 {
-	astroNavigator.zoomTo([feature.geometry.coordinates[0], feature.geometry.coordinates[1]], configuration.zoomFov );
-	addTarget(feature.geometry.coordinates[0], feature.geometry.coordinates[1]);
+	astroNavigator.zoomTo([feature.geometry.coordinates[0], feature.geometry.coordinates[1]], configuration.zoomFov, 3000, function() {
+		addTarget(feature.geometry.coordinates[0], feature.geometry.coordinates[1]);	
+	} );
 }
 
 /**
