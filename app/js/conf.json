@@ -65,17 +65,18 @@
 			"name": "Equatorial grid",
 			"visible": false,
 			"coordSystem": "EQ",
-			"formatLong": "HMS",
-			"formatLat": "DMS"
+			"color": "white",
+			"latFormat": "DMS",
+			"longFormat": "HMS"
 		},
 		{
 			"type": "coordinateGrid",
 			"name": "Galactic grid",
 			"visible": false,
 			"coordSystem": "GAL",
-			"formatLong": "Deg",
-			"formatLat": "Deg",
-			"color": "red"
+			"color": "red",
+			"latFormat": "Deg",
+			"longFormat": "Deg"
 		},
 		{
 			"type": "healpix",
@@ -115,15 +116,6 @@
 			"visible": true,
 			"background": true
 		},
-		{ 
-			"type": "healpix",
-			"name": "DSS",
-			"baseUrl": "/Alasky/DssColor",
-			"description": "Digital Sky Survey from CDS",
-			"attribution": "DSS backbround from <img width='48' height='32' src=\"css/images/cds.svg\" />",
-			"visible": true,
-			"background": true
-		},
         { 
 			"type": "healpix",
 			"name": "RASS",
@@ -148,6 +140,15 @@
 			"description": "Sloan Digital Sky Survey from CDS",
 			"attribution": "SDSS backbround from <img width='48' height='32' src=\"css/images/cds.svg\" />",
 			"icon": "css/images/star_icon.png",
+			"visible": true,
+			"background": true
+		},
+		{ 
+			"type": "healpix",
+			"name": "DSS",
+			"baseUrl": "/Alasky/DssColor",
+			"description": "Digital Sky Survey from CDS",
+			"attribution": "DSS backbround from <img width='48' height='32' src=\"css/images/cds.svg\" />",
 			"visible": true,
 			"background": true
 		},
@@ -181,6 +182,7 @@
 			"serviceUrl": "/sitools/ofuse",
 			"visible": false,
 			"minOrder": 3,
+			"accuracyOrder" : 10,
 			"color": "#FFCC11",
 			"displayProperties": [ "ra", "dec", "src_type", "dateobs", "imageSize" ],
 			"useCluster": true
