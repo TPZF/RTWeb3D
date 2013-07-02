@@ -212,7 +212,7 @@ $(function()
 			new Compass({ element : "objectCompass", globe : globe, navigation : navigation, coordSystem : data.coordSystem });
 
 			// Update fov when moving
-			globe.subscribe("modified", updateFov);
+			navigation.subscribe("modified", updateFov);
 			updateFov();
 		},
 		error: function(xhr){
