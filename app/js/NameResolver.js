@@ -109,7 +109,7 @@ function setSearchBehavior()
 			var vert = HEALPixBase.fxyf( (ix+i)/nside, (iy+j)/nside, face);
 			var geoPos = [];
 			CoordinateSystem.from3DToGeo(vert, geoPos);
-			astroNavigator.zoomTo(geoPos, configuration.zoomFov);
+			zoomTo(geoPos[0],geoPos[1]);
 		}
 		else if ( objectName.match( coordinatesExp ) )
 		{
@@ -119,19 +119,17 @@ function setSearchBehavior()
 			word[0] = word[0].replace(/h|m|:/g," ");
 			word[0] = word[0].replace("s", "");
 			word[1] = word[1].replace(/°|'|:/g," ");
-			word[0] = word[0].replace("\"", "");
+			word[1] = word[1].replace("\"", "");
 			
 			// Convert to geo and zoom
 			var geoPos = [];
 			CoordinateSystem.fromEquatorialToGeo([word[0], word[1]], geoPos);
-			astroNavigator.zoomTo(geoPos, configuration.zoomFov);
-			addTarget(geoPos[0], geoPos[1]);
+			zoomTo(geoPos[0], geoPos[1]);
 		}
 		else if ( matchDegree ) {
 			var lon = parseFloat(matchDegree[1]);
 			var lat = parseFloat(matchDegree[3]);
-			astroNavigator.zoomTo([lon, lat], configuration.zoomFov);
-			addTarget(lon, lat);
+			zoomTo(lon, lat);
 		}
 		else
 		{
@@ -162,7 +160,8 @@ function setSearchBehavior()
 					if(response.type == "FeatureCollection")
 					{
 						// Zoom to the first feature
-						zoomTo(response.features[0]);
+						var firstFeature = response.features[0];
+						zoomTo(firstFeature.geometry.coordinates[0], firstFeature.geometry.coordinates[1]);
 						
 						// Fill search result field
 						var output = "";
@@ -208,7 +207,7 @@ function setSearchBehavior()
 
 		var index = $(this).index();
 		var selectedFeature = response.features[index];
-		zoomTo(selectedFeature);
+		zoomTo(selectedFeature.geometry.coordinates[0], selectedFeature.geometry.coordinates[1]);
 
 	});
 
@@ -223,12 +222,12 @@ function setSearchBehavior()
 }
 
 /**
- *	Zoom to feature
+ *	Zoom to the given longitude/latitude
  */
-function zoomTo(feature)
+function zoomTo(lon, lat)
 {
-	astroNavigator.zoomTo([feature.geometry.coordinates[0], feature.geometry.coordinates[1]], configuration.zoomFov, 3000, function() {
-		addTarget(feature.geometry.coordinates[0], feature.geometry.coordinates[1]);	
+	astroNavigator.zoomTo([lon, lat], configuration.zoomFov, 3000, function() {
+		addTarget(lon,lat);
 	} );
 }
 
