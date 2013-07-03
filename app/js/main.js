@@ -64,9 +64,9 @@ require.config({
  * Main module
  */
 require( ["jquery.ui", "gw/CoordinateSystem", "gw/Globe", "gw/Stats", "gw/AstroNavigation", "gw/AttributionHandler",
-	"LayerManager", "NameResolver", "ReverseNameResolver", "Utils", "PickingManager", "FeaturePopup", "IFrame", "Compass", "ErrorDialog", "StarProvider", "ConstellationProvider", "JsonProvider", "OpenSearchProvider",
+	"LayerManager", "NameResolver", "ReverseNameResolver", "Utils", "PickingManager", "FeaturePopup", "IFrame", "Compass", "MollweideViewer", "ErrorDialog", "StarProvider", "ConstellationProvider", "JsonProvider", "OpenSearchProvider",
 	"gw/EquatorialCoordinateSystem", "gw/ConvexPolygonRenderer", "gw/PointSpriteRenderer", "gw/PointRenderer"],
-	function($, CoordinateSystem, Globe, Stats, AstroNavigation, AttributionHandler, LayerManager, NameResolver, ReverseNameResolver, Utils, PickingManager, FeaturePopup, IFrame, Compass, ErrorDialog) {
+	function($, CoordinateSystem, Globe, Stats, AstroNavigation, AttributionHandler, LayerManager, NameResolver, ReverseNameResolver, Utils, PickingManager, FeaturePopup, IFrame, Compass, MollweideViewer, ErrorDialog) {
 
 // Console fix	
 window.console||(console={log:function(){}});
@@ -190,6 +190,11 @@ $(function()
 			if ( data.coordSystem )
 				CoordinateSystem.type = data.coordSystem;
 
+			// Add zoom double click
+			data.navigation.mouse = {
+				zoomOnDblClick: true
+			};
+
 			// Initialize navigation
 			navigation = new AstroNavigation(globe, data.navigation);
 
@@ -210,6 +215,9 @@ $(function()
 
 			// Compass component
 			new Compass({ element : "objectCompass", globe : globe, navigation : navigation, coordSystem : data.coordSystem });
+
+			// Mollweide viewer
+			new MollweideViewer({ globe : globe, navigation : navigation });
 
 			// Update fov when moving
 			navigation.subscribe("modified", updateFov);
@@ -249,20 +257,6 @@ $(function()
 	});
 	/***********************************/
 
-	/*** Mollweide ***/
-	// TODO
-	$('#slideArrow').on('click', function(){
-		if ( parseFloat($(this).parent().css('right')) < -100 )
-		{
-			// Slide left
-			$(this).parent().animate({right: '0px'}, 300);
-		}
-		else
-		{
-			// Slide right
-			$(this).parent().animate({right: '-202px'}, 300);
-		}
-	});
 });
 
 });
