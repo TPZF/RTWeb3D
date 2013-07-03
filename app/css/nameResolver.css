@@ -70,19 +70,19 @@ input#searchClear {
 }
 
 /*** Result field ***/
-#equatorialCoordinatesSearchResult {
+#resolverSearchResult {
 	text-align: center;
 	width: 210px;
 	margin-left: 40px;
 	color: white;
 }
 
-#equatorialCoordinatesSearchResult .selected {
+#resolverSearchResult .selected {
 	box-shadow: 0 0 20px #FF9E52, 0 1px 2px rgba(0, 0, 0, 0.08);
 	border-radius: 20px;
 }
 
-#equatorialCoordinatesSearchResult:hover
+#resolverSearchResult:hover
 {
 	cursor: pointer;
 }

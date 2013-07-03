@@ -151,7 +151,7 @@ function setSearchBehavior()
 					return;
 			}
 
-			$('#equatorialCoordinatesSearchResult').fadeOut(animationDuration);
+			$('#resolverSearchResult').fadeOut(animationDuration);
 			$.ajax({
 				type: "GET",
 				url: url,
@@ -167,24 +167,22 @@ function setSearchBehavior()
 						var output = "";
 						for ( var i=0; i<response.features.length; i++)
 						{
-							var equatorial = [];
-							CoordinateSystem.fromGeoToEquatorial([response.features[i].geometry.coordinates[0], response.features[i].geometry.coordinates[1]], equatorial);
-
-							var result = nameResolverResultTemplate( { properties: response.features[i].properties, ra: equatorial[0], dec: equatorial[1] } );
+							var astro = Utils.formatCoordinates([ response.features[i].geometry.coordinates[0], response.features[i].geometry.coordinates[1] ]);
+							var result = nameResolverResultTemplate( { properties: response.features[i].properties, lon: astro[0], lat: astro[1], type: CoordinateSystem.type } );
 							output+=result;
 						}
 
-						$('#equatorialCoordinatesSearchResult').html(output);
-						$('#equatorialCoordinatesSearchResult div:first-child').addClass('selected');
-						$('#equatorialCoordinatesSearchResult').fadeIn(animationDuration);
+						$('#resolverSearchResult').html(output);
+						$('#resolverSearchResult div:first-child').addClass('selected');
+						$('#resolverSearchResult').fadeIn(animationDuration);
 					} else {
-						$('#equatorialCoordinatesSearchResult').html("Enter object name");
-						$('#equatorialCoordinatesSearchResult').fadeIn(animationDuration);
+						$('#resolverSearchResult').html("Enter object name");
+						$('#resolverSearchResult').fadeIn(animationDuration);
 					}
 				},
 				error: function (xhr, ajaxOptions, thrownError) {
-					$('#equatorialCoordinatesSearchResult').html("Bad input or object not found");
-					$('#equatorialCoordinatesSearchResult').fadeIn(animationDuration);
+					$('#resolverSearchResult').html("Bad input or object not found");
+					$('#resolverSearchResult').fadeIn(animationDuration);
 					console.error( xhr.responseText );
 				},
 				complete: function(xhr)
@@ -198,11 +196,11 @@ function setSearchBehavior()
 	
 	// Clear search result field when pan
 	$('canvas').click(function(){
-		$('#equatorialCoordinatesSearchResult').fadeOut(animationDuration);
+		$('#resolverSearchResult').fadeOut(animationDuration);
 	});
 	
-	$('#equatorialCoordinatesSearchResult').on("click",'.nameResolverResult',function(event){
-		$('#equatorialCoordinatesSearchResult').find('.selected').removeClass('selected');
+	$('#resolverSearchResult').on("click",'.nameResolverResult',function(event){
+		$('#resolverSearchResult').find('.selected').removeClass('selected');
 		$(this).addClass('selected');
 
 		var index = $(this).index();
@@ -222,7 +220,7 @@ function setSearchBehavior()
 }
 
 /**
- *	Zoom to the given longitude/latitude
+ *	Zoom to the given longiftude/latitude
  */
 function zoomTo(lon, lat)
 {

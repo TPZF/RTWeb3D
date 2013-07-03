@@ -20,8 +20,8 @@
 /**
  * Name resolver module : search object name and zoom to them
  */
-define(["jquery.ui", "gw/CoordinateSystem", "IFrame", "ErrorDialog", "underscore-min", "text!../templates/featureDescription.html", "text!../templates/descriptionTable.html"],
-	function($, CoordinateSystem, IFrame, ErrorDialog, _, featureDescriptionHTMLTemplate, descriptionTableHTMLTemplate) {
+define(["jquery.ui", "gw/CoordinateSystem", "IFrame", "Utils", "ErrorDialog", "underscore-min", "text!../templates/featureDescription.html", "text!../templates/descriptionTable.html"],
+	function($, CoordinateSystem, IFrame, Utils, ErrorDialog, _, featureDescriptionHTMLTemplate, descriptionTableHTMLTemplate) {
 
 var globe;
 var configuration = {};
@@ -143,16 +143,14 @@ function setBehavior()
 
 			var equatorial = [];
 			geoPick = globe.getLonLatFromPixel(event.clientX, event.clientY);
+			var astro = Utils.formatCoordinates([ geoPick[0], geoPick[1] ]);
 
 			if ( CoordinateSystem.type == "EQ" ) {
-				var equatorial = [];
-			    CoordinateSystem.fromGeoToEquatorial(geoPick, equatorial);
-				$("#coordinatesInfo").html("<em>Right ascension:</em><br/>&nbsp;&nbsp;&nbsp;&nbsp;" + equatorial[0] +
-											"<br/><em>Declination :</em><br/>&nbsp;&nbsp;&nbsp;&nbsp;" + equatorial[1]);
+				$("#coordinatesInfo").html("<em>Right ascension:</em><br/>&nbsp;&nbsp;&nbsp;&nbsp;" + astro[0] +
+											"<br/><em>Declination :</em><br/>&nbsp;&nbsp;&nbsp;&nbsp;" + astro[1]);
 			} else if ( CoordinateSystem.type == "GAL" ) {
-				// TODO better layout
-				$("#coordinatesInfo").html("<em>Latitude:</em><br/>&nbsp;&nbsp;&nbsp;&nbsp;" + geoPick[0] +
-											"<br/><em>Longitude:</em><br/>&nbsp;&nbsp;&nbsp;&nbsp;" + geoPick[1]);
+				$("#coordinatesInfo").html("<em>Longitude:</em><br/>&nbsp;&nbsp;&nbsp;&nbsp;" + astro[0] +
+											"<br/><em>Latitude:</em><br/>&nbsp;&nbsp;&nbsp;&nbsp;" + astro[1]);
 			}
 
 			var selectedTile = globe.tileManager.getVisibleTile(geoPick[0], geoPick[1]);
