@@ -201,6 +201,8 @@ function handleDrop(evt) {
 			var options = { name: name };
 			options.style = new FeatureStyle({ rendererHint: "Basic", iconUrl: "css/images/star.png", fillColor: rgba, strokeColor: rgba, visible: true });
 			var gwLayer = new VectorLayer( options );
+			// Add the type GeoJSON to be able to zoom on the layer !
+			gwLayer.type = "GeoJSON";
 			gwLayer.deletable = true;
 			globe.addLayer(gwLayer);
 
@@ -210,6 +212,10 @@ function handleDrop(evt) {
 
 			addAdditionalLayer( gwLayer );
 			PickingManager.addPickableLayer( gwLayer );
+			
+			// Warn the service bar a new layer is added (the layer is active by default)
+			// TODO : a better way should be find
+			ServiceBar.addLayer(gwLayer);
 
 			updateScroll();
 		};

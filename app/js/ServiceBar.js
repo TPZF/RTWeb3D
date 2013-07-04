@@ -47,7 +47,8 @@ var tabs = $('#layerServices').tabs({
 // Mapping between type of a layer and supported services
 var serviceMapping =
 {
-	"DynamicOpenSearch": [OpenSearchService, FitsService, MocService]
+	"DynamicOpenSearch": [OpenSearchService, FitsService, MocService],
+	"GeoJSON": [ FitsService ]
 };
 
 var layers = [];
