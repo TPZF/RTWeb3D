@@ -5,7 +5,7 @@
 	 */
 	// Comment on one line
     //"debug": true,
-    "coordSystem": "GAL", // Default coordinate system
+    "coordSystem": "EQ", // Default coordinate system
     "navigation": {
     	"initTarget": [0,0],
     	"initFov": 50,
