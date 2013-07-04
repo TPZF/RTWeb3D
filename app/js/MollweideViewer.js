@@ -46,6 +46,33 @@ function _findTheta( lat )
     return thetaN1;
 }
 
+/*************************************************************************/
+
+/**
+ *  Canvas 2D point
+ */
+var Point = function(options) {
+    this.x = 0;
+    this.y = 0;
+    this.color = "rgb(255,0,0)";
+    this.size = 2;
+    for ( x in options )
+    {
+        this[x] = options[x];
+    }
+}
+
+/**
+ *  Determine if a point is inside the fov shape bounds
+ */
+Point.prototype.contains = function(mx, my)
+{
+    return (this.x <= mx && this.y <= my &&
+            this.x + this.size >= mx && this.y + this.size >= my);
+}
+
+/*************************************************************************/
+
 var MollweideViewer = function(options) {
 
     // Init options
@@ -61,20 +88,20 @@ var MollweideViewer = function(options) {
     var _lastMouseY = -1;
     var dragging = false;
 
-    // Fov shape (only center3d for now)
-    // TODO add fov points
-    var center3d = {
-    	x: 0,
-    	y: 0,
-        pointSize: 6,
-        /**
-         *  Determine if a point is inside the fov shape bounds
-         */
-        contains : function(mx, my) {
-            return (this.x <= mx && this.y <= my &&
-             this.x + this.pointSize >= mx && this.y + this.pointSize >= my);
-        }
+    // Fov grid
+    var tesselation = 9; // Must be >= 2
+    var points = [];
+    points.color = "rgb(255,0,0)";
+    for ( var i=0; i<tesselation*tesselation; i++ )
+    {
+        points.push(new Point());
     }
+
+    // Center of fov
+    var center3d = new Point({
+        size: 5,
+        color: "rgb(255,255,0)"
+    });
 
     // Init image background
     var canvas = document.getElementById('mollweideProjection');
@@ -89,36 +116,80 @@ var MollweideViewer = function(options) {
     //imageObj.src = 'css/images/Milky_Way_infrared_200x100.png';
     imageObj.src = 'css/images/MollweideGrid.png';
 
+    /**********************************************************************************************/
+
+    /**
+     *  Compute mollweide position for the given 3D position
+     */
+    function computeMollweidePosition( pos )
+    {
+        var geoPos = [];
+        CoordinateSystem.from3DToGeo(pos, geoPos);
+
+        var lambda = geoPos[0] * Math.PI/180 ; // longitude
+        var theta0 = geoPos[1] * Math.PI/180;  // latitude
+
+        var auxTheta = _findTheta( theta0 );
+
+        // Transfrom to Mollweide coordinate system
+        var mollX = 2*Math.sqrt(2)/Math.PI * lambda * Math.cos(auxTheta);
+        var mollY = Math.sqrt(2) * Math.sin(auxTheta);
+
+        // Transform to image space
+        //    2.8: max x value in Mollweide projection
+        //    1.41: max y value in Mollweide projection
+        var x = -mollX * halfWidth/2.8 + halfWidth;
+        var y = -mollY * halfHeight/1.41 + halfHeight;
+
+        return [x,y];
+    }
+
+    /**********************************************************************************************/
+
     /**
      *	Function updating the position of center of camera on mollweide element
      */
     function updateMollweideFov()
     {
+        // Reinit canvas
+        context.clearRect(0,0, context.canvas.width, context.canvas.height);
+        context.drawImage(imageObj, 0, 0);
 
-    	var geoPos = [];
-    	CoordinateSystem.from3DToGeo(navigation.center3d, geoPos);
+        // Draw fov
+        context.fillStyle = points.color;
+        var stepX = globe.renderContext.canvas.clientWidth/(tesselation - 1);
+        var stepY = globe.renderContext.canvas.clientHeight/(tesselation - 1);
 
-    	var lambda = geoPos[0] * Math.PI/180 ; // longitude
-    	var theta0 = geoPos[1] * Math.PI/180;  // latitude
+        for ( var i=0; i<tesselation; i++ )
+        {
+            // Width
+            for ( var j=0; j<tesselation; j++ )
+            {
+                // Height
+                var pos3d = globe.renderContext.get3DFromPixel(i*stepX,j*stepY);
+                var mPos = computeMollweidePosition( pos3d );
+                var point = points[i*tesselation+j];
 
-    	var auxTheta = _findTheta( theta0 );
+                point.x = mPos[0];
+                point.y = mPos[1];
 
-        // Transfrom to Mollweide coordinate system
-   		var mollX = 2*Math.sqrt(2)/Math.PI * lambda * Math.cos(auxTheta);
-		var mollY = Math.sqrt(2) * Math.sin(auxTheta);
+                // Draw on canvas 2d
+                context.fillRect(mPos[0] - point.size/2, mPos[1]-point.size/2, point.size,point.size);
+            }
+        }
 
-		context.clearRect(0,0, context.canvas.width, context.canvas.height);
-		context.drawImage(imageObj, 0, 0);
-		context.fillStyle = "rgb(255,0,0)";
+        // Draw center
+        context.fillStyle = center3d.color;
+        mPos = computeMollweidePosition ( navigation.center3d );
+        center3d.x = mPos[0];
+        center3d.y = mPos[1];
 
-		// Transform to image space
-		//    2.63: max x value in Mollweide projection
-		//    1.41: max y value in Mollweide projection
-		center3d.x = -mollX * halfWidth/2.63 + halfWidth;
-		center3d.y = -mollY * halfHeight/1.41 + halfHeight;
+        // Draw on canvas 2d
+        context.fillRect(mPos[0] - center3d.size/2, mPos[1]-center3d.size/2, center3d.size,center3d.size);
 
-		context.fillRect(center3d.x-center3d.pointSize/2,center3d.y-center3d.pointSize/2,center3d.pointSize,center3d.pointSize);
     }
+
+    /**********************************************************************************************/
 
     // Interact with mollweide projection
     canvas.addEventListener('mousedown', function(event){
@@ -147,7 +218,7 @@ var MollweideViewer = function(options) {
         var offY = (event.offsetY) ? event.offsetY : (event.layerY - event.target.offsetTop);
 
         // Transform to Mollweide space
-        center3d.x = - ( offX - halfWidth ) * 2.63 / halfWidth;
+        center3d.x = - ( offX - halfWidth ) * 2.8 / halfWidth;
         center3d.y = - ( offY - halfHeight ) * 1.41 / halfHeight;
         
         // Transform to geographic coordinate system
@@ -168,6 +239,8 @@ var MollweideViewer = function(options) {
     canvas.addEventListener('mouseup', function(){
         dragging = false;
     })
+
+    /**********************************************************************************************/
 
     // Show/hide mollweide projection
 	$('#slideArrow').on('click', function(){
