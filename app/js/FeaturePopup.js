@@ -202,7 +202,10 @@ function createHTMLSelectedFeatureDiv( layer, feature )
 	var output = featureDescriptionTemplate( { dictionary: layer.dictionary, services: feature.services, properties: buildProperties(feature.properties, layer.displayProperties), descriptionTableTemplate: descriptionTableTemplate } );
 	
 	$('#rightDiv').html( output );
-	$('.featureProperties').niceScroll({autohidemode: false});
+	$('.featureProperties').niceScroll({
+		autohidemode: false
+	});
+	$('.featureProperties').getNiceScroll().hide();
 }
 
 return {
@@ -444,10 +447,9 @@ return {
 	 * 	@param {<GlobWeb.Feature>[]} seleciton Array of features
 	 */
 	createFeatureList: function(selection){
-		var arrowVisibility = false;
 		// maxSelectedFeatures = 10
-		if ( selection.length > 10 )
-			arrowVisibility = true;
+		var arrowVisibility = (selection.length > 10);
+
 		featureListHTML = featureListTemplate( { selection: selection, arrowVisibility: arrowVisibility });
 		$('#leftDiv').html( featureListHTML );
 	},
@@ -467,7 +469,7 @@ return {
 		$('#rightDiv').fadeOut(300, function(){
 			createHTMLSelectedFeatureDiv( layer, feature );
 			$(this).fadeIn(300, function(){
-				$('.featureProperties').getNiceScroll().resize();
+				$('.featureProperties').getNiceScroll().show();
 			});
 		});
 	}

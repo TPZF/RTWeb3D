@@ -434,7 +434,7 @@ function createHtmlForAdditionalLayer( gwLayer )
 		}
 
 	});
-	updateScroll();
+	//updateScroll();
 }
 
 /**
@@ -543,6 +543,11 @@ function initLayers(layers)
 {
 	// Nice scrollbar
 	$('#layerManager').niceScroll({ autohidemode: false });
+	// Hide/show nicescroll on click
+	$('#accordion .ui-accordion-header').on('click', function(){
+		var contentId = $(this).attr('aria-controls'); // Id of div content corresponding to header
+		$('#'+ contentId).getNiceScroll().toggle();
+	});
 	
 	// Necessary to drag&drop option while using jQuery
 	$.event.props.push('dataTransfer');

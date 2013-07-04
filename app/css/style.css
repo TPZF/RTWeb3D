@@ -210,3 +210,12 @@ body
 	background:#DFDFDF;
 	-webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.5); 
 }
+
+/* No text selection for buttons */
+ .ui-button, .noSelect
+{
+	user-select: none;
+	-moz-user-select: none;
+	-khtml-user-select: none;
+	-webkit-user-select: none;
+}

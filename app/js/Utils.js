@@ -20,7 +20,7 @@
 /**
  * Utility module : contains various functions useful for differnt modules
  */
- define([], function() {
+ define(["gw/CoordinateSystem"], function( CoordinateSystem ) {
 
 /**
  *	HSV values in [0..1[
@@ -97,6 +97,30 @@ return {
 	  	h %= 1;
 		return hsv_to_rgb(h, 0.5, 0.95);
 	},
+
+	/**
+	 *	Format coordinates according to default coordinate system
+	 */
+	formatCoordinates : function(geo)
+	{
+		var astro = [];
+		if ( CoordinateSystem.type == "EQ" )
+		{
+			CoordinateSystem.fromGeoToEquatorial([geo[0], geo[1]], astro);	
+		}
+		else 
+		{
+			// convert longitude to positive [0..360]
+			if (geo[0] < 0)
+				geo[0]+=360;
+			
+			astro[0] = this.roundNumber(geo[0],4);
+			astro[0]+="°";
+			astro[1] = this.roundNumber(geo[1],4);
+			astro[1]+="°";
+		}
+		return astro;
+	}
 
 };
 
