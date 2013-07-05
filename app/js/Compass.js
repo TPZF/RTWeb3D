@@ -44,7 +44,7 @@ var Compass = function(options){
 	var _lastMouseY = -1;
 	var _dx = 0;
 	var _dy = 0;
-	var _pressedButton = -1;
+	var dragging = false;
 	var _outerCircleRadius = outerCircle.ownerSVGElement.clientWidth / 2;
 
 	/**
@@ -71,14 +71,13 @@ var Compass = function(options){
 	    if ( navigation.globe.renderContext.viewMatrix[8] < 0 ) {
 	    	degNorth *= -1;
 	    }
-	    northText.setAttribute("transform", "rotate(" + degNorth + " 35 35)");
+	    northText.setAttribute("transform", "rotate(" + degNorth + " 40 40)");
 	};
 
     outerCircle.addEventListener('mousedown', function(event){
-    	_pressedButton = event.button;
-
-    	if ( event.button == 0 || event.button == 1 )
-		{		
+    	if ( event.button == 0 )
+		{	
+			 dragging = true;
 			_lastMouseX = event.clientX - _outerCircleRadius;
 			_lastMouseY = event.clientY - _outerCircleRadius;
 			_dx = 0;
@@ -89,14 +88,8 @@ var Compass = function(options){
 
     outerCircle.addEventListener('mousemove', function(event){
     	
-    	if ( _pressedButton < 0 )
+    	if (!dragging)
     		return;
-
-		_dx = (event.clientX - _lastMouseX - _outerCircleRadius);
-		_dy = (event.clientY - _lastMouseY - _outerCircleRadius);
-		
-		if ( _dx == 0 && _dy == 0 )
-			return;
 
 		var c = _lastMouseX*(event.clientY -_outerCircleRadius) - _lastMouseY*(event.clientX - _outerCircleRadius); // c>0 -> clockwise, counterclockwise otherwise
 		navigation.rotate(c, 0);
@@ -108,7 +101,7 @@ var Compass = function(options){
     });
 
 	svgDoc.addEventListener('mouseup', function(event){
-    	_pressedButton = -1;
+    	dragging = false;
     	// TODO add inertia
     });
 
@@ -130,6 +123,10 @@ var Compass = function(options){
     south.addEventListener("click", function(){
     	navigation.pan( 0, -panFactor );
     	updateNorth();
+	});
+
+	northText.addEventListener("click", function(){
+		navigation.setUpToNorth();
 	});
 
     // Update fov when moving
