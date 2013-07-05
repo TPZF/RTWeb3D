@@ -78,24 +78,20 @@ var MollweideViewer = function(options) {
     // Init options
     var globe = options.globe;
     var navigation = options.navigation;
+    var halfPaddingX = 16;
+    var halfPaddingY = 8;
 
-    // Image background dimensions
-    var halfHeight;
-    var halfWidth;
+    // Grid background dimensions
+    var halfHeight = 50;
+    var halfWidth = 100;
 
     // Interaction parameters
     var _lastMouseX = -1;
     var _lastMouseY = -1;
     var dragging = false;
 
-    // Fov grid
+    // Level of tesselation to represent fov
     var tesselation = 9; // Must be >= 2
-    var points = [];
-    points.color = "rgb(255,0,0)";
-    for ( var i=0; i<tesselation*tesselation; i++ )
-    {
-        points.push(new Point());
-    }
 
     // Center of fov
     var center3d = new Point({
@@ -109,8 +105,6 @@ var MollweideViewer = function(options) {
     var imageObj = new Image();
     imageObj.onload = function() {
         context.drawImage(imageObj, 0, 0);
-        halfHeight = imageObj.height / 2;
-        halfWidth = imageObj.width / 2;
         updateMollweideFov();
     };
     //imageObj.src = 'css/images/Milky_Way_infrared_200x100.png';
@@ -119,7 +113,7 @@ var MollweideViewer = function(options) {
     /**********************************************************************************************/
 
     /**
-     *  Compute mollweide position for the given 3D position
+     *  Compute mollweide position for given 3D position
      */
     function computeMollweidePosition( pos )
     {
@@ -137,9 +131,9 @@ var MollweideViewer = function(options) {
 
         // Transform to image space
         //    2.8: max x value in Mollweide projection
-        //    1.41: max y value in Mollweide projection
-        var x = -mollX * halfWidth/2.8 + halfWidth;
-        var y = -mollY * halfHeight/1.41 + halfHeight;
+        //    1.38: max y value in Mollweide projection
+        var x = -mollX * halfWidth/2.8 + halfWidth + halfPaddingX;
+        var y = -mollY * halfHeight/1.38 + halfHeight + halfPaddingY;
 
         return [x,y];
     }
@@ -147,7 +141,7 @@ var MollweideViewer = function(options) {
     /**********************************************************************************************/
 
     /**
-     *	Function updating the position of center of camera on mollweide element
+     *  Function updating the position of center of camera on mollweide element
      */
     function updateMollweideFov()
     {
@@ -156,7 +150,7 @@ var MollweideViewer = function(options) {
         context.drawImage(imageObj, 0, 0);
 
         // Draw fov
-        context.fillStyle = points.color;
+        context.fillStyle = "rgb(255,0,0)";
         var stepX = globe.renderContext.canvas.clientWidth/(tesselation - 1);
         var stepY = globe.renderContext.canvas.clientHeight/(tesselation - 1);
 
@@ -168,13 +162,9 @@ var MollweideViewer = function(options) {
                 // Height
                 var pos3d = globe.renderContext.get3DFromPixel(i*stepX,j*stepY);
                 var mPos = computeMollweidePosition( pos3d );
-                var point = points[i*tesselation+j];
-
-                point.x = mPos[0];
-                point.y = mPos[1];
 
                 // Draw on canvas 2d
-                context.fillRect(mPos[0] - point.size/2, mPos[1]-point.size/2, point.size,point.size);
+                context.fillRect(mPos[0], mPos[1], 2, 2);
             }
         }
 
@@ -185,7 +175,7 @@ var MollweideViewer = function(options) {
         center3d.y = mPos[1];
 
         // Draw on canvas 2d
-        context.fillRect(mPos[0] - center3d.size/2, mPos[1]-center3d.size/2, center3d.size,center3d.size);
+        context.fillRect(mPos[0] - center3d.size/2, mPos[1]-center3d.size/2, center3d.size, center3d.size);
 
     }
 
@@ -218,8 +208,8 @@ var MollweideViewer = function(options) {
         var offY = (event.offsetY) ? event.offsetY : (event.layerY - event.target.offsetTop);
 
         // Transform to Mollweide space
-        center3d.x = - ( offX - halfWidth ) * 2.8 / halfWidth;
-        center3d.y = - ( offY - halfHeight ) * 1.41 / halfHeight;
+        center3d.x = - ( offX - halfWidth - halfPaddingX ) * 2.8 / halfWidth;
+        center3d.y = - ( offY - halfHeight - halfPaddingY ) * 1.38 / halfHeight;
         
         // Transform to geographic coordinate system
         // http://mathworld.wolfram.com/MollweideProjection.html
@@ -244,6 +234,12 @@ var MollweideViewer = function(options) {
 
     // Show/hide mollweide projection
 	$('#slideArrow').on('click', function(){
+        /*$(this).parent().animate({
+            right: parseInt( $(this).parent().css('right') ) == 0 ?
+                -$(this).parent().outerWidth() + 10 :
+                0
+        });*/
+
 		if ( parseFloat($(this).parent().css('right')) < -100 )
 		{
 			// Slide left
@@ -252,7 +248,7 @@ var MollweideViewer = function(options) {
 		else
 		{
 			// Slide right
-			$(this).parent().animate({right: '-210px'}, 300);
+			$(this).parent().animate({right: '-241px'}, 300);
 		}
 	});
 
