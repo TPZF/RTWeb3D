@@ -5,6 +5,7 @@
 @import url('featurePopup.css');
 @import url('sidebar.css');
 @import url('serviceBar.css');
+@import url('mollweideViewer.css');
    
 em
 {
@@ -87,18 +88,11 @@ body
 /****************************/
 /*		Particular boxes	*/
 /****************************/
-#fps
-{
-	position: absolute;
-	left: 20px;
-	bottom: 20px;
-}
 
 #fov
 {
-	position: absolute;
-	left: 20px;
-	bottom: 100px;
+	text-align: center;
+	color: white;
 }
 
 /*** Iframe containing data from external resource ***/
@@ -168,6 +162,13 @@ body
 	top: 10px;
 }
 
+/*** Navigation options block(nameResolver, compass) ***/
+#leftBottomDiv {
+	position: absolute;
+	left: 5px;
+	bottom: 5px;
+}
+
 /*** Stylized fade on hover effect ***/
 .defaultImg
 {
@@ -212,7 +213,7 @@ body
 }
 
 /* No text selection for buttons */
- .ui-button, .noSelect
+ .ui-button, .ui-accordion-header, .noSelect
 {
 	user-select: none;
 	-moz-user-select: none;

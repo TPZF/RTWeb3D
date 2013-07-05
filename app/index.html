@@ -52,14 +52,7 @@
 				<object id="objectCompass" width='100px' height='100px' data="css/images/compass.svg" type="image/svg+xml"></object>
 			</div>
 
-			<div style="pointer-events: auto; margin-top: 10px;" id="mollweideDiv">
-				<div style="position: absolute; right: -241px; overflow: hidden;">
-					<span id="slideArrow" style="border: 1px solid orange; border-radius: 5px 0px 0px 5px; vertical-align: top; position: relative; display: inline-block;">
-						<img width='20px' height='20px' src="css/images/arrow.png"/>
-					</span>
-					<canvas id="mollweideProjection" class="noSelect" style="margin-left: -5px; display: inline-block; border: 1px solid orange; border-radius: 0px 10px 10px 10px;" width="232px" height="116px"></canvas>
-				</div>
-			</div>
+			
 			
 		</div>
 		
@@ -77,9 +70,23 @@
 			Please re-launch your browser. We are working on restoring without relaunching.
 		</div>
 		
+		<!-- Left-Bottom-section -->
+		<div id="leftBottomDiv">
+			<!-- Div for relative position 164 = define height of mollweideContent-->
+			<div style="position: relative; height: 164px; margin-bottom: 5px;">
+				<div id="mollweideDiv">
+					<span id="mollweideContent">
+						<canvas id="mollweideCanvas" class="noSelect" width="232px" height="116px"></canvas>
+						<div id="fov" class="ui-widget">Fov : 45 x 45</div>
+					</span>
+					
+					<span id="slideArrow"></span>
+				</div>
+			</div>
+
+			<div id="fps" class="statBox ui-widget">FPS : 0</div>	
+		</div>
 		
-		<div id="fps" class="statBox ui-widget">FPS : 0</div>
-		<div id="fov" class="statBox ui-widget">Fov : 45 x 45</div>
 		
 		<div id="loading">
 			<img src="css/images/loading.gif" />

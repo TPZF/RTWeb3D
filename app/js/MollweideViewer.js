@@ -100,7 +100,7 @@ var MollweideViewer = function(options) {
     });
 
     // Init image background
-    var canvas = document.getElementById('mollweideProjection');
+    var canvas = document.getElementById('mollweideCanvas');
     var context = canvas.getContext('2d');
     var imageObj = new Image();
     imageObj.onload = function() {
@@ -171,8 +171,8 @@ var MollweideViewer = function(options) {
         // Draw center
         context.fillStyle = center3d.color;
         mPos = computeMollweidePosition ( navigation.center3d );
-        center3d.x = mPos[0];
-        center3d.y = mPos[1];
+        center3d.x = mPos[0] - center3d.size/2;
+        center3d.y = mPos[1] - center3d.size/2;
 
         // Draw on canvas 2d
         context.fillRect(mPos[0] - center3d.size/2, mPos[1]-center3d.size/2, center3d.size, center3d.size);
@@ -234,22 +234,21 @@ var MollweideViewer = function(options) {
 
     // Show/hide mollweide projection
 	$('#slideArrow').on('click', function(){
-        /*$(this).parent().animate({
-            right: parseInt( $(this).parent().css('right') ) == 0 ?
-                -$(this).parent().outerWidth() + 10 :
-                0
-        });*/
 
-		if ( parseFloat($(this).parent().css('right')) < -100 )
-		{
-			// Slide left
-			$(this).parent().animate({right: '0px'}, 300);
-		}
-		else
-		{
-			// Slide right
-			$(this).parent().animate({right: '-241px'}, 300);
-		}
+        if ( parseFloat($(this).parent().css('left')) < 0 )
+        {
+            // Show
+            $('#mollweideContent').css({ boxShadow: "0px 0px 8px 1px rgba(255, 158, 82, 0.92)"});
+            $(this).css('background-position', '0px 0px');
+            $(this).parent().animate({left: '0px'}, 300);
+        }
+        else
+        {
+            // Hide
+            $('#mollweideContent').css({ boxShadow: "none"});
+            $(this).css('background-position', '0px -20px');
+            $(this).parent().animate({left: '-266px'}, 300);
+        }
 	});
 
 	// Fix for Google Chrome : avoid dragging
