@@ -1,0 +1,21 @@
+#imageProcessing > div, #imageProcessing > span, #imageProcessing > select
+{
+	padding: 5px;
+}
+
+.thresholdInputs > #max, .thresholdInputs > #min
+{
+	box-shadow: 0px 0px 3px 1px #F8A102;
+	border-radius: 3px;
+	padding: 3px;
+	border: 0;
+	background-color: transparent;
+	color: #F6931F;
+	font-weight: bold;
+	outline: none;
+}
+
+.thresholdInputs > #max:focus, .thresholdInputs > #min:focus
+{
+	box-shadow: 0px 0px 3px 1px #6BCAFF;
+}

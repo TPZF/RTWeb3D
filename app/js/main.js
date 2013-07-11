@@ -64,9 +64,9 @@ require.config({
  * Main module
  */
 require( ["jquery.ui", "gw/CoordinateSystem", "gw/Globe", "gw/Stats", "gw/AstroNavigation", "gw/AttributionHandler",
-	"LayerManager", "NameResolver", "ReverseNameResolver", "Utils", "PickingManager", "FeaturePopup", "IFrame", "Compass", "MollweideViewer", "ErrorDialog", "StarProvider", "ConstellationProvider", "JsonProvider", "OpenSearchProvider",
+	"LayerManager", "NameResolver", "ReverseNameResolver", "Utils", "PickingManager", "FeaturePopup", "IFrame", "Compass", "MollweideViewer", "ErrorDialog", "FitsManager", "StarProvider", "ConstellationProvider", "JsonProvider", "OpenSearchProvider",
 	"gw/EquatorialCoordinateSystem", "gw/ConvexPolygonRenderer", "gw/PointSpriteRenderer", "gw/PointRenderer"],
-	function($, CoordinateSystem, Globe, Stats, AstroNavigation, AttributionHandler, LayerManager, NameResolver, ReverseNameResolver, Utils, PickingManager, FeaturePopup, IFrame, Compass, MollweideViewer, ErrorDialog) {
+	function($, CoordinateSystem, Globe, Stats, AstroNavigation, AttributionHandler, LayerManager, NameResolver, ReverseNameResolver, Utils, PickingManager, FeaturePopup, IFrame, Compass, MollweideViewer, ErrorDialog, FitsManager) {
 
 // Console fix	
 window.console||(console={log:function(){}});
@@ -209,6 +209,9 @@ $(function()
 
 			// Create layers from configuration file
 			LayerManager.init(globe, navigation, data);
+
+			// Initialize the fits manager
+			FitsManager.init(globe);
 
 			// Create data manager
 			PickingManager.init(globe, navigation);

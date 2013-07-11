@@ -6,6 +6,7 @@
 @import url('sidebar.css');
 @import url('serviceBar.css');
 @import url('mollweideViewer.css');
+@import url('imageProcessing.css');
    
 em
 {
@@ -219,4 +220,20 @@ body
 	-moz-user-select: none;
 	-khtml-user-select: none;
 	-webkit-user-select: none;
+}
+
+/* Hotfix : hack width selectmenu */
+/* TODO to remove later */
+#backgroundLayers-menu {
+	height: 200px !important;
+	width: 150px !important;
+}
+
+#backgroundLayers-button {
+	width: 150px !important;
+}
+
+input::-moz-placeholder
+{
+	color: rgba(127,127,127,.5);
 }

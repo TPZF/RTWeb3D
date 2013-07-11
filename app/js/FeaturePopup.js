@@ -264,6 +264,14 @@ return {
 			}
 		});
 
+		// Show/hide Dynamic image service
+		$selectedFeatureDiv.on("click", '#dynamicImageView', function(event){
+			if ($(this).is('.dynamicAvailable'))
+			{
+				pickingManager.getSelectedData().feature.div.toggle();
+			}
+		});
+
 		// Show/hide HEALPix service
 		$selectedFeatureDiv.on("click", '#healpix', function(event){
 			var selectedData = pickingManager.getSelectedData();
@@ -469,6 +477,7 @@ return {
 		$('#rightDiv').fadeOut(300, function(){
 			createHTMLSelectedFeatureDiv( layer, feature );
 			$(this).fadeIn(300, function(){
+				$('.featureProperties').getNiceScroll().resize();
 				$('.featureProperties').getNiceScroll().show();
 			});
 		});

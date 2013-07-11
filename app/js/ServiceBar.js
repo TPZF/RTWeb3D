@@ -22,7 +22,7 @@
  * (currently specified only for OpenSearchLayer)
  *
  */
-define( [ "jquery.ui", "OpenSearchService", "FitsService", "MocService" ], function($, OpenSearchService, FitsService, MocService) {
+define( [ "jquery.ui", "OpenSearchService", "MocService" ], function($, OpenSearchService, MocService) {
 
 // Create service bar div
 
@@ -47,8 +47,7 @@ var tabs = $('#layerServices').tabs({
 // Mapping between type of a layer and supported services
 var serviceMapping =
 {
-	"DynamicOpenSearch": [OpenSearchService, FitsService, MocService],
-	"GeoJSON": [ FitsService ]
+	"DynamicOpenSearch": [OpenSearchService, MocService]
 };
 
 var layers = [];
@@ -102,7 +101,6 @@ return {
 	init: function(gl, configuration)
 	{
 		MocService.init(gl, configuration);
-		FitsService.init(gl);
 		$( "#serviceBar" ).accordion( { autoHeight: false, active: false, collapsible: true } ).show();
 		$(window).resize(function()
 		{

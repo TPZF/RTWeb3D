@@ -7,8 +7,8 @@
     //"debug": true,
     "coordSystem": "EQ", // Default coordinate system
     "navigation": {
-    	"initTarget": [0,0],
-    	"initFov": 50,
+    	"initTarget": [14.06,-1.252403],
+    	"initFov": 1,
     	"inertia": true,
     	"minFov": 0.001,
     	"zoomFactor": 0

@@ -22,10 +22,13 @@
 			if ( services.download )
 			{
 				if ( services.download.mimetype == "image/fits" )
-				{ %>
-					<img title="Quicklook" id='quicklook' src="css/images/quicklook.png" class=<%= (properties.style.fill ? 'selected' : '' ) %> />
+				{ 
+					var quicklookOn = properties.style.fill;
+					%>
+					<img title="Quicklook" id='quicklook' src="css/images/quicklook.png" class=<%= (quicklookOn ? 'selected' : '' ) %> />
 					<img title="Solar object service" id="solarObjects" src="css/images/solarObjectsService.png" class=<%= (services.solarObjects && services.solarObjects.layer.visible() ? 'selected' : '' ) %> />
 					<img style="display: none" id="solarObjectsSpinner" src="css/images/loading.gif" />
+					<span title="Image processing" id="dynamicImageView" class=<%= (quicklookOn ? 'dynamicAvailable' : 'dynamicNotAvailable' ) %> />
 				<%
 				}
 			 	%>
