@@ -121,7 +121,7 @@ function handleFits(response, selectedData)
 	var image = new DynamicImage(gl, pixels, gl.LUMINANCE, gl.FLOAT, fitsData.width, fitsData.height);
 	
 	// Create dynamic image view and attach it to feature
-	new DynamicImageView({image : image, featureData: selectedData});
+	new DynamicImageView({image : image, featureData: selectedData, activator: 'dynamicImageView'});
 
 	// Attach texture to style
 	var targetStyle = new FeatureStyle( selectedData.feature.properties.style );

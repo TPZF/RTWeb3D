@@ -23,8 +23,8 @@ define(['jquery.ui', 'underscore-min', "gw/FeatureStyle", "text!../templates/dyn
 
 var DynamicImageView = function(options)
 {
-	// TODO create activator
-	$('#dynamicImageView').addClass('dynamicAvailable').removeClass('dynamicNotAvailable');
+	this.activator = options.activator;
+	$('#'+this.activator).addClass('dynamicAvailable').removeClass('dynamicNotAvailable');
 
 	// Interaction parameters
 	var selectedColormap = "grey";
@@ -54,7 +54,7 @@ var DynamicImageView = function(options)
 							minHeight: 'auto',
 							close: function(event, ui)
 							{
-								$('#dynamicImageView').removeClass('selected');
+								$('#'+this.activator).removeClass('selected');
 								$(this).dialog("close");
 							}
 						});
@@ -65,12 +65,13 @@ var DynamicImageView = function(options)
 	this.$dialog.find('#max').attr("placeholder", image.max);
 
 	var self = this;
+	var step = (image.max-image.min)/1000;
 	var $slider = this.$dialog.find('.contrastSlider').slider({
 			range: true,
 			values: [image.min,image.max],
 			min: image.min,
 			max: image.max,
-			step: 1,
+			step: step,
 			slide: function( event, ui ) {
 
 				image.tmin = ui.values[0];
@@ -174,19 +175,19 @@ DynamicImageView.prototype.toggle = function()
 {
 	if ( this.$dialog.dialog( "isOpen" ) )
 	{
-		$('#dynamicImageView').removeClass('selected');
+		$('#'+this.activator).removeClass('selected');
 		this.$dialog.dialog("close");
 	}
 	else
 	{
-		$('#dynamicImageView').addClass('selected');
+		$('#'+this.activator).addClass('selected');
 		this.$dialog.dialog("open");
 	}
 }
 
 DynamicImageView.prototype.remove = function()
 {
-	$('#dynamicImageView').removeClass('dynamicAvailable').addClass('dynamicNotAvailable').remove('selected');
+	$('#'+this.activator).removeClass('dynamicAvailable').addClass('dynamicNotAvailable').remove('selected');
 	this.image.dispose();
 	this.$dialog.remove();
 }
