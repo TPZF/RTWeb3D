@@ -252,7 +252,7 @@ return {
 
 				if ( selectedData.feature.services && selectedData.feature.services.download && selectedData.feature.services.download.mimetype == "image/fits" )
 				{
-					var url = "/sitools/proxy?external_url=" + selectedData.feature.services.download.url;
+					var url = "/sitools/proxy?external_url=" + encodeURIComponent(selectedData.feature.services.download.url);
 					globe.publish("fitsRequested", { selectedData: selectedData, url: url });
 				}
 				else
