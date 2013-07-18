@@ -20,9 +20,9 @@
 /**
  * LayerManager module
  */
-define( [ "jquery.ui", "gw/FeatureStyle", "gw/HEALPixLayer", "gw/VectorLayer", "gw/CoordinateGridLayer", "gw/TileWireframeLayer", "gw/OpenSearchLayer", "PickingManager", "ClusterOpenSearchLayer", "MocLayer", "Utils", "ErrorDialog", "JsonProcessor", "ServiceBar",
+define( [ "jquery.ui", "gw/FeatureStyle", "gw/HEALPixLayer", "gw/VectorLayer", "gw/CoordinateGridLayer", "gw/TileWireframeLayer", "gw/OpenSearchLayer", "PickingManager", "ClusterOpenSearchLayer", "MocLayer", "HEALPixFITSLayer", "Utils", "ErrorDialog", "JsonProcessor", "ServiceBar",
 	"underscore-min", "text!../templates/additionalLayer.html", "jquery.ui.selectmenu", "jquery.nicescroll.min" ], 
-	function($, FeatureStyle, HEALPixLayer, VectorLayer, CoordinateGridLayer, TileWireframeLayer, OpenSearchLayer, PickingManager, ClusterOpenSearchLayer, MocLayer, Utils, ErrorDialog, JsonProcessor, ServiceBar, _, additionalLayerHTMLTemplate) {
+	function($, FeatureStyle, HEALPixLayer, VectorLayer, CoordinateGridLayer, TileWireframeLayer, OpenSearchLayer, PickingManager, ClusterOpenSearchLayer, MocLayer, HEALPixFITSLayer, Utils, ErrorDialog, JsonProcessor, ServiceBar, _, additionalLayerHTMLTemplate) {
 
 /**
  * Private variable for module
@@ -85,9 +85,18 @@ function createLayerFromConf(layer) {
 			// Add necessary option
 			options.baseUrl = layer.baseUrl;
 			options.coordSystem = layer.coordSystem || "EQ";
-			gwLayer = new HEALPixLayer(options);
+			if ( layer.dataType == "fits" )
+			{
+				options.div = true;
+				gwLayer = new HEALPixFITSLayer(options);
+			}
+			else
+			{
+				gwLayer = new HEALPixLayer(options);
+			}
+
 			break;
-				
+		
 		case "coordinateGrid":
 			gwLayer = new CoordinateGridLayer( {
 				name: layer.name,
@@ -263,6 +272,15 @@ function createHtmlForBackgroundLayer( gwLayer )
 		$('#backgroundLayers').val( $layerDiv.val() );
 	}
 	
+	if ( gwLayer.dataType == "fits" )
+	{
+		$('#fitsView').button("enable");
+	}
+	else
+	{
+		$('#fitsView').button("disable");
+	}
+	
 	nbBackgroundLayers++;
 }
 
@@ -434,7 +452,6 @@ function createHtmlForAdditionalLayer( gwLayer )
 		}
 
 	});
-	//updateScroll();
 }
 
 /**
@@ -480,7 +497,7 @@ function addAdditionalLayer ( gwLayer )
 		icons: {
 			primary: "ui-icon-zoomin"
 		}
-	});	
+	});
 }
 
 function initToolbarEvents ()
@@ -591,6 +608,9 @@ function initLayers(layers)
 			var layer = $(this).children().eq(index).data("layer");
 			globe.setBaseImagery( layer );
 
+			// Show background loading spinner
+			$('#loading').show(300);
+
 			// Add all previously added layers to the new imagery
 			for ( var i=0; i<gwLayers.length; i++ )
 			{
@@ -603,6 +623,16 @@ function initLayers(layers)
 					}
 
 				}
+			}
+			
+			// Change dynamic image view button
+			if ( layer.div  )
+			{
+				$('#fitsView').button("enable");
+			}
+			else
+			{
+				$('#fitsView').button("disable");
 			}
 		}
 	});
@@ -634,6 +664,19 @@ return {
 		globe = gl;
 		navigation = nav;
 		
+		// Create Dynamic image view for background layers
+		$('#fitsView').button();
+		// Show/hide Dynamic image service
+		$('#fitsView').on("click", function(event){
+			var index = $('select#backgroundLayers').data('selectmenu').index();
+			var layer = $('select#backgroundLayers').children().eq(index).data("layer");
+
+			if ( layer.div )
+			{
+				layer.div.toggle();
+			}
+		});
+
 		// Call init layers
 		initLayers(configuration.layers);
 		ServiceBar.init(gl, configuration);

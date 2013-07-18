@@ -20,8 +20,8 @@
 /**
  * Fits manager
  */
-define( [ "jquery.ui", "gw/FeatureStyle", "gw/DynamicImage", "DynamicImageView", "ProgressBar", "fits" ],
-			function($, FeatureStyle, DynamicImage, DynamicImageView, ProgressBar) {
+define( [ "jquery.ui", "gw/FeatureStyle", "gw/DynamicImage", "DynamicImageView", "ProgressBar", "FitsLoader", "fits" ],
+			function($, FeatureStyle, DynamicImage, DynamicImageView, ProgressBar, FitsLoader) {
 
 var globe = null;
 
@@ -29,40 +29,6 @@ var progressBarsDiv = '<div id="progressBars"></div>';
 var $progressBars = $(progressBarsDiv).appendTo('body');
 
 var progressBars = {};
-
-/**
- *	Parse fits file
- *
- *	@param response XHR response containing fits
- *
- *	@return Parsed data
- */
-function parseFits(response)
-{
-	var FITS = astro.FITS;
-    // Initialize the FITS.File object using
-    // the array buffer returned from the XHR
-    var fits = new FITS.File(response);
-    // Grab the first HDU with a data unit
-    var hdu = fits.getHDU();
-    var data = hdu.data;
-
-    var uintPixels;
-    var swapPixels = new Uint8Array( data.view.buffer, data.begin, data.length ); // with gl.UNSIGNED_byte
-
-    for ( var i=0; i<swapPixels.length; i+=4 )
-    {
-        var temp = swapPixels[i];
-        swapPixels[i] = swapPixels[i+3];
-        swapPixels[i+3] = temp;
-
-        temp = swapPixels[i+1];
-        swapPixels[i+1] = swapPixels[i+2];
-        swapPixels[i+2] = temp;
-    }
-    
-    return data;
-}
 
 /**
  *	Remove fits texture from feature
@@ -89,39 +55,54 @@ function removeFits(featureData)
  */
 function computeFits(featureData, url)
 {
-	// Enable float texture extension to have higher luminance range
-	var ext = globe.renderContext.gl.getExtension("OES_texture_float");
-    if (!ext) {
-    	// TODO 
-        alert("no OES_texture_float");
-        return;
-    }
-	var xhr = new XMLHttpRequest();
-    xhr.open('GET', url);
-    xhr.responseType = 'arraybuffer';
-    xhr.onload = function(e) {
+    var xhr = FitsLoader.loadFits(url, function(fitsData){
     	delete progressBars[featureData.feature.properties.identifier];
-		handleFits(xhr.response, featureData);
-    }
+    	handleFits(fitsData, featureData);
+    });
+
     progressBars[ featureData.feature.properties.identifier ] = new ProgressBar(globe, featureData, xhr);
-    xhr.send();
 }
 
 /**
  *	Handle fits data on selected feature
  */
-function handleFits(response, selectedData)
+function handleFits(fitsData, selectedData)
 {
-	var fitsData = parseFits(response);
-
-	var pixels = new Float32Array( fitsData.view.buffer, fitsData.begin, fitsData.length/4 ); // with gl.FLOAT
-
 	// Create new image coming from Fits
+
+	var typedArray = new Float32Array( fitsData.view.buffer, fitsData.begin, fitsData.length/4); // with gl.FLOAT
 	var gl = globe.renderContext.gl;
-	var image = new DynamicImage(gl, pixels, gl.LUMINANCE, gl.FLOAT, fitsData.width, fitsData.height);
-	
+	var image = new DynamicImage(gl, typedArray, gl.LUMINANCE, gl.FLOAT, fitsData.width, fitsData.height);
+
 	// Create dynamic image view and attach it to feature
-	new DynamicImageView({image : image, featureData: selectedData, activator: 'dynamicImageView'});
+	selectedData.feature.div = new DynamicImageView({
+		image : image,
+		featureData: selectedData,
+		activator: 'dynamicImageView',
+		id: selectedData.feature.properties.identifier,
+		changeShaderCallback: function(contrast){
+			if ( contrast == "raw" )
+			{
+				var targetStyle = new FeatureStyle( selectedData.feature.properties.style );
+				targetStyle.fillShader = {
+					fragmentCode: null,
+					updateUniforms: null
+				};
+				targetStyle.uniformValues = image;
+				selectedData.layer.modifyFeatureStyle( selectedData.feature, targetStyle );
+			}
+			else
+			{
+				var targetStyle = new FeatureStyle( selectedData.feature.properties.style );
+				targetStyle.fillShader = {
+					fragmentCode: image.fragmentCode,
+					updateUniforms: image.updateUniforms
+				};
+				targetStyle.uniformValues = image;
+				selectedData.layer.modifyFeatureStyle( selectedData.feature, targetStyle );
+			}
+		}
+	});
 
 	// Attach texture to style
 	var targetStyle = new FeatureStyle( selectedData.feature.properties.style );
@@ -167,6 +148,14 @@ return {
 
 			removeFits(selectedData);
 		});
+
+		// Enable float texture extension to have higher luminance range
+		var ext = globe.renderContext.gl.getExtension("OES_texture_float");
+		if (!ext) {
+			// TODO 
+			alert("no OES_texture_float");
+			return;
+		}
 	},
 }
 
