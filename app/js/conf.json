@@ -84,7 +84,7 @@
 			"baseUrl": "/Alasky/IRISColor",
 			"description": "IRIS color",
 			"icon": "css/images/star_icon.png",
-			"visible": true,
+			"visible": false,
 			"background": true,
 			"coordSystem": "GAL"
 		},
@@ -94,7 +94,7 @@
 			"baseUrl": "/Alasky/CFHTLS-T0007b/Deep/RGB-UGIm",
 			"description": "Deep CFHTLS from CDS",
 			"attribution": "Deep CFHTLS backbround from <img width='48' height='32' src=\"css/images/cds.svg\" />",
-			"visible": true,
+			"visible": false,
 			"background": true,
             "numberOfLevels": 12
 		},
@@ -104,7 +104,7 @@
 			"baseUrl": "/Alasky/CFHTLS-T0007b/Wide/RGB-UGIm",
 			"description": "CFHTLS-W-Colored (UGI)",
                         "attribution": "TERAPIX - Healpixed by CDS",
-			"visible": true,
+			"visible": false,
 			"background": true
 		},
 		{ 
@@ -113,7 +113,7 @@
 			"baseUrl": "/Alasky/2MASS/Color",
 			"description": "Infrared 2MASS colored survey from NASA, healpixed by CDS",
 			"attribution": "2MASS backbround from <img width='48' height='32' src=\"css/images/cds.svg\" />",
-			"visible": true,
+			"visible": false,
 			"background": true
 		},
         { 
@@ -122,7 +122,7 @@
 			"baseUrl": "/Alasky/RASS",
 			"description": "RASS-ROSAT X-Ray All-Sky Survey",
 			"attribution": "Distributed by MPE - Healpixed by CDS",
-			"visible": true,
+			"visible": false,
 			"background": true
 		},
         { 
@@ -130,7 +130,7 @@
 			"name": "NVSS",
 			"baseUrl": "/Alasky/NVSS/intensity",
 			"description": "NVSS intensity maps (1.4GHz)",
-			"visible": true,
+			"visible": false,
 			"background": true
 		},
 		{
@@ -140,8 +140,19 @@
 			"description": "Sloan Digital Sky Survey from CDS",
 			"attribution": "SDSS backbround from <img width='48' height='32' src=\"css/images/cds.svg\" />",
 			"icon": "css/images/star_icon.png",
-			"visible": true,
+			"visible": false,
 			"background": true
+		},
+		{
+			"type": "healpix",
+			"name": "PlanckFITS",
+			"baseUrl" : "/Alasky/PLANCK/CMB",
+			"description": "Planck survey from CDS",
+			"attribution": "Planck backbround from <img width='48' height='32' src=\"css/images/cds.svg\" />",
+			"visible": false,
+			"background": true,
+			"dataType": "fits",
+			"coordSystem": "GAL"
 		},
 		{ 
 			"type": "healpix",

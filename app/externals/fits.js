@@ -219,9 +219,9 @@
         args = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
         key = "BLANK";
         value = arguments[0];
-        if (!(this["BIXPIX"] > 0)) {
-          throw "" + key + " is not to be used for BITPIX = " + this['BITPIX'];
-        }
+        // if (!(this["BITPIX"] > 0)) {
+        //   throw "" + key + " is not to be used for BITPIX = " + this['BITPIX'];
+        // }
         return parseInt(value);
       },
       DATAMIN: function() {
