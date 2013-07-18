@@ -1,0 +1,95 @@
+/***************************************
+ * Copyright 2011, 2012 GlobWeb contributors.
+ *
+ * This file is part of GlobWeb.
+ *
+ * GlobWeb is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * GlobWeb is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with GlobWeb. If not, see <http://www.gnu.org/licenses/>.
+ ***************************************/
+
+ define( ["fits"], function() {
+
+/**
+ *	Parse fits file
+ *
+ *	@param response XHR response containing fits
+ *
+ *	@return Parsed data
+ */
+function parseFits(response)
+{
+	var FITS = astro.FITS;
+    // Initialize the FITS.File object using
+    // the array buffer returned from the XHR
+    var fits = new FITS.File(response);
+    // Grab the first HDU with a data unit
+    var hdu = fits.getHDU();
+    var data = hdu.data;
+
+    var uintPixels;
+    var swapPixels = new Uint8Array( data.view.buffer, data.begin, data.length ); // with gl.UNSIGNED_byte
+
+    for ( var i=0; i<swapPixels.length; i+=4 )
+    {
+        var temp = swapPixels[i];
+        swapPixels[i] = swapPixels[i+3];
+        swapPixels[i+3] = temp;
+
+        temp = swapPixels[i+1];
+        swapPixels[i+1] = swapPixels[i+2];
+        swapPixels[i+2] = temp;
+    }
+    
+    return data;
+}
+
+var loadFits = function(url, successCallback, failCallback)
+{
+	var xhr = new XMLHttpRequest();
+	xhr.onreadystatechange = function(e)
+	{
+		if ( xhr.readyState == 4 )
+		{
+			if ( xhr.status == 200 )
+			{
+				if ( xhr.response )
+				{
+					var fitsData = parseFits(xhr.response);
+					if (successCallback)
+					{
+						successCallback( fitsData );
+					}
+				}
+			}
+			else
+			{
+				console.log( "Error while loading " + url );
+				if ( failCallback )
+				{
+					failCallback();
+				}
+			}
+		}
+	};
+	
+	xhr.open("GET", url);
+	xhr.responseType = 'arraybuffer';
+	xhr.send();
+	return xhr;
+}
+
+return {
+	loadFits: loadFits 
+};
+
+});
