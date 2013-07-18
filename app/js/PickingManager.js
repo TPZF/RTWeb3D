@@ -98,18 +98,22 @@ function init()
 {
 	var mouseXStart;
 	var mouseYStart;
+	var timeStart;
+	var timeEnd;
 	var epsilon = 5;
 
 	$('canvas').on("mousedown",function(event){
+		timeStart = new Date();
 		mouseXStart = event.clientX;
 		mouseYStart = event.clientY;
 	});
 
-	// Picking event
-	$('canvas').on("mouseup",function(event){
+	$('canvas').mouseup(function(event){
+		timeEnd = new Date();
+		var diff = timeEnd - timeStart;
 
-		// If not pan
-		if ( Math.abs(mouseXStart - event.clientX) < epsilon && Math.abs(mouseYStart - event.clientY) < epsilon )
+		// If not pan and not reverse name resolver call
+		if ( diff < 500 && Math.abs(mouseXStart - event.clientX) < epsilon && Math.abs(mouseYStart - event.clientY) < epsilon )
 		{
 			var pickPoint = globe.getLonLatFromPixel(event.clientX, event.clientY);
 
