@@ -64,9 +64,9 @@ require.config({
  * Main module
  */
 require( ["jquery.ui", "gw/CoordinateSystem", "gw/Globe", "gw/Stats", "gw/AstroNavigation", "gw/AttributionHandler",
-	"LayerManager", "NameResolver", "ReverseNameResolver", "Utils", "PickingManager", "FeaturePopup", "IFrame", "Compass", "MollweideViewer", "ErrorDialog", "FitsManager", "StarProvider", "ConstellationProvider", "JsonProvider", "OpenSearchProvider",
+	"LayerManager", "NameResolver", "ReverseNameResolver", "Utils", "PickingManager", "FeaturePopup", "IFrame", "Compass", "MollweideViewer", "ErrorDialog", "FitsManager", "Share", "StarProvider", "ConstellationProvider", "JsonProvider", "OpenSearchProvider",
 	"gw/EquatorialCoordinateSystem", "gw/ConvexPolygonRenderer", "gw/PointSpriteRenderer", "gw/PointRenderer"],
-	function($, CoordinateSystem, Globe, Stats, AstroNavigation, AttributionHandler, LayerManager, NameResolver, ReverseNameResolver, Utils, PickingManager, FeaturePopup, IFrame, Compass, MollweideViewer, ErrorDialog, FitsManager) {
+	function($, CoordinateSystem, Globe, Stats, AstroNavigation, AttributionHandler, LayerManager, NameResolver, ReverseNameResolver, Utils, PickingManager, FeaturePopup, IFrame, Compass, MollweideViewer, ErrorDialog, FitsManager, Share) {
 
 // Console fix	
 window.console||(console={log:function(){}});
@@ -107,11 +107,20 @@ $(function()
 	
 	var confURL = 'js/conf.json'; // default
 
+	var documentURI =  window.document.documentURI;
+
 	// If configuration is defined by SiTools2
-	var splitIndex = window.document.documentURI.indexOf( "?conf=" );
-	if ( splitIndex != -1 )
+	var splitStartIndex = documentURI.indexOf( "?conf=" );
+
+	// Shared url exist
+	var splitEndIndex = documentURI.search( /[&|?]ra=/ );
+	if ( splitEndIndex != -1 )
 	{
-		var url = window.document.documentURI.substr( splitIndex+6 );
+		var confURLLength = splitEndIndex - splitStartIndex - 6;
+	}
+	if ( splitStartIndex != -1 )
+	{
+		var url = documentURI.substr( splitStartIndex+6, confURLLength );
 		if ( url != 'undefined' && url != '' ) {
 			confURL = url;
 		}
@@ -180,6 +189,23 @@ $(function()
 				return false;
 			}
 
+			// Shared url
+			var raIndex = documentURI.indexOf( "ra=" );
+			var declIndex = documentURI.indexOf( "&decl=" );
+			var fovIndex = documentURI.indexOf ( "&fov=" );
+			if ( raIndex != -1 )
+			{
+				data.navigation.initTarget[0] = parseFloat(documentURI.substr( raIndex+3, declIndex - raIndex - 3 ));
+			}
+			if ( declIndex != -1 )
+			{
+				data.navigation.initTarget[1] = parseFloat(documentURI.substr( declIndex+6, fovIndex - declIndex - 6 ));
+			}
+			if ( fovIndex != -1 )
+			{
+				data.navigation.initFov = parseFloat(documentURI.substr( fovIndex+5 ));
+			}
+
 			// Add stats
 			if ( data.stats.visible ) {
 				new Stats( globe.renderContext, { element: "fps", verbose: data.stats.verbose });
@@ -221,6 +247,9 @@ $(function()
 
 			// Mollweide viewer
 			new MollweideViewer({ globe : globe, navigation : navigation });
+
+			// Share init
+			Share.init({navigation : navigation});
 
 			// Update fov when moving
 			navigation.subscribe("modified", updateFov);
