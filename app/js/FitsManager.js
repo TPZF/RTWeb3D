@@ -57,7 +57,7 @@ function computeFits(featureData, url)
 {
     var xhr = FitsLoader.loadFits(url, function(fitsData){
     	// Hide progress bar, if response header "Content-Length" wasn't set so progress bar can't hide itself
-    	progressBars[selectedData.feature.properties.identifier].hide();
+    	progressBars[featureData.feature.properties.identifier].hide();
 
     	delete progressBars[featureData.feature.properties.identifier];
     	handleFits(fitsData, featureData);
@@ -80,7 +80,6 @@ function handleFits(fitsData, selectedData)
 	// Create dynamic image view and attach it to feature
 	selectedData.feature.div = new DynamicImageView({
 		image : image,
-		featureData: selectedData,
 		activator: 'dynamicImageView',
 		id: selectedData.feature.properties.identifier,
 		changeShaderCallback: function(contrast){
