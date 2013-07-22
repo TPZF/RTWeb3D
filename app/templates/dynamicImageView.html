@@ -1,17 +1,19 @@
 <div id="imageProcessing">
-	<span style="display: inline-block;">Contrast : </span>
-	<div class="contrast" style="display: inline-block;">
-		<input name="fitsScale_<%= id %>" type="radio" value="raw" id="raw_<%= id %>" checked="checked" /><label for="raw_<%= id %>">Raw</label>
-		<input name="fitsScale_<%= id %>" type="radio" value="linear" id="linear_<%= id %>" /><label for="linear_<%= id %>">Linear</label>
-	  	<input name="fitsScale_<%= id %>" type="radio" value="log" id="log_<%= id %>" /><label for="log_<%= id %>">Log</label>
-	  	<input name="fitsScale_<%= id %>" type="radio" value="sqrt" id="sqrt_<%= id %>" /><label for="sqrt_<%= id %>">Sqrt</label>
-	  	<input name="fitsScale_<%= id %>" type="radio" value="sqr" id="sqr_<%= id %>" /><label for="sqr_<%= id %>">Pow2</label>
-	  	<input name="fitsScale_<%= id %>" type="radio" value="asin" id="asin_<%= id %>" /><label for="asin_<%= id %>">AsinH</label>
+	<div>
+		<span class="processOption">Contrast : </span>
+		<div class="contrast" style="display: inline-block;">
+			<input name="fitsScale_<%= id %>" type="radio" value="raw" id="raw_<%= id %>" checked="checked" /><label for="raw_<%= id %>">Raw</label>
+			<input name="fitsScale_<%= id %>" type="radio" value="linear" id="linear_<%= id %>" /><label for="linear_<%= id %>">Linear</label>
+		  	<input name="fitsScale_<%= id %>" type="radio" value="log" id="log_<%= id %>" /><label for="log_<%= id %>">Log</label>
+		  	<input name="fitsScale_<%= id %>" type="radio" value="sqrt" id="sqrt_<%= id %>" /><label for="sqrt_<%= id %>">Sqrt</label>
+		  	<input name="fitsScale_<%= id %>" type="radio" value="sqr" id="sqr_<%= id %>" /><label for="sqr_<%= id %>">Pow2</label>
+		  	<input name="fitsScale_<%= id %>" type="radio" value="asin" id="asin_<%= id %>" /><label for="asin_<%= id %>">AsinH</label>
+		</div>
 	</div>
 
 	<div>
-		<span>Colormap : </span>
-		<select class="colormap" style="width:100px;">
+		<span class="processOption">Colormap : </span>
+		<select class="colormap" style="width:100px;" disabled>
 			<option value="grey">Grey</option>
 			<option value="rainbow">Rainbow</option>
 			<option value="stern">Stern</option>
@@ -20,18 +22,25 @@
 		</select>
 	</div>
 
-  	<div class="thresholdInputs">
-		<div style="width: 150px; margin-bottom: 10px;" class="contrastSlider"></div>
-  		<label for="min">Min : </label><input type="text" id="min" />
-  		<label for="max">Max : </label><input type="text" id="max" />
-  	</div>
+	<div>
+  		<span class="processOption"> Threshold : </span>
+		<div class="thresholdSlider"></div>
+	</div>
 
-  	<span>
-  		Inverse:
-  		<span style="top: 4; padding: 0px;" class="inverse ui-state-default ui-corner-all ui-button">
-			<span class="ui-icon ui-icon-empty"></span>
-		</span>
-	</span>
+	<div>
+	  	<span class="thresholdInputs">
+	  		<label for="min">Min : </label><input type="text" id="min" disabled />
+	  		<label for="max">Max : </label><input type="text" id="max" disabled />
+	  	</span>
+	</div>
 
-	<!-- <span>Inverse: </span><input class="inverse" style="position: relative; height: 20px; width:20px; top: 5px;" type="checkbox"/>  -->
+	<div>
+		<span style="width: auto" class="processOption"> Inverse : </span>
+		<input id="inverse" class="inverse" type="checkbox" disabled /><label for="inverse"></label>
+	</div>
+
+	<div>
+		<div class="processOption" >Histogram : </div>
+		<canvas id="histogram_<%= id %>" width="260" height="160"></canvas>
+	</div>
 </div>

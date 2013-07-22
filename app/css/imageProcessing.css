@@ -1,6 +1,24 @@
-#imageProcessing > div, #imageProcessing > span, #imageProcessing > select
+/* Buttonset, selectmenu, min/max */
+#imageProcessing > div, #imageProcessing > span
 {
 	padding: 5px;
+}
+
+.processOption
+{
+	padding: 5px;
+	display: inline-block;
+	width: 100px;
+	vertical-align: top;
+}
+
+.thresholdSlider
+{
+	top: 5px;
+	width: 150px;
+	margin-bottom: 10px;
+	margin-top: 5px;
+	display: inline-block;
 }
 
 .thresholdInputs > #max, .thresholdInputs > #min
@@ -18,4 +36,25 @@
 .thresholdInputs > #max:focus, .thresholdInputs > #min:focus
 {
 	box-shadow: 0px 0px 3px 1px #6BCAFF;
+}
+
+.thresholdInputs > #max:disabled, .thresholdInputs > #min:disabled
+{
+	box-shadow: 0px 0px 3px 1px rgb(151, 151, 151);
+	color: #333;
+}
+
+/* Stylize checkbox jquery button */
+.inverse+label
+{
+	top: 5px;
+	width:16px; 
+    height:16px; 
+    vertical-align:middle;
+}
+
+/* ui-widget default font size is too big.. */
+.ui-widget .ui-widget
+{
+	font-size: 0.8em;
 }

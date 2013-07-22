@@ -17,7 +17,7 @@
 * along with SITools2. If not, see <http://www.gnu.org/licenses/>. 
 ******************************************************************************/ 
 
-define(['jquery.ui', 'underscore-min', "gw/FeatureStyle", "text!../templates/dynamicImageView.html", "jquery.ui.selectmenu"], function($,_, FeatureStyle, dynamicImageViewHTML) {
+define(['jquery.ui', 'underscore-min', "gw/FeatureStyle", "./Histogram", "text!../templates/dynamicImageView.html", "jquery.ui.selectmenu"], function($,_, FeatureStyle, Histogram, dynamicImageViewHTML) {
  
 /**************************************************************************************************************/
 
@@ -25,7 +25,7 @@ var DynamicImageView = function(options)
 {
 	this.activator = options.activator;
 
-	// TODO unify activator layout between button and img
+	// TODO unify activator layout between button and img, in order to remove button option
 	if ( options.button )
 	{
 		$('#'+this.activator).button("enable");
@@ -40,8 +40,10 @@ var DynamicImageView = function(options)
 	var selectedContrast = "raw";
 	var inverse = false;
 
+	this.histogram = null;
 	this.image = options.image;
 
+	// Create dialog
 	var dialogContent = _.template(dynamicImageViewHTML, { id: options.id});
 	this.$dialog = $(dialogContent).appendTo('body').dialog({
 							title: 'Image processing',
@@ -59,6 +61,7 @@ var DynamicImageView = function(options)
 							minHeight: 'auto',
 							close: function(event, ui)
 							{
+								// TODO unify activator layout between button and img, in order to remove button option
 								if ( options.button )
 								{
 									$('#'+self.activator).removeAttr("checked").button("refresh");
@@ -72,18 +75,55 @@ var DynamicImageView = function(options)
 							}
 						});
 
+	// Initialize contrast buttonset
+	this.$dialog.find('.contrast').buttonset().find('input')
+			.each(function(i){
+				$(this).click(function(){
+					selectedContrast = $(this).val();
+					switch(selectedContrast){
+						case "linear":
+						case "log":
+						case "sqrt":
+						case "sqr":
+						case "asin":
+							$slider.slider( "enable" );
+							$selectmenu.selectmenu( "enable" );
+							self.$dialog.find('.inverse').removeAttr('disabled').button("refresh");
+							self.image.updateColormap(selectedContrast, selectedColormap, inverse);
+							self.$dialog.find('.thresholdInputs input').each(function(i){
+								$(this).removeAttr('disabled');
+							});
+							break;
+						case "raw":
+							$selectmenu.selectmenu( "disable" );
+							$slider.slider( "disable" );
+							self.$dialog.find('.inverse').attr('disabled', 'disabled').button("refresh");
+							self.$dialog.find('.thresholdInputs input').each(function(i){
+								$(this).attr('disabled', 'disabled');
+							});
+							break;
+						default:
+							break;
+					}
+					if ( options.changeShaderCallback )
+						options.changeShaderCallback(selectedContrast);
+
+					self.render();
+				});
+			});
 
 	// Put min/max values into placeholder
 	// Maybe not the most ergonomic way to do, but I find it cool J
 	this.$dialog.find('#min').attr("placeholder", this.image.min);
 	this.$dialog.find('#max').attr("placeholder", this.image.max);
+	
 
-
+	// Initialize threshold 
 	var self = this;
 	var min = this.image.min;
 	var max = this.image.max;
 	var step = (this.image.max-this.image.min)/1000;
-	var $slider = this.$dialog.find('.contrastSlider').slider({
+	var $slider = this.$dialog.find('.thresholdSlider').slider({
 			range: true,
 			values: [min,max],
 			min: min,
@@ -96,54 +136,21 @@ var DynamicImageView = function(options)
 
 				self.$dialog.find( "#min" ).val( ui.values[0] );
 				self.$dialog.find( "#max" ).val( ui.values[1] );
+
+				self.render();
 			}
-		});
-
-
-	this.$dialog.find('.contrast').buttonset().find('input')
-			.each(function(i){
-				$(this).click(function(){
-					selectedContrast = $(this).val();
-					switch(selectedContrast){
-						case "linear":
-						case "log":
-						case "sqrt":
-						case "sqr":
-						case "asin":
-							$slider.slider( "enable" );
-							self.image.updateColormap(selectedContrast, selectedColormap, inverse);
-							break;
-						case "raw":
-							$slider.slider( "disable" );
-							break;
-						default:
-							break;
-					}
-					if ( options.changeShaderCallback )
-						options.changeShaderCallback(selectedContrast);
-				});
-			});
-
-		
-	this.$dialog.find('.colormap').selectmenu({
-		select: function(e)
-		{
-			selectedColormap = $(this).children('option:selected').val();
-			self.image.updateColormap(selectedContrast, selectedColormap, inverse);
-		}
-	});
+		}).slider("disable");
 
 	this.$dialog.find('.thresholdInputs').change(function(){
-
 		// Check validity
-		var inputMin = parseInt($(this).children('#min').val());
+		var inputMin = parseFloat($(this).children('#min').val());
 		if ( isNaN(inputMin) || inputMin < min )
 		{
 			$(this).children('#min').val(min);
 			inputMin = min;
 		}
 
-        var inputMax = parseInt($(this).children('#max').val());
+        var inputMax = parseFloat($(this).children('#max').val());
         if ( isNaN(inputMax) || inputMax > max)
         {
         	$(this).children('#max').val(max);
@@ -154,24 +161,57 @@ var DynamicImageView = function(options)
 		self.image.tmax = inputMax;
 
 		// Update slider
-		$(this).children('.contrastSlider').slider({
+		self.$dialog.find('.thresholdSlider').slider({
 			values: [inputMin, inputMax]
 		})
 
+		self.render();
 	});
-		
+	
+	// Initialize colormap selectmenu
+	var $selectmenu = this.$dialog.find('.colormap').selectmenu({
+		select: function(e)
+		{
+			selectedColormap = $(this).children('option:selected').val();
+			self.image.updateColormap(selectedContrast, selectedColormap, inverse);
+			self.image.renderContext.requestFrame();
+		}
+	});
+	
+	this.$dialog.find('#inverse').button({
+		text: false,
+		icons: {
+        	primary: ""
+      	}
+	});
+
+	// Initialize inverse checkbox
 	this.$dialog.find('.inverse').click(function(){
 
-		$(this).toggleClass('ui-state-active');
-		$(this).toggleClass('ui-state-default');
-		$(this).find('span').toggleClass('ui-icon-check');
-		$(this).find('span').toggleClass('ui-icon-empty');
-
-		inverse = $(this).hasClass('ui-state-active');
+		$(this).button("option", {
+			icons: {
+				primary: $(this)[0].checked ? "ui-icon-check" : ""
+			}
+		});
+		inverse = $(this).is(':checked');
 		self.image.updateColormap(selectedContrast, selectedColormap, inverse);
+
+		self.render();
+	});
+
+	// Create histogram
+	self.histogram = new Histogram({
+		canvas: 'histogram_'+options.id,
+		image: this.image,
+		nbBeans: 256
 	});
 }
 
+/**************************************************************************************************************/
+
+/**
+ *	Toggle visibility of dialog
+ */
 DynamicImageView.prototype.toggle = function()
 {
 	if ( this.$dialog.dialog( "isOpen" ) )
@@ -186,12 +226,30 @@ DynamicImageView.prototype.toggle = function()
 	}
 }
 
+/**************************************************************************************************************/
+
+/**
+ *	Remove view
+ */
 DynamicImageView.prototype.remove = function()
 {
 	$('#'+this.activator).removeClass('dynamicAvailable').addClass('dynamicNotAvailable').remove('selected');
 	this.image.dispose();
 	this.$dialog.remove();
 }
+
+/**************************************************************************************************************/
+
+/**
+ *	Render
+ */
+DynamicImageView.prototype.render = function()
+{
+	this.histogram.update();
+	this.image.renderContext.requestFrame();
+}
+
+/**************************************************************************************************************/
 
 return DynamicImageView;
 
