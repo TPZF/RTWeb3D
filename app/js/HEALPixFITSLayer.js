@@ -90,13 +90,14 @@ var HEALPixFITSLayer = function(options)
 			var typedArray = new Float32Array( fitsData.view.buffer, fitsData.begin, fitsData.length/4 ); // with gl.FLOAT
 			// Create level zero image
 			var gl = self.globe.renderContext.gl;
-			self.levelZeroImage = new DynamicImage(gl, typedArray, gl.LUMINANCE, gl.FLOAT, fitsData.width, fitsData.height);
+			self.levelZeroImage = new DynamicImage(self.globe.renderContext, typedArray, gl.LUMINANCE, gl.FLOAT, fitsData.width, fitsData.height);
 
 			// Create dynamic image view
 			if ( options.div )
 			{
 				// TODO make more generic
-				self.div = new DynamicImageView({ activator: 'fitsView',
+				self.div = new DynamicImageView({
+					activator: 'fitsView',
 					id: self.id,
 					image: self.levelZeroImage,
 					changeShaderCallback: function(contrast){

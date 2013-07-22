@@ -72,10 +72,9 @@ function computeFits(featureData, url)
 function handleFits(fitsData, selectedData)
 {
 	// Create new image coming from Fits
-
 	var typedArray = new Float32Array( fitsData.view.buffer, fitsData.begin, fitsData.length/4); // with gl.FLOAT
 	var gl = globe.renderContext.gl;
-	var image = new DynamicImage(gl, typedArray, gl.LUMINANCE, gl.FLOAT, fitsData.width, fitsData.height);
+	var image = new DynamicImage(globe.renderContext, typedArray, gl.LUMINANCE, gl.FLOAT, fitsData.width, fitsData.height);
 
 	// Create dynamic image view and attach it to feature
 	selectedData.feature.div = new DynamicImageView({
@@ -122,13 +121,16 @@ return {
 		});
 
 		globe.subscribe("removeFitsRequested", function( selectedData ){
+
+			// Remove progress bar if inprogress
 			var progress = progressBars[selectedData.feature.properties.identifier];
 			if ( progress )
 			{
 				progress.cancel();
 				delete progressBars[selectedData.feature.properties.identifier];
 			}
-
+			
+			// Remove dynamic image view
 			if ( selectedData.feature.div )
 			{
 				selectedData.feature.div.remove();
@@ -137,7 +139,6 @@ return {
 
 			// Detach texture from style
 			var targetStyle = new FeatureStyle( selectedData.feature.properties.style );
-
 			// TODO move it
 			targetStyle.fillShader = {
 				fragmentCode: null,
