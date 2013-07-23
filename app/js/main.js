@@ -90,6 +90,9 @@ function updateFov()
 	$('#fov').html( "Fov : " + fovx + " x " + fovy );
 }
 
+/**
+ *	Remove "C"-like comment lines from string
+ */
 function removeComments(string)
 {
 	var starCommentRe = new RegExp("/\\\*(.|[\r\n])*?\\\*/", "g");
@@ -98,6 +101,31 @@ function removeComments(string)
 	string = string.replace(starCommentRe, "");
 
 	return string;
+}
+
+/**
+ *	Modify data according to shared parameters
+ */
+function setSharedParameters(data, sharedParameters)
+{	
+	// Init navigation parameters
+	data.navigation.initTarget = sharedParameters.initTarget;
+	data.navigation.initFov = sharedParameters.fov;
+
+	// Set visibility of layers
+	for ( var x in sharedParameters.visibility )
+	{
+		var name = x;
+		for ( var i=0; i<data.layers.length; i++ )
+		{
+			var currentLayer = data.layers[i];
+			if ( name == currentLayer.name )
+			{
+				currentLayer.visible = sharedParameters.visibility[name];
+				continue;
+			}
+		}
+	}
 }
 
 $(function()
@@ -111,15 +139,16 @@ $(function()
 
 	// If configuration is defined by SiTools2
 	var splitStartIndex = documentURI.indexOf( "?conf=" );
-
-	// Shared url exist
-	var splitEndIndex = documentURI.search( /[&|?]ra=/ );
-	if ( splitEndIndex != -1 )
-	{
-		var confURLLength = splitEndIndex - splitStartIndex - 6;
-	}
 	if ( splitStartIndex != -1 )
 	{
+		// Shared url exist
+		var splitEndIndex = documentURI.search( /[&|?]sharedParameters=/ );
+		if ( splitEndIndex != -1 )
+		{
+			// Compute length of configuration url
+			var confURLLength = splitEndIndex - splitStartIndex - 6;
+		}
+
 		var url = documentURI.substr( splitStartIndex+6, confURLLength );
 		if ( url != 'undefined' && url != '' ) {
 			confURL = url;
@@ -172,7 +201,7 @@ $(function()
 		document.getElementById('webGLContextLost').style.display = "block";
 	}, false);
 	
-	// Retreive configuration
+	// Retrieve configuration
 	$.ajax({
 		type: "GET",
 		url: confURL,
@@ -189,21 +218,14 @@ $(function()
 				return false;
 			}
 
-			// Shared url
-			var raIndex = documentURI.indexOf( "ra=" );
-			var declIndex = documentURI.indexOf( "&decl=" );
-			var fovIndex = documentURI.indexOf ( "&fov=" );
-			if ( raIndex != -1 )
+			// Retrieve shared parameters
+			var sharedParametersIndex = documentURI.indexOf( "sharedParameters=" );
+			if ( sharedParametersIndex != -1 )
 			{
-				data.navigation.initTarget[0] = parseFloat(documentURI.substr( raIndex+3, declIndex - raIndex - 3 ));
-			}
-			if ( declIndex != -1 )
-			{
-				data.navigation.initTarget[1] = parseFloat(documentURI.substr( declIndex+6, fovIndex - declIndex - 6 ));
-			}
-			if ( fovIndex != -1 )
-			{
-				data.navigation.initFov = parseFloat(documentURI.substr( fovIndex+5 ));
+				var startIndex = sharedParametersIndex + "sharedParameters=".length;
+				var sharedString = documentURI.substr(startIndex);
+				var sharedParameters = JSON.parse( unescape(sharedString) );
+				setSharedParameters(data, sharedParameters);
 			}
 
 			// Add stats

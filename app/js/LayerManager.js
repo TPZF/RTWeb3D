@@ -461,7 +461,15 @@ function addBackgroundLayer ( gwLayer )
 {
 	// Add to engine
 	if ( gwLayer.visible() ) {
+
+		// Change visibility's of previous layer(maybe GlobWeb should do it ?)
+		if ( globe.tileManager.imageryProvider )
+		{
+			globe.tileManager.imageryProvider.visible(false);
+		}
+
 		globe.setBaseImagery( gwLayer );
+		gwLayer.visible(true);
 	}
 	
 	// Add HTML
@@ -577,6 +585,8 @@ function initLayers(layers)
 			layer.opacity = 100.;
 		if(typeof (layer.pickable) === 'undefined')
 			layer.pickable = true;
+		if (!layer.visible)
+			layer.visible = false;
 	
 		var gwLayer = createLayerFromConf(layer);
 		if ( gwLayer )
@@ -606,7 +616,11 @@ function initLayers(layers)
 		{
 			var index = $(this).data('selectmenu').index();
 			var layer = $(this).children().eq(index).data("layer");
+
+			// Change visibility's of previous layer(maybe GlobWeb should do it ?)
+			globe.tileManager.imageryProvider.visible(false);
 			globe.setBaseImagery( layer );
+			layer.visible(true);
 
 			// Show background loading spinner
 			$('#loading').show(300);
@@ -691,7 +705,15 @@ return {
 	registerDataProvider: function( type, loadFunc )
 	{
 		dataProviders[type.toString()] = loadFunc;
-	}
+	},
+
+	/**
+	 *	Get current layers
+	 */
+	 getLayers: function()
+	 {
+	 	return gwLayers;
+	 }
 	
 };
 

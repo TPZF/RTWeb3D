@@ -20,18 +20,18 @@
 /**
  * Share url module : creating url with current navigation properties
  */
-define(["jquery.ui", "gw/CoordinateSystem"], function($, CoordinateSystem) {
+define(["jquery.ui", "gw/CoordinateSystem", "LayerManager"], function($, CoordinateSystem, LayerManager) {
 
 var navigation;
 
 /**
- *	Generate url with current navigation parameters(fov, eye, rotation(TODO maybe))
+ *	Generate url with current navigation parameters as : fov, eye, visibility, rotation(TODO)
  */
 function generateURL()
 {
 	var url = window.document.documentURI;
 
-	var splitEndIndex = url.search( /[&|?]ra=/ );
+	var splitEndIndex = url.search( /[&|?]sharedParameters=/ );
 	// If url is almost a shared link
 	if ( splitEndIndex != -1 )
 	{
@@ -48,6 +48,8 @@ function generateURL()
 		}
 		else
 		{
+			// Cut 'undefined'
+			url = url.substr( 0, splitIndex );
 			url += "?";
 		}
 	}
@@ -56,12 +58,26 @@ function generateURL()
 		url += "?";
 	}
 
-	// Concat navigation parameters
+	// Get navigation parameters
 	var geo = [];
 	CoordinateSystem.from3DToGeo( navigation.center3d, geo );
-	url+= "ra=" + geo[0];
-	url+= "&decl=" + geo[1];
-	url+= "&fov=" + navigation.renderContext.fov;
+
+	// Get layer visibility parameters
+	var currentLayers = LayerManager.getLayers();
+	var visibility = {};
+	for ( var i=0; i<currentLayers.length; i++ )
+	{
+		visibility[currentLayers[i].name] = currentLayers[i].visible();
+	}
+
+	// Create shared parameters object to concat
+	var sharedParameters = {
+		initTarget: geo,
+		fov: navigation.renderContext.fov,
+		visibility: visibility
+	}
+
+	url+= "sharedParameters=" + JSON.stringify(sharedParameters);
 
 	return url;
 }
