@@ -86,8 +86,6 @@ var MollweideViewer = function(options) {
     var halfWidth = 100;
 
     // Interaction parameters
-    var _lastMouseX = -1;
-    var _lastMouseY = -1;
     var dragging = false;
 
     // Level of tesselation to represent fov
@@ -107,8 +105,15 @@ var MollweideViewer = function(options) {
         context.drawImage(imageObj, 0, 0);
         updateMollweideFov();
     };
-    //imageObj.src = 'css/images/Milky_Way_infrared_200x100.png';
-    imageObj.src = 'css/images/MollweideGrid.png';
+
+    if ( CoordinateSystem.type == "GAL" )
+    {
+        imageObj.src = 'css/images/MollweideSky_GAL.png';
+    }
+    else
+    {
+        imageObj.src = 'css/images/MollweideSky_EQ.png';
+    }
 
     /**********************************************************************************************/
 
@@ -136,6 +141,29 @@ var MollweideViewer = function(options) {
         var y = -mollY * halfHeight/1.38 + halfHeight + halfPaddingY;
 
         return [x,y];
+    }
+
+    /**********************************************************************************************/
+
+    /**
+     *  Update navigation eye for the given mouse coordinates
+     */
+    function updateNavigation( moll )
+    {
+        // Transform to Mollweide space
+        center3d.x = - ( moll[0] - halfWidth - halfPaddingX ) * 2.8 / halfWidth;
+        center3d.y = - ( moll[1] - halfHeight - halfPaddingY ) * 1.38 / halfHeight;
+        
+        // Transform to geographic coordinate system
+        // http://mathworld.wolfram.com/MollweideProjection.html
+        var auxTheta = Math.asin( center3d.y / Math.sqrt(2) );
+
+        var phi = Math.asin( (2*auxTheta + Math.sin(2*auxTheta))/Math.PI );
+        var lambda = (Math.PI * center3d.x) / ( 2 * Math.sqrt(2) * Math.cos(auxTheta));
+
+        // Update navigation
+        CoordinateSystem.fromGeoTo3D([lambda*180/Math.PI, phi*180/Math.PI], navigation.center3d);
+        navigation.computeViewMatrix();
     }
 
     /**********************************************************************************************/
@@ -176,7 +204,20 @@ var MollweideViewer = function(options) {
 
         // Draw on canvas 2d
         context.fillRect(mPos[0] - center3d.size/2, mPos[1]-center3d.size/2, center3d.size, center3d.size);
+    }
 
+    /**********************************************************************************************/
+
+    /**
+     * Get mouse position on canvas
+     */
+    function getMousePos()
+    {
+        // Difference between chrome and firefox;
+        var offX = (event.offsetX) ? event.offsetX : (event.layerX - event.target.offsetLeft);
+        var offY = (event.offsetY) ? event.offsetY : (event.layerY - event.target.offsetTop);
+
+        return [offX, offY];
     }
 
     /**********************************************************************************************/
@@ -184,17 +225,9 @@ var MollweideViewer = function(options) {
     // Interact with mollweide projection
     canvas.addEventListener('mousedown', function(event){
 
-        // Difference between chrome and firefox
-        var offX = (event.offsetX) ? event.offsetX : (event.layerX - event.target.offsetLeft);
-        var offY = (event.offsetY) ? event.offsetY : (event.layerY - event.target.offsetTop);
-
-        if ( center3d.contains( offX, offY ) ) 
-        {
-            dragging = true;
-            _lastMouseX = offX;
-            _lastMouseY = offY;
-        }
-
+        var mPos = getMousePos();
+        updateNavigation(mPos);
+        dragging = true;
         return true;
     });
 
@@ -203,27 +236,8 @@ var MollweideViewer = function(options) {
         if (!dragging)
             return;
 
-        // Difference between chrome and firefox;
-        var offX = (event.offsetX) ? event.offsetX : (event.layerX - event.target.offsetLeft);
-        var offY = (event.offsetY) ? event.offsetY : (event.layerY - event.target.offsetTop);
-
-        // Transform to Mollweide space
-        center3d.x = - ( offX - halfWidth - halfPaddingX ) * 2.8 / halfWidth;
-        center3d.y = - ( offY - halfHeight - halfPaddingY ) * 1.38 / halfHeight;
-        
-        // Transform to geographic coordinate system
-        // http://mathworld.wolfram.com/MollweideProjection.html
-        var auxTheta = Math.asin( center3d.y / Math.sqrt(2) );
-
-        var phi = Math.asin( (2*auxTheta + Math.sin(2*auxTheta))/Math.PI );
-        var lambda = (Math.PI * center3d.x) / ( 2 * Math.sqrt(2) * Math.cos(auxTheta));
-
-        // Update navigation
-        CoordinateSystem.fromGeoTo3D([lambda*180/Math.PI, phi*180/Math.PI], navigation.center3d);
-        navigation.computeViewMatrix();
-
-        _lastMouseX = offX;
-        _lastMouseY = offY;
+        var mPos = getMousePos();
+        updateNavigation(mPos);
     });
 
     canvas.addEventListener('mouseup', function(){
@@ -241,6 +255,9 @@ var MollweideViewer = function(options) {
             $('#mollweideContent').css({ boxShadow: "0px 0px 8px 1px rgba(255, 158, 82, 0.92)"});
             $(this).css('background-position', '0px 0px');
             $(this).parent().animate({left: '0px'}, 300);
+            // Update fov when navigation modified
+            navigation.subscribe("modified", updateMollweideFov);
+			updateMollweideFov();
         }
         else
         {
@@ -248,14 +265,12 @@ var MollweideViewer = function(options) {
             $('#mollweideContent').css({ boxShadow: "none"});
             $(this).css('background-position', '0px -20px');
             $(this).parent().animate({left: '-266px'}, 300);
+            navigation.unsubscribe("modified", updateMollweideFov);
         }
 	});
 
 	// Fix for Google Chrome : avoid dragging
     canvas.addEventListener("dragstart", function(event){event.preventDefault(); return false;});
-
-	// Update fov when navigation modified
-	navigation.subscribe("modified", updateMollweideFov);
 }
 
 return MollweideViewer;
