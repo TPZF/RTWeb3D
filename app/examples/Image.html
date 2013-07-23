@@ -105,7 +105,6 @@ require(['jquery.ui', 'ImageRenderer', 'gw/RenderContext', 'gw/DynamicImage', '.
 			image : image,
 			activator: 'imageDynamic',
 			id: "unique",
-			button: true,
 			changeShaderCallback: function(contrast){
 				if ( contrast == "raw" )
 				{
@@ -117,6 +116,15 @@ require(['jquery.ui', 'ImageRenderer', 'gw/RenderContext', 'gw/DynamicImage', '.
 					image.fragmentCode = fragmentCode;
 					image.updateUniforms = updateUniforms;
 				}
+			},
+			enable : function(){
+				$('#fitsView').button("enable");
+			},
+			disable : function(){
+				$('#fitsView').button("disable");
+			},
+			unselect: function(){
+				$('#fitsView').removeAttr("checked").button("refresh");
 			}
 		});
 

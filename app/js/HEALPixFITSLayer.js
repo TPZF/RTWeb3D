@@ -108,7 +108,15 @@ var HEALPixFITSLayer = function(options)
 							self.customShader.fragmentCode = colormapFragShader;
 						}
 					},
-					button: true
+					enable : function(){
+						$('#fitsView').button("enable");
+					},
+					disable : function(){
+						$('#fitsView').button("disable");
+					},
+					unselect: function(){
+						$('#fitsView').removeAttr("checked").button("refresh");
+					}
 				});
 			}
 		}

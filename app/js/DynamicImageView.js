@@ -21,26 +21,43 @@ define(['jquery.ui', 'underscore-min', "gw/FeatureStyle", "./Histogram", "text!.
  
 /**************************************************************************************************************/
 
+/** @constructor 
+ *	DynamicImageView constructor
+ *	Creates jQuery view of the given <GlobWeb.DynamicImage>
+ *	
+ *	@param options
+ *		<h3>Required:</h3>
+ *		<ul>
+ *			<li>activator: Id of DOM element showing/hiding the current view</li>
+ *			<li>image: The image represented by this view</li>
+ *			<li>id: Identifier</li>
+ *		</ul>
+ *		<h3>Optional:</h3>
+ *		<ul>
+ *			<li>enable: Enable callback</li>
+ *			<li>disable: Disable callback</li>
+ *			<li>unselect: Unselect callback</li>
+ *		</ul>
+ */
 var DynamicImageView = function(options)
 {
 	this.activator = options.activator;
+	
+	// Callbacks
+	this.disable = options.disable || null;
+	this.unselect = options.unselect || null;
 
-	// TODO unify activator layout between button and img, in order to remove button option
-	if ( options.button )
+	// Enable on creation
+	if ( options.enable )
 	{
-		$('#'+this.activator).button("enable");
-	}
-	else
-	{
-		$('#'+this.activator).addClass('dynamicAvailable').removeClass('dynamicNotAvailable');
+		options.enable();
 	}
 
 	// Interaction parameters
 	var selectedColormap = "grey";
 	var selectedContrast = "raw";
-	var inverse = false;
+	var isInversed = false;
 
-	this.histogram = null;
 	this.image = options.image;
 
 	// Create dialog
@@ -61,19 +78,22 @@ var DynamicImageView = function(options)
 							minHeight: 'auto',
 							close: function(event, ui)
 							{
-								// TODO unify activator layout between button and img, in order to remove button option
-								if ( options.button )
+								if ( self.unselect )
 								{
-									$('#'+self.activator).removeAttr("checked").button("refresh");
+									self.unselect();
 								}
-								else
-								{
-									$('#'+self.activator).removeClass('selected');
-								}
+								
 								$(this).dialog("close");
 
 							}
 						});
+
+	// Create histogram attached to the canvas2d created in dialog
+	this.histogram = new Histogram({
+		canvas: 'histogram_'+options.id,
+		image: this.image,
+		nbBeans: 256
+	});
 
 	// Initialize contrast buttonset
 	this.$dialog.find('.contrast').buttonset().find('input')
@@ -86,15 +106,17 @@ var DynamicImageView = function(options)
 						case "sqrt":
 						case "sqr":
 						case "asin":
+							// Enable all interactive components
 							$slider.slider( "enable" );
 							$selectmenu.selectmenu( "enable" );
 							self.$dialog.find('.inverse').removeAttr('disabled').button("refresh");
-							self.image.updateColormap(selectedContrast, selectedColormap, inverse);
+							self.image.updateColormap(selectedContrast, selectedColormap, isInversed);
 							self.$dialog.find('.thresholdInputs input').each(function(i){
 								$(this).removeAttr('disabled');
 							});
 							break;
 						case "raw":
+							// Disable all interactive components
 							$selectmenu.selectmenu( "disable" );
 							$slider.slider( "disable" );
 							self.$dialog.find('.inverse').attr('disabled', 'disabled').button("refresh");
@@ -130,6 +152,11 @@ var DynamicImageView = function(options)
 			max: max,
 			step: step,
 			slide: function( event, ui ) {
+				self.$dialog.find( "#min" ).val( ui.values[0] );
+				self.$dialog.find( "#max" ).val( ui.values[1] );
+			},
+			// Compute histogram on stop, because it's more efficient with huge amount of data
+			stop: function( event, ui ) {
 
 				self.image.tmin = ui.values[0];
 				self.image.tmax = ui.values[1];
@@ -173,7 +200,7 @@ var DynamicImageView = function(options)
 		select: function(e)
 		{
 			selectedColormap = $(this).children('option:selected').val();
-			self.image.updateColormap(selectedContrast, selectedColormap, inverse);
+			self.image.updateColormap(selectedContrast, selectedColormap, isInversed);
 			self.image.renderContext.requestFrame();
 		}
 	});
@@ -193,17 +220,10 @@ var DynamicImageView = function(options)
 				primary: $(this)[0].checked ? "ui-icon-check" : ""
 			}
 		});
-		inverse = $(this).is(':checked');
-		self.image.updateColormap(selectedContrast, selectedColormap, inverse);
+		isInversed = $(this).is(':checked');
+		self.image.updateColormap(selectedContrast, selectedColormap, isInversed);
 
 		self.render();
-	});
-
-	// Create histogram
-	self.histogram = new Histogram({
-		canvas: 'histogram_'+options.id,
-		image: this.image,
-		nbBeans: 256
 	});
 }
 
@@ -233,7 +253,17 @@ DynamicImageView.prototype.toggle = function()
  */
 DynamicImageView.prototype.remove = function()
 {
-	$('#'+this.activator).removeClass('dynamicAvailable').addClass('dynamicNotAvailable').remove('selected');
+
+	if ( this.unselect )
+	{
+		this.unselect();
+	}
+
+	if( this.disable )
+	{
+		this.disable();
+	}
+
 	this.image.dispose();
 	this.$dialog.remove();
 }

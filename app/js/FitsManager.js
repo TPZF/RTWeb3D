@@ -102,6 +102,15 @@ function handleFits(fitsData, selectedData)
 				targetStyle.uniformValues = image;
 				selectedData.layer.modifyFeatureStyle( selectedData.feature, targetStyle );
 			}
+		},
+		enable: function(){
+			$('#dynamicImageView').addClass('dynamicAvailable').removeClass('dynamicNotAvailable');
+		},
+		disable: function(){
+			$('#dynamicImageView').removeClass('dynamicAvailable').addClass('dynamicNotAvailable');	
+		},
+		unselect: function(){
+			$('#dynamicImageView').removeClass('selected');
 		}
 	});
 
