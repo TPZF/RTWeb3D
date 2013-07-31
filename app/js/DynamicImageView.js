@@ -29,11 +29,11 @@ define(['jquery.ui', 'underscore-min', "gw/FeatureStyle", "./Histogram", "text!.
  *		<h3>Required:</h3>
  *		<ul>
  *			<li>activator: Id of DOM element showing/hiding the current view</li>
- *			<li>image: The image represented by this view</li>
  *			<li>id: Identifier</li>
  *		</ul>
  *		<h3>Optional:</h3>
  *		<ul>
+ *			<li>image: The image represented by this view</li>
  *			<li>enable: Enable callback</li>
  *			<li>disable: Disable callback</li>
  *			<li>unselect: Unselect callback</li>
@@ -42,7 +42,8 @@ define(['jquery.ui', 'underscore-min', "gw/FeatureStyle", "./Histogram", "text!.
 var DynamicImageView = function(options)
 {
 	this.activator = options.activator;
-	
+	this.id = options.id;
+
 	// Callbacks
 	this.disable = options.disable || null;
 	this.unselect = options.unselect || null;
@@ -58,10 +59,9 @@ var DynamicImageView = function(options)
 	var selectedContrast = "raw";
 	var isInversed = false;
 
-	this.image = options.image;
-
 	// Create dialog
-	var dialogContent = _.template(dynamicImageViewHTML, { id: options.id});
+	var self = this;
+	var dialogContent = _.template(dynamicImageViewHTML, { id: this.id });
 	this.$dialog = $(dialogContent).appendTo('body').dialog({
 							title: 'Image processing',
 							autoOpen: false,
@@ -87,13 +87,6 @@ var DynamicImageView = function(options)
 
 							}
 						});
-
-	// Create histogram attached to the canvas2d created in dialog
-	this.histogram = new Histogram({
-		canvas: 'histogram_'+options.id,
-		image: this.image,
-		nbBeans: 256
-	});
 
 	// Initialize contrast buttonset
 	this.$dialog.find('.contrast').buttonset().find('input')
@@ -134,23 +127,9 @@ var DynamicImageView = function(options)
 				});
 			});
 
-	// Put min/max values into placeholder
-	// Maybe not the most ergonomic way to do, but I find it cool J
-	this.$dialog.find('#min').attr("placeholder", this.image.min);
-	this.$dialog.find('#max').attr("placeholder", this.image.max);
-	
-
 	// Initialize threshold 
-	var self = this;
-	var min = this.image.min;
-	var max = this.image.max;
-	var step = (this.image.max-this.image.min)/1000;
 	var $slider = this.$dialog.find('.thresholdSlider').slider({
 			range: true,
-			values: [min,max],
-			min: min,
-			max: max,
-			step: step,
 			slide: function( event, ui ) {
 				self.$dialog.find( "#min" ).val( ui.values[0] );
 				self.$dialog.find( "#max" ).val( ui.values[1] );
@@ -171,17 +150,17 @@ var DynamicImageView = function(options)
 	this.$dialog.find('.thresholdInputs').change(function(){
 		// Check validity
 		var inputMin = parseFloat($(this).children('#min').val());
-		if ( isNaN(inputMin) || inputMin < min )
+		if ( isNaN(inputMin) || inputMin < self.image.min )
 		{
-			$(this).children('#min').val(min);
-			inputMin = min;
+			$(this).children('#min').val(self.image.min);
+			inputMin = self.image.min;
 		}
 
         var inputMax = parseFloat($(this).children('#max').val());
-        if ( isNaN(inputMax) || inputMax > max)
+        if ( isNaN(inputMax) || inputMax > self.image.max)
         {
-        	$(this).children('#max').val(max);
-        	inputMax = max;
+        	$(this).children('#max').val(self.image.max);
+        	inputMax = self.image.max;
         }
 
 		self.image.tmin = inputMin;
@@ -205,7 +184,7 @@ var DynamicImageView = function(options)
 		}
 	});
 	
-	this.$dialog.find('#inverse').button({
+	this.$dialog.find('.inverse').button({
 		text: false,
 		icons: {
         	primary: ""
@@ -225,6 +204,12 @@ var DynamicImageView = function(options)
 
 		self.render();
 	});
+
+	// Set image if defined
+	if ( options.image )
+	{
+		this.setImage(options.image);
+	}
 }
 
 /**************************************************************************************************************/
@@ -244,6 +229,40 @@ DynamicImageView.prototype.toggle = function()
 		$('#'+this.activator).addClass('selected');
 		this.$dialog.dialog("open");
 	}
+}
+
+/**************************************************************************************************************/
+
+/**
+ *	Set image and update image related composants(histogram, slider, placeholder)
+ */
+DynamicImageView.prototype.setImage = function(image)
+{
+	if ( this.image )
+		this.image.dispose();
+
+	var step = (image.max-image.min)/1000;
+	var self = this;
+	this.$dialog.find('.thresholdSlider').slider('option', {
+		values: [image.min, image.max],
+		min: image.min,
+		max: image.max,
+		step: step
+	});
+
+	// Put min/max values into placeholder
+	// Maybe not the most ergonomic way to do, but I found it cool J
+	this.$dialog.find('#min').attr("placeholder", image.min);
+	this.$dialog.find('#max').attr("placeholder", image.max);
+
+	// Create histogram attached to the canvas2d created in dialog
+	this.histogram = new Histogram({
+		canvas: 'histogram_'+this.id,
+		image: image,
+		nbBeans: 256
+	});
+
+	this.image = image;
 }
 
 /**************************************************************************************************************/
