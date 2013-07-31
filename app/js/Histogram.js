@@ -23,8 +23,6 @@
 define([], function() {
 
 // Private variables
-var ctx;
-var image;
 var nbBins;
 
 var hist = [];
@@ -37,15 +35,21 @@ var hwidth;
 
 /**************************************************************************************************************/
 
-	function getMousePos(canvas, evt) {
-	var rect = canvas.getBoundingClientRect();
-		return {
+/**
+ *	Get mouse position on canvas
+ */
+function _getMousePos(canvas, evt) {
+var rect = canvas.getBoundingClientRect();
+	return {
 		x: evt.clientX - rect.left,
 		y: evt.clientY - rect.top
-		};
-	}
+	};
+}
+
+/**************************************************************************************************************/
 
 /**
+ *	TODO: split on HistogramView and Histogram
  *	Histogram contructor
  *	@param options Histogram options
  *		<ul>
@@ -56,34 +60,35 @@ var hwidth;
 var Histogram = function(options)
 {
 	nbBins = options.nbBins || 256;
-	image = options.image;
+	this.image = options.image;
 
 	// Init canvas
 	var canvas = document.getElementById(options.canvas);
-	ctx = canvas.getContext('2d');
+	this.ctx = canvas.getContext('2d');
 
 	// Init origins
-	originY = ctx.canvas.height - 10;
-	hwidth = nbBins > ctx.canvas.width ? ctx.canvas.width : nbBins; // clamp to canvas.width
+	originY = canvas.height - 10;
+	hwidth = nbBins > canvas.width ? canvas.width : nbBins; // clamp to canvas.width
 	this.update();
 
 	// Show bin pointed by mouse
+	var self = this;
 	canvas.addEventListener('mousemove', function(evt) {
-		var mousePos = getMousePos(canvas, evt);
+		var mousePos = _getMousePos(canvas, evt);
 
-		ctx.clearRect(0., originY, canvas.width, 10.);			
+		self.ctx.clearRect(0., originY, canvas.width, 10.);			
 
-		if ( mousePos.y > ctx.canvas.height || mousePos.y < 0. || mousePos.x > nbBins || mousePos.x < 0. )
+		if ( mousePos.y > canvas.height || mousePos.y < 0. || mousePos.x > nbBins || mousePos.x < 0. )
 		{
 			return;
 		}
         
-        ctx.font = '8pt Calibri';
-        ctx.fillStyle = 'yellow';
+        self.ctx.font = '8pt Calibri';
+        self.ctx.fillStyle = 'yellow';
         // Scale from mouse to image
-        var thresholdValue = Math.floor(((mousePos.x/256.)*(image.tmax-image.tmin) + image.tmin)*1000)/1000;
-        ctx.fillText(thresholdValue, canvas.width/2-15., originY+10.);
-        ctx.fillRect( mousePos.x, originY, 1, 2 );
+        var thresholdValue = Math.floor(((mousePos.x/256.)*(self.image.tmax-self.image.tmin) + self.image.tmin)*1000)/1000;
+        self.ctx.fillText(thresholdValue, canvas.width/2-15., originY+10.);
+        self.ctx.fillRect( mousePos.x, originY, 1, 2 );
 	});
 }
 
@@ -92,13 +97,13 @@ var Histogram = function(options)
 /**
  *	Draw histogram
  */
-function drawHistogram() {
-	ctx.fillStyle = "blue";
+Histogram.prototype.drawHistogram = function() {
+	this.ctx.fillStyle = "blue";
 	for ( var i=0; i<hist.length; i++ )
 	{
 		// Scale to y-axis height
 		var rectHeight = (hist[i]/hmax)*originY;
-		ctx.fillRect( originX + i, originY, 1, -rectHeight );
+		this.ctx.fillRect( originX + i, originY, 1, -rectHeight );
 	}
 }
 
@@ -107,22 +112,22 @@ function drawHistogram() {
 /**
  *	Draw histogram axis
  */
-function drawAxes() {
+Histogram.prototype.drawAxes = function() {
 
 	var leftY, rightX;
 	leftY = 0;
 	rightX = originX + hwidth;
 	// Draw y axis.
-	ctx.moveTo(originX, leftY);
-	ctx.lineTo(originX, originY);
+	this.ctx.moveTo(originX, leftY);
+	this.ctx.lineTo(originX, originY);
 
 	// Draw x axis.
-	ctx.moveTo(originX, originY);
-	ctx.lineTo(rightX, originY);
+	this.ctx.moveTo(originX, originY);
+	this.ctx.lineTo(rightX, originY);
 
 	// Define style and stroke lines.
-	ctx.strokeStyle = "#fff";
-	ctx.stroke();
+	this.ctx.strokeStyle = "#fff";
+	this.ctx.stroke();
 }
 
 /**************************************************************************************************************/
@@ -130,18 +135,18 @@ function drawAxes() {
 /**
  *	Draw transfer function(linear, log, asin, sqrt, sqr)
  */
-function drawTransferFunction()
+Histogram.prototype.drawTransferFunction = function()
 {
 	// Draw transfer functions
 	// "Grey" colormap for now(luminance curve only)
-	ctx.fillStyle = "red";
+	this.ctx.fillStyle = "red";
 	for ( var i=0; i<nbBins; i++ )
 	{
 		var value = i;
 		var posX = originX + value;
 
 		var scaledValue;
-		switch( image.transferFn )
+		switch( this.image.transferFn )
 		{
 			case "linear":
 				scaledValue = (value/nbBins)*originY;
@@ -162,12 +167,12 @@ function drawTransferFunction()
 				break;
 		}
 
-		if ( !image.inverse )
+		if ( !this.image.inverse )
 		{
 			scaledValue = originY - scaledValue
 		}
 
-		ctx.fillRect( posX, scaledValue, 1, 1);
+		this.ctx.fillRect( posX, scaledValue, 1, 1);
 	}
 }
 
@@ -176,23 +181,23 @@ function drawTransferFunction()
 /**
  *	Draw the histogram in canvas
  */
-function draw()
+Histogram.prototype.draw = function()
 {
-
-	ctx.clearRect(0,0, ctx.canvas.width, ctx.canvas.height);
-
-	drawHistogram();
-	drawTransferFunction();
-	drawAxes();
+	this.ctx.clearRect(0,0, this.ctx.canvas.width, this.ctx.canvas.height);
+	this.drawHistogram();
+	this.drawTransferFunction();
+	this.drawAxes();
 }
 
 /**************************************************************************************************************/
 
 /**
+ *	TODO : create different module
  *	Compute histogram values
  */
-function compute()
+function compute(histogram)
 {
+	var image = histogram.image;
 	// Initialize histogram
 	hist = new Array(nbBins);
 	for ( var i=0; i<hist.length; i++ )
@@ -237,8 +242,8 @@ function compute()
  */
 Histogram.prototype.update = function()
 {
-	compute();
-	draw();
+	compute(this);
+	this.draw();
 }
 
 /**************************************************************************************************************/
