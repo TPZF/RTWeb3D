@@ -85,9 +85,16 @@ function createLayerFromConf(layer) {
 			// Add necessary option
 			options.baseUrl = layer.baseUrl;
 			options.coordSystem = layer.coordSystem || "EQ";
-			if ( layer.dataType == "fits" )
+			options.dataType = layer.dataType || "jpeg";
+			if ( layer.fitsSupported )
 			{
-				options.div = true;
+				options.activator = 'fitsView';
+				options.onready = function( fitsLayer ) {
+					if ( fitsLayer.dataType == "fits" )
+					{
+						$('#fitsView').button("enable");
+					}
+				}
 				gwLayer = new HEALPixFITSLayer(options);
 			}
 			else
@@ -266,20 +273,15 @@ function createHtmlForBackgroundLayer( gwLayer )
 		$layerDiv.addClass('unknown');
 	}
 
-	// Set visible layer on top of selector
 	if ( gwLayer.visible() )
 	{
+		// Set visible layer on top of selector
 		$('#backgroundLayers').val( $layerDiv.val() );
+
+		// Update background options layout
+		updateBackgroundOptions(gwLayer);
 	}
 	
-	if ( gwLayer.dataType == "fits" )
-	{
-		$('#fitsView').button("enable");
-	}
-	else
-	{
-		$('#fitsView').button("disable");
-	}
 	
 	nbBackgroundLayers++;
 }
@@ -562,6 +564,28 @@ function initToolbarEvents ()
 }
 
 /**
+ *	Update layout of background layer options (HEALPixFITSLayer only for now)
+ */
+function updateBackgroundOptions(layer)
+{		
+	if ( layer instanceof HEALPixFITSLayer )
+	{
+		$("#fitsType").removeAttr('disabled').find("option[value='"+ layer.dataType +"']").attr('selected','selected');
+
+		// Dynamic image view button visibility
+		if ( layer.dataType == 'jpeg' )
+		{
+			$('#fitsView').button("disable");
+		}
+	}
+	else
+	{
+		$("#fitsType").attr('disabled','disabled');
+		$('#fitsView').button("disable");
+	}
+}
+
+/**
  *	Fill the LayerManager table
  */
 function initLayers(layers) 
@@ -635,20 +659,26 @@ function initLayers(layers)
 					{
 						globe.addLayer( currentLayer.subLayers[j] );
 					}
-
 				}
 			}
 			
 			// Change dynamic image view button
-			if ( layer.div  )
-			{
-				$('#fitsView').button("enable");
-			}
-			else
-			{
-				$('#fitsView').button("disable");
-			}
+			updateBackgroundOptions(layer);
 		}
+	});
+
+	// Select fits type
+	$('#fitsType').on('change',function(){
+		var index = $('select#backgroundLayers').data('selectmenu').index();
+		var layer = $('select#backgroundLayers').children().eq(index).data("layer");
+
+		layer.dataType = $(this).find('option:selected').val();
+		if ( layer.dataType == 'jpg' )
+		{
+			$('#fitsView').button('disable');
+		}
+		globe.setBaseImagery( layer );
+		$('#loading').show();
 	});
 	
 	initToolbarEvents();
@@ -678,13 +708,14 @@ return {
 		globe = gl;
 		navigation = nav;
 		
-		// Create Dynamic image view for background layers
+		// Create Dynamic image view activator for background layers
 		$('#fitsView').button();
 		// Show/hide Dynamic image service
 		$('#fitsView').on("click", function(event){
 			var index = $('select#backgroundLayers').data('selectmenu').index();
 			var layer = $('select#backgroundLayers').children().eq(index).data("layer");
 
+			// TODO : unify dynamic image view for all background layers
 			if ( layer.div )
 			{
 				layer.div.toggle();
@@ -694,6 +725,10 @@ return {
 		// Call init layers
 		initLayers(configuration.layers);
 		ServiceBar.init(gl, configuration);
+
+		$('#backgroundOptionsActivator').button().on('click', function(event){
+			$('#backgroundOptions').slideToggle(updateScroll);
+		})
 	},
 	
 	/**

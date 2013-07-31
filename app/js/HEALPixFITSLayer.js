@@ -64,18 +64,20 @@ var HEALPixFITSLayer = function(options)
 	this.numberOfLevels = options.numberOfLevels || 10;
 	this.type = "ImageryRaster";
 	this.baseUrl = options['baseUrl'];
+	this.dataType = options.dataType || "fits";
 	
 	// allsky
 	this.levelZeroImage = null;
 
-	// TilePool containg FLOAT textures initialized from array
+	// Customization parameters for fits rendering
 	this.customTilePool = null;
+	this.customShader = null;
+	this.customLoad = null;
 
 	var self = this;
-	
 	this._ready = false;
 
-	this._handleLevelZeroImage = function(fitsData)
+	this._handleLevelZeroFits = function(fitsData)
 	{
 		// Call callback if set
 		if (options.onready && options.onready instanceof Function)
@@ -92,37 +94,61 @@ var HEALPixFITSLayer = function(options)
 			var gl = self.globe.renderContext.gl;
 			self.levelZeroImage = new DynamicImage(self.globe.renderContext, typedArray, gl.LUMINANCE, gl.FLOAT, fitsData.width, fitsData.height);
 
-			// Create dynamic image view
-			if ( options.div )
+			// Create dynamic image view if needed
+			if ( !self.div )
 			{
-				// TODO make more generic
-				self.div = new DynamicImageView({
-					activator: 'fitsView',
-					id: self.id,
-					image: self.levelZeroImage,
-					changeShaderCallback: function(contrast){
-						if ( contrast == "raw" )
-						{
-							self.customShader.fragmentCode = rawFragShader;
-						} else {
-							self.customShader.fragmentCode = colormapFragShader;
+				if ( options.activator )
+				{
+					// TODO make more generic
+					self.div = new DynamicImageView({
+						activator: options.activator,
+						id: self.name,
+						image: self.levelZeroImage,
+						changeShaderCallback: function(contrast){
+							if ( contrast == "raw" )
+							{
+								self.customShader.fragmentCode = rawFragShader;
+							} else {
+								self.customShader.fragmentCode = colormapFragShader;
+							}
+						},
+						enable : function(){
+							$('#fitsView').button("enable");
+						},
+						disable : function(){
+							$('#fitsView').button("disable");
+						},
+						unselect: function(){
+							$('#fitsView').removeAttr("checked").button("refresh");
 						}
-					},
-					enable : function(){
-						$('#fitsView').button("enable");
-					},
-					disable : function(){
-						$('#fitsView').button("disable");
-					},
-					unselect: function(){
-						$('#fitsView').removeAttr("checked").button("refresh");
-					}
-				});
+					});
+				}
+			}
+			else
+			{
+				self.div.setImage(self.levelZeroImage);
 			}
 		}
 	}
 
-	this.customShader = {
+	this._handleLevelZeroImage = function()
+	{
+		self._ready = true;
+				
+		// Call callback if set
+		if (options.onready && options.onready instanceof Function)
+		{
+			options.onready(self);
+		}
+		
+		// Request a frame
+		if ( self.globe )
+		{
+			self.globe.renderContext.requestFrame();
+		}
+	}
+
+	this.fitsShader = {
 		fragmentCode: rawFragShader,
 		updateUniforms : function(gl, program){
 			gl.uniform1f(program.uniforms["max"], self.levelZeroImage.tmax );
@@ -132,9 +158,7 @@ var HEALPixFITSLayer = function(options)
 			gl.bindTexture(gl.TEXTURE_2D, self.levelZeroImage.colormapTex);
 			gl.uniform1i(program.uniforms["colormap"], 1);
 		}
-	};
-
-
+	}
 }
 
 /**************************************************************************************************************/
@@ -150,38 +174,55 @@ HEALPixFITSLayer.prototype._attach = function( g )
 {
 	RasterLayer.prototype._attach.call( this, g );
 
+	var self = this;
+	var _handleLevelZeroError = function()
+	{
+		if ( self.globe )
+		{
+			self.globe.publish("baseLayersError");
+			self._ready = false;
+			console.log( "Error while loading background");
+		}
+	}
+
 	// Launch xhr request if level zero image wasn't recieved yet
 	if ( !this.levelZeroImage )
 	{
-		var gl = this.globe.renderContext.gl;
-
-		// Enable float texture extension to have higher luminance range
-		var ext = gl.getExtension("OES_texture_float");
-		if (!ext) {
-			// TODO 
-			alert("no OES_texture_float");
-			return;
-		}
-
-		var self = this;
-		// Load level zero image now
-		var _handleLevelZeroError = function()
+		var url = this.baseUrl + "/Norder3/Allsky."+this.dataType;
+		if ( this.dataType == "fits" )
 		{
-			if ( self.globe )
+			// Enable float texture extension to have higher luminance range
+			var gl = this.globe.renderContext.gl;
+			var ext = gl.getExtension("OES_texture_float");
+			if (!ext) {
+				// TODO 
+				alert("no OES_texture_float");
+				return;
+			}
+
+			// Load level zero image now
+			this.xhr = FitsLoader.loadFits( url, this._handleLevelZeroFits, _handleLevelZeroError );
+
+			// Add customization parameters
+			this.customTilePool = new FitsTilePool(self.globe.renderContext);
+			this.customLoad = this.fitsLoad;
+			this.customShader = this.fitsShader;
+			this.getLevelZeroTexture = function()
 			{
-				self.globe.publish("baseLayersError");
-				self._ready = false;
-				console.log( "Error while loading background");
+				return this.levelZeroImage.texture;
 			}
 		}
-
-		this.xhr = FitsLoader.loadFits( this.baseUrl + "/Norder3/Allsky.fits", this._handleLevelZeroImage, _handleLevelZeroError );
-	}
-
-	// Create custom tile pool
-	if ( !this.customTilePool )
-	{
-		this.customTilePool = new FitsTilePool(self.globe.renderContext);
+		else
+		{
+			// Image
+			this.levelZeroImage = new Image();
+			var self = this;
+			this.levelZeroImage.crossOrigin = '';
+			this.levelZeroImage.onload = this._handleLevelZeroImage;
+			this.levelZeroImage.onerror = _handleLevelZeroError;
+			this.levelZeroImage.onabort = _handleLevelZeroError;
+			this.levelZeroImage.src = url;
+		}
 	}
 }
 
@@ -195,6 +236,27 @@ HEALPixFITSLayer.prototype._detach = function( g )
 		this.xhr.abort();
 		delete this.xhr;
 	}
+
+	// Dispose levelZero resources
+	if ( this.levelZeroImage.dispose )
+		this.levelZeroImage.dispose();
+	if ( this.levelZeroTexture )
+		this.globe.renderContext.gl.deleteTexture(this.levelZeroTexture);
+	
+	this.levelZeroImage = null;
+	this.levelZeroTexture = null;
+	this._ready = false;
+
+	// Remove customTilePool
+	if ( this.customTilePool )
+		this.customTilePool.disposeAll();
+	this.customTilePool = null;
+
+	// Change customization
+	this.customLoad = null;
+	this.getLevelZeroTexture = null;
+	this.customShader = null;
+
 	RasterLayer.prototype._detach.call( this );
 
 }
@@ -217,7 +279,7 @@ HEALPixFITSLayer.prototype.getUrl = function(tile)
 	
 	url += "/Npix";
 	url += tile.pixelIndex;
-	url += ".fits";
+	url += "."+this.dataType;
 	
 	return url;
 }
@@ -225,9 +287,9 @@ HEALPixFITSLayer.prototype.getUrl = function(tile)
 /**************************************************************************************************************/
 
 /**
- *	Custom load
+ *	Fits load
  */
-HEALPixFITSLayer.prototype.customLoad = function(tileRequest, url, successCallback, failCallback)
+HEALPixFITSLayer.prototype.fitsLoad = function(tileRequest, url, successCallback, failCallback)
 {
 	/**
 		Handle when fits is loaded
@@ -248,16 +310,6 @@ HEALPixFITSLayer.prototype.customLoad = function(tileRequest, url, successCallba
 }
 
 /**************************************************************************************************************/
-
-/**
- *	Custom level zero texture getter
- */
-HEALPixFITSLayer.prototype.getLevelZeroTexture = function()
-{
-	return this.levelZeroImage.texture;
-}
-
-
 
 return HEALPixFITSLayer;
 

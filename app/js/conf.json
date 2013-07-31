@@ -151,7 +151,8 @@
 			"attribution": "Planck backbround from <img width='48' height='32' src=\"css/images/cds.svg\" />",
 			"visible": false,
 			"background": true,
-			"dataType": "fits",
+			"dataType": "jpg",
+			"fitsSupported": true,
 			"coordSystem": "GAL"
 		},
 		{ 
