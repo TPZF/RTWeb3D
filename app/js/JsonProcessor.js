@@ -42,7 +42,7 @@ function handleServices( gwLayer, feature )
 		switch (service.type)
 		{
 			case "healpix":
-				service.layer = new HEALPixLayer({ baseUrl: service.url, name: service.name, visible: false, coordinates: feature.geometry.coordinates[0] });
+				service.layer = new HEALPixLayer({ dataType: service.dataType, baseUrl: service.url, name: service.name, visible: false, coordinates: feature.geometry.coordinates[0] });
 				gwLayer.subLayers.push(service.layer);
 				if ( gwLayer.globe && gwLayer.visible() )
 				{
