@@ -17,39 +17,10 @@
 * along with SITools2. If not, see <http://www.gnu.org/licenses/>. 
 ******************************************************************************/ 
 
-define(['gw/Utils', 'gw/HEALPixTiling', 'gw/RasterLayer', 'gw/DynamicImage', 'FitsLoader', 'gw/FitsTilePool', 'DynamicImageView'], 
-	function(Utils, HEALPixTiling, RasterLayer, DynamicImage, FitsLoader, FitsTilePool, DynamicImageView) {
+define(['gw/Utils', 'gw/HEALPixTiling', 'gw/RasterLayer', 'gw/DynamicImage', 'FitsLoader', 'gw/FitsTilePool'], 
+	function(Utils, HEALPixTiling, RasterLayer, DynamicImage, FitsLoader, FitsTilePool) {
 
 /**************************************************************************************************************/
-
-// TODO use DynamicImage shaders by unifying shader programs between TileManager and ConvexPolygonRenderer
-//		* inverse Y coordinates, some var names refactor..
-var colormapFragShader = "\
-		precision highp float; \n\
-		varying vec2 texCoord;\n\
-		uniform sampler2D colorTexture; \n\
-		uniform sampler2D colormap; \n\
-		uniform float min; \n\
-		uniform float max; \n\
-		void main(void)\n\
-		{\n\
-				float i = texture2D(colorTexture,vec2(texCoord.x, 1.0 - texCoord.y)).r;\n\
-				float d = clamp( ( i - min ) / (max - min), 0.0, 1.0 );\n\
-				vec4 cmValue = texture2D(colormap, vec2(d,0.));\n\
-				gl_FragColor = vec4(cmValue.r,cmValue.g,cmValue.b,1.);\n\
-		}\n\
-		";
-
-var rawFragShader = "\
-		precision highp float; \n\
-		varying vec2 texCoord;\n\
-		uniform sampler2D colorTexture; \n\
-		void main(void)\n\
-		{\n\
-				vec4 color = texture2D(colorTexture, vec2(texCoord.x, 1.0 - texCoord.y));\n\
-				gl_FragColor = vec4(color.r,color.g,color.b,1.);\n\
-		}\n\
-		";		
 
 /** @export
 	@constructor
@@ -74,16 +45,40 @@ var HEALPixFITSLayer = function(options)
 	this.customShader = null;
 	this.customLoad = null;
 
+	// TODO use DynamicImage shaders by unifying shader programs between TileManager and ConvexPolygonRenderer
+	//		* inverse Y coordinates, some var names refactor..
+	this.rawFragShader = "\
+		precision highp float; \n\
+		varying vec2 texCoord;\n\
+		uniform sampler2D colorTexture; \n\
+		void main(void)\n\
+		{\n\
+				vec4 color = texture2D(colorTexture, vec2(texCoord.x, 1.0 - texCoord.y));\n\
+				gl_FragColor = vec4(color.r,color.g,color.b,1.);\n\
+		}\n\
+		";
+
+	this.colormapFragShader = "\
+		precision highp float; \n\
+		varying vec2 texCoord;\n\
+		uniform sampler2D colorTexture; \n\
+		uniform sampler2D colormap; \n\
+		uniform float min; \n\
+		uniform float max; \n\
+		void main(void)\n\
+		{\n\
+				float i = texture2D(colorTexture,vec2(texCoord.x, 1.0 - texCoord.y)).r;\n\
+				float d = clamp( ( i - min ) / (max - min), 0.0, 1.0 );\n\
+				vec4 cmValue = texture2D(colormap, vec2(d,0.));\n\
+				gl_FragColor = vec4(cmValue.r,cmValue.g,cmValue.b,1.);\n\
+		}\n\
+		";
+
 	var self = this;
 	this._ready = false;
 
 	this._handleLevelZeroFits = function(fitsData)
 	{
-		// Call callback if set
-		if (options.onready && options.onready instanceof Function)
-		{
-			options.onready(self);
-		}
 		self._ready = true;
 
 		// Request a frame
@@ -93,48 +88,22 @@ var HEALPixFITSLayer = function(options)
 			// Create level zero image
 			var gl = self.globe.renderContext.gl;
 			self.levelZeroImage = new DynamicImage(self.globe.renderContext, typedArray, gl.LUMINANCE, gl.FLOAT, fitsData.width, fitsData.height);
+		}
 
-			// Create dynamic image view if needed
-			if ( !self.div )
-			{
-				if ( options.activator )
-				{
-					// TODO make more generic
-					self.div = new DynamicImageView({
-						activator: options.activator,
-						id: self.name,
-						image: self.levelZeroImage,
-						changeShaderCallback: function(contrast){
-							if ( contrast == "raw" )
-							{
-								self.customShader.fragmentCode = rawFragShader;
-							} else {
-								self.customShader.fragmentCode = colormapFragShader;
-							}
-						},
-						enable : function(){
-							$('#fitsView').button("enable");
-						},
-						disable : function(){
-							$('#fitsView').button("disable");
-						},
-						unselect: function(){
-							$('#fitsView').removeAttr("checked").button("refresh");
-						}
-					});
-				}
-			}
-			else
-			{
-				self.div.setImage(self.levelZeroImage);
-			}
+		// Call callback if set
+		if (options.onready && options.onready instanceof Function)
+		{
+			options.onready(self);
 		}
 	}
 
 	this._handleLevelZeroImage = function()
 	{
-		self._ready = true;
-				
+		// Don't handle image if dataType has been changed to "fits" meanwhile
+		if ( self.dataType == "fits" )
+			return;
+
+		self._ready = true;				
 		// Call callback if set
 		if (options.onready && options.onready instanceof Function)
 		{
@@ -149,7 +118,7 @@ var HEALPixFITSLayer = function(options)
 	}
 
 	this.fitsShader = {
-		fragmentCode: rawFragShader,
+		fragmentCode: this.rawFragShader,
 		updateUniforms : function(gl, program){
 			gl.uniform1f(program.uniforms["max"], self.levelZeroImage.tmax );
 			gl.uniform1f(program.uniforms["min"], self.levelZeroImage.tmin );

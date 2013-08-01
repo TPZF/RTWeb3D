@@ -1,10 +1,18 @@
 /*** Background layers ***/
 
-#layerManager fieldset
+#backgroundLayers fieldset
 {
 	border: none;
 	float: left;
 	padding: 5px;
+}
+
+#backgroundLayers fieldset select {
+	min-width: 150px;
+	margin-right: inherit;
+	margin-top: 10px;
+	margin-bottom: 20px;
+	text-align: center;
 }
 
 #backgroundSpinner
@@ -16,27 +24,15 @@
 	float: right;
 }
 
-#layerManager fieldset select {
-	min-width: 150px;
-}
-
-#layerManager {
-	max-height: 450px;
-}
-
-#backgroundLayers
-{
-	margin-right: inherit;
-	margin-top: 10px;
-	margin-bottom: 20px;
-	text-align: center;
-}
-
 .unknown .ui-selectmenu-item-icon {
 	background: url(../css/images/unknown.png) 0 0 no-repeat;
 }
 
 /*** Additionnal layers ***/
+
+#additionalLayers {
+	max-height: 450px;
+}
 
 .addLayer > label
 {
@@ -71,12 +67,16 @@
 
 .percentInput
 {
+	outline: none;
 	border:0;
 	background-color: transparent;
 	width: 40px;
 	color:#f6931f;
 	font-weight:bold;
-	value: 20%;
+	pointer-events: none;
+	-webkit-touch-callout: none;
+	-webkit-user-select: none;
+	-moz-user-select: moz-none;
 }
 
 .ui-icon-empty {

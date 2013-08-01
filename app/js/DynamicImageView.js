@@ -34,9 +34,9 @@ define(['jquery.ui', 'underscore-min', "gw/FeatureStyle", "./Histogram", "text!.
  *		<h3>Optional:</h3>
  *		<ul>
  *			<li>image: The image represented by this view</li>
- *			<li>enable: Enable callback</li>
  *			<li>disable: Disable callback</li>
  *			<li>unselect: Unselect callback</li>
+ *			<li>changeShaderCallback: Callback for shader changing</li>
  *		</ul>
  */
 var DynamicImageView = function(options)
@@ -47,12 +47,7 @@ var DynamicImageView = function(options)
 	// Callbacks
 	this.disable = options.disable || null;
 	this.unselect = options.unselect || null;
-
-	// Enable on creation
-	if ( options.enable )
-	{
-		options.enable();
-	}
+	this.changeShaderCallback = options.changeShaderCallback;
 
 	// Interaction parameters
 	var selectedColormap = "grey";
@@ -120,8 +115,8 @@ var DynamicImageView = function(options)
 						default:
 							break;
 					}
-					if ( options.changeShaderCallback )
-						options.changeShaderCallback(selectedContrast);
+					if ( self.changeShaderCallback )
+						self.changeShaderCallback(selectedContrast);
 
 					self.render();
 				});

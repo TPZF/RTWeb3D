@@ -8,9 +8,9 @@
 
 	<label title="<%= layer.description %>" for="addLayerInput_<%= currentIndex %>"><%= layer.name %></label>
 
-	<img style="display: none" class="spinner" src="css/images/loading.gif">
+	<img style="display: none;" class="spinner" src="css/images/loading.gif">
 
-	<div class="layerTools" class="ui-widget-header ui-corner-all">
+	<div style="display: none;" class="layerTools" class="ui-widget-header ui-corner-all">
 		
 		<%
 		if( layer.deletable )
@@ -28,6 +28,15 @@
 		%>
 			
 			<button class="zoomTo">zoomTo</button>
+		<%
+		}
+		%>
+
+		<% if ( layer.fitsShader )
+		{
+		%>
+			<input type="checkbox" class="isFits" id="isFits_<%= currentIndex %>" /><label for="isFits_<%= currentIndex %>">Fits</label>
+			<input type="checkbox" class="addFitsView" id="addFitsView_<%= layer.id %>" disabled="disabled" /><label for="addFitsView_<%= layer.id %>"></label>
 		<%
 		}
 		%>

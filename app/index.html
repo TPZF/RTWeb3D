@@ -18,26 +18,23 @@
 		<div class="sidebar">
 			<div id="accordion" style="display: none;">
 				
-				<h3>Layer manager</h3>
-				<div id="layerManager">
-					<em>Background layers:</em>
+				<h3>Background layers</h3>
+				<div id="backgroundLayers">
 					<fieldset>
-						<select name="backgroundLayers" id="backgroundLayers">
+						<select id="backgroundLayersSelect">
 						</select>
 					</fieldset>
 					<img style="display: none" id="backgroundSpinner" src="css/images/loading.gif">
-					<!-- TODO: change fitsView layout -->
-					<input type="checkbox" id="backgroundOptionsActivator" /><label for="backgroundOptionsActivator" style="margin: 5px 5px 10px 5px">Options</label>
-					<div style="display: none;" id="backgroundOptions">
+					<br/>
+					<em>Options:</em>
+					<div id="backgroundOptions">
+						<input type="checkbox" id="fitsType" /><label for="fitsType">Fits</label>
 						<input type="checkbox" id="fitsView" /><label for="fitsView">Image processing</label>
-						<select id="fitsType">
-							<option value="fits">Fits</option>
-							<option value="jpg">Jpeg</option>
-						</select>
 					</div>
-					<em style="display: inline-block; margin-top: 10px;">Additional layers:</em>
-					<div id="additionalLayers">
-					</div>
+				</div>
+
+				<h3>Additional layers</h3>
+				<div id="additionalLayers">
 				</div>
 			</div>
 		</div>
