@@ -20,7 +20,7 @@
 /**
  * BackgroundLayersView module
  */
-define(["jquery.ui", "DynamicImageView"], function($, DynamicImageView){
+define(["jquery.ui", "DynamicImageView", "PickingManager"], function($, DynamicImageView, PickingManager){
 
 // Necessary for selectmenu initialization
 var backgroundLayersIcons = []; 
@@ -157,6 +157,9 @@ return {
 				var index = $(this).data('selectmenu').index();
 				var layer = $(this).children().eq(index).data("layer");
 
+				// Clear selection
+				PickingManager.getSelection().length = 0;
+
 				// Change visibility's of previous layer(maybe GlobWeb should do it ?)
 				globe.tileManager.imageryProvider.visible(false);
 				globe.setBaseImagery( layer );
@@ -172,9 +175,21 @@ return {
 					var currentLayer = gwLayers[i];
 					if ( currentLayer.subLayers )
 					{
-						for ( var j=0; j<currentLayer.subLayers.length; j++ )
+						var len = currentLayer.subLayers.length;
+						for ( var j=0; j<len; j++ )
 						{
-							globe.addLayer( currentLayer.subLayers[j] );
+							var subLayer = currentLayer.subLayers[j];
+							// Remove solar object sublayer
+							if (subLayer.name == "SolarObjectsSublayer" )
+							{
+								PickingManager.removePickableLayer( subLayer );
+								globe.removeLayer( subLayer );
+								currentLayer.subLayers.splice(j,1);
+							}
+							else
+							{
+								globe.addLayer( subLayer );
+							}
 						}
 					}
 				}
