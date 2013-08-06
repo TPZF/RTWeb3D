@@ -30,7 +30,8 @@
         "services" : { 
 	    "healpix" : { "name" : "Doradus",
                 "type" : "healpix",
-                "url" : "http://demonstrator.telespazio.com/doradus"
+                "url" : "http://demonstrator.telespazio.com/doradus",
+                "dataType": "png"
               } 
 	},
         "type" : "Feature"
