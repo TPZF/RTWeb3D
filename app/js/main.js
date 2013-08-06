@@ -262,7 +262,7 @@ $(function()
 			FitsManager.init(globe);
 
 			// Create data manager
-			PickingManager.init(globe, navigation);
+			PickingManager.init(globe, navigation, data);
 
 			// Compass component
 			new Compass({ element : "objectCompass", globe : globe, navigation : navigation, coordSystem : data.coordSystem });

@@ -23,6 +23,9 @@
 	"coverageService": {
 		"baseUrl": "/sitools/rtwebgl/plugin/coverage?moc="
 	},
+	"solarObjects": {
+		"baseUrl": "/sitools/rtwebgl/plugin/solarObjects"
+	},
 	"stats": {
 		"verbose": false,
 		"visible": true

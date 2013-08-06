@@ -357,7 +357,7 @@ function computePickSelection( pickPoint )
 }
 
 return {
-	init: function( gl, nav ) 
+	init: function( gl, nav, configuration ) 
 	{
 		// Store the globe in the global module variable
 		globe = gl;
@@ -366,7 +366,7 @@ return {
 
 		// Call init
 		init();
-		FeaturePopup.init(this, gl);
+		FeaturePopup.init(this, gl, configuration);
 	},
 	
 	addPickableLayer: function( layer )

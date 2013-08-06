@@ -216,7 +216,7 @@ return {
 	 *	@param pm <PickingManager>
 	 *	@param gl <GlobWeb.Globe>
 	 */
-	init: function(pm, gl){
+	init: function(pm, gl, configuration){
 
 		pickingManager = pm;
 		globe = gl;
@@ -318,7 +318,8 @@ return {
 				layer.globe.addLayer(solarObjectsLayer);
 				pickingManager.addPickableLayer(solarObjectsLayer);
 
-				var url = "/sitools/rtwebgl/plugin/solarObjects?order=" + selection.selectedTile.order + "&healpix=" + selection.selectedTile.pixelIndex + "&EPOCH=" + selectedData.feature.properties['date-obs'];
+
+				var url = configuration.solarObjects.baseUrl + "?order=" + selection.selectedTile.order + "&healpix=" + selection.selectedTile.pixelIndex + "&EPOCH=" + selectedData.feature.properties['date-obs'];
 				$('#solarObjectsSpinner').show();
 				$.ajax({
 					type: "GET",
