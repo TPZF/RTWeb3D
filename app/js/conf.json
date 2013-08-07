@@ -1,18 +1,20 @@
 {
-	/**/
 	/* 
 	 * Comment block
 	 */
 	// Comment on one line
+
     //"debug": true,
     "coordSystem": "EQ", // Default coordinate system
     "navigation": {
-    	"initTarget": [14.06,-1.252403],
-    	"initFov": 1,
-    	"inertia": true,
-    	"minFov": 0.001,
-    	"zoomFactor": 0
-    },
+		"initTarget": [14.06,-1.252403], // HST
+		//"initTarget": [4.3500, 3.0794], //Asteroides
+		"initFov": 1,
+		"inertia": true,
+		"minFov": 0.001,
+		"zoomFactor": 0
+	},
+    // SiTools2 services configuration
 	"nameResolver": {
 		"baseUrl": "/sitools/rtwebgl/plugin/nameResolver",
 		"zoomFov": 2
@@ -25,6 +27,9 @@
 	},
 	"solarObjects": {
 		"baseUrl": "/sitools/rtwebgl/plugin/solarObjects"
+	},
+	"cutOut": {
+		"baseUrl": "/cutout"
 	},
 	"stats": {
 		"verbose": false,
@@ -99,14 +104,14 @@
 			"attribution": "Deep CFHTLS backbround from <img width='48' height='32' src=\"css/images/cds.svg\" />",
 			"visible": false,
 			"background": true,
-            "numberOfLevels": 12
+			"numberOfLevels": 12
 		},
-        { 
+		{ 
 			"type": "healpix",
 			"name": "CFHTLS Wide",
 			"baseUrl": "/Alasky/CFHTLS-T0007b/Wide/RGB-UGIm",
 			"description": "CFHTLS-W-Colored (UGI)",
-                        "attribution": "TERAPIX - Healpixed by CDS",
+            "attribution": "TERAPIX - Healpixed by CDS",
 			"visible": false,
 			"background": true
 		},
@@ -119,7 +124,7 @@
 			"visible": false,
 			"background": true
 		},
-        { 
+		{ 
 			"type": "healpix",
 			"name": "RASS",
 			"baseUrl": "/Alasky/RASS",
@@ -128,7 +133,7 @@
 			"visible": false,
 			"background": true
 		},
-        { 
+		{ 
 			"type": "healpix",
 			"name": "NVSS",
 			"baseUrl": "/Alasky/NVSS/intensity",
@@ -230,7 +235,7 @@
 			"type": "DynamicOpenSearch",
 			"dataType": "point",
 			"name": "SPM4",
-            "description":"The SPM4 Catalog contains absolute proper motions, celestial coordinates, and B,V photometry for 103,319,647 stars and galaxies between the south celestial pole and -20 degrees declination. The  catalog is roughly complete to V=17.5. It is based on photographic  and CCD observations taken with the Yale Southern Observatory's  double-astrograph at Cesco Observatory in El Leoncito, Argentina. The first-epoch survey, taken from 1965 to 1979, was entirely photographic. The second-epoch survey is approximately 1/3 photographic (taken from 1988 to 1998) and 2/3 CCD-based (taken  from 2004 through 2008). Full details about the creation of the SPM4.0 catalog can be found in the paper, and also in  the document \"spm4_doc.txt\" file which describes the original files, accessible from tttp://www.astro.yale.edu/astrom/spm4cat/",
+			"description":"The SPM4 Catalog contains absolute proper motions, celestial coordinates, and B,V photometry for 103,319,647 stars and galaxies between the south celestial pole and -20 degrees declination. The  catalog is roughly complete to V=17.5. It is based on photographic  and CCD observations taken with the Yale Southern Observatory's  double-astrograph at Cesco Observatory in El Leoncito, Argentina. The first-epoch survey, taken from 1965 to 1979, was entirely photographic. The second-epoch survey is approximately 1/3 photographic (taken from 1988 to 1998) and 2/3 CCD-based (taken  from 2004 through 2008). Full details about the creation of the SPM4.0 catalog can be found in the paper, and also in  the document \"spm4_doc.txt\" file which describes the original files, accessible from tttp://www.astro.yale.edu/astrom/spm4cat/",
 			"serviceUrl": "/sitools/i320",
 			"visible": false,
 			"minOrder": 9

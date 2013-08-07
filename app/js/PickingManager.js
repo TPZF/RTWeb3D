@@ -117,8 +117,6 @@ function init()
 		{
 			var pickPoint = globe.getLonLatFromPixel(event.clientX, event.clientY);
 
-			selectedTile = globe.tileManager.getVisibleTile(pickPoint[0], pickPoint[1]);
-
 			// Remove selected style for previous selection
 			clearSelection();
 
@@ -244,6 +242,7 @@ function pointInSphere( point, sphere, pointTextureHeight )
  */
 function computePickSelection( pickPoint )
 {
+	selectedTile = globe.tileManager.getVisibleTile(pickPoint[0], pickPoint[1]);
 	var newSelection = [];
 	
 	for ( var i=0; i<pickableLayers.length; i++ )
@@ -445,7 +444,9 @@ return {
 	getSelection: function()
 	{
 		return selection;
-	}
+	},
+
+	computePickSelection: computePickSelection
 };
 
 });

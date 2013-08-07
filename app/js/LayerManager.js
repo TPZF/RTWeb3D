@@ -337,7 +337,7 @@ return {
 
 		// Call init layers
 		initLayers(configuration.layers);
-		ServiceBar.init(gl, configuration);
+		ServiceBar.init(gl, nav, configuration);
 	},
 	
 	/**

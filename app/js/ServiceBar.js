@@ -22,7 +22,7 @@
  * (currently specified only for OpenSearchLayer)
  *
  */
-define( [ "jquery.ui", "OpenSearchService", "MocService" ], function($, OpenSearchService, MocService) {
+define( [ "jquery.ui", "OpenSearchService", "MocService", "UWSService" ], function($, OpenSearchService, MocService, UWSService) {
 
 // Create service bar div
 
@@ -47,7 +47,7 @@ var tabs = $('#layerServices').tabs({
 // Mapping between type of a layer and supported services
 var serviceMapping =
 {
-	"DynamicOpenSearch": [OpenSearchService, MocService]
+	"DynamicOpenSearch": [OpenSearchService, MocService, UWSService]
 };
 
 var layers = [];
@@ -98,9 +98,10 @@ function updateWidth()
 
 return {
 
-	init: function(gl, configuration)
+	init: function(gl, nav, configuration)
 	{
 		MocService.init(gl, configuration);
+		UWSService.init(gl, nav, configuration);
 		$( "#serviceBar" ).accordion( { autoHeight: false, active: false, collapsible: true } ).show();
 		$(window).resize(function()
 		{
@@ -132,7 +133,8 @@ return {
 				// Add layer to services
 				for ( var i=0; i<layerServices.length; i++ )
 				{
-					layerServices[i].addLayer(layer);
+					if ( layerServices[i].addLayer )
+						layerServices[i].addLayer(layer);
 				}
 
 				tabs.tabs("refresh");
@@ -153,7 +155,8 @@ return {
 			// Remove layer from services
 			for ( var i=0; i<layerServices.length; i++ )
 			{
-				layerServices[i].removeLayer( layer );
+				if ( layerServices[i].removeLayer )
+					layerServices[i].removeLayer( layer );
 			}
 
 			// Remove layer
