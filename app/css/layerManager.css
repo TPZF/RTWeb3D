@@ -1,5 +1,10 @@
 /*** Background layers ***/
 
+#backgroundLayersSelect
+{
+	width: 150px;
+}
+
 #backgroundLayers fieldset
 {
 	border: none;
