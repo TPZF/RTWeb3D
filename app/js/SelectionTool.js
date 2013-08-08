@@ -18,7 +18,7 @@
 ******************************************************************************/ 
 
 /**
- * Tool designed to select regions on globe
+ * Tool designed to select areas on globe
  */
 
 define( [ "jquery.ui", "gw/VectorLayer" ], function($, VectorLayer){
@@ -29,6 +29,8 @@ define( [ "jquery.ui", "gw/VectorLayer" ], function($, VectorLayer){
  *		<ul>
  *			<li>globe: Globe</li>
  *			<li>navigation: Navigation</li>
+ *			<li>onselect: On selection callback</li>
+ *			<li>type: "square" or "circle"</li>
  *		</ul>
  */
 var SelectionTool = function(options)
@@ -36,6 +38,8 @@ var SelectionTool = function(options)
 	// Required options
 	var globe = options.globe;
 	var navigation = options.navigation;
+	var onselect = options.onselect;
+	this.type = options.type || "square";
 
 	this.activated = false;
 	this.renderContext = globe.renderContext;
@@ -66,10 +70,10 @@ var SelectionTool = function(options)
 	});
 
 	this.renderContext.canvas.addEventListener("mousemove", function(event){
-		// Modify radius and feature
 		if ( !self.activated || !dragging )
 			return;
 
+		// Update radius
 		mPickPoint = globe.getLonLatFromPixel(event.clientX, event.clientY);
 		self.radius = Math.sqrt( Math.pow(mPickPoint[0] - self.pickPoint[0], 2) + Math.pow(mPickPoint[1] - self.pickPoint[1], 2) );
 		self.updateSelection();
@@ -80,11 +84,18 @@ var SelectionTool = function(options)
 		if ( !self.activated )
 			return;
 
+		if ( onselect )
+		{
+			onselect();
+		}
+
 		// Reactivate standard navigation events
 		navigation.start();
 		dragging = false;
 	});
 }
+
+/**************************************************************************************************************/
 
 /**
  *	Update selection coordinates
@@ -94,25 +105,46 @@ SelectionTool.prototype.updateSelection = function()
 	if ( this.selectionFeature )
 		this.selectionLayer.removeFeature(this.selectionFeature);
 
+	var coordinates = [];
+	if ( this.type == "circle" )
+	{
+		for ( var i=-Math.PI; i<=Math.PI; i+=0.1 )
+		{
+			coordinates.push([ this.pickPoint[0] + this.radius*Math.cos(i),
+							   this.pickPoint[1] + this.radius*Math.sin(i) ]);
+		}
+	}
+	else if ( this.type == "square" )
+	{
+		coordinates =[
+			[ this.pickPoint[0]-this.radius, this.pickPoint[1]-this.radius ],
+			[ this.pickPoint[0]-this.radius, this.pickPoint[1]+this.radius ],
+			[ this.pickPoint[0]+this.radius, this.pickPoint[1]+this.radius ],
+			[ this.pickPoint[0]+this.radius, this.pickPoint[1]-this.radius ],
+			[ this.pickPoint[0]-this.radius, this.pickPoint[1]-this.radius ]
+		];
+	}
+	else
+	{
+		console.error("Selection type not implemented yet");
+	}
+
 	this.selectionFeature = {
 		"geometry": {
 			"gid": "selectionShape",
-			"coordinates": [[
-				[ this.pickPoint[0]-this.radius, this.pickPoint[1]-this.radius ],
-				[ this.pickPoint[0]-this.radius, this.pickPoint[1]+this.radius ],
-				[ this.pickPoint[0]+this.radius, this.pickPoint[1]+this.radius ],
-				[ this.pickPoint[0]+this.radius, this.pickPoint[1]-this.radius ],
-				[ this.pickPoint[0]-this.radius, this.pickPoint[1]-this.radius ]
-			]],
+			"coordinates": [coordinates],
 			"type": "Polygon"
 		},
 		"type": "Feature"
 	};
+	
 	this.selectionLayer.addFeature( this.selectionFeature );
 }
 
+/**************************************************************************************************************/
+
 /**
- *	
+ *	Activate/desactivate the tool
  */
 SelectionTool.prototype.toggle = function()
 {
@@ -125,13 +157,24 @@ SelectionTool.prototype.toggle = function()
 	else
 	{
 		$(this.renderContext.canvas).css('cursor', 'default');
-		// Remove feature from renderer(maybe specify "Clear" method)
-		if ( this.selectionFeature )
-			this.selectionLayer.removeFeature(this.selectionFeature);
-		this.pickPoint = null;
-		this.radius = null;
 	}
 }
+
+/**************************************************************************************************************/
+
+/**
+ *	Clear selection
+ */
+SelectionTool.prototype.clear = function()
+{
+	if ( this.selectionFeature )
+		this.selectionLayer.removeFeature(this.selectionFeature);
+
+	this.pickPoint = null;
+	this.radius = null;
+}
+
+/**************************************************************************************************************/
 
 return SelectionTool;
 

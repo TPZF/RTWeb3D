@@ -40,6 +40,9 @@ function showMessage(message)
 
 /**************************************************************************************************************/
 
+/**
+ *	Start animation
+ */
 function startAnimation()
 {
 	stopped = false;
@@ -70,12 +73,8 @@ var iterateAnimation = function()
  */
 function toggleSelectionTool()
 {
-	$(this).button("option", {
-		icons: {
-    		primary: $(this).is(':checked') ? "ui-icon-check" : "ui-icon-empty"
-    	}
-    });
     selectionTool.toggle();
+    $('#layerServices').slideUp();
 }
 
 /**************************************************************************************************************/
@@ -154,7 +153,11 @@ return {
 		// Initialize selection tool
 		selectionTool = new SelectionTool({
 			globe: options.globe,
-			navigation: options.navigation
+			navigation: options.navigation,
+			onselect: function(){
+				$('#layerServices').slideDown();
+				selectionTool.toggle();
+			}
 		});
 	},
 
@@ -166,25 +169,24 @@ return {
 		var cutOutContent = cutOutTemplate();
 		$(cutOutContent)
 			.appendTo('#'+element)
-			.parent().find('input[type="checkbox"]')
-				.button({
-					text: false,
-					icons: {
-						primary: "ui-icon-empty"
-					}
-				})
+			.parent().find('#selectionTool')
+				.button()
 				.click(toggleSelectionTool).end()
 			.parent().find('#runJob')
 				.button()
-				.click(runJob);
+				.click(runJob).end()
+			.parent().find('#clearSelection')
+				.button()
+				.click(function(){
+					selectionTool.clear();
+				});
 	},
 
 	/**
 	 *	Remove view
 	 */
 	remove: function(){
-		if ( selectionTool.activated )
-			selectionTool.toggle();
+		selectionTool.clear();
 	}
 }
 
