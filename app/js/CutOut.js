@@ -39,7 +39,7 @@ var checkPhase = function()
 	$.ajax({
 		type: "GET",
 		url: baseUrl + "/" + currentJob,
-		success: function(response, ajaxOptions, xhr){
+		success: function(response, textStatus, xhr){
 			var xmlDoc = $.parseXML( xhr.responseText );
 			var phase = $(response).find('phase').text();
 			
@@ -74,13 +74,13 @@ var checkPhase = function()
 			{
 				window.clearInterval(checkFn);
 				if ( failCallback )
-					failCallback();
+					failCallback('Internal server error');
 			}
 		},
-		error: function (xhr, ajaxOptions, thrownError) {
+		error: function (xhr, textStatus, thrownError) {
 			window.clearInterval(checkFn);
 			if ( failCallback )
-					failCallback();
+				failCallback('CutOut service: '+thrownError);
 			console.error( xhr.responseText );
 		}
 	});
@@ -115,7 +115,7 @@ return {
 				dec: dec,
 				radius: radius,
 			},
-			success: function(response, ajaxOptions, xhr){
+			success: function(response, textStatus, xhr){
 				var xmlDoc = $.parseXML( xhr.responseText );
 				$xml = $(response);
 				currentJob = $xml.find('jobId').text();
@@ -123,9 +123,10 @@ return {
 				// Check job phase every 500ms
 				checkFn = window.setInterval( checkPhase, 500 );
 			},
-			error: function (xhr, ajaxOptions, thrownError) {
+			error: function (xhr, textStatus, thrownError) {
 				window.clearInterval(checkFn);
-				failCallback();
+				if ( failCallback )
+					failCallback('CutOut service: '+thrownError);
 				console.error( xhr.responseText );
 			}
 		});
