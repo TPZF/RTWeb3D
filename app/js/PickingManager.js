@@ -163,7 +163,7 @@ function init()
 	
 	// Hide popup and clear selection when pan/zoom
 	navigation.subscribe("modified", function() { 
-		blurSelection();
+		clearSelection();
 		FeaturePopup.hide();
 	});
 
