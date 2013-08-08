@@ -26,7 +26,7 @@
 		"baseUrl": "/sitools/rtwebgl/plugin/coverage?moc="
 	},
 	"solarObjects": {
-		"baseUrl": "/sitools/rtwebgl/plugin/solarObjects"
+		"baseUrl": "/sitools/rtwebgl/plugin/solarObjects/"
 	},
 	"cutOut": {
 		"baseUrl": "/cutout"

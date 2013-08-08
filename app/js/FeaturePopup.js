@@ -315,15 +315,29 @@ return {
 				};
 
 				solarObjectsLayer = new VectorLayer( options );
-				layer.globe.addLayer(solarObjectsLayer);
+				globe.addLayer(solarObjectsLayer);
 				pickingManager.addPickableLayer(solarObjectsLayer);
 
-
-				var url = configuration.solarObjects.baseUrl + "?order=" + selection.selectedTile.order + "&healpix=" + selection.selectedTile.pixelIndex + "&EPOCH=" + selectedData.feature.properties['date-obs'];
+				var url = configuration.solarObjects.baseUrl;
+				if ( globe.tileManager.imageryProvider.tiling.coordSystem == "EQ" )
+            	{
+            		url += "EQUATORIAL";
+            	}
+            	else
+            	{
+            		url += "GALACTIC";
+            	}
+            	
 				$('#solarObjectsSpinner').show();
 				$.ajax({
 					type: "GET",
 					url: url,
+					data : {
+						order: selection.selectedTile.order,
+						healpix: selection.selectedTile.pixelIndex,
+						EPOCH: selectedData.feature.properties['date-obs']
+						// coordSystem: (globe.tileManager.imageryProvider.tiling.coordSystem == "EQ" ? "EQUATORIAL" : "GALACTIC")
+					},
 					success: function(response){
 						JsonProcessor.handleFeatureCollection( solarObjectsLayer, response );
 						$('#serviceStatus').html(response.totalResults + ' objects found').slideDown().delay(400).slideUp();
