@@ -106,6 +106,7 @@ function init()
 		timeStart = new Date();
 		mouseXStart = event.clientX;
 		mouseYStart = event.clientY;
+		clearSelection();
 	});
 
 	$('canvas').mouseup(function(event){
@@ -161,9 +162,9 @@ function init()
 		}
 	});
 	
-	// Hide popup and clear selection when pan/zoom
+	// Hide popup and blur selection when pan/zoom or animation
 	navigation.subscribe("modified", function() { 
-		clearSelection();
+		blurSelection();
 		FeaturePopup.hide();
 	});
 
