@@ -17,8 +17,8 @@
 * along with SITools2. If not, see <http://www.gnu.org/licenses/>. 
 ******************************************************************************/ 
 
-define(['gw/Utils', 'gw/HEALPixTiling', 'gw/RasterLayer', 'gw/DynamicImage', 'FitsLoader', 'gw/FitsTilePool'], 
-	function(Utils, HEALPixTiling, RasterLayer, DynamicImage, FitsLoader, FitsTilePool) {
+define(['gw/Utils', 'gw/HEALPixTiling', 'gw/RasterLayer', 'gw/DynamicImage', 'FitsLoader', 'gw/FitsTilePool', 'gw/ImageRequest', './FitsRequest'], 
+	function(Utils, HEALPixTiling, RasterLayer, DynamicImage, FitsLoader, FitsTilePool, ImageRequest) {
 
 /**************************************************************************************************************/
 
@@ -36,14 +36,13 @@ var HEALPixFITSLayer = function(options)
 	this.type = "ImageryRaster";
 	this.baseUrl = options['baseUrl'];
 	this.dataType = options.dataType || "fits";
+	this._ready = false;
 	
 	// allsky
 	this.levelZeroImage = null;
 
 	// Customization parameters for fits rendering
-	this.customTilePool = null;
 	this.customShader = null;
-	this.customLoad = null;
 
 	// TODO use DynamicImage shaders by unifying shader programs between TileManager and ConvexPolygonRenderer
 	//		* inverse Y coordinates, some var names refactor..
@@ -51,10 +50,11 @@ var HEALPixFITSLayer = function(options)
 		precision highp float; \n\
 		varying vec2 texCoord;\n\
 		uniform sampler2D colorTexture; \n\
+		uniform float opacity; \n\
 		void main(void)\n\
 		{\n\
 				vec4 color = texture2D(colorTexture, vec2(texCoord.x, 1.0 - texCoord.y));\n\
-				gl_FragColor = vec4(color.r,color.g,color.b,1.);\n\
+				gl_FragColor = vec4(color.r,color.g,color.b, color.a*opacity);\n\
 		}\n\
 		";
 
@@ -65,69 +65,83 @@ var HEALPixFITSLayer = function(options)
 		uniform sampler2D colormap; \n\
 		uniform float min; \n\
 		uniform float max; \n\
+		uniform float opacity; \n\
 		void main(void)\n\
 		{\n\
 				float i = texture2D(colorTexture,vec2(texCoord.x, 1.0 - texCoord.y)).r;\n\
 				float d = clamp( ( i - min ) / (max - min), 0.0, 1.0 );\n\
 				vec4 cmValue = texture2D(colormap, vec2(d,0.));\n\
 				gl_FragColor = vec4(cmValue.r,cmValue.g,cmValue.b,1.);\n\
+				gl_FragColor.a *= opacity;\n\
 		}\n\
 		";
-
-	var self = this;
-	this._ready = false;
-
-	this._handleLevelZeroFits = function(fitsData)
-	{
-		self._ready = true;
-
-		// Request a frame
-		if ( self.globe )
-		{
-			var typedArray = new Float32Array( fitsData.view.buffer, fitsData.begin, fitsData.length/4 ); // with gl.FLOAT
-			// Create level zero image
-			var gl = self.globe.renderContext.gl;
-			self.levelZeroImage = new DynamicImage(self.globe.renderContext, typedArray, gl.LUMINANCE, gl.FLOAT, fitsData.width, fitsData.height);
-		}
-
-		// Call callback if set
-		if (options.onready && options.onready instanceof Function)
-		{
-			options.onready(self);
-		}
-	}
-
-	this._handleLevelZeroImage = function()
-	{
-		// Don't handle image if dataType has been changed to "fits" meanwhile
-		if ( self.dataType == "fits" )
-			return;
-
-		self._ready = true;				
-		// Call callback if set
-		if (options.onready && options.onready instanceof Function)
-		{
-			options.onready(self);
-		}
-		
-		// Request a frame
-		if ( self.globe )
-		{
-			self.globe.renderContext.requestFrame();
-		}
-	}
 
 	this.fitsShader = {
 		fragmentCode: this.rawFragShader,
 		updateUniforms : function(gl, program){
-			gl.uniform1f(program.uniforms["max"], self.levelZeroImage.tmax );
-			gl.uniform1f(program.uniforms["min"], self.levelZeroImage.tmin );
+			// Level zero image is required to init uniforms
+			if ( self.levelZeroImage )
+			{
+				gl.uniform1f(program.uniforms["max"], self.levelZeroImage.tmax );
+				gl.uniform1f(program.uniforms["min"], self.levelZeroImage.tmin );
 
-			gl.activeTexture(gl.TEXTURE1);
-			gl.bindTexture(gl.TEXTURE_2D, self.levelZeroImage.colormapTex);
-			gl.uniform1i(program.uniforms["colormap"], 1);
+				gl.activeTexture(gl.TEXTURE1);
+				gl.bindTexture(gl.TEXTURE_2D, self.levelZeroImage.colormapTex);
+				gl.uniform1i(program.uniforms["colormap"], 1);
+				gl.uniform1f(program.uniforms["opacity"], self.opacity() );
+			}
 		}
 	}
+
+	var self = this;
+	// Request for level zero image
+	this.imageRequest = new ImageRequest({
+		successCallback: function(){
+
+			self._ready = true;
+
+			if ( self.dataType == "fits" )
+			{
+				self.handleImage(self.imageRequest);
+				var fitsData = self.imageRequest.image;
+				if ( self.globe )
+				{
+					// Create level zero image
+					var gl = self.globe.renderContext.gl;
+					self.levelZeroImage = new DynamicImage(self.globe.renderContext, fitsData.typedArray, gl.LUMINANCE, gl.FLOAT, fitsData.width, fitsData.height);
+					self.getLevelZeroTexture = function()
+					{
+						return self.levelZeroImage.texture;
+					}
+				}
+			}
+			else
+			{
+				self.levelZeroImage = this.image;
+				self.getLevelZeroTexture = null;
+			}
+
+			// Call callback if set
+			if (options.onready && options.onready instanceof Function)
+			{
+				options.onready(self);
+			}
+
+			// Request a frame
+			if ( self.globe )
+			{
+				self.globe.renderContext.requestFrame();
+			}
+		},
+		failCallback: function(){
+			if ( self.globe )
+			{
+				self.globe.publish("baseLayersError");
+				self._ready = false;
+				console.log( "Error while loading background");
+			}
+		}
+	});
 }
 
 /**************************************************************************************************************/
@@ -137,94 +151,35 @@ Utils.inherits(RasterLayer, HEALPixFITSLayer);
 /**************************************************************************************************************/
 
 /** 
-  Attach the raster layer to the globe
+ *	Attach the HEALPixFits layer to the globe
  */
 HEALPixFITSLayer.prototype._attach = function( g )
 {
 	RasterLayer.prototype._attach.call( this, g );
 
-	var self = this;
-	var _handleLevelZeroError = function()
-	{
-		if ( self.globe )
-		{
-			self.globe.publish("baseLayersError");
-			self._ready = false;
-			console.log( "Error while loading background");
-		}
+	// Enable float texture extension to have higher luminance range
+	var gl = this.globe.renderContext.gl;
+	var ext = gl.getExtension("OES_texture_float");
+	if (!ext) {
+		// TODO 
+		alert("no OES_texture_float");
+		return;
 	}
 
-	// Launch xhr request if level zero image wasn't recieved yet
-	if ( !this.levelZeroImage )
-	{
-		var url = this.baseUrl + "/Norder3/Allsky."+this.dataType;
-		if ( this.dataType == "fits" )
-		{
-			// Enable float texture extension to have higher luminance range
-			var gl = this.globe.renderContext.gl;
-			var ext = gl.getExtension("OES_texture_float");
-			if (!ext) {
-				// TODO 
-				alert("no OES_texture_float");
-				return;
-			}
-
-			// Load level zero image now
-			this.xhr = FitsLoader.loadFits( url, this._handleLevelZeroFits, _handleLevelZeroError );
-
-			// Add customization parameters
-			this.customTilePool = new FitsTilePool(self.globe.renderContext);
-			this.customLoad = this.fitsLoad;
-			this.customShader = this.fitsShader;
-			this.getLevelZeroTexture = function()
-			{
-				return this.levelZeroImage.texture;
-			}
-		}
-		else
-		{
-			// Image
-			this.levelZeroImage = new Image();
-			var self = this;
-			this.levelZeroImage.crossOrigin = '';
-			this.levelZeroImage.onload = this._handleLevelZeroImage;
-			this.levelZeroImage.onerror = _handleLevelZeroError;
-			this.levelZeroImage.onabort = _handleLevelZeroError;
-			this.levelZeroImage.src = url;
-		}
-	}
+	this.requestLevelZeroImage();
 }
 
 /**************************************************************************************************************/
 
+/**
+ *	Detach the HEALPixFits layer from the globe
+ */
 HEALPixFITSLayer.prototype._detach = function( g )
 {
-	// Abort xhr if in progress
-	if ( this.xhr )
-	{
-		this.xhr.abort();
-		delete this.xhr;
-	}
-
-	// Dispose levelZero resources
-	if ( this.levelZeroImage.dispose )
-		this.levelZeroImage.dispose();
-	if ( this.levelZeroTexture )
-		this.globe.renderContext.gl.deleteTexture(this.levelZeroTexture);
-	
-	this.levelZeroImage = null;
-	this.levelZeroTexture = null;
+	// Abort image request if in progress
+	this.imageRequest.abort();
 	this._ready = false;
-
-	// Remove customTilePool
-	if ( this.customTilePool )
-		this.customTilePool.disposeAll();
-	this.customTilePool = null;
-
-	// Change customization
-	this.customLoad = null;
-	this.getLevelZeroTexture = null;
-	this.customShader = null;
+	this.disposeResources();
 
 	RasterLayer.prototype._detach.call( this );
 
@@ -256,26 +211,79 @@ HEALPixFITSLayer.prototype.getUrl = function(tile)
 /**************************************************************************************************************/
 
 /**
- *	Fits load
+ *	Handle fits image
  */
-HEALPixFITSLayer.prototype.fitsLoad = function(tileRequest, url, successCallback, failCallback)
+HEALPixFITSLayer.prototype.handleImage = function(imgRequest)
 {
-	/**
-		Handle when fits is loaded
-	 */
-	var _handleLoadedFits = function(fitsData)
-	{
-		// Create new image coming from Fits
-		tileRequest.image = {
-			typedArray: new Float32Array( fitsData.view.buffer, fitsData.begin, fitsData.length/4 ),
+ 	if ( !(imgRequest.image instanceof Image) )
+ 	{
+	 	var fitsData = FitsLoader.parseFits( imgRequest.image );
+
+	 	// // Handle different types/formats.. just in case.
+	 	// var dataType;
+	 	// var typedArray;
+	 	// var gl = this.globe.renderContext.gl;
+	 	// var glType;
+	 	// if ( fitsData.arrayType.name == "Float32Array" )
+	 	// {
+	 	// 	typedArray = new Float32Array( fitsData.view.buffer, fitsData.begin, fitsData.length/fitsData.arrayType.BYTES_PER_ELEMENT );
+	 	// 	dataType = "float";
+	 	// 	glType = gl.FLOAT;
+	 	// 	glFormat = gl.LUMINANCE;
+	 	// }
+	 	// else if ( fitsData.arrayType.name == "Uint8Array" )
+	 	// {
+	 	// 	typedArray = new Uint8Array( fitsData.view.buffer, fitsData.begin, fitsData.length/fitsData.arrayType.BYTES_PER_ELEMENT )
+	 	// 	dataType = "int";
+	 	// 	glType = gl.UNSIGNED_BYTE;
+	 	// 	glFormat = gl.LUMINANCE;
+	 	// }
+
+	 	imgRequest.image = {
+			typedArray: new Float32Array( fitsData.view.buffer, fitsData.begin, fitsData.length/4 ), // with gl.FLOAT
 			width: fitsData.width,
-			height: fitsData.height
+			height: fitsData.height,
+			dataType: "float"
 		};
-		successCallback();
+	}
+}
+
+/**************************************************************************************************************/
+
+/**
+ *	Request level zero image
+ */
+HEALPixFITSLayer.prototype.requestLevelZeroImage = function()
+{
+	if ( this.dataType == "fits" )
+	{
+		// Update custom shader before level zero image loading in case of overlay
+		this.customShader = this.fitsShader;
+	}
+	else
+	{
+		this.customShader = null;
 	}
 
-	FitsLoader.loadFits( url, _handleLoadedFits, failCallback );
+	var url = this.baseUrl + "/Norder3/Allsky."+this.dataType;
+	this.imageRequest.send(url);
+}
 
+/**************************************************************************************************************/
+
+/**
+ *	Dispose the allocated resources
+ */
+HEALPixFITSLayer.prototype.disposeResources = function()
+{
+	// Dispose level zero image & texture
+	if ( this.levelZeroImage && this.levelZeroImage.dispose )
+		this.levelZeroImage.dispose();
+	if ( this.levelZeroTexture )
+		this.globe.renderContext.gl.deleteTexture(this.levelZeroTexture);
+	
+	this.levelZeroImage = null;
+	this.levelZeroTexture = null;
 }
 
 /**************************************************************************************************************/

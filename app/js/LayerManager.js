@@ -83,11 +83,12 @@ function createLayerFromConf(layer) {
 				options.onready = function( fitsLayer ) {
 					if ( fitsLayer.dataType == "fits" && fitsLayer.levelZeroImage )
 					{
-						$('#'+options.activator)
 						if ( fitsLayer.div )
 						{
 							// Additional layer
-							$('#addFitsView_'+fitsLayer.id).button("enable");
+							// Using name as identifier, because we must know it before attachment to globe
+							// .. but identfier is assigned after layer creation.
+							$('#addFitsView_'+fitsLayer.name).button("enable");
 							fitsLayer.div.setImage(fitsLayer.levelZeroImage);
 						}
 						else

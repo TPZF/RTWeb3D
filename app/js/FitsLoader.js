@@ -89,7 +89,8 @@ var loadFits = function(url, successCallback, failCallback)
 }
 
 return {
-	loadFits: loadFits 
+	loadFits: loadFits,
+	parseFits: parseFits
 };
 
 });

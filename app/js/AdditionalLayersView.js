@@ -209,13 +209,24 @@ function createHtmlForAdditionalLayer( gwLayer )
 	{
 		// Supports fits, so create dynamic image view
 		gwLayer.div = new DynamicImageView({
-			activator : 'fitsView',
-			id : gwLayer.id,
+			activator : 'addFitsView_'+gwLayer.name,
+			id : gwLayer.name,
 			disable : function(){
-				$('#addFitsView_'+gwLayer.id).button("disable");
+				$('#addFitsView_'+gwLayer.name).button("disable");
 			},
 			unselect: function(){
-				$('#addFitsView_'+gwLayer.id).removeAttr("checked").button("refresh");
+				$('#addFitsView_'+gwLayer.name).removeAttr("checked").button("refresh");
+			},
+			changeShaderCallback: function(contrast)
+			{
+				if ( contrast == "raw" )
+				{
+					gwLayer.customShader.fragmentCode = gwLayer.rawFragShader;
+				}
+				else
+				{
+					gwLayer.customShader.fragmentCode = gwLayer.colormapFragShader;
+				}
 			}
 		});
 	}
@@ -322,13 +333,23 @@ function initToolbarEvents ()
 	});
 
 	$('#additionalLayers').on('click', '.isFits', function(event){
-		// TODO: modify RasterOverlayRenderer ....
-		console.log("Not implemented yet");
+		var isFits = $(this).is(':checked');
+		var layer = $(this).parent().parent().data("layer");
+		layer.dataType = isFits ? 'fits' : 'jpg';
+		if ( !isFits )
+		{
+			$(this).nextAll('.addFitsView').button('disable');
+		}
+
+		// TODO: make reset function ?
+		// layer.setDatatype( dataType );
+
+		globe.removeLayer(layer);
+		globe.addLayer(layer);
 	});
 	// Show/hide Dynamic image service
 	$('#additionalLayers').on("click", '.addFitsView', function(event){
-		var index = $('#backgroundLayersSelect').data('selectmenu').index();
-		var layer = $('#backgroundLayersSelect').children().eq(index).data("layer");
+		var layer = $(this).parent().parent().data("layer");
 		layer.div.toggle();		
 	});
 }
