@@ -63,6 +63,7 @@ function computeFits(featureData, url)
     	handleFits(fitsData, featureData);
     });
 
+    // TODO : Fix firefox bug, define onprogress callback before sending
     progressBars[ featureData.feature.properties.identifier ] = new ProgressBar(globe, featureData, xhr);
 }
 
@@ -103,9 +104,6 @@ function handleFits(fitsData, selectedData)
 				selectedData.layer.modifyFeatureStyle( selectedData.feature, targetStyle );
 			}
 		},
-		enable: function(){
-			$('#dynamicImageView').addClass('dynamicAvailable').removeClass('dynamicNotAvailable');
-		},
 		disable: function(){
 			$('#dynamicImageView').removeClass('dynamicAvailable').addClass('dynamicNotAvailable');	
 		},
@@ -113,6 +111,9 @@ function handleFits(fitsData, selectedData)
 			$('#dynamicImageView').removeClass('selected');
 		}
 	});
+
+	// Enable dynamic image view
+	$('#dynamicImageView').addClass('dynamicAvailable').removeClass('dynamicNotAvailable');
 
 	// Attach texture to style
 	var targetStyle = new FeatureStyle( selectedData.feature.properties.style );
