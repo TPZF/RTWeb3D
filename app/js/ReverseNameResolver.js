@@ -84,7 +84,7 @@ $( "#reverseNameResolver input[type=submit]")
 		var maxOrder = 3;
 		globe.tileManager.visitTiles( function( tile ){ if ( maxOrder < tile.order ) maxOrder = tile.order} );
 
-		var requestUrl = configuration.baseUrl + equatorialCoordinates[0] + " " + equatorialCoordinates[1] + ";" + maxOrder;
+		var requestUrl = configuration.baseUrl + 'EQUATORIAL/' + equatorialCoordinates[0] + " " + equatorialCoordinates[1] + ";" + maxOrder;
 
 		$.ajax({
 			type: "GET",
