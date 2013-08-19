@@ -63,7 +63,10 @@ var Compass = function(options){
 		//var sinNorth = vec3.cross(navigation.up, north);
 		// var tanangle = Math.atan2(cosNorth, sinNorth[0]);
 		// var degTanangle = tanangle * 180 / Math.PI;
+
 		var radNorth = Math.acos(cosNorth);
+		if ( isNaN(radNorth) )
+			return;
 		var degNorth = radNorth * 180/Math.PI;
 		//console.log(degTanangle);
 		

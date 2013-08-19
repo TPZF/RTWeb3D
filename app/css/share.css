@@ -19,6 +19,7 @@
 
 #shareResult
 {
+	position: absolute;
 	display: none;
 	background: white;
 	padding-left: 10px;
@@ -38,9 +39,9 @@
 	border: 0;
 	vertical-align: top;
 	cursor: pointer;
-	position: absolute;
-	top: 7px;
-	right: 5px;
+	position: relative;
+	top: 1px;
+	right: -10px;
 }
 
 /*** Object name text input ***/

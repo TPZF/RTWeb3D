@@ -29,6 +29,12 @@
 	float: right;
 }
 
+#backgroundOptions
+{
+	padding: 5px;
+	margin-top: 20px;
+}
+
 .unknown .ui-selectmenu-item-icon {
 	background: url(../css/images/unknown.png) 0 0 no-repeat;
 }
@@ -42,6 +48,13 @@
 .addLayer > label
 {
 	position: relative;
+}
+
+.addFitsView+label
+{
+	width: 20px;
+	height: 20px;
+	vertical-align: middle;
 }
 
 .spinner

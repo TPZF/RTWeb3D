@@ -208,6 +208,14 @@ return {
 				updateBackgroundOptions(layer);
 			}
 		});
+
+		// Background spinner events
+		globe.subscribe("startBackgroundLoad", function(layer){
+			$('#backgroundSpinner').fadeIn('fast');
+		});
+		globe.subscribe("endBackgroundLoad", function(layer){
+			$('#backgroundSpinner').fadeOut('fast');
+		});
 	},
 	getDiv : function() {
 		return backgroundDiv;
