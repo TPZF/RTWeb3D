@@ -61,7 +61,7 @@ var checkPhase = function()
 					resultUrl = $xml.find('results').children().last().attr('xlink:href');
 				}
 
-				var lastSlash = resultUrl.lastIndexOf('/');
+				var lastSlash = resultUrl.lastIndexOf('/') + 1;
 				var name = resultUrl.substr( lastSlash );
 				if ( resultUrl.search("[?]") > 0 )
 				{
