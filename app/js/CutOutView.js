@@ -90,7 +90,7 @@ function findFits()
 	if ( selectionTool.pickPoint )
 	{
 		// Selection tool selected something
-		var selection = PickingManager.computePickSelection( selectionTool.pickPoint );
+		var selection = PickingManager.computePickSelection( selectionTool.geoPickPoint );
 		// Find feature with loaded fits
 		for ( var i=0; i<selection.length; i++ )
 		{
@@ -124,7 +124,7 @@ function runJob()
 	if ( fitsUrl )
 	{
 		startAnimation();
-		CutOut.post(fitsUrl, selectionTool.pickPoint[0], selectionTool.pickPoint[1], selectionTool.radius);
+		CutOut.post(fitsUrl, selectionTool.geoPickPoint[0], selectionTool.geoPickPoint[1], selectionTool.geoRadius);
 	}
 }
 

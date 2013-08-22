@@ -21,7 +21,7 @@
  * Tool designed to select areas on globe
  */
 
-define( [ "jquery.ui", "gw/VectorLayer" ], function($, VectorLayer){
+define( [ "jquery.ui", "gw/VectorLayer", "gw/Numeric", "gw/CoordinateSystem" ], function($, VectorLayer, Numeric, CoordinateSystem){
 
 /**
  *	@constructor
@@ -30,7 +30,6 @@ define( [ "jquery.ui", "gw/VectorLayer" ], function($, VectorLayer){
  *			<li>globe: Globe</li>
  *			<li>navigation: Navigation</li>
  *			<li>onselect: On selection callback</li>
- *			<li>type: "square" or "circle"</li>
  *		</ul>
  */
 var SelectionTool = function(options)
@@ -39,7 +38,6 @@ var SelectionTool = function(options)
 	var globe = options.globe;
 	var navigation = options.navigation;
 	var onselect = options.onselect;
-	this.type = options.type || "square";
 
 	this.activated = false;
 	this.renderContext = globe.renderContext;
@@ -51,8 +49,10 @@ var SelectionTool = function(options)
 	this.selectionFeature = null;
 
 	// Selection attributes
-	this.radius;
-	this.pickPoint;
+	this.radius;	// Window radius
+	this.pickPoint; // Window pick point
+	this.geoRadius; // Radius in geographic reference
+	this.geoPickPoint; // Pick point in geographic reference
 
 	var self = this;
 	var dragging = false;
@@ -66,7 +66,8 @@ var SelectionTool = function(options)
 		navigation.stop();
 
 		dragging = true;
-		self.pickPoint = globe.getLonLatFromPixel(event.clientX, event.clientY);
+		self.pickPoint = [event.clientX, event.clientY];
+		self.geoPickPoint = globe.getLonLatFromPixel(event.clientX, event.clientY);
 	});
 
 	this.renderContext.canvas.addEventListener("mousemove", function(event){
@@ -74,15 +75,17 @@ var SelectionTool = function(options)
 			return;
 
 		// Update radius
-		mPickPoint = globe.getLonLatFromPixel(event.clientX, event.clientY);
-		self.radius = Math.sqrt( Math.pow(mPickPoint[0] - self.pickPoint[0], 2) + Math.pow(mPickPoint[1] - self.pickPoint[1], 2) );
+		self.radius = Math.sqrt( Math.pow(event.clientX - self.pickPoint[0], 2) + Math.pow(event.clientY - self.pickPoint[1], 2) );
 		self.updateSelection();
 	});
 
 	this.renderContext.canvas.addEventListener("mouseup", function(){
-
 		if ( !self.activated )
 			return;
+
+		// Compute geo radius
+		var stopPickPoint = globe.getLonLatFromPixel(event.clientX, event.clientY);
+		self.geoRadius = Math.sqrt( Math.pow(stopPickPoint[0] - self.geoPickPoint[0], 2) + Math.pow(stopPickPoint[1] - self.geoPickPoint[1], 2) );
 
 		if ( onselect )
 		{
@@ -95,6 +98,55 @@ var SelectionTool = function(options)
 	});
 }
 
+/**********************************************************************************************/
+
+/**
+ *	Compute selection for the given pick point depending on radius
+ */
+SelectionTool.prototype.computeSelection = function()
+{
+	var rc = this.renderContext;
+	var tmpMat = mat4.create();
+	
+	// Compute eye in world space
+	mat4.inverse(rc.viewMatrix, tmpMat);
+	var eye = [tmpMat[12], tmpMat[13], tmpMat[14]];
+	
+	// Compute the inverse of view/proj matrix
+	mat4.multiply(rc.projectionMatrix, rc.viewMatrix, tmpMat);
+	mat4.inverse(tmpMat);
+	
+	// Scale to [-1,1]
+	var widthScale = 2/rc.canvas.width;
+	var heightScale = 2/rc.canvas.height;
+	var points = [
+		[ (this.pickPoint[0]-this.radius)*widthScale-1., ((rc.canvas.height-this.pickPoint[1])-this.radius)*heightScale-1., 1, 1 ],
+		[ (this.pickPoint[0]-this.radius)*widthScale-1., ((rc.canvas.height-this.pickPoint[1])+this.radius)*heightScale-1., 1, 1 ],
+		[ (this.pickPoint[0]+this.radius)*widthScale-1., ((rc.canvas.height-this.pickPoint[1])+this.radius)*heightScale-1., 1, 1 ],
+		[ (this.pickPoint[0]+this.radius)*widthScale-1., ((rc.canvas.height-this.pickPoint[1])-this.radius)*heightScale-1., 1, 1 ]
+	];	
+
+	// Transform the four corners of selection shape into world space
+	// and then for each corner compute the intersection of ray starting from the eye with the sphere
+	var tmpPt = vec3.create();
+	var worldCenter = [ 0, 0, 0 ];
+	for ( var i = 0; i < 4; i++ )
+	{
+		mat4.multiplyVec4( tmpMat, points[i] );
+		vec3.scale( points[i], 1.0 / points[i][3] );
+		vec3.subtract(points[i], eye, points[i]);
+		vec3.normalize( points[i] );
+		
+		var t = Numeric.raySphereIntersection( eye, points[i], worldCenter, CoordinateSystem.radius);
+		if ( t < 0.0 )
+			return null;
+
+		points[i] = CoordinateSystem.from3DToGeo( Numeric.pointOnRay(eye, points[i], t, tmpPt) );
+	}
+
+	return points;
+}
+
 /**************************************************************************************************************/
 
 /**
@@ -105,29 +157,9 @@ SelectionTool.prototype.updateSelection = function()
 	if ( this.selectionFeature )
 		this.selectionLayer.removeFeature(this.selectionFeature);
 
-	var coordinates = [];
-	if ( this.type == "circle" )
-	{
-		for ( var i=-Math.PI; i<=Math.PI; i+=0.1 )
-		{
-			coordinates.push([ this.pickPoint[0] + this.radius*Math.cos(i),
-							   this.pickPoint[1] + this.radius*Math.sin(i) ]);
-		}
-	}
-	else if ( this.type == "square" )
-	{
-		coordinates =[
-			[ this.pickPoint[0]-this.radius, this.pickPoint[1]-this.radius ],
-			[ this.pickPoint[0]-this.radius, this.pickPoint[1]+this.radius ],
-			[ this.pickPoint[0]+this.radius, this.pickPoint[1]+this.radius ],
-			[ this.pickPoint[0]+this.radius, this.pickPoint[1]-this.radius ],
-			[ this.pickPoint[0]-this.radius, this.pickPoint[1]-this.radius ]
-		];
-	}
-	else
-	{
-		console.error("Selection type not implemented yet");
-	}
+	var coordinates = this.computeSelection();
+	// Close the polygon
+	coordinates.push(coordinates[0]);
 
 	this.selectionFeature = {
 		"geometry": {
@@ -172,6 +204,8 @@ SelectionTool.prototype.clear = function()
 
 	this.pickPoint = null;
 	this.radius = null;
+	this.geoPickPoint = null;
+	this.geoRadius = null;
 }
 
 /**************************************************************************************************************/
