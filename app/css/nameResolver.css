@@ -2,6 +2,10 @@
 /*		Name resolver search		*/
 /************************************/
 
+#searchDiv {
+	pointer-events: auto;
+}
+
 /*** Form for enter validating ***/
 #searchForm {
 	margin-bottom: 0px;

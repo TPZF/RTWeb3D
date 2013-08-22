@@ -64,9 +64,9 @@ require.config({
  * Main module
  */
 require( ["jquery.ui", "gw/CoordinateSystem", "gw/Globe", "gw/Stats", "gw/AstroNavigation", "gw/AttributionHandler",
-	"LayerManager", "NameResolver", "ReverseNameResolver", "Utils", "PickingManager", "FeaturePopup", "IFrame", "Compass", "MollweideViewer", "ErrorDialog", "FitsManager", "Share", "StarProvider", "ConstellationProvider", "JsonProvider", "OpenSearchProvider",
+	"LayerManager", "NameResolver", "ReverseNameResolver", "Utils", "PickingManager", "FeaturePopup", "IFrame", "Compass", "MollweideViewer", "ErrorDialog", "ImageManager", "Share", "StarProvider", "ConstellationProvider", "JsonProvider", "OpenSearchProvider",
 	"gw/EquatorialCoordinateSystem", "gw/ConvexPolygonRenderer", "gw/PointSpriteRenderer", "gw/PointRenderer"],
-	function($, CoordinateSystem, Globe, Stats, AstroNavigation, AttributionHandler, LayerManager, NameResolver, ReverseNameResolver, Utils, PickingManager, FeaturePopup, IFrame, Compass, MollweideViewer, ErrorDialog, FitsManager, Share) {
+	function($, CoordinateSystem, Globe, Stats, AstroNavigation, AttributionHandler, LayerManager, NameResolver, ReverseNameResolver, Utils, PickingManager, FeaturePopup, IFrame, Compass, MollweideViewer, ErrorDialog, ImageManager, Share) {
 
 // Console fix	
 window.console||(console={log:function(){}});
@@ -259,7 +259,7 @@ $(function()
 			LayerManager.init(globe, navigation, data);
 
 			// Initialize the fits manager
-			FitsManager.init(globe);
+			ImageManager.init(globe, navigation);
 
 			// Create data manager
 			PickingManager.init(globe, navigation, data);
@@ -281,6 +281,15 @@ $(function()
 			ErrorDialog.open("Couldn't open : "+confURL);
 		}
 	});
+	
+	// For debug
+	// document.addEventListener("keydown", function(event){
+	// 	if ( event.keyCode == 32 )
+	// 	{
+	// 		// Space
+	// 		globe.tileManager.freeze = !globe.tileManager.freeze;
+	// 	}
+	// });
 	
 	/*** Refactor into common ? ***/
 	// Fade hover styled image effect

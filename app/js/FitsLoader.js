@@ -53,7 +53,7 @@ function parseFits(response)
     return data;
 }
 
-var loadFits = function(url, successCallback, failCallback)
+var loadFits = function(url, successCallback, failCallback, onprogressCallback)
 {
 	var xhr = new XMLHttpRequest();
 	xhr.onreadystatechange = function(e)
@@ -81,6 +81,8 @@ var loadFits = function(url, successCallback, failCallback)
 			}
 		}
 	};
+
+	xhr.onprogress = onprogressCallback;
 	
 	xhr.open("GET", url);
 	xhr.responseType = 'arraybuffer';

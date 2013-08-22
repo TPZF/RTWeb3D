@@ -8,6 +8,7 @@
 @import url('mollweideViewer.css');
 @import url('imageProcessing.css');
 @import url('share.css');
+@import url('imageViewer.css');
    
 em
 {
@@ -162,13 +163,15 @@ body
 	right: 2px;
 	margin: 5px;
 	top: 10px;
+	pointer-events: none;
 }
 
-/*** Navigation options block(nameResolver, compass) ***/
+/*** Left bottom components(share, mollweide, stats) ***/
 #leftBottomDiv {
 	position: absolute;
 	left: 5px;
 	bottom: 5px;
+	pointer-events: none;
 }
 
 /*** Stylized fade on hover effect ***/

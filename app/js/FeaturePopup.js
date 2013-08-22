@@ -20,13 +20,12 @@
 /**
  * FeaturePopup module
  */
-define( [ "jquery.ui", "IFrame", "JsonProcessor", "gw/FeatureStyle", "gw/VectorLayer", "underscore-min", "text!../templates/featureList.html", "text!../templates/featureDescription.html", "text!../templates/descriptionTable.html", "jquery.nicescroll.min" ],
-	function($, IFrame, JsonProcessor, FeatureStyle, VectorLayer, _, featureListHTMLTemplate, featureDescriptionHTMLTemplate, descriptionTableHTMLTemplate) {
+define( [ "jquery.ui", "IFrame", "JsonProcessor", "gw/FeatureStyle", "gw/VectorLayer", "ImageManager", "underscore-min", "text!../templates/featureList.html", "text!../templates/featureDescription.html", "text!../templates/descriptionTable.html", "jquery.nicescroll.min" ],
+	function($, IFrame, JsonProcessor, FeatureStyle, VectorLayer, ImageManager, _, featureListHTMLTemplate, featureDescriptionHTMLTemplate, descriptionTableHTMLTemplate) {
 
 var featureListHTML = '';
 var pickingManager = null;
 var globe = null;
-var xhr; // Fits request
 
 // Create selected feature div
 var selectedFeatureDiv = '<div id="selectedFeatureDiv" class="contentBox ui-widget-content" style="display: none">\
@@ -53,6 +52,8 @@ var descriptionTableTemplate = _.template(descriptionTableHTMLTemplate);
 // PileStash help HTML
 var pileStashHelp = '<div id="pileStashHelp"> Some observations are overlapped. <br/> Click on the observation to see detailed informations about each observation. <br/> </div>';
 
+/**********************************************************************************************/
+
 /**
  * 	Selected feature div position calculations
  * 
@@ -77,6 +78,8 @@ function computeDivPosition(clientX, clientY)
 		}
 	);
 }
+
+/**********************************************************************************************/
 
 /**
  *	Appropriate layout of properties depending on displayProperties
@@ -123,6 +126,8 @@ function buildProperties(properties, displayProperties)
 	}
 }
 
+/**********************************************************************************************/
+
 /**
  *	Add property description to the dictionary 
  *
@@ -145,6 +150,8 @@ function addPropertyDescription(describeUrl, property, dictionary)
 		}
 	});
 }
+
+/**********************************************************************************************/
 
 /**
  *	Create dictionary
@@ -185,9 +192,9 @@ function createDictionary( layer, properties )
 			// No dico found
 		}
 	});
-
-
 }
+
+/**********************************************************************************************/
 
 /**
  * 	Insert HTML code of choosen feature
@@ -207,6 +214,8 @@ function createHTMLSelectedFeatureDiv( layer, feature )
 	});
 	$('.featureProperties').getNiceScroll().hide();
 }
+
+/**********************************************************************************************/
 
 return {
 
@@ -229,38 +238,12 @@ return {
 			if ( selectedData.feature.properties.style.fill == true )
 			{
 				$('#quicklook').removeClass('selected');
-
-				if ( selectedData.feature.services && selectedData.feature.services.download && selectedData.feature.services.download.mimetype == "image/fits" )
-				{
-					globe.publish("removeFitsRequested", selectedData);
-				}
-				else 
-				{
-					var style = selectedData.feature.properties.style;
-					style.fill = false;
-					style.fillTextureUrl = null;
-					selectedData.layer.modifyFeatureStyle( selectedData.feature, style );
-				}
+				ImageManager.removeImage(selectedData);
 			} 
 			else
 			{
 				$('#quicklook').addClass('selected');
-
-				// Set fill to true while loading
-				var style = new FeatureStyle( selectedData.feature.properties.style );
-				style.fill = true;
-
-				if ( selectedData.feature.services && selectedData.feature.services.download && selectedData.feature.services.download.mimetype == "image/fits" )
-				{
-					var url = "/sitools/proxy?external_url=" + encodeURIComponent(selectedData.feature.services.download.url);
-					globe.publish("fitsRequested", { selectedData: selectedData, url: url });
-				}
-				else
-				{
-					style.fillTextureUrl = "/sitools/proxy?external_url=" + selectedData.feature.properties.quicklook;
-					// For DEBUG : 'upload/ADP_WFI_30DOR_RGB_V1.0_degraded.jpg';
-				}
-				selectedData.layer.modifyFeatureStyle( selectedData.feature, style );
+				ImageManager.addImage(selectedData);
 			}
 		});
 
@@ -437,6 +420,8 @@ return {
 
 	},
 
+	/**********************************************************************************************/
+
 	/**
 	 *	Hide popup
 	 *
@@ -448,6 +433,8 @@ return {
 			$selectedFeatureDiv.fadeOut(300, callback );
 		// }
 	},
+
+	/**********************************************************************************************/
 
 	/**
 	 *	Show popup
@@ -464,6 +451,8 @@ return {
 		});
 	},
 
+	/**********************************************************************************************/
+
 	/**
 	 * 	Insert HTML code of selected features
 	 * 
@@ -477,12 +466,16 @@ return {
 		$('#leftDiv').html( featureListHTML );
 	},
 
+	/**********************************************************************************************/
+
 	/**
 	 * 	Insert HTML code of help to iterate on each feature
 	 */
 	createHelp: function(){
 		$('#rightDiv').html( pileStashHelp );
 	},
+
+	/**********************************************************************************************/
 
 	/**
 	 * 	Show feature information
@@ -497,6 +490,8 @@ return {
 			});
 		});
 	}
+
+	/**********************************************************************************************/
 
 };
 

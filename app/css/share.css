@@ -8,7 +8,8 @@
 	display: inline-block;
 	background: url(../css/images/share_grey.png) no-repeat;
 	position: relative;
-	left: -20px
+	left: -20px;
+	pointer-events: auto;
 }
 
 #share:hover

@@ -4,6 +4,7 @@
 	left: -266px;	
 	width: 292px;	
 	overflow: hidden;
+	pointer-events: auto;
 }
 
 /*** Fov info + canvas ***/
