@@ -49,7 +49,7 @@ return {
 				// Hide
 				$('#loadedImages').css({ boxShadow: "none"});
 				$(this).css('background-position', '0px 0px');
-				$(this).parent().animate({right: '-265px'}, 300);
+				$(this).parent().animate({right: '-254px'}, 300);
 			}
 		});
 		// Create accordion
