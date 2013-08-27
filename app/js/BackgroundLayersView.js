@@ -168,7 +168,7 @@ return {
 				// Show background loading spinner
 				$('#loading').show(300);
 
-				// Add all previously added sub-layers to the new imagery
+				// Remove solar object sublayers
 				var gwLayers = layerManager.getLayers();
 				for ( var i=0; i<gwLayers.length; i++ )
 				{
@@ -179,16 +179,11 @@ return {
 						for ( var j=0; j<len; j++ )
 						{
 							var subLayer = currentLayer.subLayers[j];
-							// Remove solar object sublayer
 							if (subLayer.name == "SolarObjectsSublayer" )
 							{
 								PickingManager.removePickableLayer( subLayer );
 								globe.removeLayer( subLayer );
 								currentLayer.subLayers.splice(j,1);
-							}
-							else
-							{
-								globe.addLayer( subLayer );
 							}
 						}
 					}
