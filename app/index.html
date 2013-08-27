@@ -18,10 +18,10 @@
 		<div class="sidebar">
 			<div id="accordion" style="display: none;">
 				
-				<h3>Background layers</h3>
+				<h3>Background layer</h3>
 				<div id="backgroundLayers">
 					<fieldset>
-						<select id="backgroundLayersSelect">
+						<select style="display: none;" id="backgroundLayersSelect">
 						</select>
 					</fieldset>
 					<img style="display: none" id="backgroundSpinner" src="css/images/loading.gif">
@@ -101,7 +101,7 @@
 					<span id="slideArrow"></span>
 				</div>
 			</div>
-			<div style="position: relative; height: 40px; left: 5px;">
+			<div style="position: relative; height: 40px; left: 5px; pointer-events: auto;">
 				<input type="button" id="share" />
 				<div id="shareResult">
 					<input type="text" id="shareInput" />

@@ -4,14 +4,13 @@
 	pointer-events: none;
 	margin-top: 15px;
 	height: 300px;
-	overflow: hidden;
 }
 
 #imageViewerContent
 {
 	pointer-events: auto;
 	position: absolute;
-	right: -254px;
+	right: -261px;
 	width: 275px;
 }
 

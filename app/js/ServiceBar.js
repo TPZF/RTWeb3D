@@ -118,7 +118,7 @@ return {
 		var layerServices = serviceMapping[layer.type]
 		if ( layerServices )
 		{
-			$('#serviceBar').find('p').slideUp(function(){
+			$('#serviceManager > p').slideUp(function(){
 
 				// Add new services
 				var newServices = _.difference(layerServices, services);
@@ -195,7 +195,7 @@ return {
 				// Hide tabs
 				tabs.slideUp(function(){
 					tabs.tabs("refresh");
-					$('#serviceBar').find('p').slideDown();
+					$('#serviceManager > p').slideDown();
 				});
 			}
 		}
