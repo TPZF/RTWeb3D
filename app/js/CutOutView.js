@@ -20,8 +20,8 @@
 /**
  * UWS CutOut View
  */
-define( [ "jquery.ui", "SelectionTool", "PickingManager", "CutOut", "underscore-min", "text!../templates/cutOut.html" ],
-		function($, SelectionTool, PickingManager, CutOut, _, cutOutHTMLTemplate) {
+define( [ "jquery.ui", "SelectionTool", "PickingManager", "CutOut", "gw/CoordinateSystem", "underscore-min", "text!../templates/cutOut.html" ],
+		function($, SelectionTool, PickingManager, CutOut, CoordinateSystem, _, cutOutHTMLTemplate) {
 
 var selectionTool;
 var stopped = true;
@@ -124,6 +124,11 @@ function runJob()
 	if ( fitsUrl )
 	{
 		startAnimation();
+		// Convert to equatorial due to CutOut protocol
+		if ( CoordinateSystem.type != "EQ" )
+		{
+			selectionTool.geoPickPoint = CoordinateSystem.convertFromDefault(selectionTool.geoPickPoint, "EQ");
+		}
 		CutOut.post(fitsUrl, selectionTool.geoPickPoint[0], selectionTool.geoPickPoint[1], selectionTool.geoRadius);
 	}
 }
