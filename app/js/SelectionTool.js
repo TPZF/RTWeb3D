@@ -21,7 +21,7 @@
  * Tool designed to select areas on globe
  */
 
-define( [ "jquery.ui", "gw/VectorLayer", "gw/Numeric", "gw/CoordinateSystem" ], function($, VectorLayer, Numeric, CoordinateSystem){
+define( [ "jquery.ui", "gw/VectorLayer", "gw/Numeric", "gw/CoordinateSystem", "gw/glMatrix" ], function($, VectorLayer, Numeric, CoordinateSystem){
 
 /**
  *	@constructor
@@ -85,7 +85,11 @@ var SelectionTool = function(options)
 
 		// Compute geo radius
 		var stopPickPoint = globe.getLonLatFromPixel(event.clientX, event.clientY);
-		self.geoRadius = Math.sqrt( Math.pow(stopPickPoint[0] - self.geoPickPoint[0], 2) + Math.pow(stopPickPoint[1] - self.geoPickPoint[1], 2) );
+
+		// Find angle between start and stop vectors which is in fact the radius
+		var dotProduct = vec3.dot( CoordinateSystem.fromGeoTo3D(stopPickPoint), CoordinateSystem.fromGeoTo3D(self.geoPickPoint) );
+		var theta = Math.acos(dotProduct);
+		self.geoRadius = Numeric.toDegree(theta);
 
 		if ( onselect )
 		{
