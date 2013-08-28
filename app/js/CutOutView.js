@@ -126,7 +126,7 @@ function runJob()
 			selectionTool.geoPickPoint = CoordinateSystem.convertFromDefault(selectionTool.geoPickPoint, "EQ");
 		}
 		startAnimation();
-		CutOut.post(fitsUrl, selectionTool.geoPickPoint[0], selectionTool.geoPickPoint[1], selectionTool.geoRadius);
+		CutOut.post(url, selectionTool.geoPickPoint[0], selectionTool.geoPickPoint[1], selectionTool.geoRadius);
 	}
 }
 

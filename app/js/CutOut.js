@@ -26,9 +26,10 @@ var baseUrl;
 var successCallback;
 var failCallback;
 var onloadCallback;
-var resultType; // "jpg" or "fits"
+var resultType;	// "jpg" or "fits"
 
-var checkFn; // Interval function
+var checkFn;	// Interval function
+var checkDelay;	// Delay in milliseconds
 var currentJob;
 
 /**************************************************************************************************************/
@@ -40,39 +41,47 @@ var checkPhase = function()
 {
 	$.ajax({
 		type: "GET",
-		url: baseUrl + "/" + currentJob,
+		url: baseUrl + "/" + currentJob + '/phase',
 		success: function(response, textStatus, xhr){
-			var xmlDoc = $.parseXML( xhr.responseText );
-			var phase = $(response).find('phase').text();
 			
 			if ( onloadCallback )
 				onloadCallback(phase);
 
-			if ( phase == "COMPLETED" )
+			if ( response == "COMPLETED" )
 			{
-				$xml = $(response);
-				var resultUrl;
-				if ( resultType == "fits" )
-				{
-					resultUrl = $xml.find('results').children().first().attr('xlink:href');
-				}
-				else
-				{
-					resultUrl = $xml.find('results').children().last().attr('xlink:href');
-				}
+				$.ajax({
+					type: "GET",
+					url: baseUrl + "/" + currentJob + '/results?media=json',
+					success: function(response, textStatus, xhr){
+						
+						// Handle results
+						for ( var i=0; i<response.results.result.length; i++ )
+						{
+							var result = response.results.result[i];
+							var name = result['@id'];
+							var url =  result['@xlink:href'];
 
-				var lastSlash = resultUrl.lastIndexOf('/') + 1;
-				var name = resultUrl.substr( lastSlash );
-				if ( resultUrl.search("[?]") > 0 )
-				{
-					//Encode special caracters(at least '?')
-					resultUrl = resultUrl.substr( 0, lastSlash ) + encodeURIComponent(name);
-				}
+							//Encode special caracters(at least '?')
+							if ( url.search("[?]") > 0 )
+							{
+								var lastSlash = url.lastIndexOf('/') + 1;
+								url = url.substr( 0, lastSlash ) + encodeURIComponent(name);
+							}
+
+							if ( successCallback )
+								successCallback(url, name);
+						}
+					},
+					error: function(xhr, textStatus, thrownError){
+						window.clearInterval(checkFn);
+						if ( failCallback )
+							failCallback('Internal server error');
+					}
+				});
+
 				window.clearInterval(checkFn);
-				if ( successCallback )
-					successCallback(resultUrl, name);
 			} 
-			else if ( phase == "ERROR" )
+			else if ( response == "ERROR" )
 			{
 				window.clearInterval(checkFn);
 				if ( failCallback )
@@ -101,6 +110,7 @@ return {
 		failCallback = options.failCallback;
 		resultType = options.type || "fits";
 		baseUrl = options.baseUrl;
+		checkDelay = options.checkDelay || 1000;
 	},
 
 	/**
@@ -124,8 +134,8 @@ return {
 				$xml = $(response);
 				currentJob = $xml.find('jobId').text();
 
-				// Check job phase every 500ms
-				checkFn = window.setInterval( checkPhase, 500 );
+				// Check job phase every "checkDelay" seconds
+				checkFn = window.setInterval( checkPhase, checkDelay );
 			},
 			error: function (xhr, textStatus, thrownError) {
 				window.clearInterval(checkFn);
