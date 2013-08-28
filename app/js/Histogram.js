@@ -206,11 +206,15 @@ function compute(histogram)
 	}
 
 	// Compute histogram
-	hmax = image.pixels[0];
+	hmax = Number.MIN_VALUE;
 	for ( var i=0; i<image.pixels.length; i++ )
 	{
-		// Take only values which belongs to the interval [tmin,tmax]
 		var val = image.pixels[i];
+		
+		// Skip NaN
+		if ( isNaN(val) )
+			continue;
+		// Take only values which belongs to the interval [tmin,tmax]
 		if ( val < image.tmin )
 			continue;
 		if ( val >= image.tmax )

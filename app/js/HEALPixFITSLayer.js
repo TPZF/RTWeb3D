@@ -218,6 +218,22 @@ HEALPixFITSLayer.prototype.handleImage = function(imgRequest)
  	if ( !(imgRequest.image instanceof Image) )
  	{
 	 	var fitsData = FitsLoader.parseFits( imgRequest.image );
+	 	var bpe = fitsData.arrayType.BYTES_PER_ELEMENT;
+	 	var float32array;
+	 	if ( fitsData.arrayType.name == "Float64Array" )
+	 	{
+	 		var float64array = new Float64Array( fitsData.view.buffer, fitsData.begin, fitsData.length/bpe ); // bpe = 8
+	 		var float32array = new Float32Array( fitsData.length/bpe );
+	 		// Create Float32Array from Float64Array
+	 		for ( var i=0; i<float64array.length; i++ )
+	 		{
+	 			float32array[i] = float64array[i];
+	 		}
+	 	}
+	 	else
+	 	{
+	 		float32array = new Float32Array( fitsData.view.buffer, fitsData.begin, fitsData.length/bpe ); // with gl.FLOAT, bpe = 4
+	 	}
 
 	 	// // Handle different types/formats.. just in case.
 	 	// var dataType;
@@ -240,11 +256,12 @@ HEALPixFITSLayer.prototype.handleImage = function(imgRequest)
 	 	// }
 
 	 	imgRequest.image = {
-			typedArray: new Float32Array( fitsData.view.buffer, fitsData.begin, fitsData.length/4 ), // with gl.FLOAT
+			typedArray: float32array,
 			width: fitsData.width,
 			height: fitsData.height,
 			dataType: "float"
 		};
+		
 	}
 }
 

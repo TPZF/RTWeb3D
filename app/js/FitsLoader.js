@@ -39,15 +39,17 @@ function parseFits(response)
     var uintPixels;
     var swapPixels = new Uint8Array( data.view.buffer, data.begin, data.length ); // with gl.UNSIGNED_byte
 
-    for ( var i=0; i<swapPixels.length; i+=4 )
+    var bpe = data.arrayType.BYTES_PER_ELEMENT;
+    for ( var i=0; i<swapPixels.length; i+=bpe )
     {
-        var temp = swapPixels[i];
-        swapPixels[i] = swapPixels[i+3];
-        swapPixels[i+3] = temp;
-
-        temp = swapPixels[i+1];
-        swapPixels[i+1] = swapPixels[i+2];
-        swapPixels[i+2] = temp;
+    	var temp;
+    	// Swap to little-endian
+    	for ( var j=0; j<bpe/2; j++ )
+    	{
+	        temp = swapPixels[i+j];
+	        swapPixels[i+j] = swapPixels[i+bpe-1-j];
+	        swapPixels[i+bpe-1-j] = temp;
+    	}
     }
     
     return data;
