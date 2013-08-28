@@ -26,20 +26,20 @@ define(['gw/ImageRequest'], function(ImageRequest){
  */
 ImageRequest.prototype.send = function(url)
 {
+	var self = this;
 	if ( url.search("fits") > 0 )
 	{
 		// Fits
-		this.xhr = new XMLHttpRequest();
-		var self = this;
-		self.xhr.onreadystatechange = function(e)
+		var xhr = new XMLHttpRequest();
+		xhr.onreadystatechange = function(e)
 		{
-			if ( self.xhr.readyState == 4 )
+			if ( xhr.readyState == 4 )
 			{
-				if ( self.xhr.status == 200 )
+				if ( xhr.status == 200 )
 				{
-					if (self. xhr.response )
+					if ( xhr.response )
 					{
-						self.image = self.xhr.response;
+						self.image = xhr.response;
 						if (self.successCallback)
 						{
 							self.successCallback(self);
@@ -58,17 +58,23 @@ ImageRequest.prototype.send = function(url)
 			}
 		};
 		
-		this.xhr.open("GET", url);
-		this.xhr.responseType = 'arraybuffer';
-		this.xhr.send();
-		// this.xhr = xhr;
+		xhr.open("GET", url);
+		xhr.responseType = 'arraybuffer';
+		xhr.send();
+		this.xhr = xhr;
 	}
 	else
 	{
 		this.image = new Image();
 		this.image.crossOrigin = '';
 		this.image.dataType = "byte";
-		this.image.onload = this.successCallback.bind(this);
+		this.image.onload = function(){
+			var isComplete = self.image.naturalWidth != 0 && self.image.complete;
+			if ( isComplete )
+			{
+				self.successCallback.call(self);
+			}
+		}
 		this.image.onerror = this.failCallback.bind(this);
 		this.image.src = url;
 	}
