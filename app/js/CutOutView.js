@@ -73,6 +73,8 @@ var iterateAnimation = function()
  */
 function toggleSelectionTool()
 {
+	// Deactivate picking events
+	PickingManager.deactivate();
     selectionTool.toggle();
     $('#layerServices').slideUp();
 }
@@ -80,37 +82,32 @@ function toggleSelectionTool()
 /**************************************************************************************************************/
 
 /**
- *	Find fits to cut
+ *	Find url to cut
  *
- *	@return url of fits to cut if  inside selection, null otherwise
+ *	@return url of image to cut if it's inside the selection and feature is selected, null otherwise
  */
-function findFits()
+function findUrl()
 {
-	var fitsUrl = null;
+	var url = null;
 	if ( selectionTool.pickPoint )
 	{
-		// Selection tool selected something
-		var selection = PickingManager.computePickSelection( selectionTool.geoPickPoint );
-		// Find feature with loaded fits
-		for ( var i=0; i<selection.length; i++ )
+		// Area selected
+		var selectedData = PickingManager.getSelectedData();
+		if ( selectedData )
 		{
-			var feature = selection[i].feature;
-			if ( feature.properties.style && feature.properties.style.fillTexture )
-			{
-				// Fits loaded
-				fitsUrl = feature.services.download.url;
-			}
+			// Data selected
+		    url = selectedData.feature.services.download.url
 		}
-		if ( !fitsUrl )
-		{			
-			showMessage('Selection must contain loaded fits');
+		else
+		{
+			showMessage('Please select observation to cut');
 		}
 	}
 	else
 	{
-		showMessage('Please select area');
+		showMessage('Please select area to cut');
 	}
-	return fitsUrl;
+	return url;
 }
 
 /**************************************************************************************************************/
@@ -119,16 +116,16 @@ function findFits()
  *	Run job
  */
 function runJob()
-{		
-	var fitsUrl = findFits();
-	if ( fitsUrl )
+{	
+	var url = findUrl();
+	if ( url )
 	{
-		startAnimation();
 		// Convert to equatorial due to CutOut protocol
 		if ( CoordinateSystem.type != "EQ" )
 		{
 			selectionTool.geoPickPoint = CoordinateSystem.convertFromDefault(selectionTool.geoPickPoint, "EQ");
 		}
+		startAnimation();
 		CutOut.post(fitsUrl, selectionTool.geoPickPoint[0], selectionTool.geoPickPoint[1], selectionTool.geoRadius);
 	}
 }
@@ -161,6 +158,8 @@ return {
 			navigation: options.navigation,
 			onselect: function(){
 				$('#layerServices').slideDown();
+				// Activate picking events
+				PickingManager.activate();
 				selectionTool.toggle();
 			}
 		});

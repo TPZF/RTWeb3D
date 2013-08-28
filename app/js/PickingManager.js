@@ -33,6 +33,119 @@ var selectedStyle = new FeatureStyle( { strokeColor: [1., 1., 0., 1.], fillColor
 var pickableLayers = [];
 var selectedTile = null;
 
+var mouseXStart;
+var mouseYStart;
+var timeStart;
+
+/**************************************************************************************************************/
+
+/**
+ *	Event handler for mouse down
+ */
+function _handleMouseDown(event)
+{
+	timeStart = new Date();
+	mouseXStart = event.clientX;
+	mouseYStart = event.clientY;
+	clearSelection();
+}
+
+/**************************************************************************************************************/
+
+/**
+ * Event handler for mouse up
+ */
+function _handleMouseUp(event)
+{
+	var timeEnd = new Date();
+	var epsilon = 5;
+	var diff = timeEnd - timeStart;
+
+	// If not pan and not reverse name resolver call
+	if ( diff < 500 && Math.abs(mouseXStart - event.clientX) < epsilon && Math.abs(mouseYStart - event.clientY) < epsilon )
+	{
+		var pickPoint = globe.getLonLatFromPixel(event.clientX, event.clientY);
+
+		// Remove selected style for previous selection
+		clearSelection();
+
+		var newSelection = computePickSelection(pickPoint);
+		
+		// Add selected style for new selection
+		focusSelection(newSelection);
+		
+		if ( newSelection.length > 0 )
+		{
+			// Hide previous popup if any
+			FeaturePopup.hide( function() {
+				// View on center
+				if ( navigation.inertia )
+				{
+					navigation.inertia.stop();
+				}
+				navigation.moveTo( pickPoint, 1000, function(){
+					selection = newSelection;
+					selection.selectedTile = selectedTile;
+					FeaturePopup.createFeatureList( selection );
+					if ( selection.length > 1 )
+					{
+						// Create dialogue for the first selection call
+						FeaturePopup.createHelp();
+						stackSelectionIndex = -1;
+					}
+					else
+					{
+						// only one layer, no pile needed, create feature dialogue
+						self.focusFeature( 0 );
+						$('#featureList div:eq(0)').addClass('selected');
+						FeaturePopup.showFeatureInformation( selection[stackSelectionIndex].layer, selection[stackSelectionIndex].feature )
+					}
+					FeaturePopup.show(globe.renderContext.canvas.width/2, globe.renderContext.canvas.height/2);
+					}
+				);
+			});
+		} else {
+			FeaturePopup.hide();
+		}
+	}
+}
+
+/**************************************************************************************************************/
+
+/**
+ *	Activate picking
+ */
+function activate()
+{
+	globe.renderContext.canvas.addEventListener("mousedown", _handleMouseDown);
+	globe.renderContext.canvas.addEventListener("mouseup", _handleMouseUp);
+
+	// Hide popup and blur selection when pan/zoom or animation
+	navigation.subscribe("modified", function() { 
+		blurSelection();
+		FeaturePopup.hide();
+	});
+}
+
+/**************************************************************************************************************/
+
+/**
+ *	Deactivate picking
+ */
+function deactivate()
+{
+	globe.renderContext.canvas.removeEventListener("mousedown", _handleMouseDown);
+	globe.renderContext.canvas.removeEventListener("mouseup", _handleMouseUp);
+	
+	// Hide popup and blur selection when pan/zoom or animation
+	navigation.unsubscribe("modified", function() { 
+		blurSelection();
+		FeaturePopup.hide();
+	});
+}
+
+/**************************************************************************************************************/
+
 /**
  * 	Revert style of selection
  */
@@ -56,6 +169,8 @@ function blurSelection()
 		selectedData.layer.modifyFeatureStyle( selectedData.feature, style );
 	}
 }
+
+/**************************************************************************************************************/
 
 /**
  * 	Apply selectedStyle to selection
@@ -91,84 +206,7 @@ function focusSelection(newSelection)
 	}
 }
 
-/**
- * 	Init event
- */
-function init()
-{
-	var mouseXStart;
-	var mouseYStart;
-	var timeStart;
-	var timeEnd;
-	var epsilon = 5;
-
-	$('canvas').on("mousedown",function(event){
-		timeStart = new Date();
-		mouseXStart = event.clientX;
-		mouseYStart = event.clientY;
-		clearSelection();
-	});
-
-	$('canvas').mouseup(function(event){
-		timeEnd = new Date();
-		var diff = timeEnd - timeStart;
-
-		// If not pan and not reverse name resolver call
-		if ( diff < 500 && Math.abs(mouseXStart - event.clientX) < epsilon && Math.abs(mouseYStart - event.clientY) < epsilon )
-		{
-			var pickPoint = globe.getLonLatFromPixel(event.clientX, event.clientY);
-
-			// Remove selected style for previous selection
-			clearSelection();
-
-			var newSelection = computePickSelection(pickPoint);
-			
-			// Add selected style for new selection
-			focusSelection(newSelection);
-			
-			if ( newSelection.length > 0 )
-			{
-				// Hide previous popup if any
-				FeaturePopup.hide( function() {
-					// View on center
-					if ( navigation.inertia )
-					{
-						navigation.inertia.stop();
-					}
-					navigation.moveTo( pickPoint, 1000, function(){
-						selection = newSelection;
-						selection.selectedTile = selectedTile;
-						FeaturePopup.createFeatureList( selection );
-						if ( selection.length > 1 )
-						{
-							// Create dialogue for the first selection call
-							FeaturePopup.createHelp();
-							stackSelectionIndex = -1;
-						}
-						else
-						{
-							// only one layer, no pile needed, create feature dialogue
-							self.focusFeature( 0 );
-							$('#featureList div:eq(0)').addClass('selected');
-							FeaturePopup.showFeatureInformation( selection[stackSelectionIndex].layer, selection[stackSelectionIndex].feature )
-						}
-						FeaturePopup.show(globe.renderContext.canvas.width/2, globe.renderContext.canvas.height/2);
-						}
-					);
-				});
-			} else {
-				FeaturePopup.hide();
-			}
-		}
-	});
-	
-	// Hide popup and blur selection when pan/zoom or animation
-	navigation.subscribe("modified", function() { 
-		blurSelection();
-		FeaturePopup.hide();
-	});
-
-}
+/**************************************************************************************************************/
 
 /**
  *	Clear selection
@@ -179,6 +217,7 @@ function clearSelection()
 	selection = [];
 }
 
+/**************************************************************************************************************/
 
 /**
 *	Determine if a point lies inside a polygon
@@ -205,6 +244,8 @@ function pointInRing( point, ring )
 	}
 	return inPoly;
 }
+
+/**************************************************************************************************************/
 
 /**
  *	Determine if a point lies inside a sphere of radius depending on viewport
@@ -237,6 +278,8 @@ function pointInSphere( point, sphere, pointTextureHeight )
 	//If not, return false
 	return false;
 }
+
+/**************************************************************************************************************/
 
 /**
  * 	Compute the selection at the picking point
@@ -356,6 +399,8 @@ function computePickSelection( pickPoint )
 	return newSelection;
 }
 
+/**************************************************************************************************************/
+
 return {
 	init: function( gl, nav, configuration ) 
 	{
@@ -364,15 +409,19 @@ return {
 		navigation = nav;
 		self = this;
 
-		// Call init
-		init();
+		activate();
+	
 		FeaturePopup.init(this, gl, configuration);
 	},
+
+	/**************************************************************************************************************/
 	
 	addPickableLayer: function( layer )
 	{
 		pickableLayers.push( layer );
 	},
+
+	/**************************************************************************************************************/
 	
 	removePickableLayer: function( layer )
 	{
@@ -382,6 +431,8 @@ return {
 				pickableLayers.splice( i, 1 );
 		}
 	},
+
+	/**************************************************************************************************************/
 
 	/**
 	 * 	Revert style of selected feature
@@ -407,6 +458,8 @@ return {
 			selectedData.layer.modifyFeatureStyle( selectedData.feature, style );
 		}
 	},
+
+	/**************************************************************************************************************/
 
 	/**
 	 * 	Apply selected style to feature
@@ -437,17 +490,23 @@ return {
 		}
 	},
 
+	/**************************************************************************************************************/
+
 	getSelectedData: function()
 	{
 		return selection[stackSelectionIndex];
 	},
+
+	/**************************************************************************************************************/
 
 	getSelection: function()
 	{
 		return selection;
 	},
 
-	computePickSelection: computePickSelection
+	computePickSelection: computePickSelection,
+	activate: activate,
+	deactivate: deactivate
 };
 
 });
