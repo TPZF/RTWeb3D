@@ -64,9 +64,9 @@ require.config({
  * Main module
  */
 require( ["jquery.ui", "gw/CoordinateSystem", "gw/Globe", "gw/Stats", "gw/AstroNavigation", "gw/AttributionHandler",
-	"LayerManager", "NameResolver", "ReverseNameResolver", "Utils", "PickingManager", "FeaturePopup", "IFrame", "Compass", "MollweideViewer", "ErrorDialog", "ImageManager", "Share", "StarProvider", "ConstellationProvider", "JsonProvider", "OpenSearchProvider",
+	"LayerManager", "NameResolver", "ReverseNameResolver", "Utils", "PickingManager", "FeaturePopup", "IFrame", "Compass", "MollweideViewer", "ErrorDialog", "AboutDialog", "ImageManager", "Share", "StarProvider", "ConstellationProvider", "JsonProvider", "OpenSearchProvider",
 	"gw/EquatorialCoordinateSystem", "gw/ConvexPolygonRenderer", "gw/PointSpriteRenderer", "gw/PointRenderer"],
-	function($, CoordinateSystem, Globe, Stats, AstroNavigation, AttributionHandler, LayerManager, NameResolver, ReverseNameResolver, Utils, PickingManager, FeaturePopup, IFrame, Compass, MollweideViewer, ErrorDialog, ImageManager, Share) {
+	function($, CoordinateSystem, Globe, Stats, AstroNavigation, AttributionHandler, LayerManager, NameResolver, ReverseNameResolver, Utils, PickingManager, FeaturePopup, IFrame, Compass, MollweideViewer, ErrorDialog, AboutDialog, ImageManager, Share) {
 
 // Console fix	
 window.console||(console={log:function(){}});
@@ -129,7 +129,7 @@ function setSharedParameters(data, sharedParameters)
 }
 
 $(function()
-{	
+{
 	// Create accordeon
 	$( "#accordion" ).accordion( { autoHeight: false, active: 0, collapsible: true } ).show();
 	
@@ -201,6 +201,12 @@ $(function()
 		document.getElementById('webGLContextLost').style.display = "block";
 	}, false);
 	
+	// Show about information
+	if ( localStorage.showAbout == undefined )
+	{
+		AboutDialog.show();
+	}
+
 	// Retrieve configuration
 	$.ajax({
 		type: "GET",
@@ -235,6 +241,7 @@ $(function()
 				$("#fps").hide();
 			}
 
+			// Set default coordinate system
 			if ( data.coordSystem )
 				CoordinateSystem.type = data.coordSystem;
 

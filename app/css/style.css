@@ -230,3 +230,9 @@ input::-moz-placeholder
 {
 	color: rgba(127,127,127,.5);
 }
+
+/* About link color */
+#about a
+{
+	color: rgb(255, 173, 0);
+}
