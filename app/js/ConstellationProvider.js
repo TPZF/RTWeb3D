@@ -173,7 +173,7 @@ function handleFeatures(gwLayer)
 		var constellationShape = {
 			geometry: {
 				type: "Polygon",
-				gid: "constellationShape_"+this.name,
+				gid: "constellationShape_"+current.name,
 				coordinates: [current.coord]
 			},
 			properties: {
@@ -191,7 +191,7 @@ function handleFeatures(gwLayer)
 		var constellationName = {
 			geometry: {
 				type: "Point",
-				gid: "constellationName_"+this.name,
+				gid: "constellationName_"+current.name,
 				coordinates: [geoPos[0], geoPos[1]]
 			},
 			properties: {

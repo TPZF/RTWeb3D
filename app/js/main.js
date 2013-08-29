@@ -63,10 +63,10 @@ require.config({
 /**
  * Main module
  */
-require( ["jquery.ui", "gw/CoordinateSystem", "gw/Globe", "gw/Stats", "gw/AstroNavigation", "gw/AttributionHandler",
+require( ["jquery.ui", "gw/CoordinateSystem", "gw/Globe", "gw/Stats", "gw/AstroNavigation", "gw/AttributionHandler", "gw/VectorLayer",
 	"LayerManager", "NameResolver", "ReverseNameResolver", "Utils", "PickingManager", "FeaturePopup", "IFrame", "Compass", "MollweideViewer", "ErrorDialog", "AboutDialog", "ImageManager", "Share", "StarProvider", "ConstellationProvider", "JsonProvider", "OpenSearchProvider",
 	"gw/EquatorialCoordinateSystem", "gw/ConvexPolygonRenderer", "gw/PointSpriteRenderer", "gw/PointRenderer"],
-	function($, CoordinateSystem, Globe, Stats, AstroNavigation, AttributionHandler, LayerManager, NameResolver, ReverseNameResolver, Utils, PickingManager, FeaturePopup, IFrame, Compass, MollweideViewer, ErrorDialog, AboutDialog, ImageManager, Share) {
+	function($, CoordinateSystem, Globe, Stats, AstroNavigation, AttributionHandler, VectorLayer, LayerManager, NameResolver, ReverseNameResolver, Utils, PickingManager, FeaturePopup, IFrame, Compass, MollweideViewer, ErrorDialog, AboutDialog, ImageManager, Share) {
 
 // Console fix	
 window.console||(console={log:function(){}});
@@ -131,7 +131,12 @@ function setSharedParameters(data, sharedParameters)
 $(function()
 {
 	// Create accordeon
-	$( "#accordion" ).accordion( { autoHeight: false, active: 0, collapsible: true } ).show();
+	$( "#accordion" ).accordion( {
+		autoHeight: false,
+		active: 0,
+		collapsible: true,
+		heightStyle: "content"
+	} ).show();
 	
 	var confURL = 'js/conf.json'; // default
 
@@ -206,6 +211,66 @@ $(function()
 	{
 		AboutDialog.show();
 	}
+
+	// Select default coordinate system event
+	$('#defaultCoordSystem').selectmenu({
+		select: function(e)
+		{
+			var option = $(this).children('option:selected').val();
+						
+			var prevCoordSystem = CoordinateSystem.type;
+			CoordinateSystem.type = option;
+
+			// Convert navigation to default coordinate system selected by user
+			var geo = CoordinateSystem.from3DToGeo(navigation.center3d);
+			geo = CoordinateSystem.convertToDefault(geo, prevCoordSystem);
+			navigation.center3d = CoordinateSystem.fromGeoTo3D(geo);
+			navigation.computeViewMatrix();
+			
+			// Convert all vector layers to default coordinate system selected by user
+			var layers = LayerManager.getLayers();
+			for ( var i=0; i<layers.length; i++ )
+			{
+				if ( layers[i] instanceof VectorLayer )
+				{
+					var layer = layers[i];
+
+					if ( layer.features.length > 0 )
+					{
+						for ( var j=layer.features.length-1; j>=0; j-- )
+						{
+							var feature = layer.features[j];
+							layer.removeFeature(feature);
+							if ( feature.geometry.type == "Point" )
+							{
+								feature.geometry.coordinates = CoordinateSystem.convertToDefault(feature.geometry.coordinates, prevCoordSystem);
+								
+								// Convert to geographic to simplify picking
+								if ( feature.geometry.coordinates[0] > 180 )
+									feature.geometry.coordinates[0] -= 360;
+							}
+							else
+							{
+								var ring = feature.geometry.coordinates[0];
+								for ( var k=0; k<ring.length; k++)
+							    {
+							        ring[k] = CoordinateSystem.convertToDefault(ring[k], prevCoordSystem);
+							        // Convert to geographic to simplify picking
+									if ( ring[k][0] > 180 )
+										ring[k][0] -= 360;
+								}
+							}
+							layer.addFeature(feature);
+						}
+					}
+				}
+			}
+
+			var index = $('#backgroundLayersSelect').data('selectmenu').index();
+			var layer = $('#backgroundLayersSelect').children().eq(index).data("layer");
+			globe.setBaseImagery( layer );
+		}
+	});
 
 	// Retrieve configuration
 	$.ajax({

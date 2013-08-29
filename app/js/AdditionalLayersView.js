@@ -102,8 +102,9 @@ function createHtmlForAdditionalLayer( gwLayer )
 	var currentIndex = gwLayer.id;
 
 	var layerDiv = additionalLayerTemplate( { layer: gwLayer, currentIndex: currentIndex } );
+	var layerContainer = gwLayer.gridProgram ? '#coordinateGrids' : '#additionalLayers';
 	var $layerDiv = $(layerDiv)
-		.appendTo('#additionalLayers')
+		.appendTo(layerContainer)
 		.data("layer", gwLayer);
 
 	var $canvas = $layerDiv.find('.legend');
@@ -154,7 +155,7 @@ function createHtmlForAdditionalLayer( gwLayer )
 		
 	// Open tools div when the user clicks on the layer label
 	var toolsDiv = $('#addLayer_'+currentIndex+' .layerTools');
-	$('#additionalLayers').on("click", '#addLayer_'+currentIndex+' > label', function() {
+	$(layerContainer).on("click", '#addLayer_'+currentIndex+' > label', function() {
 		toolsDiv.slideToggle(updateScroll);
 	});
 
