@@ -237,10 +237,12 @@ $(function()
 
 					if ( layer.features.length > 0 )
 					{
-						for ( var j=layer.features.length-1; j>=0; j-- )
+						var features = layer.features.slice(0); // clone array
+						layer.removeAllFeatures();
+
+						for ( var j=0; j<features.length; j++ )
 						{
-							var feature = layer.features[j];
-							layer.removeFeature(feature);
+							var feature = features[j];
 							if ( feature.geometry.type == "Point" )
 							{
 								feature.geometry.coordinates = CoordinateSystem.convertToDefault(feature.geometry.coordinates, prevCoordSystem);
@@ -260,8 +262,11 @@ $(function()
 										ring[k][0] -= 360;
 								}
 							}
-							layer.addFeature(feature);
 						}
+						layer.addFeatureCollection({
+							type:"FeatureCollection",
+							features:features
+						});
 					}
 				}
 			}
