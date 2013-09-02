@@ -34,22 +34,17 @@ return {
 		globe = g;
 		navigation = nav;
 		imageManager = im;
+		var self = this;
 		// Show/hide image viewer
 		$('#imageViewInvoker').on('click', function(){
 
 			if ( parseFloat($(this).parent().css('right')) < 0 )
 			{
-				// Show
-				$('#loadedImages').css({ boxShadow: "0px 0px 8px 1px rgba(255, 158, 82, 0.92)"});
-				$(this).css('background-position', '0px -20px');
-				$(this).parent().animate({right: '0px'}, 300);
+				self.show();
 			}
 			else
 			{
-				// Hide
-				$('#loadedImages').css({ boxShadow: "none"});
-				$(this).css('background-position', '0px 0px');
-				$(this).parent().animate({right: '-261px'}, 300);
+				self.hide();
 			}
 		});
 		// Create accordion
@@ -156,6 +151,26 @@ return {
 				$('#loadedImages p').fadeIn();
 		})
 
+	},
+
+	/**
+	 *	Show image viewer
+	 */
+	show: function()
+	{
+		$('#loadedImages').css({ boxShadow: "0px 0px 8px 1px rgba(255, 158, 82, 0.92)"});
+		$('#imageViewInvoker').css('background-position', '0px -20px')
+			.parent().animate({right: '0px'}, 300);
+	},
+
+	/**
+	 *	Hide image viewer
+	 */
+	hide: function()
+	{
+		$('#loadedImages').css({ boxShadow: "none"});
+		$('#imageViewInvoker').css('background-position', '0px 0px')
+			.parent().animate({right: '-261px'}, 300);
 	}
 }
 

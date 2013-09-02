@@ -251,6 +251,9 @@ return {
 			// For DEBUG : 'upload/ADP_WFI_30DOR_RGB_V1.0_degraded.jpg';
 		}
 		featureData.layer.modifyFeatureStyle( featureData.feature, style );
+
+		// Show image viewer
+		ImageViewer.show();
 	}
 }
 
