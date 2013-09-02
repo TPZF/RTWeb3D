@@ -20,8 +20,8 @@
 /**
  * Image manager
  */
-define( [ "jquery.ui", "gw/FeatureStyle", "gw/DynamicImage", "DynamicImageView", "ProgressBar", "SimpleProgressBar", "FitsLoader", "ImageViewer", "fits" ],
-			function($, FeatureStyle, DynamicImage, DynamicImageView, ProgressBar, SimpleProgressBar, FitsLoader, ImageViewer) {
+define( [ "jquery.ui", "gw/FeatureStyle", "gw/DynamicImage", "DynamicImageView", "SimpleProgressBar", "FitsLoader", "ImageViewer", "fits" ],
+			function($, FeatureStyle, DynamicImage, DynamicImageView, SimpleProgressBar, FitsLoader, ImageViewer) {
 
 var globe = null;
 var progressBars = {};
