@@ -17,7 +17,8 @@
 * along with SITools2. If not, see <http://www.gnu.org/licenses/>. 
 ******************************************************************************/ 
 
-define(['jquery.ui', 'underscore-min', "gw/FeatureStyle", "./Histogram", "text!../templates/dynamicImageView.html", "jquery.ui.selectmenu"], function($,_, FeatureStyle, Histogram, dynamicImageViewHTML) {
+define(['jquery.ui', 'underscore-min', "gw/FeatureStyle", "./Histogram", "ZScale", "text!../templates/dynamicImageView.html", "jquery.ui.selectmenu"],
+	function($,_, FeatureStyle, Histogram, ZScale, dynamicImageViewHTML) {
  
 /**************************************************************************************************************/
 
@@ -131,14 +132,7 @@ var DynamicImageView = function(options)
 			},
 			// Compute histogram on stop, because it's more efficient with huge amount of data
 			stop: function( event, ui ) {
-
-				self.image.tmin = ui.values[0];
-				self.image.tmax = ui.values[1];
-
-				self.$dialog.find( "#min" ).val( ui.values[0] );
-				self.$dialog.find( "#max" ).val( ui.values[1] );
-
-				self.render();
+				self.updateThreshold(ui.values[0], ui.values[1]);
 			}
 		}).slider("disable");
 
@@ -158,15 +152,7 @@ var DynamicImageView = function(options)
         	inputMax = self.image.max;
         }
 
-		self.image.tmin = inputMin;
-		self.image.tmax = inputMax;
-
-		// Update slider
-		self.$dialog.find('.thresholdSlider').slider({
-			values: [inputMin, inputMax]
-		})
-
-		self.render();
+        self.updateThreshold( inputMin, inputMax );
 	});
 	
 	// Initialize colormap selectmenu
@@ -200,11 +186,65 @@ var DynamicImageView = function(options)
 		self.render();
 	});
 
+	var _z1 = null;
+	var _z2 = null;
+	this.$dialog.find('.zScale').button().click(function(){
+		if ( _z1 && _z2 )
+		{
+			self.updateThreshold(_z1,_z2);
+		}
+		else
+		{
+			ZScale.post(options.url, {
+				successCallback: function(z1, z2)
+				{
+					// Store zScale values
+					_z1 = z1;
+					_z2 = z2;
+
+					self.$dialog.find( "#min" ).val( z1 ).animate({ color: '#6BCAFF', 'border-color': '#6BCAFF' }, 300, function(){
+						$(this).animate({color: '#F8A102', 'border-color': 'transparent'});
+					});
+					self.$dialog.find( "#max" ).val( z2 ).animate({ color: '#6BCAFF', 'border-color': '#6BCAFF' }, 300, function(){
+						$(this).animate({color: '#F8A102', 'border-color': 'transparent'});
+					});
+
+					self.updateThreshold(z1,z2);
+				},
+				failCallback: function()
+				{
+					console.log("ZScale failed");
+				}
+			});
+		}
+	});
+
 	// Set image if defined
 	if ( options.image )
 	{
 		this.setImage(options.image);
 	}
+}
+
+/**************************************************************************************************************/
+
+/**
+ *	Update threshold
+ */
+DynamicImageView.prototype.updateThreshold = function(min, max)
+{
+	this.image.tmin = min;
+	this.image.tmax = max;
+
+	this.$dialog.find( "#min" ).val( min );
+	this.$dialog.find( "#max" ).val( max );
+
+	// Update slider
+	this.$dialog.find('.thresholdSlider').slider({
+		values: [min, max]
+	});
+
+	this.render();
 }
 
 /**************************************************************************************************************/

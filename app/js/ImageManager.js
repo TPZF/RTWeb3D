@@ -66,6 +66,7 @@ function handleFits(fitsData, featureData)
 		image : image,
 		activator: 'dynamicImageView',
 		id: feature.properties.identifier,
+		url: featureData.feature.services.download.url,
 		changeShaderCallback: function(contrast){
 			if ( contrast == "raw" )
 			{

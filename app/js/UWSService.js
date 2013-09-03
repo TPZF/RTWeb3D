@@ -19,10 +19,10 @@
 
 /**
  * UWS service
- *	- CutOut only currently
+ *	- CutOut and ZScale currently
  */
-define( [ "jquery.ui", "CutOutView", "underscore-min", "text!../templates/uwsService.html", "jquery.ui.selectmenu" ],
-		function($, CutOutView, _, uwsServiceHTMLTemplate) {
+define( [ "jquery.ui", "CutOutView", "ZScaleView", "underscore-min", "text!../templates/uwsService.html", "jquery.ui.selectmenu" ],
+		function($, CutOutView, ZScaleView, _, uwsServiceHTMLTemplate) {
 
 // Template generating UWS services div
 var uwsServiceTemplate = _.template(uwsServiceHTMLTemplate);
@@ -30,11 +30,15 @@ var uwsServiceTemplate = _.template(uwsServiceHTMLTemplate);
 return {
 	init: function(gl, nav, conf)
 	{
-		CutOutView.init({
-			baseUrl: conf.cutOut.baseUrl,
-			globe: gl,
-			navigation: nav
-		});
+		if ( conf.cutOut )
+		{
+			CutOutView.init(gl, nav, conf.cutOut);
+		}
+
+		if ( conf.zScale )
+		{
+			ZScaleView.init(conf.zScale);
+		}
 	},
 
 	/**
@@ -67,6 +71,7 @@ return {
 			});
 
 		CutOutView.add("cutOut");
+		ZScaleView.add("zScale");
 	},
 
 	/**

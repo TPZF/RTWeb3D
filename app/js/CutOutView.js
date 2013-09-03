@@ -126,7 +126,27 @@ function runJob()
 			selectionTool.geoPickPoint = CoordinateSystem.convertFromDefault(selectionTool.geoPickPoint, "EQ");
 		}
 		startAnimation();
-		CutOut.post(url, selectionTool.geoPickPoint[0], selectionTool.geoPickPoint[1], selectionTool.geoRadius);
+		var parameters = {
+			url: url,
+			ra: selectionTool.geoPickPoint[0],
+			dec: selectionTool.geoPickPoint[1],
+			radius: selectionTool.geoRadius
+		};
+		CutOut.post(parameters, {
+			successCallback: function(url, name)
+			{
+				showMessage('Completed');
+				stopped = true;
+				$('<li style="display: none;">'+name+' <a href="' + url +'" download><img style="vertical-align: middle; width: 20px; height: 20px;" title="Download" src="css/images/download1.png"></a></li>')
+					.appendTo($('#cutoutResults').find('ul'))
+					.fadeIn(400);
+			},
+			failCallback: function(error)
+			{
+				stopped = true;
+				showMessage(error);
+			}
+		});
 	}
 }
 
@@ -134,28 +154,15 @@ function runJob()
 
 return {
 
-	init: function(options)
+	init: function(gl, nav, conf)
 	{
 		// Initialize cutout service
-		CutOut.init({
-			successCallback: function(url, name){
-				showMessage('Completed');
-				stopped = true;
-				$('<li style="display: none;">'+name+' <a href="' + url +'" download><img style="vertical-align: middle; width: 20px; height: 20px;" title="Download" src="css/images/download1.png"></a></li>')
-					.appendTo($('#cutoutResults').find('ul'))
-					.fadeIn(400);
-			},
-			failCallback: function(error){
-				stopped = true;
-				showMessage(error);
-			},
-			baseUrl: options.baseUrl
-		});
+		CutOut.init(conf);
 
 		// Initialize selection tool
 		selectionTool = new SelectionTool({
-			globe: options.globe,
-			navigation: options.navigation,
+			globe: gl,
+			navigation: nav,
 			onselect: function(){
 				$('#layerServices').slideDown();
 				// Activate picking events

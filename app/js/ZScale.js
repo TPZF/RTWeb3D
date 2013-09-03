@@ -32,12 +32,7 @@ var checkFn;	// Interval function
 var checkDelay;	// Delay in milliseconds
 var currentJob;
 
-/**************************************************************************************************************/
-
-/**
- *	Send GET request to know the phase of current job
- */
-var checkPhase = function()
+function checkPhase()
 {
 	$.ajax({
 		type: "GET",
@@ -54,23 +49,15 @@ var checkPhase = function()
 					url: baseUrl + "/" + currentJob + '/results?media=json',
 					success: function(response, textStatus, xhr){
 						
-						// Handle results
-						for ( var i=0; i<response.results.result.length; i++ )
-						{
-							var result = response.results.result[i];
-							var name = result['@id'];
-							var url =  result['@xlink:href'];
-
-							//Encode special caracters(at least '?')
-							if ( url.search("[?]") > 0 )
-							{
-								var lastSlash = url.lastIndexOf('/') + 1;
-								url = url.substr( 0, lastSlash ) + encodeURIComponent(name);
-							}
-
+						// // Handle results
+						// for ( var i=0; i<response.results.result.length; i++ )
+						// {
+							var z1 = parseFloat(response.results.result[0]['@xlink:href']);
+							var z2 = parseFloat(response.results.result[1]['@xlink:href']);
+						
 							if ( successCallback )
-								successCallback(url, name);
-						}
+								successCallback(z1, z2);
+						// }
 					},
 					error: function(xhr, textStatus, thrownError){
 						window.clearInterval(checkFn);
@@ -91,31 +78,22 @@ var checkPhase = function()
 		error: function (xhr, textStatus, thrownError) {
 			window.clearInterval(checkFn);
 			if ( failCallback )
-				failCallback('CutOut service: '+thrownError);
+				failCallback('Zscale service: '+thrownError);
 			console.error( xhr.responseText );
 		}
 	});
 }
 
-/**************************************************************************************************************/
-
 return {
-	/**
-	 *	Initialize CutOut service
-	 */
-	init: function(conf, options)
-	{
-		baseUrl = conf.baseUrl;
+	init: function(url, options){
+		baseUrl = url;
 		if ( options )
 		{
 			checkDelay = options.checkDelay || 1000;
 		}
 	},
 
-	/**
-	 *	Send POST request to UWS CutOut service
-	 */
-	post: function( parameters, options )
+	post: function( url, options )
 	{
 		successCallback = options.successCallback;
 		onloadCallback = options.onloadCallback;
@@ -127,10 +105,7 @@ return {
 			url: baseUrl,
 			data: {
 				PHASE: "RUN",
-				uri: parameters.url,
-				ra:  parameters.ra,
-				dec: parameters.dec,
-				radius: parameters.radius,
+				uri: url
 			},
 			success: function(response, textStatus, xhr){
 				var xmlDoc = $.parseXML( xhr.responseText );
@@ -143,13 +118,11 @@ return {
 			error: function (xhr, textStatus, thrownError) {
 				window.clearInterval(checkFn);
 				if ( failCallback )
-					failCallback('CutOut service: '+thrownError);
+					failCallback('ZScale service: '+thrownError);
 				console.error( xhr.responseText );
 			}
 		});
 	}
 }
-
-/**************************************************************************************************************/
 
 });
