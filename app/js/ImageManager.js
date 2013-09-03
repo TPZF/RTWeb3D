@@ -165,7 +165,7 @@ return {
 	/**
 	 *	Initialize
 	 */
-	init: function(g, nav)
+	init: function(pm, g, nav)
 	{
 		globe = g;
 
@@ -177,7 +177,7 @@ return {
 			return;
 		}
 
-		ImageViewer.init(g, nav, this);
+		ImageViewer.init(g, nav, pm, this);
 	},
 
 	/**********************************************************************************************/

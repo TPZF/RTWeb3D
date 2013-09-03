@@ -22,6 +22,7 @@ define(["gw/FeatureStyle", "underscore-min", "text!../templates/imageViewerItem.
 
 var navigation;
 var globe;
+var pickingManager;
 var imageManager;
 
 // Template generating the li representing image
@@ -29,10 +30,11 @@ var imageViewerItemTemplate = _.template(imageViewerItemHTMLTemplate);
 
 return {
 
-	init: function(g,nav, im){
+	init: function(g,nav, pm, im){
 
 		globe = g;
 		navigation = nav;
+		pickingManager = pm;
 		imageManager = im;
 		var self = this;
 		// Show/hide image viewer
@@ -84,7 +86,11 @@ return {
 						meanLat+=currentGeometry.coordinates[0][j][1];
 						nbPoints++;
 					}
-					navigation.zoomTo([meanLon/nbPoints, meanLat/nbPoints], 0.1, 2000);
+					navigation.zoomTo([meanLon/nbPoints, meanLat/nbPoints], 0.1, 2000, function(){
+						// Update selection
+						pickingManager.focusFeature(selectedData);
+					});
+
 				}).end()
 				// Visibility
 				.find('input').click(function(){

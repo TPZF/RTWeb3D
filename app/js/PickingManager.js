@@ -20,8 +20,8 @@
 /**
  * PickingManager module
  */
-define( [ "jquery.ui", "gw/FeatureStyle", "gw/CoordinateSystem", "gw/OpenSearchLayer", "FeaturePopup" ],
-		function($, FeatureStyle, CoordinateSystem, OpenSearchLayer, FeaturePopup) {
+define( [ "jquery.ui", "gw/FeatureStyle", "gw/CoordinateSystem", "gw/OpenSearchLayer", "FeaturePopup", "ImageManager" ],
+		function($, FeatureStyle, CoordinateSystem, OpenSearchLayer, FeaturePopup, ImageManager) {
 
 var globe;
 var navigation;
@@ -96,7 +96,7 @@ function _handleMouseUp(event)
 					else
 					{
 						// only one layer, no pile needed, create feature dialogue
-						self.focusFeature( 0 );
+						self.focusFeatureByIndex( 0 );
 						$('#featureList div:eq(0)').addClass('selected');
 						FeaturePopup.showFeatureInformation( selection[stackSelectionIndex].layer, selection[stackSelectionIndex].feature )
 					}
@@ -466,6 +466,8 @@ return {
 		activate();
 	
 		FeaturePopup.init(this, gl, configuration);
+		// Initialize the fits manager
+		ImageManager.init(this, globe, navigation);
 	},
 
 	/**************************************************************************************************************/
@@ -516,11 +518,11 @@ return {
 	/**************************************************************************************************************/
 
 	/**
-	 * 	Apply selected style to feature
+	 * 	Apply selected style to the feature by the given index in selection array
 	 * 
 	 * 	@param index Index of feature in selection array
 	 */
-	focusFeature: function(index)
+	focusFeatureByIndex: function(index)
 	{
 		blurSelection();
 		var selectedData = selection[index];
@@ -542,6 +544,18 @@ return {
 			}
 			selectedData.layer.modifyFeatureStyle( selectedData.feature, style );
 		}
+	},
+
+	/**************************************************************************************************************/
+
+	/**
+	 *	Apply selected style to the given feature
+	 */
+	focusFeature: function(selectedData)
+	{
+		clearSelection();
+		selection = [selectedData];
+		this.focusFeatureByIndex(0);
 	},
 
 	/**************************************************************************************************************/

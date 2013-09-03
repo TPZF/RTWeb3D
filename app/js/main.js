@@ -74,9 +74,18 @@ window.console||(console={log:function(){}});
 // Private variable
 var globe = null;
 var navigation = null;
+var aboutShowed = false;
 
 function hideLoading()
 {
+
+	// Show about information only at the end of first loading
+	if ( localStorage.showAbout == undefined && !aboutShowed )
+	{
+		AboutDialog.show();
+		aboutShowed = true;
+	}
+
 	$('#loading').hide(300);
 }
 
@@ -206,12 +215,6 @@ $(function()
 		document.getElementById('webGLContextLost').style.display = "block";
 	}, false);
 	
-	// Show about information
-	if ( localStorage.showAbout == undefined )
-	{
-		AboutDialog.show();
-	}
-
 	// Select default coordinate system event
 	$('#defaultCoordSystem').selectmenu({
 		select: function(e)
@@ -251,7 +254,7 @@ $(function()
 								if ( feature.geometry.coordinates[0] > 180 )
 									feature.geometry.coordinates[0] -= 360;
 							}
-							else
+							else if ( feature.geometry.type == "Polygon" )
 							{
 								var ring = feature.geometry.coordinates[0];
 								for ( var k=0; k<ring.length; k++)
@@ -334,9 +337,6 @@ $(function()
 
 			// Create layers from configuration file
 			LayerManager.init(globe, navigation, data);
-
-			// Initialize the fits manager
-			ImageManager.init(globe, navigation);
 
 			// Create data manager
 			PickingManager.init(globe, navigation, data);
