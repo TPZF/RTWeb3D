@@ -206,6 +206,21 @@ function createHtmlForAdditionalLayer( gwLayer )
 
 	});
 
+	// Init buttons of tool bar
+	$('.deleteLayer').button({
+		text: false,
+		icons: {
+			primary: "ui-icon-trash"
+		}
+	});
+
+	$('.zoomTo').button({
+		text: false,
+		icons: {
+			primary: "ui-icon-zoomin"
+		}
+	});
+
 	if ( gwLayer.fitsShader )
 	{
 		// Supports fits, so create dynamic image view
@@ -260,21 +275,6 @@ function addView ( gwLayer )
  */
 function initToolbarEvents ()
 {
-	
-	// Init buttons of tool bar
-	$('.deleteLayer').button({
-		text: false,
-		icons: {
-			primary: "ui-icon-trash"
-		}
-	});
-
-	$('.zoomTo').button({
-		text: false,
-		icons: {
-			primary: "ui-icon-zoomin"
-		}
-	});
 
 	$('.isFits').button();
 	$('.addFitsView').button({
