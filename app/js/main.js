@@ -28,6 +28,7 @@ require.config({
 		"underscore-min": "../externals/underscore-min",
 		"jquery.nicescroll.min": "../externals/jquery.nicescroll.min",
 		"fits": "../externals/fits",
+		"samp": "../externals/samp",
 		"jquery.ui.timepicker": "../externals/jquery.ui.timepicker",
 		"gw": "../externals/GlobWeb/src/"
 	},
@@ -64,9 +65,9 @@ require.config({
  * Main module
  */
 require( ["jquery.ui", "gw/CoordinateSystem", "gw/Globe", "gw/Stats", "gw/AstroNavigation", "gw/AttributionHandler", "gw/VectorLayer",
-	"LayerManager", "NameResolver", "ReverseNameResolver", "Utils", "PickingManager", "FeaturePopup", "IFrame", "Compass", "MollweideViewer", "ErrorDialog", "AboutDialog", "ImageManager", "Share", "StarProvider", "ConstellationProvider", "JsonProvider", "OpenSearchProvider",
+	"LayerManager", "NameResolver", "ReverseNameResolver", "Utils", "PickingManager", "FeaturePopup", "IFrame", "Compass", "MollweideViewer", "ErrorDialog", "AboutDialog", "ImageManager", "Share", "Samp", "StarProvider", "ConstellationProvider", "JsonProvider", "OpenSearchProvider",
 	"gw/EquatorialCoordinateSystem", "gw/ConvexPolygonRenderer", "gw/PointSpriteRenderer", "gw/PointRenderer"],
-	function($, CoordinateSystem, Globe, Stats, AstroNavigation, AttributionHandler, VectorLayer, LayerManager, NameResolver, ReverseNameResolver, Utils, PickingManager, FeaturePopup, IFrame, Compass, MollweideViewer, ErrorDialog, AboutDialog, ImageManager, Share) {
+	function($, CoordinateSystem, Globe, Stats, AstroNavigation, AttributionHandler, VectorLayer, LayerManager, NameResolver, ReverseNameResolver, Utils, PickingManager, FeaturePopup, IFrame, Compass, MollweideViewer, ErrorDialog, AboutDialog, ImageManager, Share, Samp) {
 
 // Console fix	
 window.console||(console={log:function(){}});
@@ -349,6 +350,8 @@ $(function()
 
 			// Share init
 			Share.init({navigation : navigation});
+
+			Samp.init(navigation);
 
 			// Update fov when moving
 			navigation.subscribe("modified", updateFov);
