@@ -239,6 +239,8 @@ function handleDrop(evt) {
 			// Warn the service bar a new layer is added (the layer is active by default)
 			// TODO : a better way should be find
 			ServiceBar.addLayer(gwLayer);
+
+			gwLayers.push(gwLayer);
 		};
 		reader.readAsText(f);
 	});

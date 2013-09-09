@@ -23,7 +23,7 @@
  *	Module processing feature collection
  *
  */
-define(["gw/HEALPixLayer"], function(HEALPixLayer) {
+define(["gw/HEALPixLayer", "gw/CoordinateSystem"], function(HEALPixLayer, CoordinateSystem) {
 
 var gid = 0;
 
@@ -75,6 +75,27 @@ return {
 		{
 			var currentFeature = features[i];
 			
+			var coordSystem = "EQ"; // default coordinate system of json data
+			// Apply crs if defined
+			if ( currentFeature.properties.crs )
+			{
+				var crsName = currentFeature.properties.crs.properties.name;
+				coordSystem = crsName.substr(0, crsName.indexOf('.'));
+				if ( coordSystem.length > 3 )
+				{
+					switch( coordSystem.toLowerCase() ) {
+						case "equatorial":
+							coordSystem = "EQ";
+							break;
+						case "galactic":
+							coordSystem = "GAL";
+							break;
+						default:
+							console.log("Not implemented");
+							break;
+					}
+				}
+			}
 			switch ( currentFeature.geometry.type )
 			{
 				case "Point":
@@ -83,24 +104,17 @@ return {
 					else if ( gwLayer.dataType != 'point' )
 						gwLayer.dataType = "none";
 
+					// Convert to default coordinate system if needed
+					if ( CoordinateSystem.type != coordSystem )
+					{
+						currentFeature.geometry.coordinates = CoordinateSystem.convertToDefault(currentFeature.geometry.coordinates, coordSystem);
+					}
+
 					// Convert to geographic representation
 					if ( currentFeature.geometry.coordinates[0] > 180 )
 						currentFeature.geometry.coordinates[0] -= 360;
 					break;
 				case "Polygon":
-					if ( !gwLayer.dataType )
-						gwLayer.dataType = "line";
-					else if ( gwLayer.dataType != 'line' )
-						gwLayer.dataType = "none";
-					
-					var ring = currentFeature.geometry.coordinates[0];
-					for ( var j = 0; j < ring.length; j++ )
-					{
-						// Convert to geographic representation
-						if ( ring[j][0] > 180 )
-							ring[j][0] -= 360;
-					}
-					break;
 				case "MultiPolygon":
 
 					if ( !gwLayer.dataType )
@@ -108,15 +122,35 @@ return {
 					else if ( gwLayer.dataType != 'line' )
 						gwLayer.dataType = "none";
 
-					var polygons = currentFeature.geometry.coordinates;
-					for ( var j=0; j<polygons.length; j++ )
+					var rings = [];
+					var geometry = currentFeature.geometry;
+					if ( geometry['type'] == 'MultiPolygon' )
 					{
-						var ring = polygons[j][0];
-						for ( var k = 0; k<ring.length; k++ )
+						for ( var j=0; j<geometry['coordinates'].length; j++ )
 						{
+							rings.push( geometry['coordinates'][j][0] );
+						}
+					}
+					else
+					{
+						rings.push( geometry['coordinates'][0] );
+					}
+
+					for ( var r=0; r<rings.length; r++ )
+					{
+						var coords = rings[r];
+						var numPoints = coords.length;
+						for ( var j=0; j<numPoints; j++ )
+						{
+							// Convert to default coordinate system if needed
+							if ( CoordinateSystem.type != coordSystem )
+							{
+								coords[j] = CoordinateSystem.convertToDefault(coords[j], coordSystem);
+							}
+
 							// Convert to geographic representation
-							if ( ring[k][0] > 180 )
-								ring[k][0] -= 360;
+							if ( coords[j][0] > 180 )
+								coords[j][0] -= 360;
 						}
 					}
 
