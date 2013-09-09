@@ -220,10 +220,10 @@ $(function()
 	$('#defaultCoordSystem').selectmenu({
 		select: function(e)
 		{
-			var option = $(this).children('option:selected').val();
+			var newCoordSystem = $(this).children('option:selected').val();
 						
 			var prevCoordSystem = CoordinateSystem.type;
-			CoordinateSystem.type = option;
+			CoordinateSystem.type = newCoordSystem;
 
 			// Convert navigation to default coordinate system selected by user
 			var geo = CoordinateSystem.from3DToGeo(navigation.center3d);
@@ -231,6 +231,11 @@ $(function()
 			navigation.center3d = CoordinateSystem.fromGeoTo3D(geo);
 			navigation.computeViewMatrix();
 			
+			// Features could be added to tile, so set new base imagery before
+			var index = $('#backgroundLayersSelect').data('selectmenu').index();
+			var layer = $('#backgroundLayersSelect').children().eq(index).data("layer");
+			globe.setBaseImagery( layer );
+
 			// Convert all vector layers to default coordinate system selected by user
 			var layers = LayerManager.getLayers();
 			for ( var i=0; i<layers.length; i++ )
@@ -242,7 +247,12 @@ $(function()
 					if ( layer.features.length > 0 )
 					{
 						var features = layer.features.slice(0); // clone array
+
+						// Remove feature in previous coordinate system
+						CoordinateSystem.type = prevCoordSystem;
 						layer.removeAllFeatures();
+						// Add features in new coordinate system
+						CoordinateSystem.type = newCoordSystem;
 
 						for ( var j=0; j<features.length; j++ )
 						{
@@ -255,15 +265,35 @@ $(function()
 								if ( feature.geometry.coordinates[0] > 180 )
 									feature.geometry.coordinates[0] -= 360;
 							}
-							else if ( feature.geometry.type == "Polygon" )
+							else if ( feature.geometry.type == "Polygon" || feature.geometry.type == "MultiPolygon" )
 							{
-								var ring = feature.geometry.coordinates[0];
-								for ( var k=0; k<ring.length; k++)
-							    {
-							        ring[k] = CoordinateSystem.convertToDefault(ring[k], prevCoordSystem);
-							        // Convert to geographic to simplify picking
-									if ( ring[k][0] > 180 )
-										ring[k][0] -= 360;
+								var rings = [];
+								var geometry = feature.geometry;
+								if ( geometry['type'] == 'MultiPolygon' )
+								{
+									for ( var k=0; k<geometry['coordinates'].length; k++ )
+									{
+										rings.push( geometry['coordinates'][k][0] );
+									}
+								}
+								else
+								{
+									rings.push( geometry['coordinates'][0] );
+								}
+
+								for ( var r=0; r<rings.length; r++ )
+								{
+									var coords = rings[r];
+									var numPoints = coords.length;
+									for ( var k=0; k<numPoints; k++ )
+									{
+										// Convert to default coordinate system if needed
+										coords[k] = CoordinateSystem.convertToDefault(coords[k], prevCoordSystem);
+
+										// Convert to geographic representation
+										if ( coords[k][0] > 180 )
+											coords[k][0] -= 360;
+									}
 								}
 							}
 						}
@@ -275,9 +305,7 @@ $(function()
 				}
 			}
 
-			var index = $('#backgroundLayersSelect').data('selectmenu').index();
-			var layer = $('#backgroundLayersSelect').children().eq(index).data("layer");
-			globe.setBaseImagery( layer );
+			globe.renderContext.requestFrame();
 		}
 	});
 
