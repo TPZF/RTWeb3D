@@ -38,10 +38,10 @@ var intersectionLayer;
  */
 function noMocFound(layer)
 {
-	layer.coverage = "Not avaliable";
-	$("#MocService #mocLayer_"+layer.id).find('.mocCoverage').html("Sky coverage: Not avaliable").end()
+	layer.coverage = "Not available";
+	$("#MocService #mocLayer_"+layer.id).find('.mocCoverage').html("Sky coverage: Not available").end()
 										.find('.mocStatus').html('(Not found)');
-	$("#xMatchService #mocLayer_"+layer.id).find('.mocCoverage').html("Sky coverage: Not avaliable").end()
+	$("#xMatchService #mocLayer_"+layer.id).find('.mocCoverage').html("Sky coverage: Not available").end()
 										.find('.mocStatus').html('(Not found)');
 }
 
