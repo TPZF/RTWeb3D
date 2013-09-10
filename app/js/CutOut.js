@@ -35,66 +35,79 @@ var currentJob;
 /**************************************************************************************************************/
 
 /**
+ *	Send xhr to get results of current job
+ */
+var getJobResults = function()
+{
+	$.ajax({
+		type: "GET",
+		url: baseUrl + "/" + currentJob + '/results?media=json',
+		success: function(response, textStatus, xhr){
+			
+			// Handle results
+			for ( var i=0; i<response.results.result.length; i++ )
+			{
+				var result = response.results.result[i];
+				var name = result['@id'];
+				var url =  result['@xlink:href'];
+
+				//Encode special caracters(at least '?')
+				if ( url.search("[?]") > 0 )
+				{
+					var lastSlash = url.lastIndexOf('/') + 1;
+					url = url.substr( 0, lastSlash ) + encodeURIComponent(name);
+				}
+
+				if ( successCallback )
+					successCallback(url, name);
+			}
+		},
+		error: function(xhr, textStatus, thrownError){
+			window.clearInterval(checkFn);
+			if ( failCallback )
+				failCallback('Internal server error');
+		}
+	});
+}
+
+/**************************************************************************************************************/
+
+/**
  *	Send GET request to know the phase of current job
  */
 var checkPhase = function()
 {
-	$.ajax({
-		type: "GET",
-		url: baseUrl + "/" + currentJob + '/phase',
-		success: function(response, textStatus, xhr){
-			
-			if ( onloadCallback )
-				onloadCallback(phase);
+	if ( checkFn )
+	{	
+		var mXhr = $.ajax({
+			type: "GET",
+			url: baseUrl + "/" + currentJob + '/phase',
+			success: function(response, textStatus, xhr){
+				
+				if ( onloadCallback )
+					onloadCallback(phase);
 
-			if ( response == "COMPLETED" )
-			{
-				$.ajax({
-					type: "GET",
-					url: baseUrl + "/" + currentJob + '/results?media=json',
-					success: function(response, textStatus, xhr){
-						
-						// Handle results
-						for ( var i=0; i<response.results.result.length; i++ )
-						{
-							var result = response.results.result[i];
-							var name = result['@id'];
-							var url =  result['@xlink:href'];
+				if ( response == "COMPLETED" )
+				{
+					window.clearInterval(checkFn);;
+					getJobResults();
 
-							//Encode special caracters(at least '?')
-							if ( url.search("[?]") > 0 )
-							{
-								var lastSlash = url.lastIndexOf('/') + 1;
-								url = url.substr( 0, lastSlash ) + encodeURIComponent(name);
-							}
-
-							if ( successCallback )
-								successCallback(url, name);
-						}
-					},
-					error: function(xhr, textStatus, thrownError){
-						window.clearInterval(checkFn);
-						if ( failCallback )
-							failCallback('Internal server error');
-					}
-				});
-
-				window.clearInterval(checkFn);
-			} 
-			else if ( response == "ERROR" )
-			{
+				} 
+				else if ( response == "ERROR" )
+				{
+					window.clearInterval(checkFn);
+					if ( failCallback )
+						failCallback('Internal server error');
+				}
+			},
+			error: function (xhr, textStatus, thrownError) {
 				window.clearInterval(checkFn);
 				if ( failCallback )
-					failCallback('Internal server error');
+					failCallback('CutOut service: '+thrownError);
+				console.error( xhr.responseText );
 			}
-		},
-		error: function (xhr, textStatus, thrownError) {
-			window.clearInterval(checkFn);
-			if ( failCallback )
-				failCallback('CutOut service: '+thrownError);
-			console.error( xhr.responseText );
-		}
-	});
+		});
+	}
 }
 
 /**************************************************************************************************************/
@@ -106,14 +119,13 @@ return {
 	init: function(conf, options)
 	{
 		baseUrl = conf.baseUrl;
-		if ( options )
-		{
-			checkDelay = options.checkDelay || 1000;
-		}
+		checkDelay = options && options.hasOwnProperty('checkDelay') ? options.checkDelay : 1000;
 	},
 
+	/**************************************************************************************************************/
+
 	/**
-	 *	Send POST request to UWS CutOut service
+	 *	Send POST request to lauch the job
 	 */
 	post: function( parameters, options )
 	{

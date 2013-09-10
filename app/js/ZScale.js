@@ -18,7 +18,7 @@
 ******************************************************************************/ 
 
 /**
- * UWS CutOut service
+ * UWS ZScale service
  */
 define( [ "jquery.ui" ], function($) {
 
@@ -32,6 +32,37 @@ var checkFn;	// Interval function
 var checkDelay;	// Delay in milliseconds
 var currentJob;
 
+/**************************************************************************************************************/
+
+/**
+ *	Send xhr to get the results of current job
+ */
+function getJobResults()
+{
+	$.ajax({
+		type: "GET",
+		url: baseUrl + "/" + currentJob + '/results?media=json',
+		success: function(response, textStatus, xhr){
+			
+			var z1 = parseFloat(response.results.result[0]['@xlink:href']);
+			var z2 = parseFloat(response.results.result[1]['@xlink:href']);
+		
+			if ( successCallback )
+				successCallback(z1, z2);
+		},
+		error: function(xhr, textStatus, thrownError){
+			window.clearInterval(checkFn);
+			if ( failCallback )
+				failCallback('Internal server error');
+		}
+	});
+}
+
+/**************************************************************************************************************/
+
+/**
+ *	Send GET request to know the phase of current job
+ */
 function checkPhase()
 {
 	$.ajax({
@@ -44,29 +75,8 @@ function checkPhase()
 
 			if ( response == "COMPLETED" )
 			{
-				$.ajax({
-					type: "GET",
-					url: baseUrl + "/" + currentJob + '/results?media=json',
-					success: function(response, textStatus, xhr){
-						
-						// // Handle results
-						// for ( var i=0; i<response.results.result.length; i++ )
-						// {
-							var z1 = parseFloat(response.results.result[0]['@xlink:href']);
-							var z2 = parseFloat(response.results.result[1]['@xlink:href']);
-						
-							if ( successCallback )
-								successCallback(z1, z2);
-						// }
-					},
-					error: function(xhr, textStatus, thrownError){
-						window.clearInterval(checkFn);
-						if ( failCallback )
-							failCallback('Internal server error');
-					}
-				});
-
 				window.clearInterval(checkFn);
+				getJobResults();
 			} 
 			else if ( response == "ERROR" )
 			{
@@ -84,15 +94,22 @@ function checkPhase()
 	});
 }
 
+/**************************************************************************************************************/
+
 return {
+	/**
+	 *	Initialize ZScale service
+	 */
 	init: function(url, options){
 		baseUrl = url;
-		if ( options )
-		{
-			checkDelay = options.checkDelay || 1000;
-		}
+		checkDelay = options && options.hasOwnProperty('checkDelay') ? options.checkDelay : 1000;
 	},
 
+	/**************************************************************************************************************/
+
+	/**
+	 *	Send POST request to lauch the job
+	 */
 	post: function( url, options )
 	{
 		successCallback = options.successCallback;
