@@ -18,7 +18,7 @@
 ******************************************************************************/ 
 
 /**
- * Share url module : creating url with current navigation properties
+ * Samp module : performing communication between applications using SAMP protocol
  */
 define(["jquery.ui", "gw/CoordinateSystem", "PickingManager", "samp"], function($, CoordinateSystem, PickingManager) {
 
@@ -113,14 +113,14 @@ function initUI()
 /**************************************************************************************************************/
 
 /**
- *	Create SAMP ClientTracker object
+ *	Create SAMP ClientTracker object which handles incoming messages
  */
 function createClientTracker()
 {
 	// Initialize client tracker
 	var clientTracker = new samp.ClientTracker();
 
-	// Init available samp income message handlers(as ping, sendVOTables..)
+	// Init available samp income message handlers(as ping, load.votable..)
 	var callHandler = clientTracker.callHandler;
 	callHandler["samp.app.ping"] = function(senderId, message, isCall)
 	{
@@ -166,11 +166,10 @@ function createClientTracker()
 /**************************************************************************************************************/
 
 /**
- *	Init SAMP connector
+ *	Init SAMP connector 
  */
 function initSamp()
 {
-
 	var clientTracker = createClientTracker();
 
 	// Samp event callbacks

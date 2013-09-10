@@ -26,6 +26,7 @@
 		"underscore-min": "../externals/underscore-min",
 		"jquery.nicescroll.min": "../externals/jquery.nicescroll.min",
         "fits": "../externals/fits",
+        "samp": "../externals/samp",
         "jquery.ui.timepicker": "../externals/jquery.ui.timepicker",
 		"gw": "../externals/GlobWeb/src"
     },

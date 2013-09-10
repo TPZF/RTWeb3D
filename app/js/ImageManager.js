@@ -36,7 +36,9 @@ var progressBars = {};
  */
 function computeFits(featureData, url)
 {
-	var progressBar = new SimpleProgressBar( { id: "#imageView_"+featureData.feature.properties.identifier } );
+	// Remove all spaces from identifier
+	var id = "#imageView_"+featureData.feature.properties.identifier.replace(/\s{1,}/g, "");
+	var progressBar = new SimpleProgressBar( { id: id } );
 
 	var xhr = FitsLoader.loadFits(url, function(fitsData){
 		handleFits(fitsData, featureData);
@@ -248,7 +250,7 @@ return {
 		}
 		else
 		{
-			style.fillTextureUrl = "/sitools/proxy?external_url=" + featureData.feature.properties.quicklook;
+			style.fillTextureUrl = "/sitools/proxy?external_url=" + featureData.feature.properties.quicklook + "&rewrite_redirection=true";
 			// For DEBUG : 'upload/ADP_WFI_30DOR_RGB_V1.0_degraded.jpg';
 		}
 		featureData.layer.modifyFeatureStyle( featureData.feature, style );
