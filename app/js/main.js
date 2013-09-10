@@ -75,6 +75,7 @@ window.console||(console={log:function(){}});
 // Private variable
 var globe = null;
 var navigation = null;
+var mollweideViewer = null;
 var aboutShowed = false;
 
 function hideLoading()
@@ -305,6 +306,7 @@ $(function()
 				}
 			}
 
+			mollweideViewer.setCoordSystem( newCoordSystem );
 			globe.renderContext.requestFrame();
 		}
 	});
@@ -374,7 +376,7 @@ $(function()
 			new Compass({ element : "objectCompass", globe : globe, navigation : navigation, coordSystem : data.coordSystem });
 
 			// Mollweide viewer
-			new MollweideViewer({ globe : globe, navigation : navigation });
+			mollweideViewer = new MollweideViewer({ globe : globe, navigation : navigation });
 
 			// Share init
 			Share.init({navigation : navigation});

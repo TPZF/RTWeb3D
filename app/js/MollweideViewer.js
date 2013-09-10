@@ -62,15 +62,6 @@ var Point = function(options) {
     }
 }
 
-/**
- *  Determine if a point is inside the fov shape bounds
- */
-Point.prototype.contains = function(mx, my)
-{
-    return (this.x <= mx && this.y <= my &&
-            this.x + this.size >= mx && this.y + this.size >= my);
-}
-
 /*************************************************************************/
 
 var MollweideViewer = function(options) {
@@ -100,19 +91,20 @@ var MollweideViewer = function(options) {
     // Init image background
     var canvas = document.getElementById('mollweideCanvas');
     var context = canvas.getContext('2d');
-    var imageObj = new Image();
-    imageObj.onload = function() {
-        context.drawImage(imageObj, 0, 0);
+    this.imageObj = new Image();
+    var self = this;
+    this.imageObj.onload = function() {
+        context.drawImage(self.imageObj, 0, 0);
         updateMollweideFov();
     };
 
     if ( CoordinateSystem.type == "GAL" )
     {
-        imageObj.src = 'css/images/MollweideSky_GAL.png';
+        this.imageObj.src = 'css/images/MollweideSky_GAL.png';
     }
     else
     {
-        imageObj.src = 'css/images/MollweideSky_EQ.png';
+        this.imageObj.src = 'css/images/MollweideSky_EQ.png';
     }
 
     /**********************************************************************************************/
@@ -175,7 +167,7 @@ var MollweideViewer = function(options) {
     {
         // Reinit canvas
         context.clearRect(0,0, context.canvas.width, context.canvas.height);
-        context.drawImage(imageObj, 0, 0);
+        context.drawImage(self.imageObj, 0, 0);
 
         // Draw fov
         context.fillStyle = "rgb(255,0,0)";
@@ -272,6 +264,25 @@ var MollweideViewer = function(options) {
 	// Fix for Google Chrome : avoid dragging
     canvas.addEventListener("dragstart", function(event){event.preventDefault(); return false;});
 }
+
+/**********************************************************************************************/
+
+/**
+ *  Change coordinate system background
+ *
+ *  @param coordSystem {String} Coordinate system to set
+ *          <ul>
+ *              <li>"EQ" : Equatorial</li>
+ *              <li>"GAL" : Galactic</li>
+ *          <ul>
+ */
+MollweideViewer.prototype.setCoordSystem = function(coordSystem)
+{
+    // Update mollweideViewer background image
+    $(this.imageObj).attr("src", "css/images/MollweideSky_"+coordSystem+".png");
+}
+
+/**********************************************************************************************/
 
 return MollweideViewer;
 
