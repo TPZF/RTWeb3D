@@ -20,11 +20,12 @@
 /**
  * UWS CutOut View
  */
-define( [ "jquery.ui", "SelectionTool", "PickingManager", "CutOut", "gw/CoordinateSystem", "underscore-min", "text!../templates/cutOut.html" ],
-		function($, SelectionTool, PickingManager, CutOut, CoordinateSystem, _, cutOutHTMLTemplate) {
+define( [ "jquery.ui", "SelectionTool", "PickingManager", "CutOut", "gw/CoordinateSystem", "AnimatedButton", "underscore-min", "text!../templates/cutOut.html" ],
+		function($, SelectionTool, PickingManager, CutOut, CoordinateSystem, AnimatedButton, _, cutOutHTMLTemplate) {
 
 var selectionTool;
-var stopped = true;
+var runButton;
+
 // Template generating UWS services div
 var cutOutTemplate = _.template(cutOutHTMLTemplate);
 
@@ -36,34 +37,6 @@ var cutOutTemplate = _.template(cutOutHTMLTemplate);
 function showMessage(message)
 {
 	$('#jobInfo').html(message).stop().slideDown(300).delay(2000).slideUp();
-}
-
-/**************************************************************************************************************/
-
-/**
- *	Start animation
- */
-function startAnimation()
-{
-	stopped = false;
-	iterateAnimation();
-}
-
-/**************************************************************************************************************/
-
-/**
- *	Loading animation
- */
-var iterateAnimation = function()
-{
-	$( '#runJob > span' ).animate({ backgroundColor: "rgb(255, 165, 0);" }, 300, function(){
-		$(this).animate({ backgroundColor: "transparent" }, 300, function(){
-			if ( !stopped )
-			{
-				iterateAnimation();
-			}
-		});
-	});
 }
 
 /**************************************************************************************************************/
@@ -120,12 +93,13 @@ function runJob()
 	var url = findUrl();
 	if ( url )
 	{
+		runButton.startAnimation();
 		// Convert to equatorial due to CutOut protocol
 		if ( CoordinateSystem.type != "EQ" )
 		{
 			selectionTool.geoPickPoint = CoordinateSystem.convertFromDefault(selectionTool.geoPickPoint, "EQ");
 		}
-		startAnimation();
+
 		var parameters = {
 			url: url,
 			ra: selectionTool.geoPickPoint[0],
@@ -135,15 +109,14 @@ function runJob()
 		CutOut.post(parameters, {
 			successCallback: function(url, name)
 			{
-				showMessage('Completed');
-				stopped = true;
+				runButton.stopAnimation();
 				$('<li style="display: none;">'+name+' <a href="' + url +'" download><img style="vertical-align: middle; width: 20px; height: 20px;" title="Download" src="css/images/download1.png"></a></li>')
 					.appendTo($('#cutoutResults').find('ul'))
 					.fadeIn(400);
 			},
 			failCallback: function(error)
 			{
-				stopped = true;
+				runButton.stopAnimation();
 				showMessage(error);
 			}
 		});
@@ -172,6 +145,8 @@ return {
 		});
 	},
 
+	/**************************************************************************************************************/
+
 	/**
 	 *	Append HTML to the given element
 	 */
@@ -183,15 +158,18 @@ return {
 			.parent().find('#selectionTool')
 				.button()
 				.click(toggleSelectionTool).end()
-			.parent().find('#runJob')
-				.button()
-				.click(runJob).end()
 			.parent().find('#clearSelection')
 				.button()
 				.click(function(){
 					selectionTool.clear();
 				});
+
+		runButton = new AnimatedButton( $('#'+element).find('#runJob')[0], {
+			onclick: runJob
+		} );
 	},
+
+	/**************************************************************************************************************/
 
 	/**
 	 *	Remove view

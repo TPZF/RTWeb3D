@@ -21,34 +21,22 @@
  * UWS ZScale View
  * TODO unify all UWS services
  */
-define( [ "jquery.ui", "ZScale", "PickingManager" ],
-		function($, ZScale, PickingManager) {
+define( [ "jquery.ui", "ZScale", "PickingManager", "AnimatedButton" ],
+		function($, ZScale, PickingManager, AnimatedButton) {
 
-var stopped = false;
+var runButton;
 
-/**
- *	Start animation
- */
-function startAnimation()
-{
-	stopped = false;
-	iterateAnimation();
-}
+/**************************************************************************************************************/
 
 /**
- *	Loading animation
+ *	Show message
  */
-var iterateAnimation = function()
+function showMessage(message)
 {
-	$( '#runZScale > span' ).animate({ backgroundColor: "rgb(255, 165, 0);" }, 300, function(){
-		$(this).animate({ backgroundColor: "transparent" }, 300, function(){
-			if ( !stopped )
-			{
-				iterateAnimation();
-			}
-		});
-	});
+	$('#zscaleStatus').html(message).stop().slideDown(300).delay(2000).slideUp();
 }
+
+/**************************************************************************************************************/
 
 function findUrl()
 {
@@ -67,27 +55,31 @@ function findUrl()
 	return url;
 }
 
+/**************************************************************************************************************/
+
 function runJob()
 {
 	var url = findUrl();
 	if ( url )
 	{
-		startAnimation();
+		runButton.startAnimation();
 		ZScale.post(url, {
 			successCallback: function(z1, z2)
 			{
-				stopped = true;
+				runButton.stopAnimation();
 				$('#z1').html("z1: "+z1);
 				$('#z2').html("z2: "+z2);
 
 			},
 			failCallback: function()
 			{
-				stopped = true;
+				runButton.stopAnimation();
 			}
 		});
 	}
 }
+
+/**************************************************************************************************************/
 
 return {
 
@@ -96,20 +88,28 @@ return {
 		ZScale.init(conf.baseUrl);
 	},
 
+	/**************************************************************************************************************/
+
 	add: function(element)
 	{
 
 		var zScaleContent = '<div style="text-align: center;">\
 								<button id="runZScale">Run</button>\
+								<div style="display: none;" id="zscaleStatus"></div>\
 								<div style="text-align: left; margin-top: 10px;" id="zScaleResults">\
 									<div style="width:200px" id="z1">z1: </div>\
 									<div style="width:200px;" id="z2">z2: </div>\
 								</div>\
 							</div>';
 		$(zScaleContent)
-			.appendTo('#'+element)
-			.find('button').button().click(runJob);
+			.appendTo('#'+element);
+
+		runButton = new AnimatedButton($('#'+element).find('#runZScale')[0]), {
+			onclick: runJob
+		});
 	}
+
+	/**************************************************************************************************************/
 }
 
 

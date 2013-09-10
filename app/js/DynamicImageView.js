@@ -17,8 +17,8 @@
 * along with SITools2. If not, see <http://www.gnu.org/licenses/>. 
 ******************************************************************************/ 
 
-define(['jquery.ui', 'underscore-min', "gw/FeatureStyle", "./Histogram", "ZScale", "text!../templates/dynamicImageView.html", "jquery.ui.selectmenu"],
-	function($,_, FeatureStyle, Histogram, ZScale, dynamicImageViewHTML) {
+define(['jquery.ui', 'underscore-min', "gw/FeatureStyle", "./Histogram", "ZScale", "AnimatedButton", "text!../templates/dynamicImageView.html", "jquery.ui.selectmenu"],
+	function($,_, FeatureStyle, Histogram, ZScale, AnimatedButton, dynamicImageViewHTML) {
  
 /**************************************************************************************************************/
 
@@ -99,6 +99,7 @@ var DynamicImageView = function(options)
 							$slider.slider( "enable" );
 							$selectmenu.selectmenu( "enable" );
 							self.$dialog.find('.inverse').removeAttr('disabled').button("refresh");
+							self.$dialog.find('.zScale').removeAttr('disabled').button("refresh");
 							self.image.updateColormap(selectedContrast, selectedColormap, isInversed);
 							self.$dialog.find('.thresholdInputs input').each(function(i){
 								$(this).removeAttr('disabled');
@@ -109,6 +110,7 @@ var DynamicImageView = function(options)
 							$selectmenu.selectmenu( "disable" );
 							$slider.slider( "disable" );
 							self.$dialog.find('.inverse').attr('disabled', 'disabled').button("refresh");
+							self.$dialog.find('.zScale').attr('disabled', 'disabled').button("refresh");
 							self.$dialog.find('.thresholdInputs input').each(function(i){
 								$(this).attr('disabled', 'disabled');
 							});
@@ -188,34 +190,39 @@ var DynamicImageView = function(options)
 
 	var _z1 = null;
 	var _z2 = null;
-	this.$dialog.find('.zScale').button().click(function(){
-		if ( _z1 && _z2 )
-		{
-			self.updateThreshold(_z1,_z2);
-		}
-		else
-		{
-			ZScale.post(options.url, {
-				successCallback: function(z1, z2)
-				{
-					// Store zScale values
-					_z1 = z1;
-					_z2 = z2;
+	var zScaleButton = new AnimatedButton(this.$dialog.find('.zScale')[0], {
+		onclick: function(){
+			if ( _z1 && _z2 )
+			{
+				zScaleButton.stopAnimation();
+				self.updateThreshold(_z1,_z2);
+			}
+			else
+			{
+				zScaleButton.startAnimation();
+				ZScale.post(options.url, {
+					successCallback: function(z1, z2)
+					{
+						zScaleButton.stopAnimation();
+						// Store zScale values
+						_z1 = z1;
+						_z2 = z2;
 
-					self.$dialog.find( "#min" ).val( z1 ).animate({ color: '#6BCAFF', 'border-color': '#6BCAFF' }, 300, function(){
-						$(this).animate({color: '#F8A102', 'border-color': 'transparent'});
-					});
-					self.$dialog.find( "#max" ).val( z2 ).animate({ color: '#6BCAFF', 'border-color': '#6BCAFF' }, 300, function(){
-						$(this).animate({color: '#F8A102', 'border-color': 'transparent'});
-					});
+						self.$dialog.find( "#min" ).val( z1 ).animate({ color: '#6BCAFF', 'border-color': '#6BCAFF' }, 300, function(){
+							$(this).animate({color: '#F8A102', 'border-color': 'transparent'});
+						});
+						self.$dialog.find( "#max" ).val( z2 ).animate({ color: '#6BCAFF', 'border-color': '#6BCAFF' }, 300, function(){
+							$(this).animate({color: '#F8A102', 'border-color': 'transparent'});
+						});
 
-					self.updateThreshold(z1,z2);
-				},
-				failCallback: function()
-				{
-					console.log("ZScale failed");
-				}
-			});
+						self.updateThreshold(z1,z2);
+					},
+					failCallback: function()
+					{
+						console.log("ZScale failed");
+					}
+				});
+			}
 		}
 	});
 
