@@ -14,7 +14,7 @@
 	<div id="services">
 		<%
 		if ( properties.quicklook ) { %>
-			<img title="Quicklook" id='quicklook' src="css/images/quicklook.png" class=<%= (properties.style.fill ? 'selected' : '' ) %> />
+			<img title="Quicklook" id='quicklook' src="css/images/quicklook.png" class=<%= (properties.style.fillTextureUrl && properties.style.fill ? 'selected' : '' ) %> />
 		<% } %>
 
 		<% if ( services )
@@ -23,9 +23,9 @@
 			{
 				if ( services.download.mimetype == "image/fits" )
 				{ 
-					var quicklookOn = properties.style.fill;
+					var fitsQuicklookOn = properties.style.fill && !properties.style.fillTextureUrl;
 					%>
-					<img title="Quicklook" id='quicklook' src="css/images/quicklook.png" class=<%= (quicklookOn ? 'selected' : '' ) %> />
+					<img title="Fits quicklook" id='quicklookFits' src="css/images/quicklook_fits.png" class=<%= (fitsQuicklookOn ? 'selected' : '' ) %> />
 					<img title="Solar object service" id="solarObjects" src="css/images/solarObjectsService.png" class=<%= (services.solarObjects && services.solarObjects.layer.visible() ? 'selected' : '' ) %> />
 					<img style="display: none" id="solarObjectsSpinner" src="css/images/loading.gif" />
 					<span title="Image processing" id="dynamicImageView" class=<%= (quicklookOn ? 'dynamicAvailable' : 'dynamicNotAvailable' ) %> />

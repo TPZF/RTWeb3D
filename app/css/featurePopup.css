@@ -23,7 +23,7 @@
 /*			Common				*/
 /********************************/
 
-#featureList .selected, #quicklook.selected, #healpix.selected, #solarObjects.selected, #dynamicImageView.selected
+#featureList .selected, #quicklook.selected, #quicklookFits.selected, #healpix.selected, #solarObjects.selected, #dynamicImageView.selected
 {
 	box-shadow: inset 0px 0px 3px 1px #F8A102;
 	border-radius: 8px;
@@ -177,7 +177,7 @@
 
 
 /*** Services ***/
-#quicklook, #healpix, #solarObjects
+#quicklook, #quicklookFits, #healpix, #solarObjects
 {
 	cursor: pointer;
 }
@@ -210,21 +210,21 @@
 }
 #dynamicImageView
 {
-	width: 22px;
-	height: 22px;
+	width: 24px;
+	height: 24px;
 	display: inline-block;
 }
 
 .dynamicAvailable
 {
 	background: url("images/curvesSprite.png") 0 0 no-repeat;
-	background-position: 0px 0px;
+	background-position: 0px 1px;
 	cursor: pointer;
 }
 
 .dynamicNotAvailable
 {
 	background: url("images/curvesSprite.png") 0 0 no-repeat;
-	background-position: 0px -26px;
+	background-position: 0px -27px;
 	cursor: default;
 }

@@ -27,7 +27,7 @@ var SimpleProgressBar = function(options)
 	var id = options.id;
 
 	this.$element = $('<div style="display: none;" class="progress"><div></div></div>')
-    		.appendTo(id)
+    		.appendTo('#'+id)
     		.fadeIn();
 }
 

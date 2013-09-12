@@ -37,7 +37,7 @@ var progressBars = {};
 function computeFits(featureData, url)
 {
 	// Remove all spaces from identifier
-	var id = "#imageView_"+featureData.feature.properties.identifier.replace(/\s{1,}/g, "");
+	var id = "imageView_" + featureData.feature.properties.identifier.replace(/\s{1,}|\.{1,}/g, "") + "true";
 	var progressBar = new SimpleProgressBar( { id: id } );
 
 	var xhr = FitsLoader.loadFits(url, function(fitsData){
@@ -212,13 +212,13 @@ return {
 	/**
 	 *	Remove image from renderer
 	 */
-	removeImage: function(featureData)
+	removeImage: function(featureData, isFits)
 	{
-		ImageViewer.removeView(featureData);
-		var isFits = featureData.feature.services && featureData.feature.services.download && featureData.feature.services.download.mimetype == "image/fits";
+		ImageViewer.removeView(featureData, isFits);
 		if ( isFits )
 		{
 			removeFits(featureData);
+			$('#quicklookFits').removeClass('selected');
 		}
 		else 
 		{
@@ -226,6 +226,7 @@ return {
 			style.fill = false;
 			style.fillTextureUrl = null;
 			featureData.layer.modifyFeatureStyle( featureData.feature, style );
+			$('#quicklook').removeClass('selected');
 		}
 	},
 
@@ -234,24 +235,24 @@ return {
 	/**
 	 *	Start download of texture
 	 */
-	addImage: function(featureData)
+	addImage: function(featureData, isFits)
 	{
 		// Set fill to true while loading
 		var style = new FeatureStyle( featureData.feature.properties.style );
 		style.fill = true;
 
-		var isFits = featureData.feature.services && featureData.feature.services.download && featureData.feature.services.download.mimetype == "image/fits";
-
-		ImageViewer.addView(featureData);
+		ImageViewer.addView(featureData, isFits);
 		if ( isFits )
 		{
 			var url = "/sitools/proxy?external_url=" + encodeURIComponent(featureData.feature.services.download.url);
 			computeFits(featureData, url);
+			$('#quicklookFits').addClass('selected');
 		}
 		else
 		{
 			style.fillTextureUrl = "/sitools/proxy?external_url=" + featureData.feature.properties.quicklook + "&rewrite_redirection=true";
 			// For DEBUG : 'upload/ADP_WFI_30DOR_RGB_V1.0_degraded.jpg';
+			$('#quicklook').addClass('selected');
 		}
 		featureData.layer.modifyFeatureStyle( featureData.feature, style );
 

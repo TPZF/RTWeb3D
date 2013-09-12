@@ -25,6 +25,8 @@ var globe;
 var pickingManager;
 var imageManager;
 
+var featuresWithImages = [];
+
 // Template generating the li representing image
 var imageViewerItemTemplate = _.template(imageViewerItemHTMLTemplate);
 
@@ -58,15 +60,17 @@ return {
 	 *
 	 *	@returns jQuery element of view,
 	 */
-	addView: function(selectedData)
+	addView: function(selectedData, isFits)
 	{	
 		var feature = selectedData.feature;
-		var id = "imageView_" + feature.properties.identifier;
+		//Remove all spaces, points and add isFits property for correct progress bar handling
+		var id = selectedData.feature.properties.identifier.replace(/\s{1,}|\.{1,}/g, "") + isFits;
+		var name = selectedData.feature.properties.identifier;
 		var $li;
 		if ( $('#loadedImages ul li[id="'+id+'"]').length == 0 )
 		{
 			// Create only if not already added
-			var imageViewerItemContent = imageViewerItemTemplate( { id: feature.properties.identifier });
+			var imageViewerItemContent = imageViewerItemTemplate( { id: id, name: name });
 			$li = $(imageViewerItemContent)
 				.appendTo('#loadedImages ul')
 				// ZoomTo
@@ -80,7 +84,7 @@ return {
 				    var meanLat = 0;
 				    var nbPoints = 0;
 					var currentGeometry = feature.geometry;
-					for( var j=0; j<currentGeometry.coordinates[0].length; j++ )
+					for( var j=0; j<currentGeometry.coordinates[0].length-1; j++ )
 					{
 						meanLon+=currentGeometry.coordinates[0][j][0];
 						meanLat+=currentGeometry.coordinates[0][j][1];
@@ -111,7 +115,7 @@ return {
 					}
 				}).on('click', function(){
 					// Remove image
-					imageManager.removeImage(selectedData);
+					imageManager.removeImage(selectedData, isFits);
 				}).end()
 				// Image processing
 				.find('.imageProcessing').button({
@@ -135,11 +139,12 @@ return {
 			}
 
 			// Disable image processing button for not fits images
-			var isFits = feature.services && feature.services.download && feature.services.download.mimetype == "image/fits";
 			if ( !isFits )
 			{
 				$li.find('.imageProcessing').button("disable");
 			}
+
+			featuresWithImages.push(selectedData);
 
 			return $li;
 		}
@@ -148,15 +153,17 @@ return {
 	/**
 	 *	Remove view of the given feature
 	 */
-	removeView: function(selectedData)
+	removeView: function(selectedData, isFits)
 	{
-		var id = "imageView_" + selectedData.feature.properties.identifier;
+		var id = "imageView_" + selectedData.feature.properties.identifier.replace(/\s{1,}|\.{1,}/g, "") + isFits;
 		$('#loadedImages ul li[id="'+id+'"]').fadeOut(function(){
 			$(this).remove();
 			if ( $('#loadedImages ul li').length == 0 )
 				$('#loadedImages p').fadeIn();
 		})
 
+		var featureIndex = featuresWithImages.indexOf(selectedData);
+		featuresWithImages.splice(featureIndex, 1);
 	},
 
 	/**
@@ -177,6 +184,11 @@ return {
 		$('#loadedImages').css({ boxShadow: "none"});
 		$('#imageViewInvoker').css('background-position', '0px 0px')
 			.parent().animate({right: '-261px'}, 300);
+	},
+
+	getFeatures: function()
+	{
+		return featuresWithImages;
 	}
 }
 

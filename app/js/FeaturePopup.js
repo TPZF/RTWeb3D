@@ -234,16 +234,43 @@ return {
 		// Show/hide quicklook
 		$selectedFeatureDiv.on("click", '#quicklook', function(event){
 			var selectedData = pickingManager.getSelectedData();
-			
+			var isFits = false;
+
+			var otherQuicklookOn = selectedData.feature.properties.style.fill && !selectedData.feature.properties.style.fillTextureUrl;
+			if ( otherQuicklookOn )
+			{
+				// Remove fits quicklook
+				ImageManager.removeImage(selectedData, !isFits);
+			}
+
 			if ( selectedData.feature.properties.style.fill == true )
 			{
-				$('#quicklook').removeClass('selected');
-				ImageManager.removeImage(selectedData);
+				ImageManager.removeImage(selectedData, isFits);
 			} 
 			else
 			{
-				$('#quicklook').addClass('selected');
-				ImageManager.addImage(selectedData);
+				ImageManager.addImage(selectedData, isFits );
+			}
+		});
+
+		$selectedFeatureDiv.on('click', "#quicklookFits", function(event){
+			var selectedData = pickingManager.getSelectedData();
+			var isFits = true;
+
+			var otherQuicklookOn = selectedData.feature.properties.style.fill && selectedData.feature.properties.style.fillTextureUrl;
+			if ( selectedData.feature.properties.style.fill && selectedData.feature.properties.style.fillTextureUrl )
+			{
+				// Remove quicklook
+				ImageManager.removeImage(selectedData, !isFits);
+			}
+
+			if ( selectedData.feature.properties.style.fill == true )
+			{
+				ImageManager.removeImage(selectedData, isFits);
+			} 
+			else
+			{
+				ImageManager.addImage(selectedData, isFits );
 			}
 		});
 
@@ -360,7 +387,7 @@ return {
 		// Arrow scroll events
 		$selectedFeatureDiv.on("mousedown", '#scroll-arrow-down.clickable', function(event){
 			$('#selectedFeatureDiv #scroll-arrow-up').css("border-bottom-color", "orange").addClass("clickable");
-			var topValue = parseInt($('#featureList').css("top"), 10) - 60;
+			var topValue = parseInt($('#featureList').css("top"), 10) - 150;
 			var height = $('#featureList').height();
 			var maxHeight = parseInt( $('#featureListDiv').css("max-height") );
 			if (topValue <= -(height - maxHeight))
@@ -374,7 +401,7 @@ return {
 		$selectedFeatureDiv.on("mousedown", '#scroll-arrow-up.clickable', function(event){
 			$('#selectedFeatureDiv #scroll-arrow-down').css("border-top-color", "orange").addClass("clickable");
 			
-			var topValue = parseInt($('#featureList').css("top"), 10) + 60;
+			var topValue = parseInt($('#featureList').css("top"), 10) + 150;
 			if (topValue >= 0)
 			{
 				topValue = 0;
