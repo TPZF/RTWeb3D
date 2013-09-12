@@ -203,7 +203,7 @@ var MollweideViewer = function(options) {
     /**
      * Get mouse position on canvas
      */
-    function getMousePos()
+    function getMousePos(event)
     {
         // Difference between chrome and firefox;
         var offX = (event.offsetX) ? event.offsetX : (event.layerX - event.target.offsetLeft);
@@ -217,7 +217,7 @@ var MollweideViewer = function(options) {
     // Interact with mollweide projection
     canvas.addEventListener('mousedown', function(event){
 
-        var mPos = getMousePos();
+        var mPos = getMousePos(event);
         updateNavigation(mPos);
         dragging = true;
         return true;
@@ -228,7 +228,7 @@ var MollweideViewer = function(options) {
         if (!dragging)
             return;
 
-        var mPos = getMousePos();
+        var mPos = getMousePos(event);
         updateNavigation(mPos);
     });
 
