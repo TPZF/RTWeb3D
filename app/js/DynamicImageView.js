@@ -219,6 +219,7 @@ var DynamicImageView = function(options)
 					},
 					failCallback: function()
 					{
+						zScaleButton.stopAnimation();
 						console.log("ZScale failed");
 					}
 				});

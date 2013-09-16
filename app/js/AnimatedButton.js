@@ -24,12 +24,11 @@ define( [ "jquery.ui"], function($) {
 
 var AnimatedButton = function(element, options)
 {
-	this.$element = $(element).button()/*.click($.proxy(this.startAnimation, this))*/;
+	this.$element = $(element).button();
 	this.stopped = true;
 	if ( options )
 	{
 		this.$element.on('click', $.proxy( options.onclick, this ));
-		// this.onclick = options.onclick;
 	}
 }
 
@@ -42,10 +41,6 @@ AnimatedButton.prototype.startAnimation = function()
 {
 	this.stopped = false;
 	this.iterateAnimation();
-	// if ( this.onclick )
-	// {
-	// 	this.onclick();
-	// }
 }
 
 /**************************************************************************************************************/

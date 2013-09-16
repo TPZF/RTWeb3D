@@ -104,7 +104,7 @@ return {
 		$(zScaleContent)
 			.appendTo('#'+element);
 
-		runButton = new AnimatedButton($('#'+element).find('#runZScale')[0]), {
+		runButton = new AnimatedButton($('#'+element).find('#runZScale')[0], {
 			onclick: runJob
 		});
 	}
