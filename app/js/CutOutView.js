@@ -107,12 +107,18 @@ function runJob()
 			radius: selectionTool.geoRadius
 		};
 		CutOut.post(parameters, {
-			successCallback: function(url, name)
+			successCallback: function(results)
 			{
-				runButton.stopAnimation();
-				$('<li style="display: none;">'+name+' <a href="' + url +'" download><img style="vertical-align: middle; width: 20px; height: 20px;" title="Download" src="css/images/download1.png"></a></li>')
-					.appendTo($('#cutoutResults').find('ul'))
-					.fadeIn(400);
+				showMessage('Completed');
+				for ( var x in results )
+				{
+					var proxyIndex = x.search('file_id=');
+					x = x.substr(proxyIndex+8);
+					runButton.stopAnimation();
+					$('<li style="display: none;">'+x+' <a href="' + results[x] +'" download><img style="vertical-align: middle; width: 20px; height: 20px;" title="Download" src="css/images/download1.png"></a></li>')
+						.appendTo($('#cutoutResults').find('ul'))
+						.fadeIn(400);
+				}
 			},
 			failCallback: function(error)
 			{

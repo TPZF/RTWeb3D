@@ -44,6 +44,7 @@ var getJobResults = function()
 		url: baseUrl + "/" + currentJob + '/results?media=json',
 		success: function(response, textStatus, xhr){
 			
+			var results = {};
 			// Handle results
 			for ( var i=0; i<response.results.result.length; i++ )
 			{
@@ -58,9 +59,11 @@ var getJobResults = function()
 					url = url.substr( 0, lastSlash ) + encodeURIComponent(name);
 				}
 
-				if ( successCallback )
-					successCallback(url, name);
+				results[name] = url;
 			}
+
+			if ( successCallback )
+				successCallback(results);
 		},
 		error: function(xhr, textStatus, thrownError){
 			window.clearInterval(checkFn);
@@ -77,37 +80,33 @@ var getJobResults = function()
  */
 var checkPhase = function()
 {
-	if ( checkFn )
-	{	
-		var mXhr = $.ajax({
-			type: "GET",
-			url: baseUrl + "/" + currentJob + '/phase',
-			success: function(response, textStatus, xhr){
-				
-				if ( onloadCallback )
-					onloadCallback(phase);
+	$.ajax({
+		type: "GET",
+		url: baseUrl + "/" + currentJob + '/phase',
+		success: function(response, textStatus, xhr){
+			
+			if ( onloadCallback )
+				onloadCallback(phase);
 
-				if ( response == "COMPLETED" )
-				{
-					window.clearInterval(checkFn);;
-					getJobResults();
-
-				} 
-				else if ( response == "ERROR" )
-				{
-					window.clearInterval(checkFn);
-					if ( failCallback )
-						failCallback('Internal server error');
-				}
-			},
-			error: function (xhr, textStatus, thrownError) {
+			if ( response == "COMPLETED" )
+			{
+				window.clearInterval(checkFn);;
+				getJobResults();
+			} 
+			else if ( response == "ERROR" )
+			{
 				window.clearInterval(checkFn);
 				if ( failCallback )
-					failCallback('CutOut service: '+thrownError);
-				console.error( xhr.responseText );
+					failCallback('Internal server error');
 			}
-		});
-	}
+		},
+		error: function (xhr, textStatus, thrownError) {
+			window.clearInterval(checkFn);
+			if ( failCallback )
+				failCallback('CutOut service: '+thrownError);
+			console.error( xhr.responseText );
+		}
+	});
 }
 
 /**************************************************************************************************************/
@@ -146,7 +145,7 @@ return {
 			},
 			success: function(response, textStatus, xhr){
 				var xmlDoc = $.parseXML( xhr.responseText );
-				$xml = $(response);
+				$xml = $(xmlDoc);
 				currentJob = $xml.find('jobId').text();
 
 				// Check job phase every "checkDelay" seconds
