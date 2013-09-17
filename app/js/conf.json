@@ -4,11 +4,12 @@
 	 */
 	// Comment on one line
 
-    //"debug": true,
+    "debug": true,
     "coordSystem": "EQ", // Default coordinate system
     "navigation": {
 		"initTarget": [14.06,-1.252403], // HST
-		//"initTarget": [4.3500, 3.0794], //Asteroides
+		// "initTarget": [4.3500, 3.0794], //Asteroides
+		// "initTarget": [84.7625, -69.1689], //Doradus
 		"initFov": 1,
 		"inertia": true,
 		"minFov": 0.001,
@@ -29,7 +30,10 @@
 		"baseUrl": "/sitools/rtwebgl/plugin/solarObjects/"
 	},
 	"cutOut": {
-		"baseUrl": "/cutout"
+		"baseUrl": "/sitools/cutout"
+	},
+	"zScale": {
+		"baseUrl": "/sitools/zscale"
 	},
 	"stats": {
 		"verbose": false,
@@ -37,6 +41,24 @@
 	},
 	"layers":
 	[
+		/**
+		 *	Built-in star/constellation catalogs
+		 */
+		{
+			"type": "GeoJSON",
+			"name": "Constellations",
+			"icon": "css/images/constellation_icon.png",
+			"attribution": "Constellation coming from CDS VizieR catalogue",
+			"description": "Constellation shapes from VizieR Catalogue",
+			"data": {
+				"type": "constellation",
+				"nameUrl": "data/ConstellationNames.tsv",
+				"catalogueUrl": "data/bound_20.dat"
+			},
+			"visible": false,
+			"pickable" : false,
+			"color": "rgb(8, 59, 167)"
+		},
 		{
 			"type": "GeoJSON",
 			"name": "Brighten stars",
@@ -53,21 +75,9 @@
 			"pickable" : false,
 			"color": "white"
 		},
-		{
-			"type": "GeoJSON",
-			"name": "Constellations",
-			"icon": "css/images/constellation_icon.png",
-			"attribution": "Constellation coming from CDS VizieR catalogue",
-			"description": "Constellation shapes from VizieR Catalogue",
-			"data": {
-				"type": "constellation",
-				"nameUrl": "data/ConstellationNames.tsv",
-				"catalogueUrl": "data/bound_20.dat"
-			},
-			"visible": false,
-			"pickable" : false,
-			"color": "rgb(8, 59, 167)"
-		},
+		/**
+         * Coordinate grids
+		 */
 		{
 			"type": "coordinateGrid",
 			"name": "Equatorial grid",
@@ -86,10 +96,24 @@
 			"latFormat": "Deg",
 			"longFormat": "Deg"
 		},
+		/**
+		 *	Healpix grid
+		 */
+		{
+			"type": "healpixGrid",
+			"name": "Healpix grid",
+			"outline": true
+		},
+		/**
+		 *	Alasky healpix sources
+		 *
+		 *	Plugin: Proxy Healpix Image cache
+		 *	urlClient: http://alasky.u-strasbg.fr or http://healpix.ias.u-psud.fr/
+		 */
 		{
 			"type": "healpix",
 			"name": "IRIS",
-			"baseUrl": "/Alasky/IRISColor",
+			"baseUrl": "/sitools/Alasky/IRISColor",
 			"description": "IRIS color",
 			"icon": "css/images/star_icon.png",
 			"visible": false,
@@ -99,7 +123,7 @@
 		{ 
 			"type": "healpix",
 			"name": "Deep CFHTLS",
-			"baseUrl": "/Alasky/CFHTLS-T0007b/Deep/RGB-UGIm",
+			"baseUrl": "/sitools/Alasky/CFHTLS-T0007b/Deep/RGB-UGIm",
 			"description": "Deep CFHTLS from CDS",
 			"attribution": "Deep CFHTLS backbround from <img width='48' height='32' src=\"css/images/cds.svg\" />",
 			"visible": false,
@@ -109,7 +133,7 @@
 		{ 
 			"type": "healpix",
 			"name": "CFHTLS Wide",
-			"baseUrl": "/Alasky/CFHTLS-T0007b/Wide/RGB-UGIm",
+			"baseUrl": "/sitools/Alasky/CFHTLS-T0007b/Wide/RGB-UGIm",
 			"description": "CFHTLS-W-Colored (UGI)",
             "attribution": "TERAPIX - Healpixed by CDS",
 			"visible": false,
@@ -118,7 +142,7 @@
 		{ 
 			"type": "healpix",
 			"name": "2MASS",
-			"baseUrl": "/Alasky/2MASS/Color",
+			"baseUrl": "/sitools/Alasky/2MASS/Color",
 			"description": "Infrared 2MASS colored survey from NASA, healpixed by CDS",
 			"attribution": "2MASS backbround from <img width='48' height='32' src=\"css/images/cds.svg\" />",
 			"visible": false,
@@ -127,7 +151,7 @@
 		{ 
 			"type": "healpix",
 			"name": "RASS",
-			"baseUrl": "/Alasky/RASS",
+			"baseUrl": "/sitools/Alasky/RASS",
 			"description": "RASS-ROSAT X-Ray All-Sky Survey",
 			"attribution": "Distributed by MPE - Healpixed by CDS",
 			"visible": false,
@@ -136,7 +160,7 @@
 		{ 
 			"type": "healpix",
 			"name": "NVSS",
-			"baseUrl": "/Alasky/NVSS/intensity",
+			"baseUrl": "/sitools/Alasky/NVSS/intensity",
 			"description": "NVSS intensity maps (1.4GHz)",
 			"visible": false,
 			"background": true
@@ -144,17 +168,30 @@
 		{
 			"type": "healpix",
 			"name": "SDSS",
-			"baseUrl": "/Alasky/SDSS/Color",
+			"baseUrl": "/sitools/Alasky/SDSS/Color",
 			"description": "Sloan Digital Sky Survey from CDS",
 			"attribution": "SDSS backbround from <img width='48' height='32' src=\"css/images/cds.svg\" />",
 			"icon": "css/images/star_icon.png",
 			"visible": false,
+			"background": false
+		},
+		{ 
+			"type": "healpix",
+			"name": "DSS",
+			"baseUrl": "/sitools/Alasky/DssColor",
+			"description": "Digital Sky Survey from CDS",
+			"attribution": "DSS backbround from <img width='48' height='32' src=\"css/images/cds.svg\" />",
+			"visible": true,
 			"background": true
 		},
+		/**
+		 *	Plack FITS supported surveys
+		 */
+		// Background
 		{
 			"type": "healpix",
 			"name": "PlanckFITS",
-			"baseUrl" : "/Alasky/PLANCK/CMB",
+			"baseUrl" : "/sitools/Alasky/PLANCK/CMB",
 			"description": "Planck survey from CDS",
 			"attribution": "Planck backbround from <img width='48' height='32' src=\"css/images/cds.svg\" />",
 			"visible": false,
@@ -163,20 +200,39 @@
 			"fitsSupported": true,
 			"coordSystem": "GAL"
 		},
+		// Overlay
+		{
+			"type": "healpix",
+			"name": "PlanckFITS",
+			"baseUrl" : "/sitools/Alasky/PLANCK/CMB",
+			"description": "Planck survey from CDS",
+			"attribution": "Planck backbround from <img width='48' height='32' src=\"css/images/cds.svg\" />",
+			"visible": false,
+			"background": false,
+			"dataType": "jpg",
+			"fitsSupported": true,
+			"coordSystem": "GAL"
+		},
+		/**
+		 *	IAS PLWSAG Healpix imagery
+		 *
+		 *	Plugin: Proxy Healpix Image cache
+		 *	urlClient: http://healpix.ias.u-psud.fr/PLWSAG-4ALLSKY
+		 */
 		{ 
 			"type": "healpix",
-			"name": "DSS",
-			"baseUrl": "/Alasky/DssColor",
-			"description": "Digital Sky Survey from CDS",
-			"attribution": "DSS backbround from <img width='48' height='32' src=\"css/images/cds.svg\" />",
-			"visible": true,
-			"background": true
+			"name": "PSWALLSKY",
+			"baseUrl": "/sitools/proxytest",
+			"description": "PSWALLSKY",
+			"attribution": "IAS",
+			"visible": false,
+			"background": false,
+            "numberOfLevels": 5,
+            "fitsSupported": true
 		},
-		{
-			"type": "healpixGrid",
-			"name": "Healpix grid",
-			"outline": true
-		},
+		/**
+		 *	Layer initialized from GeoJSON file
+		 */
 		{
 			"type": "GeoJSON",
 			"data": {
@@ -187,6 +243,29 @@
 			"attribution": "Doradus data from ESO",
 			"visible": true
 		},
+		/**
+		 *	Doradus Healpix raster layer
+		 */
+		{
+			"type": "healpix",
+			"name": "DoradusPNG",
+			"baseUrl": "http://demonstrator.telespazio.com/doradus",
+			"description": "Doradus",
+			"attribution": "CDS",
+			"visible": false,
+			"background": false,
+			"dataType": "png",
+			"fitsSupported": true,
+			"numberOfLevels": 9
+		},
+		/**
+		 *	OpenSearch SOLR Herschel layer
+		 *
+		 *	Plugin: OpenSearch Application
+		 *	queryShape: healpix
+		 *	healpixScheme: NESTED
+		 *	solrCore: herschel
+		 */
 		{
 			"type": "DynamicOpenSearch",
 			"dataType": "line",
@@ -195,6 +274,14 @@
 			"visible": false,
 			"minOrder": 3
 		},
+		/**
+		 *	OpenSearch SOLR Fuse layer
+		 *
+		 *	Plugin: OpenSearch Application
+		 *	queryShape: healpix
+		 *	healpixScheme: NESTED
+		 *	solrCore: fuse
+		 */
 		{
 			"type": "DynamicOpenSearch",
 			"dataType": "point",
@@ -207,14 +294,28 @@
 			"displayProperties": [ "ra", "dec", "src_type", "dateobs", "imageSize" ],
 			"useCluster": true
 		},
+		/**
+		 *	OpenSearch SIA ESO layer
+		 *
+		 *	Plugin: VO OpenSearchApplication for Sia
+		 *	siaSearchUrl: http://archive.eso.org/apps/siaserver/EsoProxySiap?
+		 */
 		{
 			"type": "DynamicOpenSearch",
-			"dataType": "point",
-			"name": "VO (OpenSearch)",
-			"serviceUrl": "/sitools/ovo",
+			"dataType": "line",
+			"name": "ESO",
+			"serviceUrl": "/sitools/eso/siap",
 			"visible": false,
-			"minOrder": 9
+            "attribution":"Science Archive Facility of ESO",
+			"minOrder": 3,
+			"invertY": true
 		},
+		/**
+		 *	OpenSearch Sia HST layer
+		 *
+		 *	Plugin: VO OpenSearch Application for Sia
+		 *	siaSearchUrl: http://archives.esac.esa.int/hst/hst-vo/hla_sia?REQUEST=queryData&
+		 */
 		{
 			"type": "DynamicOpenSearch",
 			"dataType": "line",
@@ -223,6 +324,12 @@
 			"visible": false,
 			"minOrder": 3
 		},
+		/**
+		 *	OpenSearch Sia ISO layer
+		 *
+		 *	Plugin: VO OpenSearch Application for Sia
+		 *	siaSearchUrl: http://archives.esac.esa.int/ida/aio/jsp/siap.jsp?imageType=image&
+		 */
 		{
 			"type": "DynamicOpenSearch",
 			"dataType": "line",
@@ -231,6 +338,13 @@
 			"visible": false,
 			"minOrder": 3
 		},
+		/**
+		 *	OpenSearch ConeSearch I320 layer
+		 *
+		 *	Plugin: VO OpenSearch Application for Cone Search
+		 *	mocUrl: http://alasky.u-strasbg.fr/footprints/tables/vizier/I_320_spm4/MOC
+		 *	coneSearchUrl: http://vizier.u-strasbg.fr/viz-bin/votable/-A?-source=I/320/spm4&
+		 */
 		{
 			"type": "DynamicOpenSearch",
 			"dataType": "point",
@@ -240,6 +354,13 @@
 			"visible": false,
 			"minOrder": 9
 		},
+		/**
+		 *	OpenSearch ConeSearch USNOB1 layer
+		 *
+		 *	Plugin: VO OpenSearch Application for Cone Search
+		 *	mocUrl: http://alasky.u-strasbg.fr/footprints/tables/vizier/I_284_out/MOC
+		 *	coneSearchUrl: http://vizier.u-strasbg.fr/viz-bin/votable/-A?-source=I/284&
+		 */
 		{
 			"type": "DynamicOpenSearch",
 			"dataType": "point",
@@ -250,6 +371,13 @@
 			"visible": false,
 			"minOrder": 9
 		},
+		/**
+		 *	OpenSearch ConeSearch IMCCE layer
+		 *
+		 *	Plugin: VO OpenSearch Application for Cone Search
+		 *	mocUrl: http://alasky.u-strasbg.fr/footprints/tables/vizier/II_306_sdss8/MOC
+		 *	coneSearchUrl: http://vo.imcce.fr/webservices/skybot/skybotconesearch_query.php?from=SITools2&EPOCH=now&
+		 */
 		{
 			"type": "DynamicOpenSearch",
 			"dataType": "point",
