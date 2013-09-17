@@ -22,6 +22,7 @@
  */
 define(["jquery.ui", "gw/CoordinateSystem", "PickingManager", "samp"], function($, CoordinateSystem, PickingManager) {
 
+var globe;
 var navigation;
 var count = 0;
 var connector;
@@ -40,7 +41,8 @@ function initUI()
 					<span><strong>Registered: </strong><span id="sampResult">No</span></span>\
 					<br/>\
 					<button id="sendImage">Send image</button>\
-					<span style="display: none;" id="sampStatus"></span>\
+					<button id="sendViewport">Send viewport</button>\
+					<div style="display: none;" id="sampStatus"></div>\
 					</div>';
 
 	var $dialog = $(dialogContent).appendTo('body')
@@ -86,7 +88,6 @@ function initUI()
 		.click(function(){
 			if (connector.connection) {
 				var selectedData = PickingManager.getSelectedData();
-				console.log(selectedData);
 				if ( selectedData )
 				{
 					// Send message
@@ -97,6 +98,22 @@ function initUI()
 				else
 				{
 					$('#sampStatus').html('Choose feature first').slideDown().delay(1000).slideUp();
+				}
+			}
+		}).end()
+	.find('#sendViewport').button()
+		.click(function(){
+			if (connector.connection) {
+
+				var healpixLayer = globe.tileManager.imageryProvider;;
+				for ( var i=0; i<globe.tileManager.tilesToRender.length; i++ )
+				{
+					var tile = globe.tileManager.tilesToRender[i];
+					var url = window.location.origin + healpixLayer.getUrl( tile );
+
+					// Send message
+					var msg = new samp.Message("image.load.fits", {url: url});
+					connector.connection.notifyAll([msg]);
 				}
 			}
 		});
@@ -149,15 +166,39 @@ function createClientTracker()
 						e.toString());
 				}
 			}
-	        else {
+			else {
 				console.log("No XML response");
 			}
 		};
 		xhr.onerror = function(err) {
-	    	console.log("Error getting table " + origUrl + "\n" +
-	    					"(" + err + ")");
+			console.log("Error getting table " + origUrl + "\n" +
+							"(" + err + ")");
 		};
 		xhr.send(null);
+	};
+
+	callHandler["image.load.fits"] = function(senderId, message, isCall) {
+		var params = message["samp.params"];
+		var origUrl = params["url"];
+		// TODO : handle coming image
+		console.log("Image coming from SAMP loaded");
+	};
+
+	callHandler["coord.pointAt.sky"] = function(senderId, message, isCall) {
+		var params = message["samp.params"];
+		var ra = parseFloat(params["ra"]);
+		var dec = parseFloat(params["dec"]);
+		// var proxyUrl = clientTracker.connection.translateUrl(origUrl);
+		var geoPick = [ra, dec];
+		if ( CoordinateSystem.type != "EQ" )
+		{
+			geoPick = CoordinateSystem.convertToDefault(geoPick, "EQ");
+		}
+		var center3d = [];
+		CoordinateSystem.fromGeoTo3D( geoPick, center3d );
+		navigation.center3d = center3d;
+		navigation.computeViewMatrix();
+		globe.renderContext.requestFrame();
 	};
 
 	return clientTracker;
@@ -198,7 +239,6 @@ function initSamp()
 	// Meta-data
 	var meta = {
 		"samp.name": "Mizar",
-		"samp.description": "Sophisticated sky position controller",
 		"samp.description.text": "Module for Interactive visualiZation from Astronomical Repositories",
 		"mizar.version": "v0.1",
 		"author.affiliation": "CNES/TPZ",
@@ -219,8 +259,9 @@ function initSamp()
 /**
  *	Init SAMP module
  */
-function init(nav)
+function init(gl, nav)
 {
+	globe = gl;
 	navigation = nav;
 
 	initUI();
