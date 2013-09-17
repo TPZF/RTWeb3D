@@ -149,6 +149,8 @@ function createLayerFromConf(layer) {
 			options.minOrder = layer.minOrder;
 			if (layer.displayProperties)
 				options.displayProperties = layer.displayProperties;
+			if (layer.invertY)
+				options.invertY = layer.invertY;
 
 			options.style = defaultVectorStyle;
 			if ( layer.useCluster == true )
@@ -206,6 +208,8 @@ function handleDrop(evt) {
 		
 		var name = f.name;
 		var reader = new FileReader();
+
+		$('#loading').show();
 		
 		reader.onloadend = function(e) {
 			
@@ -232,6 +236,8 @@ function handleDrop(evt) {
 			// Add geoJson layer
 			JsonProcessor.handleFeatureCollection( gwLayer, response );
 			gwLayer.addFeatureCollection( response );
+
+			$('#loading').hide();
 
 			AdditionalLayersView.addView( gwLayer );
 			PickingManager.addPickableLayer( gwLayer );
