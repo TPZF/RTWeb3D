@@ -205,8 +205,10 @@ $(function()
 	globe.subscribe("baseLayersReady", hideLoading);
 
 	// When base layer failed to load, open error dialog
-	globe.subscribe("baseLayersError", function(){
-		ErrorDialog.open("Can not load HEALPix base imagery");
+	globe.subscribe("baseLayersError", function(layer){
+		var layerType = layer.id == 0 ? " background layer " : " additional layer ";
+		ErrorDialog.open("<p>The"+ layerType + "<span style='color: orange'>"+layer.name+"</span> can not be displayed.</p>\
+		 <p>First check if data source related to this layer is still accessible. Otherwise, check your Sitools2 configuration.</p>");
 	});
 	
 	// Context lost listener
@@ -381,7 +383,7 @@ $(function()
 			// Share init
 			Share.init({navigation : navigation});
 
-			Samp.init(navigation);
+			Samp.init(globe, navigation);
 
 			// Update fov when moving
 			navigation.subscribe("modified", updateFov);

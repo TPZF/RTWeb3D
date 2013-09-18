@@ -23,7 +23,7 @@
 define(["jquery.ui"], function($) {
 
 // The main div for error
-var errorDiv = '<div id="errorDiv" title="Error"></div>';
+var errorDiv = '<div id="errorDiv" style="text-align: justify" title="Error"></div>';
 
 // Create the div, use jQuery UI dialog
 var $errorDiv = $(errorDiv)
@@ -31,6 +31,7 @@ var $errorDiv = $(errorDiv)
 					.dialog({
 						autoOpen: false,
 						resizable: false,
+						draggable: false,
 						width: '300px',
 						minHeight: 'auto',
 						dialogClass: 'errorBox'

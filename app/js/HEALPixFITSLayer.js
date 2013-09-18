@@ -136,7 +136,7 @@ var HEALPixFITSLayer = function(options)
 		failCallback: function(){
 			if ( self.globe )
 			{
-				self.globe.publish("baseLayersError");
+				self.globe.publish("baseLayersError", self);
 				self._ready = false;
 				console.log( "Error while loading background");
 			}
