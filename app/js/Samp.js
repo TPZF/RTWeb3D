@@ -40,8 +40,6 @@ function initUI()
 					<button id="unregisterSamp" disabled>Unregister</button>\
 					<span><strong>Registered: </strong><span id="sampResult">No</span></span>\
 					<br/>\
-					<button id="sendImage">Send image</button>\
-					<button id="sendViewport">Send viewport</button>\
 					<div style="display: none;" id="sampStatus"></div>\
 					</div>';
 
@@ -83,40 +81,7 @@ function initUI()
 			$('#registerSamp').removeAttr('disabled').button("refresh");
 			$(this).attr('disabled','disabled').button("refresh");
 			$('#sampInvoker').css('background-image', 'url(css/images/samp_off.png)');
-		}).end()
-	.find('#sendImage').button()
-		.click(function(){
-			if (connector.connection) {
-				var selectedData = PickingManager.getSelectedData();
-				if ( selectedData )
-				{
-					// Send message
-					var url = selectedData.feature.services.download.url;
-					var msg = new samp.Message("image.load.fits", {url: url});
-					connector.connection.notifyAll([msg]);
-				}
-				else
-				{
-					$('#sampStatus').html('Choose feature first').slideDown().delay(1000).slideUp();
-				}
-			}
-		}).end()
-	.find('#sendViewport').button()
-		.click(function(){
-			if (connector.connection) {
-
-				var healpixLayer = globe.tileManager.imageryProvider;;
-				for ( var i=0; i<globe.tileManager.tilesToRender.length; i++ )
-				{
-					var tile = globe.tileManager.tilesToRender[i];
-					var url = window.location.origin + healpixLayer.getUrl( tile );
-
-					// Send message
-					var msg = new samp.Message("image.load.fits", {url: url});
-					connector.connection.notifyAll([msg]);
-				}
-			}
-		});
+		}).end();
 
 	$('#sampInvoker').on('click', function(){
 		$dialog.dialog("open");
@@ -298,7 +263,26 @@ function init(gl, nav)
 /**************************************************************************************************************/
 
 return {
-	init: init
+	init: init,
+	sendImage: function(url)
+	{
+		if (this.isConnected()) {
+			// Send message
+			// var url = selectedData.feature.services.download.url;
+			var msg = new samp.Message("image.load.fits", {url: url});
+			connector.connection.notifyAll([msg]);
+			return "Image has been sent";
+		}
+		else
+		{
+			return "Connect to SAMP Hub first";
+		}
+	},
+
+	isConnected: function()
+	{
+		return connector.connection;
+	}
 }
 
 });

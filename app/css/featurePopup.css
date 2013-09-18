@@ -177,7 +177,7 @@
 
 
 /*** Services ***/
-#quicklook, #quicklookFits, #healpix, #solarObjects
+#quicklook, #quicklookFits, #healpix, #solarObjects, #sendImage
 {
 	cursor: pointer;
 }

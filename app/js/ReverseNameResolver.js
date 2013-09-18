@@ -20,8 +20,8 @@
 /**
  * Name resolver module : search object name and zoom to them
  */
-define(["jquery.ui", "gw/CoordinateSystem", "IFrame", "Utils", "ErrorDialog", "underscore-min", "text!../templates/featureDescription.html", "text!../templates/descriptionTable.html"],
-	function($, CoordinateSystem, IFrame, Utils, ErrorDialog, _, featureDescriptionHTMLTemplate, descriptionTableHTMLTemplate) {
+define(["jquery.ui", "gw/CoordinateSystem", "IFrame", "Utils", "Samp", "ErrorDialog", "underscore-min", "text!../templates/featureDescription.html", "text!../templates/descriptionTable.html"],
+	function($, CoordinateSystem, IFrame, Utils, Samp, ErrorDialog, _, featureDescriptionHTMLTemplate, descriptionTableHTMLTemplate) {
 
 var globe;
 var configuration = {};
@@ -41,6 +41,7 @@ var reverseNameResolverHTML =
 			<div id="coordinatesInfo"></div>\
 			<div id="healpixInfo"></div>\
 		</div>\
+		<button id="sendViewport">Send viewport</button>\
 		<div id="reverseSearchResult"></div>\
 		<div class="closeBtn">\
 			<img src="css/images/close_button.png" alt="" class="defaultImg" />\
@@ -173,6 +174,23 @@ function setBehavior()
 		IFrame.show(event.target.innerHTML);
 	});
 
+	$('#sendViewport').button().click(function(event){
+		if ( Samp.isConnected() )
+		{
+			var healpixLayer = globe.tileManager.imageryProvider;;
+			for ( var i=0; i<globe.tileManager.tilesToRender.length; i++ )
+			{
+				var tile = globe.tileManager.tilesToRender[i];
+				var url = window.location.origin + healpixLayer.getUrl( tile );
+				Samp.sendImage(url);
+			}
+		}
+		else
+		{
+			ErrorDialog.open('You must be connected to SAMP Hub');
+		}
+	});
+
 	navigation.subscribe("modified", function(){
 		if ($reverseNameResolver.css('display') != 'none')
 		{
@@ -186,7 +204,9 @@ function showFeature( feature )
 	var output = featureDescriptionTemplate( { dictionary: {}, services: feature.services, properties: feature.properties, descriptionTableTemplate: descriptionTableTemplate } );
 	var title = ( feature.properties.title ) ? feature.properties.title : feature.properties.identifier;
 	output = '<div class="title">'+ title +'</div><div class="credit">Found in CDS database</div>' + output;
-	$('#reverseSearchResult').html( output );
+	$('#reverseSearchResult')
+		.html( output )
+		.find('#sendViewport').button();
 	$('#reverseSearchField').fadeOut(300 , function(){
 		$('#reverseSearchResult').fadeIn(300);
 	});

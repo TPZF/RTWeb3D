@@ -20,8 +20,8 @@
 /**
  * FeaturePopup module
  */
-define( [ "jquery.ui", "IFrame", "JsonProcessor", "gw/FeatureStyle", "gw/VectorLayer", "ImageManager", "underscore-min", "text!../templates/featureList.html", "text!../templates/featureDescription.html", "text!../templates/descriptionTable.html", "jquery.nicescroll.min" ],
-	function($, IFrame, JsonProcessor, FeatureStyle, VectorLayer, ImageManager, _, featureListHTMLTemplate, featureDescriptionHTMLTemplate, descriptionTableHTMLTemplate) {
+define( [ "jquery.ui", "IFrame", "JsonProcessor", "gw/FeatureStyle", "gw/VectorLayer", "ImageManager", "Samp", "underscore-min", "text!../templates/featureList.html", "text!../templates/featureDescription.html", "text!../templates/descriptionTable.html", "jquery.nicescroll.min" ],
+	function($, IFrame, JsonProcessor, FeatureStyle, VectorLayer, ImageManager, Samp, _, featureListHTMLTemplate, featureDescriptionHTMLTemplate, descriptionTableHTMLTemplate) {
 
 var featureListHTML = '';
 var pickingManager = null;
@@ -280,6 +280,13 @@ return {
 			{
 				pickingManager.getSelectedData().feature.div.toggle();
 			}
+		});
+
+		// Show/hide Dynamic image service
+		$selectedFeatureDiv.on("click", '#sendImage', function(event){
+			var selectedData = pickingManager.getSelectedData();
+			var message = Samp.sendImage(selectedData.feature.services.download.url);
+			$('#serviceStatus').html(message).slideDown().delay(1500).slideUp();
 		});
 
 		// Show/hide HEALPix service
