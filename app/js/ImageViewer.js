@@ -183,7 +183,7 @@ return {
 	{
 		$('#loadedImages').css({ boxShadow: "none"});
 		$('#imageViewInvoker').css('background-position', '0px 0px')
-			.parent().animate({right: '-261px'}, 300);
+			.parent().animate({right: '-254px'}, 300);
 	},
 
 	getFeatures: function()

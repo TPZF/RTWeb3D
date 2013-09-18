@@ -1,6 +1,5 @@
 #imageViewerDiv
 {
-	position: relative;
 	pointer-events: none;
 	margin-top: 15px;
 	height: 300px;
@@ -10,7 +9,7 @@
 {
 	pointer-events: auto;
 	position: absolute;
-	right: -261px;
+	right: -254px;
 	width: 275px;
 }
 

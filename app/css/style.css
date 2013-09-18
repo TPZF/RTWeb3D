@@ -161,10 +161,11 @@ body
 /*** Navigation options block(nameResolver, compass) ***/
 #navigationDiv {
 	position: absolute;
-	right: 2px;
-	margin: 5px;
+	right: 0px;
+	margin-top: 5px;
 	top: 10px;
 	pointer-events: none;
+	overflow: hidden;
 }
 
 /*** Left bottom components(share, mollweide, stats) ***/
