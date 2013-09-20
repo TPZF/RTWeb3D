@@ -29,9 +29,10 @@ var hist = [];
 var hmax; // histogram max to scale in image space
 
 // Origin histogram point
-var originX = 0.;
+var originX = 5.;
 var originY;
 var hwidth;
+var paddingBottom = 15.;
 
 /**************************************************************************************************************/
 
@@ -49,6 +50,137 @@ var rect = canvas.getBoundingClientRect();
 /**************************************************************************************************************/
 
 /**
+ *	Isoscele triangle object for thresholds manipulation
+ *	
+ *	@param a Pointer of threshold pointing on histogram
+ *	@param b Isoscele point 1
+ *	@param c Isoscele point 2
+ */
+var Triangle = function(a,b,c)
+{
+	this.initA = a.slice(0);
+	this.initB = b.slice(0);
+	this.initC = c.slice(0);
+
+	this.a = a; // Pointer to histogram
+	this.b = b; // Isoscele point 1
+	this.c = c; // Isoscele point 2
+
+	this.dragging = false;
+	this.hover = false;
+	this.halfWidth = Math.abs( (c[0] - b[0])/2 );
+}
+
+/**************************************************************************************************************/
+
+/**
+ *	Reset to initial position
+ */
+Triangle.prototype.reset = function()
+{
+	this.a = this.initA.slice(0);
+	this.b = this.initB.slice(0);
+	this.c = this.initC.slice(0);
+}
+
+/**************************************************************************************************************/
+
+/**
+ *	Test if triangle contains the given point
+ */
+Triangle.prototype.contains = function(p)
+{
+	return _pointInTriangle(p,this.a,this.b,this.c);
+}
+
+/**************************************************************************************************************/
+
+/**
+ *	Draw the triangle
+ */
+Triangle.prototype.draw = function(ctx)
+{
+	if ( this.dragging )
+	{
+		ctx.fillStyle = "#FF0";
+	}
+	else
+	{
+		ctx.fillStyle = "#F00";	
+	}
+
+    ctx.beginPath();
+    ctx.moveTo(this.a[0],this.a[1]);
+    ctx.lineTo(this.b[0],this.b[1]);
+    ctx.lineTo(this.c[0],this.c[1]);
+    ctx.closePath();
+    ctx.fill();
+
+    if ( !this.dragging && this.hover )
+    {
+    	ctx.strokeStyle = "#FF0";
+    	ctx.stroke();
+    }
+}
+
+/**************************************************************************************************************/
+
+/**
+ *	Modify triangle's position by the given "pointer" point
+ *	(could be modified only by X-axis)
+ */
+Triangle.prototype.modifyPosition = function(point)
+{
+	this.a[0] = point[0];
+	this.b[0] = point[0]-this.halfWidth;
+	this.c[0] = point[0]+this.halfWidth;
+}
+
+/**************************************************************************************************************/
+
+/**
+ *	Test returning true if p1 and p2 are both lying on the same side of a-b, false otherwise
+ */
+function _sameSide(p1,p2,a,b)
+{
+	var temp1 = [];
+	var temp2 = [];
+	var temp3 = [];
+	var cp1 = [];
+	var cp2 = [];
+	vec3.cross( vec3.subtract(b,a, temp1), vec3.subtract(p1,a,temp2), cp1 );
+	vec3.cross( temp1, vec3.subtract(p2,a,temp3), cp2 );
+	if ( vec3.dot( cp1,cp2 ) >= 0 )
+	{
+		return true;
+	}
+	else
+	{
+		return false;
+	}
+}
+
+/**************************************************************************************************************/
+
+/**
+ *	Private function to check if point is inside the given triangle
+ *	If the point was on the same side of a-b as c and is also on the same side of b-c as a and on the same side of c-a as b, then it is in the triangle
+ */
+function _pointInTriangle(p,a,b,c)
+{
+	if ( _sameSide(p,a,b,c) && _sameSide(p,b,a,c) && _sameSide(p,c,a,b) )
+	{
+		return true;
+	}
+	else
+	{
+		return false;
+	}
+}
+
+/**************************************************************************************************************/
+
+/**
  *	TODO: split on HistogramView and Histogram
  *	Histogram contructor
  *	@param options Histogram options
@@ -61,14 +193,27 @@ var Histogram = function(options)
 {
 	nbBins = options.nbBins || 256;
 	this.image = options.image;
+	this.onUpdate = options.onUpdate;
 
 	// Init canvas
 	var canvas = document.getElementById(options.canvas);
 	this.ctx = canvas.getContext('2d');
 
 	// Init origins
-	originY = canvas.height - 10;
-	hwidth = nbBins > canvas.width ? canvas.width : nbBins; // clamp to canvas.width
+	originY = canvas.height - paddingBottom;
+	hwidth = nbBins + originX > canvas.width ? canvas.width : nbBins + originX; // clamp to canvas.width
+	var triangleHalfWidth = 5;
+	this.minThreshold = new Triangle(
+								[originX,originY+1,0],
+								[originX-triangleHalfWidth,originY+paddingBottom-1,0],
+								[originX+triangleHalfWidth,originY+paddingBottom-1,0]
+						);
+	this.maxThreshold = new Triangle(
+								[hwidth,originY+1, 0],
+								[hwidth-triangleHalfWidth,originY+paddingBottom-1, 0],
+								[hwidth+triangleHalfWidth,originY+paddingBottom-1, 0]
+						);
+
 	this.update();
 
 	// Show bin pointed by mouse
@@ -76,20 +221,109 @@ var Histogram = function(options)
 	canvas.addEventListener('mousemove', function(evt) {
 		var mousePos = _getMousePos(canvas, evt);
 
-		self.ctx.clearRect(0., originY, canvas.width, 10.);			
+		self.ctx.clearRect(0., originY, canvas.width, paddingBottom);			
 
-		if ( mousePos.y > canvas.height || mousePos.y < 0. || mousePos.x > nbBins || mousePos.x < 0. )
+		if ( self.minThreshold.contains( [mousePos.x, mousePos.y, 0] ) )
+		{
+			self.minThreshold.hover = true;
+		}
+		else
+		{
+			self.minThreshold.hover = false;
+		}
+
+		if ( self.maxThreshold.contains( [mousePos.x, mousePos.y, 0] ) )
+		{
+			self.maxThreshold.hover = true;
+		}
+		else
+		{
+			self.maxThreshold.hover = false;
+		}
+
+		// Draw threshold controls
+		if ( self.minThreshold.dragging && mousePos.x >= self.minThreshold.initA[0] && mousePos.x < self.maxThreshold.a[0] )
+		{
+			self.minThreshold.modifyPosition([mousePos.x, self.minThreshold.a[1]]);
+		}
+
+		if ( self.maxThreshold.dragging && mousePos.x <= self.maxThreshold.initA[0] && mousePos.x > self.minThreshold.a[0] )
+		{
+			self.maxThreshold.modifyPosition([mousePos.x, self.maxThreshold.a[1]]);
+		}
+		self.drawThresholdControls();
+
+		// Don't draw histogram values if the mouse is out of histogram canvas
+		if ( mousePos.y > canvas.height || mousePos.y < 0. || mousePos.x > originX + nbBins || mousePos.x < originX )
 		{
 			return;
 		}
-        
-        self.ctx.font = '8pt Calibri';
-        self.ctx.fillStyle = 'yellow';
-        // Scale from mouse to image
-        var thresholdValue = Math.floor(((mousePos.x/256.)*(self.image.tmax-self.image.tmin) + self.image.tmin)*1000)/1000;
-        self.ctx.fillText(thresholdValue, canvas.width/2-15., originY+10.);
-        self.ctx.fillRect( mousePos.x, originY, 1, 2 );
+
+		// Draw the text indicating the histogram value on mouse position
+		self.ctx.font = '8pt Calibri';
+		self.ctx.fillStyle = 'yellow';
+		var thresholdValue = self.getHistValue( [mousePos.x, mousePos.y] );
+		self.ctx.fillText(thresholdValue, canvas.width/2-15., originY+paddingBottom);
+		// Draw a tiny line indicating the mouse position on X-axis
+		self.ctx.fillRect( mousePos.x, originY, 1, 2 );
 	});
+	
+	// Handle threshold controller selection
+	canvas.addEventListener('mousedown', function(evt) {
+		var mousePos = _getMousePos(canvas, evt);
+
+		if ( self.minThreshold.contains( [mousePos.x, mousePos.y, 0] ) )
+		{
+			self.minThreshold.dragging = true;
+			self.minThreshold.draw(self.ctx);
+		}
+
+		if ( self.maxThreshold.contains( [mousePos.x, mousePos.y, 0] ) )
+		{
+			self.maxThreshold.dragging = true;
+			self.maxThreshold.draw(self.ctx);
+		}
+	});
+	
+	// Update histogram on mouseup
+	canvas.addEventListener('mouseup', function(evt) {
+		self.minThreshold.dragging = false;
+		self.maxThreshold.dragging = false;
+
+		if ( self.onUpdate )
+		{
+			var min = self.getHistValue(self.minThreshold.a);
+			var max = self.getHistValue(self.maxThreshold.a);
+
+			self.minThreshold.reset();
+			self.maxThreshold.reset();
+
+			self.onUpdate(min,max);
+		}
+
+
+	});
+}
+
+/**************************************************************************************************************/
+
+/**
+ *	Get histogram value from the given X-position on canvas
+ */
+Histogram.prototype.getHistValue = function( position )
+{
+	return Math.floor((((position[0]-originX)/256.)*(this.image.tmax-this.image.tmin) + this.image.tmin)*1000)/1000;
+}
+
+/**************************************************************************************************************/
+
+/**
+ *	Draw threshold controls(two triangles which represents min/max of current histogram)
+ */
+Histogram.prototype.drawThresholdControls = function()
+{
+	this.minThreshold.draw(this.ctx);
+    this.maxThreshold.draw(this.ctx);
 }
 
 /**************************************************************************************************************/
@@ -118,6 +352,7 @@ Histogram.prototype.drawAxes = function() {
 	leftY = 0;
 	rightX = originX + hwidth;
 	// Draw y axis.
+	this.ctx.beginPath();
 	this.ctx.moveTo(originX, leftY);
 	this.ctx.lineTo(originX, originY);
 
@@ -126,6 +361,7 @@ Histogram.prototype.drawAxes = function() {
 	this.ctx.lineTo(rightX, originY);
 
 	// Define style and stroke lines.
+	this.ctx.closePath();
 	this.ctx.strokeStyle = "#fff";
 	this.ctx.stroke();
 }
@@ -187,6 +423,7 @@ Histogram.prototype.draw = function()
 	this.drawHistogram();
 	this.drawTransferFunction();
 	this.drawAxes();
+	this.drawThresholdControls();
 }
 
 /**************************************************************************************************************/

@@ -302,7 +302,8 @@ DynamicImageView.prototype.setImage = function(image)
 	this.histogram = new Histogram({
 		canvas: 'histogram_'+this.id,
 		image: image,
-		nbBeans: 256
+		nbBeans: 256,
+		onUpdate: $.proxy(this.updateThreshold, this)
 	});
 
 	this.image = image;
