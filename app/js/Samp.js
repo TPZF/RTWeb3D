@@ -26,6 +26,7 @@ var globe;
 var navigation;
 var count = 0;
 var connector;
+var pointAtReceived = false;
 
 /**************************************************************************************************************/
 
@@ -38,6 +39,7 @@ function initUI()
 	// to refresh jquery UI buttons
 	var dialogContent = '<div id="sampContent"><button id="registerSamp">Register</button>\
 					<button id="unregisterSamp" disabled>Unregister</button>\
+					<button id="sendVOTable">Send VO table</button>\
 					<span><strong>Registered: </strong><span id="sampResult">No</span></span>\
 					<br/>\
 					<div style="display: none;" id="sampStatus"></div>\
@@ -81,7 +83,14 @@ function initUI()
 			$('#registerSamp').removeAttr('disabled').button("refresh");
 			$(this).attr('disabled','disabled').button("refresh");
 			$('#sampInvoker').css('background-image', 'url(css/images/samp_off.png)');
-		}).end();
+		}).end()
+	.find('#sendVOTable').button()
+		.click(function(){
+			// DEBUG:
+			var tableUrl = "http://demonstrator.telespazio.com/sitools/sia/search?order=3&healpix=293&coordSystem=EQUATORIAL&media=votable";
+			var msg = new samp.Message("table.load.votable", {"url": tableUrl});
+			connector.connection.notifyAll([msg]);
+		});
 
 	$('#sampInvoker').on('click', function(){
 		$dialog.dialog("open");
@@ -125,6 +134,7 @@ function createClientTracker()
 				try {
 					console.log(xml);
 					// TODO: send url of xml to SiTools2 to convert it to GeoJSON
+					// cf WCS astrojs plugin
 				}
 				catch (e) {
 					console.log("Error displaying table:\n" +
@@ -150,6 +160,7 @@ function createClientTracker()
 	};
 
 	callHandler["coord.pointAt.sky"] = function(senderId, message, isCall) {
+		pointAtReceived = true;
 		var params = message["samp.params"];
 		var ra = parseFloat(params["ra"]);
 		var dec = parseFloat(params["dec"]);
@@ -215,6 +226,13 @@ function initSamp()
 
 	connector = new samp.Connector("Mizar", meta, logCc, subs);
 
+	// Uncomment for automatic registration(check every 2 sec if Hub is available)
+	  // Adjusts page content depending on whether the hub exists or not.
+	  // var configureSampEnabled = function(isHubRunning) {
+	  //     // TODO
+	  // };
+	// connector.onHubAvailability(configureSampEnabled, 2000);
+
 	// Registration status element is updated by samp.js
 	connector.regTextNodes.push($('#sampResult')[0]);
 }
@@ -237,17 +255,24 @@ function init(gl, nav)
 
 		if ( connector.connection )
 		{
-			// Mizar is connected to Hub
-			geoPick = CoordinateSystem.from3DToGeo( navigation.center3d );
-			// geoPick = globe.getLonLatFromPixel(event.clientX, event.clientY);
-			if ( CoordinateSystem.type != "EQ" )
+			if ( !pointAtReceived )
 			{
-				geoPick = CoordinateSystem.convertFromDefault(geoPick, "EQ");
-			}
+				// Mizar is connected to Hub
+				geoPick = CoordinateSystem.from3DToGeo( navigation.center3d );
+				// geoPick = globe.getLonLatFromPixel(event.clientX, event.clientY);
+				if ( CoordinateSystem.type != "EQ" )
+				{
+					geoPick = CoordinateSystem.convertFromDefault(geoPick, "EQ");
+				}
 
-			var message = new samp.Message("coord.pointAt.sky",
-											{"ra": geoPick[0].toString(), "dec": geoPick[1].toString()});
-			connector.connection.notifyAll([message]);
+				var message = new samp.Message("coord.pointAt.sky",
+												{"ra": geoPick[0].toString(), "dec": geoPick[1].toString()});
+				connector.connection.notifyAll([message]);
+			}
+			else
+			{
+				pointAtRecieved = false;
+			}
 		}
 	});
 
@@ -266,12 +291,27 @@ return {
 	init: init,
 	sendImage: function(url)
 	{
-		if (this.isConnected()) {
+		if (this.isConnected())
+		{
 			// Send message
-			// var url = selectedData.feature.services.download.url;
 			var msg = new samp.Message("image.load.fits", {url: url});
 			connector.connection.notifyAll([msg]);
 			return "Image has been sent";
+		}
+		else
+		{
+			return "Connect to SAMP Hub first";
+		}
+	},
+
+	sendVOTable: function(url)
+	{
+		if (this.isConnected())
+		{
+			// Send message
+			var msg = new samp.Message("table.load.votable", {url: url});
+			connector.connection.notifyAll([msg]);
+			return "VOTable has been sent";
 		}
 		else
 		{
