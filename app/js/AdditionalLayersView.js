@@ -20,8 +20,8 @@
 /**
  * AdditionalLayersView module
  */
-define(["jquery.ui", "gw/FeatureStyle", "gw/OpenSearchLayer", "MocLayer", "gw/VectorLayer", "ServiceBar", "PickingManager", "DynamicImageView", "underscore-min", "text!../templates/additionalLayer.html", "jquery.nicescroll.min"],
-		function($, FeatureStyle, OpenSearchLayer, MocLayer, VectorLayer, ServiceBar, PickingManager, DynamicImageView, _, additionalLayerHTMLTemplate){
+define(["jquery.ui", "gw/FeatureStyle", "gw/OpenSearchLayer", "MocLayer", "gw/VectorLayer", "ServiceBar", "PickingManager", "DynamicImageView", "LayerServiceView", "Samp", "underscore-min", "text!../templates/additionalLayer.html", "jquery.nicescroll.min"],
+		function($, FeatureStyle, OpenSearchLayer, MocLayer, VectorLayer, ServiceBar, PickingManager, DynamicImageView, LayerServiceView, Samp, _, additionalLayerHTMLTemplate){
 
 var globe;
 var navigation;
@@ -101,7 +101,7 @@ function createHtmlForAdditionalLayer( gwLayer )
 {
 	var currentIndex = gwLayer.id;
 
-	var layerDiv = additionalLayerTemplate( { layer: gwLayer, currentIndex: currentIndex } );
+	var layerDiv = additionalLayerTemplate( { layer: gwLayer, currentIndex: currentIndex, OpenSearchLayer: OpenSearchLayer } );
 	var layerContainer = gwLayer.gridProgram ? '#coordinateGrids' : '#additionalLayers';
 	var $layerDiv = $(layerDiv)
 		.appendTo(layerContainer)
@@ -196,12 +196,10 @@ function createHtmlForAdditionalLayer( gwLayer )
 		if ( isOn )
 		{
 			toolsDiv.slideDown(updateScroll);
-			ServiceBar.addLayer(gwLayer);
 		}
 		else
 		{
 			toolsDiv.slideUp(updateScroll);
-			ServiceBar.removeLayer(gwLayer);
 		}
 
 	});
@@ -218,6 +216,13 @@ function createHtmlForAdditionalLayer( gwLayer )
 		text: false,
 		icons: {
 			primary: "ui-icon-zoomin"
+		}
+	});
+
+	$('.exportLayer').button({
+		text: false,
+		icons: {
+			primary: "ui-icon-extlink"
 		}
 	});
 
@@ -283,6 +288,12 @@ function initToolbarEvents ()
 			primary: "ui-icon-image"
 		}
 	});
+	$('.layerServices').button({
+		text: false,
+		icons: {
+			primary: "ui-icon-wrench"
+		}
+	});
 
 	// Delete layer event
 	$('#additionalLayers').on("click",'.deleteLayer', function(){
@@ -296,6 +307,40 @@ function initToolbarEvents ()
 		PickingManager.removePickableLayer( layer );
 
 		updateScroll();
+	});
+
+	// Layer services
+	$('#additionalLayers').on('click', ".layerServices", function(){
+		var layer = $(this).parent().parent().data("layer");
+		LayerServiceView.show( layer );
+	});
+
+	$('#additionalLayers').on('click', ".exportLayer", function(){
+
+		// For debug
+		var layer = $(this).parent().parent().data("layer");
+		// TODO make generic
+		//  * demonstrator only for debug purpose
+		//	* coordinate system : extract from CoordinateSystem.type(Transform EQ/GAL to EQUATORIAL/GALACACTIC)
+
+		// Find max visible order & visible pixel indices
+		var maxOrder = 3;
+		var pixelIndices = "";
+		for ( var i=0; i<globe.tileManager.tilesToRender.length; i++ )
+		{
+			var tile = globe.tileManager.tilesToRender[i];
+			if ( maxOrder < tile.order )
+				maxOrder = tile.order;
+
+			pixelIndices+=tile.pixelIndex;
+			if ( i < globe.tileManager.tilesToRender.length - 1 )
+			{
+				pixelIndices+=",";
+			}
+		}
+
+		var url = "http://demonstrator.telespazio.com"+layer.serviceUrl+"/search?order="+maxOrder+"&healpix="+pixelIndices+"&coordSystem=EQUATORIAL&media=votable";
+		var message = Samp.sendVOTable(url);
 	});
 
 	// ZoomTo event (available for GlobWeb.VectorLayers only)

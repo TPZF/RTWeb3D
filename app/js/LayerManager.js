@@ -20,8 +20,8 @@
 /**
  * LayerManager module
  */
-define( [ "jquery.ui", "gw/FeatureStyle", "gw/HEALPixLayer", "gw/VectorLayer", "gw/CoordinateGridLayer", "gw/TileWireframeLayer", "gw/OpenSearchLayer", "PickingManager", "ClusterOpenSearchLayer", "MocLayer", "HEALPixFITSLayer", "Utils", "ErrorDialog", "JsonProcessor", "ServiceBar", "BackgroundLayersView", "AdditionalLayersView"], 
-	function($, FeatureStyle, HEALPixLayer, VectorLayer, CoordinateGridLayer, TileWireframeLayer, OpenSearchLayer, PickingManager, ClusterOpenSearchLayer, MocLayer, HEALPixFITSLayer, Utils, ErrorDialog, JsonProcessor, ServiceBar, BackgroundLayersView, AdditionalLayersView) {
+define( [ "jquery.ui", "gw/FeatureStyle", "gw/HEALPixLayer", "gw/VectorLayer", "gw/CoordinateGridLayer", "gw/TileWireframeLayer", "gw/OpenSearchLayer", "PickingManager", "ClusterOpenSearchLayer", "MocLayer", "HEALPixFITSLayer", "Utils", "ErrorDialog", "JsonProcessor", "LayerServiceView", "BackgroundLayersView", "AdditionalLayersView"], 
+	function($, FeatureStyle, HEALPixLayer, VectorLayer, CoordinateGridLayer, TileWireframeLayer, OpenSearchLayer, PickingManager, ClusterOpenSearchLayer, MocLayer, HEALPixFITSLayer, Utils, ErrorDialog, JsonProcessor, LayerServiceView, BackgroundLayersView, AdditionalLayersView) {
 
 /**
  * Private variables
@@ -220,7 +220,7 @@ function handleDrop(evt) {
 				return false;
 			}
 			
-			// generate random color
+			// Generate random color
 			var rgb = Utils.generateColor();
 			var rgba = rgb.concat([1]);
 			
@@ -228,7 +228,7 @@ function handleDrop(evt) {
 			var options = { name: name };
 			options.style = new FeatureStyle({ rendererHint: "Basic", iconUrl: "css/images/star.png", fillColor: rgba, strokeColor: rgba, visible: true });
 			var gwLayer = new VectorLayer( options );
-			// Add the type GeoJSON to be able to zoom on the layer !
+			// Add the type GeoJSON to be able to zoom on the layer ! (cf HTML generation of additional layer)
 			gwLayer.type = "GeoJSON";
 			gwLayer.deletable = true;
 			globe.addLayer(gwLayer);
@@ -243,8 +243,8 @@ function handleDrop(evt) {
 			PickingManager.addPickableLayer( gwLayer );
 			
 			// Warn the service bar a new layer is added (the layer is active by default)
-			// TODO : a better way should be find
-			ServiceBar.addLayer(gwLayer);
+			// TODO : a better way should be find, replace ServiceBar by LayerServiceView
+			// ServiceBar.addLayer(gwLayer);
 
 			gwLayers.push(gwLayer);
 		};
@@ -338,7 +338,8 @@ return {
 
 		// Call init layers
 		initLayers(configuration.layers);
-		ServiceBar.init(gl, nav, configuration);
+
+		LayerServiceView.init(gl, nav, this, configuration);
 	},
 	
 	/**

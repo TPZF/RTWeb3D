@@ -30,7 +30,15 @@
 			<button class="zoomTo">zoomTo</button>
 		<%
 		}
+
+		if ( layer instanceof OpenSearchLayer )
+		{
 		%>
+			<button class="layerServices">Available services</button>
+		<%
+		}
+		%>
+		<button class="exportLayer">Export visible tiles</button>
 
 		<% if ( layer.fitsShader )
 		{
