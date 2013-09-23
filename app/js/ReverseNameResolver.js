@@ -40,8 +40,8 @@ var reverseNameResolverHTML =
 			<input type="submit" value="Find Object Name" />\
 			<div id="coordinatesInfo"></div>\
 			<div id="healpixInfo"></div>\
+			<button id="sendViewport">Send viewport</button>\
 		</div>\
-		<button id="sendViewport">Send viewport</button>\
 		<div id="reverseSearchResult"></div>\
 		<div class="closeBtn">\
 			<img src="css/images/close_button.png" alt="" class="defaultImg" />\

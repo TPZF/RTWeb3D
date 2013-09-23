@@ -125,7 +125,6 @@ return {
 				uri: url
 			},
 			success: function(response, textStatus, xhr){
-				var xmlDoc = $.parseXML( xhr.responseText );
 				$xml = $(response);
 				currentJob = $xml.find('jobId').text();
 

@@ -166,6 +166,7 @@ body
 	top: 10px;
 	pointer-events: none;
 	overflow: hidden;
+	width: 275px;
 }
 
 /*** Left bottom components(share, mollweide, stats) ***/

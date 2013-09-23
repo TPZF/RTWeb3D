@@ -79,7 +79,7 @@ var SelectionTool = function(options)
 		self.updateSelection();
 	});
 
-	this.renderContext.canvas.addEventListener("mouseup", function(){
+	this.renderContext.canvas.addEventListener("mouseup", function(event){
 		if ( !self.activated )
 			return;
 
