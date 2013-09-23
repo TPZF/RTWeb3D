@@ -113,9 +113,18 @@ function runJob()
 				for ( var x in results )
 				{
 					var proxyIndex = x.search('file_id=');
-					x = x.substr(proxyIndex+8);
+
+					var shortName;
+					if ( proxyIndex >= 0 )
+					{
+						shortName = x.substr(proxyIndex+8);
+					}
+					else
+					{
+						shortName = x;
+					}
 					runButton.stopAnimation();
-					$('<li style="display: none;">'+x+' <a href="' + results[x] +'" download><img style="vertical-align: middle; width: 20px; height: 20px;" title="Download" src="css/images/download1.png"></a></li>')
+					$('<li style="display: none;">'+shortName+' <a href="' + results[x] +'" download="'+shortName+'"><img style="vertical-align: middle; width: 20px; height: 20px;" title="Download" src="css/images/download1.png"></a></li>')
 						.appendTo($('#cutoutResults').find('ul'))
 						.fadeIn(400);
 				}
