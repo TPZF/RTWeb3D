@@ -25,16 +25,18 @@ define(["jquery.ui"], function($) {
 // About content
 var aboutContent =
 	'<div id="about" title="About">\
-		<p>MIZAR has been developed and maintained by the CENTRE NATIONAL d\'ETUDES SPATIALES (CNES).</p>\
+		<p>MIZAR has been developed and is maintained by the CENTRE NATIONAL d\'ETUDES SPATIALES (CNES).</p>\
 		<p>Copyright CNES - MIZAR is a module of <a target="_blank" href="http://sitools2.sourceforge.net">SITools2</a>, distributed under GPLV3</p>\
 		<p>MIZAR is based on <a target="_blank" href="https://github.com/TPZF/GlobWeb">GlobWeb</a> for rendering, developed by TPZF SSA.</p>\
 		<p>Portions of the code related to Healpix and coordinates system transformation have been traduced in JavaScript from Healpix library <a target="_blank" href="http://sourceforge.net/projects/healpix/">Healpix library</a>.</p>\
 		<p>The <a target="_blanc" href="http://astrojs.github.io/fitsjs/">FITS library</a> has been used to load FITS file.</p>\
+		<p>The <a target="_blanc" href="http://astrojs.github.io/sampjs/">SAMP library</a> has been used for using the SAMP Web Profile from within web pages.</p>\
 		<p>ColorMap have been traduced in JavaScript from <a target="_blanc" href="http://aladin.u-strasbg.fr/aladin.gml">Aladin Sky Atlas</a>.</p>\
 		<div>\
 			<input id="showAbout" type="checkbox" />\n\
 			<label style="font-size: 0.8em;top: -3px;position: relative;" for="showAbout">Don\'t show this message again</label>\
 		</div>\
+		<span style="font-size: 0.8em;bottom: 5px;right: 5px;position: absolute;">v0.1 - 23.09.2013 - nightly build</span>\
 	</div>';
 
 // Create dialog
@@ -53,6 +55,7 @@ var $about = $(aboutContent)
 						},
 						width: '500px',
 						minHeight: 'auto',
+						draggable: false,
 						open: function()
 						{
 							// Remove auto-focus
