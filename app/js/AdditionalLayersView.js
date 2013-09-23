@@ -20,8 +20,8 @@
 /**
  * AdditionalLayersView module
  */
-define(["jquery.ui", "gw/FeatureStyle", "gw/OpenSearchLayer", "MocLayer", "gw/VectorLayer", "ServiceBar", "PickingManager", "DynamicImageView", "LayerServiceView", "Samp", "underscore-min", "text!../templates/additionalLayer.html", "jquery.nicescroll.min"],
-		function($, FeatureStyle, OpenSearchLayer, MocLayer, VectorLayer, ServiceBar, PickingManager, DynamicImageView, LayerServiceView, Samp, _, additionalLayerHTMLTemplate){
+define(["jquery.ui", "gw/FeatureStyle", "gw/OpenSearchLayer", "MocLayer", "gw/VectorLayer", "PickingManager", "DynamicImageView", "LayerServiceView", "Samp", "underscore-min", "text!../templates/additionalLayer.html", "jquery.nicescroll.min"],
+		function($, FeatureStyle, OpenSearchLayer, MocLayer, VectorLayer, PickingManager, DynamicImageView, LayerServiceView, Samp, _, additionalLayerHTMLTemplate){
 
 var globe;
 var navigation;
