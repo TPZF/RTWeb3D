@@ -71,9 +71,6 @@ function _handleMouseUp(event)
 
 		var newSelection = computePickSelection(pickPoint);
 		
-		// Add selected style for new selection
-		focusSelection(newSelection);
-		
 		if ( newSelection.length > 0 )
 		{
 			// Hide previous popup if any
@@ -83,8 +80,11 @@ function _handleMouseUp(event)
 				{
 					navigation.inertia.stop();
 				}
-				navigation.moveTo( pickPoint, 1000, function(){
+				navigation.moveTo( pickPoint, 800, function(){
 					selection = newSelection;
+					
+					// Add selected style for new selection
+					focusSelection(selection);
 					selection.selectedTile = selectedTile;
 					FeaturePopup.createFeatureList( selection );
 					if ( selection.length > 1 )
