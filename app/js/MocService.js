@@ -20,7 +20,7 @@
 /**
  * Moc display & Moc xMatch services
  */
-define( [ "jquery.ui", "MocLayer", "MocBase", "underscore-min", "text!../templates/mocService.html" ],
+define( [ "jquery.ui", "MocLayer", "MocBase", "underscore-min", "text!../templates/mocServiceItem.html" ],
 		function($, MocLayer, MocBase, _, mocServiceHTMLTemplate) {
 
 // Template generating the services html
@@ -66,7 +66,7 @@ function displayClickEvent()
  */
 function addHTMLMocLayer(layer)
 {
-	var content = mocServiceTemplate( { layer: layer });
+	var content = mocServiceTemplate( { layer: layer, display: true });
 	var serviceLayer = MocBase.findMocSublayer(layer);
 	$(content)
 		.appendTo('#MocService .mocLayers')

@@ -1,7 +1,0 @@
-<div class="mocLayer" id ="mocLayer_<%=layer.id%>">
-	<input id="mocCheck_<%=layer.id%>" type="checkbox" /><label for="mocCheck_<%=layer.id%>">Check</label>
-	<span class="mocName"><%=layer.name%></span>
-	<span class="mocStatus"><% if (layer.mocCoverage == "unknown") print('Not found'); %></span>
-	<span class="mocCoverage">Sky coverage: <%= layer.coverage %></span>
-	<br/>
-</div>

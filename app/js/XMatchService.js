@@ -20,10 +20,11 @@
 /**
  *	Moc xMatch service
  */
-define( [ "jquery.ui", "gw/FeatureStyle", "MocLayer", "MocBase", "gw/OpenSearchLayer", "ErrorDialog", "underscore-min", "text!../templates/xMatchService.html" ],
-		function($, FeatureStyle, MocLayer, MocBase, OpenSearchLayer, ErrorDialog, _, xMatchServiceHTMLTemplate) {
+define( [ "jquery.ui", "gw/FeatureStyle", "MocLayer", "MocBase", "gw/OpenSearchLayer", "ErrorDialog", "underscore-min", "text!../templates/mocServiceItem.html" ],
+		function($, FeatureStyle, MocLayer, MocBase, OpenSearchLayer, ErrorDialog, _, mocServiceHTMLTemplate) {
 
-var xMatchServiceTemplate = _.template(xMatchServiceHTMLTemplate);
+// Template generating the services html
+var mocServiceTemplate = _.template(mocServiceHTMLTemplate);
 
 var coverageServiceUrl;
 var intersectionLayer;
@@ -66,7 +67,7 @@ function displayClickEvent()
  */
 function addHTMLXMatchLayer(layer)
 {
-	var content = xMatchServiceTemplate( { layer: layer } );
+	var content = mocServiceTemplate( { layer: layer, display: false } );
 	var serviceLayer = MocBase.findMocSublayer(layer);
 	$(content)
 		.appendTo('#xMatchService .mocLayers')
@@ -96,7 +97,7 @@ function addHTMLXMatchLayer(layer)
 function addHTMLIntersectionLayer()
 {
 	// Add HTML
-	var form = mocServiceTemplate( { layer: intersectionLayer });
+	var form = mocServiceTemplate( { layer: intersectionLayer, display: true });
 	$(form)
 		.appendTo('#intersectResult')
 		.data("layer", intersectionLayer)
@@ -151,7 +152,9 @@ function addIntersectionLayer(layersToIntersect)
 			});
 		globe.addLayer(intersectionLayer);
 
-		requestSkyCoverage( intersectionLayer, url + "&media=txt" );
+		MocBase.requestSkyCoverage( intersectionLayer, url + "&media=txt", function(layer){
+			$("#xMatchService #mocLayer_"+layer.id).find('.mocCoverage').html("Sky coverage: "+layer.coverage);
+		} );
 		addHTMLIntersectionLayer();
 	}
 	else

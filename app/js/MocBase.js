@@ -145,7 +145,8 @@ function findMocSublayer(layer)
 
 return {
 	createMocSublayer: createMocSublayer,
-	findMocSublayer: findMocSublayer
+	findMocSublayer: findMocSublayer,
+	requestSkyCoverage: requestSkyCoverage
 }
 
 });
