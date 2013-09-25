@@ -419,7 +419,8 @@ $.widget("ui.selectmenu", {
 		// reset height to auto
 		this.list.css( 'height', 'auto' );
 		var listH = this.listWrap.height();
-		var winH = $( window ).height();
+		// HACK: UI initialization happens before window was created, so fix height arbitrary value if window's height=0
+		var winH = $( window ).height() == 0 ? 300 : $( window ).height();
 		// calculate default max height
 		var maxH = o.maxHeight ? Math.min( o.maxHeight, winH ) : winH / 3;
 		if ( listH > maxH ) this.list.height( maxH );
