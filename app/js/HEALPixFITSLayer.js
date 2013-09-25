@@ -217,7 +217,8 @@ HEALPixFITSLayer.prototype.handleImage = function(imgRequest)
 {
  	if ( !(imgRequest.image instanceof Image) )
  	{
-	 	var fitsData = FitsLoader.parseFits( imgRequest.image );
+	 	var fits = FitsLoader.parseFits( imgRequest.image );
+	 	var fitsData = fits.getHDU().data;
 	 	var bpe = fitsData.arrayType.BYTES_PER_ELEMENT;
 	 	var float32array;
 	 	if ( fitsData.arrayType.name == "Float64Array" )

@@ -40,7 +40,8 @@ function computeFits(featureData, url)
 	var id = "imageView_" + featureData.feature.properties.identifier.replace(/\s{1,}|\.{1,}/g, "") + "true";
 	var progressBar = new SimpleProgressBar( { id: id } );
 
-	var xhr = FitsLoader.loadFits(url, function(fitsData){
+	var xhr = FitsLoader.loadFits(url, function(fits){
+		var fitsData = fits.getHDU().data;
 		handleFits(fitsData, featureData);
 	}, null, progressBar.onprogress.bind(progressBar));
 
@@ -258,7 +259,9 @@ return {
 
 		// Show image viewer
 		ImageViewer.show();
-	}
+	},
+
+	handleFits: handleFits
 }
 
 /**********************************************************************************************/

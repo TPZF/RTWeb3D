@@ -52,7 +52,7 @@ function parseFits(response)
     	}
     }
     
-    return data;
+    return fits;
 }
 
 var loadFits = function(url, successCallback, failCallback, onprogressCallback)
@@ -66,10 +66,10 @@ var loadFits = function(url, successCallback, failCallback, onprogressCallback)
 			{
 				if ( xhr.response )
 				{
-					var fitsData = parseFits(xhr.response);
+					var fits = parseFits(xhr.response);
 					if (successCallback)
 					{
-						successCallback( fitsData );
+						successCallback( fits );
 					}
 				}
 			}
