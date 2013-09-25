@@ -29,6 +29,7 @@ require.config({
 		"jquery.nicescroll.min": "../externals/jquery.nicescroll.min",
 		"fits": "../externals/fits",
 		"samp": "../externals/samp",
+		"wcs": "../externals/wcs",
 		"jquery.ui.timepicker": "../externals/jquery.ui.timepicker",
 		"gw": "../externals/GlobWeb/src/"
 	},
@@ -65,9 +66,9 @@ require.config({
  * Main module
  */
 require( ["jquery.ui", "gw/CoordinateSystem", "gw/Globe", "gw/Stats", "gw/AstroNavigation", "gw/AttributionHandler", "gw/VectorLayer",
-	"LayerManager", "NameResolver", "ReverseNameResolver", "Utils", "PickingManager", "FeaturePopup", "IFrame", "Compass", "MollweideViewer", "ErrorDialog", "AboutDialog", "ImageManager", "Share", "Samp", "StarProvider", "ConstellationProvider", "JsonProvider", "OpenSearchProvider",
+	"LayerManager", "NameResolver", "ReverseNameResolver", "Utils", "PickingManager", "FeaturePopup", "IFrame", "Compass", "MollweideViewer", "ErrorDialog", "AboutDialog", "ImageManager", "Share", "Samp", "AdditionalLayersView", "StarProvider", "ConstellationProvider", "JsonProvider", "OpenSearchProvider",
 	"gw/EquatorialCoordinateSystem", "gw/ConvexPolygonRenderer", "gw/PointSpriteRenderer", "gw/PointRenderer"],
-	function($, CoordinateSystem, Globe, Stats, AstroNavigation, AttributionHandler, VectorLayer, LayerManager, NameResolver, ReverseNameResolver, Utils, PickingManager, FeaturePopup, IFrame, Compass, MollweideViewer, ErrorDialog, AboutDialog, ImageManager, Share, Samp) {
+	function($, CoordinateSystem, Globe, Stats, AstroNavigation, AttributionHandler, VectorLayer, LayerManager, NameResolver, ReverseNameResolver, Utils, PickingManager, FeaturePopup, IFrame, Compass, MollweideViewer, ErrorDialog, AboutDialog, ImageManager, Share, Samp, AdditionalLayersView) {
 
 // Console fix	
 window.console||(console={log:function(){}});
@@ -383,7 +384,7 @@ $(function()
 			// Share init
 			Share.init({navigation : navigation});
 
-			Samp.init(globe, navigation);
+			Samp.init(globe, navigation, AdditionalLayersView);
 
 			// Update fov when moving
 			navigation.subscribe("modified", updateFov);

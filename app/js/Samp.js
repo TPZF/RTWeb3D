@@ -20,12 +20,17 @@
 /**
  * Samp module : performing communication between applications using SAMP protocol
  */
-define(["jquery.ui", "gw/CoordinateSystem", "PickingManager", "samp"], function($, CoordinateSystem, PickingManager) {
+define(["jquery.ui", "gw/CoordinateSystem", "gw/VectorLayer", "FitsLoader", "ImageManager", "samp", "wcs"],
+	function($, CoordinateSystem, VectorLayer, FitsLoader, ImageManager) {
 
 var globe;
 var navigation;
-var count = 0;
-var connector;
+var additionalLayersView;
+
+var connector;	// SAMP connector
+
+var wcs;	// WCS mapper to find location of coming fits images
+var nbSampLayers = 0;
 var pointAtReceived = false;
 
 /**************************************************************************************************************/
@@ -104,6 +109,20 @@ function initUI()
 /**************************************************************************************************************/
 
 /**
+ *	Create geographic coordinate from x,y image pixel using WCS
+ */
+function createCoordinate( x, y )
+{
+	var coordinate = wcs.pixelToCoordinate([x,y]);
+	// Convert to geographic representation
+	if ( coordinate.ra > 180 )
+		coordinate.ra -= 360;
+	return [coordinate.ra, coordinate.dec];
+}
+
+/**************************************************************************************************************/
+
+/**
  *	Create SAMP ClientTracker object which handles incoming messages
  */
 function createClientTracker()
@@ -155,7 +174,64 @@ function createClientTracker()
 	callHandler["image.load.fits"] = function(senderId, message, isCall) {
 		var params = message["samp.params"];
 		var origUrl = params["url"];
-		// TODO : handle coming image
+      	var url = "/sitools/proxy?external_url="+params['image-id'];
+
+		FitsLoader.loadFits(url, function(fits){
+			var hdu = fits.getHDU();
+			var fitsData = hdu.data;
+			
+			// Create mapper
+			wcs = new WCS.Mapper(hdu.header);
+			var coords = [];
+
+			// Find coordinates of coming fits
+			coords.push( createCoordinate(0,fitsData.height) );
+			coords.push( createCoordinate(fitsData.width,fitsData.height) );
+			coords.push( createCoordinate(fitsData.width,0) );
+			coords.push( createCoordinate(0,0) );
+			// Close the polygon
+			coords.push(coords[0]);
+			
+			// Create vector layer
+			var gwLayer = new VectorLayer({
+				name: "SAMP_"+nbSampLayers
+			});
+			gwLayer.type = "GeoJSON";
+			gwLayer.dataType = "line";
+			gwLayer.deletable = true;
+			gwLayer.pickable = true;
+			globe.addLayer(gwLayer);
+
+			// Create feature
+			var id = "samp_"+params['name'];
+			var feature = {
+				"geometry": {
+					"gid": id,
+					"coordinates": [coords],
+					"type": "Polygon"
+				},
+				"properties": {
+					"identifier": id
+				},
+				"services": {
+					"download": {
+						"mimetype": "image/fits",
+						"url": origUrl
+					}
+				},
+				"type": "Feature"
+			};
+
+			gwLayer.addFeature( feature );
+
+			// Add fits to feature
+			ImageManager.addImage( {layer: gwLayer, feature: feature}, true );
+
+			// Add view
+			additionalLayersView.addView( gwLayer );
+			nbSampLayers++;
+		});
+
 		console.log("Image coming from SAMP loaded");
 	};
 
@@ -242,10 +318,11 @@ function initSamp()
 /**
  *	Init SAMP module
  */
-function init(gl, nav)
+function init(gl, nav, alv)
 {
 	globe = gl;
 	navigation = nav;
+	additionalLayersView = alv;
 
 	initUI();
 	initSamp();
@@ -271,7 +348,7 @@ function init(gl, nav)
 			}
 			else
 			{
-				pointAtRecieved = false;
+				pointAtReceived = false;
 			}
 		}
 	});

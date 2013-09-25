@@ -27,6 +27,7 @@
 		"jquery.nicescroll.min": "../externals/jquery.nicescroll.min",
         "fits": "../externals/fits",
         "samp": "../externals/samp",
+        "wcs": "../externals/wcs",
         "jquery.ui.timepicker": "../externals/jquery.ui.timepicker",
 		"gw": "../externals/GlobWeb/src"
     },
