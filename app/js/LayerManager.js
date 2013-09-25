@@ -20,8 +20,8 @@
 /**
  * LayerManager module
  */
-define( [ "jquery.ui", "gw/FeatureStyle", "gw/HEALPixLayer", "gw/VectorLayer", "gw/CoordinateGridLayer", "gw/TileWireframeLayer", "gw/OpenSearchLayer", "PickingManager", "ClusterOpenSearchLayer", "MocLayer", "HEALPixFITSLayer", "Utils", "ErrorDialog", "JsonProcessor", "LayerServiceView", "BackgroundLayersView", "AdditionalLayersView"], 
-	function($, FeatureStyle, HEALPixLayer, VectorLayer, CoordinateGridLayer, TileWireframeLayer, OpenSearchLayer, PickingManager, ClusterOpenSearchLayer, MocLayer, HEALPixFITSLayer, Utils, ErrorDialog, JsonProcessor, LayerServiceView, BackgroundLayersView, AdditionalLayersView) {
+define( [ "jquery.ui", "gw/FeatureStyle", "gw/HEALPixLayer", "gw/VectorLayer", "gw/CoordinateGridLayer", "gw/TileWireframeLayer", "gw/OpenSearchLayer", "ClusterOpenSearchLayer", "MocLayer", "HEALPixFITSLayer", "Utils", "ErrorDialog", "JsonProcessor", "LayerServiceView", "BackgroundLayersView", "AdditionalLayersView"], 
+	function($, FeatureStyle, HEALPixLayer, VectorLayer, CoordinateGridLayer, TileWireframeLayer, OpenSearchLayer, ClusterOpenSearchLayer, MocLayer, HEALPixFITSLayer, Utils, ErrorDialog, JsonProcessor, LayerServiceView, BackgroundLayersView, AdditionalLayersView) {
 
 /**
  * Private variables
@@ -137,9 +137,8 @@ function createLayerFromConf(layer) {
 			}
 
 			gwLayer.dataType = layer.dataType || "line";
+			gwLayer.pickable = layer.pickable || true;
 
-			if ( layer.pickable )
-				PickingManager.addPickableLayer( gwLayer );
 			break;
 			
 		case "DynamicOpenSearch":
@@ -170,8 +169,7 @@ function createLayerFromConf(layer) {
 			}
 
 			gwLayer.dataType = layer.dataType;
-			if ( layer.pickable )
-				PickingManager.addPickableLayer( gwLayer );
+			gwLayer.pickable = layer.pickable || true;
 			break;
 
 		case "Moc":
@@ -240,7 +238,6 @@ function handleDrop(evt) {
 			$('#loading').hide();
 
 			AdditionalLayersView.addView( gwLayer );
-			PickingManager.addPickableLayer( gwLayer );
 			
 			// Warn the service bar a new layer is added (the layer is active by default)
 			// TODO : a better way should be find, replace ServiceBar by LayerServiceView
@@ -280,8 +277,6 @@ function initLayers(layers)
 		// Define default optionnal parameters
 		if(!layer.opacity)
 			layer.opacity = 100.;
-		if(typeof (layer.pickable) === 'undefined')
-			layer.pickable = true;
 		if (!layer.visible)
 			layer.visible = false;
 	
@@ -309,8 +304,9 @@ function initLayers(layers)
 				globe.addLayer( gwLayer );
 				AdditionalLayersView.addView( gwLayer );
 			}
+
+			gwLayers.push(gwLayer);
 		}
-		gwLayers.push(gwLayer);
 	}
 	
 	BackgroundLayersView.updateUI();
@@ -333,7 +329,7 @@ return {
 	init: function(gl, nav, configuration) {
 		// Store the globe in the global module variable
 		globe = gl;
-		AdditionalLayersView.init(gl,nav);
+		AdditionalLayersView.init(gl, nav);
 		BackgroundLayersView.init(gl, this);
 
 		// Call init layers

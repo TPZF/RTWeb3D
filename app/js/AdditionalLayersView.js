@@ -271,6 +271,9 @@ function addView ( gwLayer )
 		$('#addLayer_'+layer.id).find('.spinner').fadeOut(500);
 	});
 	updateScroll();
+
+	if ( gwLayer.pickable )
+		PickingManager.addPickableLayer(gwLayer);
 }
 
 /**************************************************************************************************************/
