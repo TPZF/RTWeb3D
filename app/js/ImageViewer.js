@@ -17,8 +17,8 @@
 * along with SITools2. If not, see <http://www.gnu.org/licenses/>. 
 ******************************************************************************/ 
 
-define(["gw/FeatureStyle", "FeatureServiceView", "underscore-min", "text!../templates/imageViewerItem.html"],
-	function(FeatureStyle, FeatureServiceView, _, imageViewerItemHTMLTemplate){
+define(["gw/FeatureStyle", "ImageProcessing", "underscore-min", "text!../templates/imageViewerItem.html"],
+	function(FeatureStyle, ImageProcessing, _, imageViewerItemHTMLTemplate){
 
 var navigation;
 var globe;
@@ -74,8 +74,8 @@ return {
 		var $li;
 		
 		// Create service view for the given feature
-		selectedData.feature.serviceView = new FeatureServiceView({
-				id: "featureServices_"+ id,
+		selectedData.feature.imageProcessing = new ImageProcessing({
+				id: "imageProcessing_"+ id,
 				layer: selectedData.layer,
 				feature: feature,
 				disable: function(){
@@ -137,13 +137,13 @@ return {
 					imageManager.removeImage(selectedData, isFits);
 				}).end()
 				// Image processing
-				.find('.featureServices').button({
+				.find('.imageProcessing').button({
 					text: false,
 					icons: {
 						primary: "ui-icon-image"
 					}
 				}).on('click', function(){
-					selectedData.feature.serviceView.toggle();
+					selectedData.feature.imageProcessing.toggle();
 				}).end();
 
 			if ( $('#loadedImages ul li').length == 1 )

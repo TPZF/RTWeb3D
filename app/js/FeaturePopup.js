@@ -279,7 +279,7 @@ return {
 			if ($(this).is('.dynamicAvailable'))
 			{
 				$(this).toggleClass('selected');
-				pickingManager.getSelectedData().feature.serviceView.toggle();
+				pickingManager.getSelectedData().feature.imageProcessing.toggle();
 			}
 		});
 

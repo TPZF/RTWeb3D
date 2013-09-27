@@ -20,8 +20,8 @@
 /**
  * Image manager
  */
-define( [ "jquery.ui", "gw/FeatureStyle", "gw/DynamicImage", "DynamicImageView", "SimpleProgressBar", "FitsLoader", "ImageViewer", "fits" ],
-			function($, FeatureStyle, DynamicImage, DynamicImageView, SimpleProgressBar, FitsLoader, ImageViewer) {
+define( [ "jquery.ui", "gw/FeatureStyle", "gw/DynamicImage", "SimpleProgressBar", "FitsLoader", "ImageViewer", "fits" ],
+			function($, FeatureStyle, DynamicImage, SimpleProgressBar, FitsLoader, ImageViewer) {
 
 var globe = null;
 var progressBars = {};
@@ -64,10 +64,10 @@ function handleFits(fitsData, featureData)
 	var feature = featureData.feature;
 
 	// Set dynamic image view to the service view
-	feature.serviceView.setHistogramContent(image);
+	feature.imageProcessing.setHistogramContent(image);
 
 	// Enable dynamic image view
-	$('#dynamicImageView').addClass('dynamicAvailable').removeClass('dynamicNotAvailable');
+	// $('#dynamicImageView').addClass('dynamicAvailable').removeClass('dynamicNotAvailable');
 
 	var layer = featureData.layer;
 	// Attach texture to style
@@ -94,10 +94,10 @@ function removeFits(featureData)
 	}
 	
 	// Remove dynamic image view
-	if ( featureData.feature.serviceView )
+	if ( featureData.feature.imageProcessing )
 	{
-		featureData.feature.serviceView.remove();
-		delete featureData.feature.serviceView;
+		featureData.feature.imageProcessing.remove();
+		delete featureData.feature.imageProcessing;
 	}
 
 	removeFitsFromRenderer(featureData);

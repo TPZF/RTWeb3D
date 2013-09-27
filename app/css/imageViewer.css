@@ -133,7 +133,7 @@
 	background-color: #0078a3
 }
 
-/*** Different item options: zoomTo, delete, featureServices ***/
+/*** Different item options: zoomTo, delete, imageProcessing ***/
 #loadedImages .options
 {
 	position: absolute;
@@ -141,7 +141,7 @@
 	top: 8px;
 }
 
-#loadedImages .zoomTo, #loadedImages .delete, #loadedImages .featureServices
+#loadedImages .zoomTo, #loadedImages .delete, #loadedImages .imageProcessing
 {
 	height: 20px;
 	width: 20px;
