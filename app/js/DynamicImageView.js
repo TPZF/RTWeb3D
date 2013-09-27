@@ -17,8 +17,8 @@
 * along with SITools2. If not, see <http://www.gnu.org/licenses/>. 
 ******************************************************************************/ 
 
-define(['jquery.ui', 'underscore-min', "gw/FeatureStyle", "./Histogram", "ZScale", "AnimatedButton", "text!../templates/dynamicImageView.html", "jquery.ui.selectmenu"],
-	function($,_, FeatureStyle, Histogram, ZScale, AnimatedButton, dynamicImageViewHTML) {
+define(['jquery.ui', 'underscore-min', "gw/FeatureStyle", "./Histogram", "ZScale", "CutOutViewFactory", "AnimatedButton", "text!../templates/dynamicImageView.html", "jquery.ui.selectmenu"],
+	function($,_, FeatureStyle, Histogram, ZScale, CutOutViewFactory, AnimatedButton, dynamicImageViewHTML) {
  
 /**************************************************************************************************************/
 
@@ -29,25 +29,19 @@ define(['jquery.ui', 'underscore-min', "gw/FeatureStyle", "./Histogram", "ZScale
  *	@param options
  *		<h3>Required:</h3>
  *		<ul>
- *			<li>activator: Id of DOM element showing/hiding the current view</li>
  *			<li>id: Identifier</li>
  *		</ul>
  *		<h3>Optional:</h3>
  *		<ul>
  *			<li>image: The image represented by this view</li>
- *			<li>disable: Disable callback</li>
- *			<li>unselect: Unselect callback</li>
+ *			<li>url: Url to the image for Zscale processing
  *			<li>changeShaderCallback: Callback for shader changing</li>
  *		</ul>
  */
-var DynamicImageView = function(options)
+var DynamicImageView = function(element, options)
 {
-	this.activator = options.activator;
 	this.id = options.id;
 
-	// Callbacks
-	this.disable = options.disable || null;
-	this.unselect = options.unselect || null;
 	this.changeShaderCallback = options.changeShaderCallback;
 
 	// Interaction parameters
@@ -57,35 +51,13 @@ var DynamicImageView = function(options)
 
 	// Create dialog
 	var self = this;
-	var dialogContent = _.template(dynamicImageViewHTML, { id: this.id });
-	this.$dialog = $(dialogContent).appendTo('body').dialog({
-							title: 'Image processing',
-							autoOpen: false,
-							show: {
-								effect: "fade",
-						    	duration: 300
-							},
-							hide: {
-								effect: "fade",
-								duration: 300
-							},
-							resizable: false,
-							width: 'auto',
-							minHeight: 'auto',
-							close: function(event, ui)
-							{
-								if ( self.unselect )
-								{
-									self.unselect();
-								}
-								
-								$(this).dialog("close");
 
-							}
-						});
+	var imageViewContent = _.template(dynamicImageViewHTML, { id: this.id });
+	this.$element = $('#'+element);
+	this.$element.html(imageViewContent);
 
 	// Initialize contrast buttonset
-	this.$dialog.find('.contrast').buttonset().find('input')
+	this.$element.find('.contrast').buttonset().find('input')
 			.each(function(i){
 				$(this).click(function(){
 					selectedContrast = $(this).val();
@@ -98,10 +70,10 @@ var DynamicImageView = function(options)
 							// Enable all interactive components
 							$slider.slider( "enable" );
 							$selectmenu.selectmenu( "enable" );
-							self.$dialog.find('.inverse').removeAttr('disabled').button("refresh");
-							self.$dialog.find('.zScale').removeAttr('disabled').button("refresh");
+							self.$element.find('.inverse').removeAttr('disabled').button("refresh");
+							self.$element.find('.zScale').removeAttr('disabled').button("refresh");
 							self.image.updateColormap(selectedContrast, selectedColormap, isInversed);
-							self.$dialog.find('.thresholdInputs input').each(function(i){
+							self.$element.find('.thresholdInputs input').each(function(i){
 								$(this).removeAttr('disabled');
 							});
 							break;
@@ -109,9 +81,9 @@ var DynamicImageView = function(options)
 							// Disable all interactive components
 							$selectmenu.selectmenu( "disable" );
 							$slider.slider( "disable" );
-							self.$dialog.find('.inverse').attr('disabled', 'disabled').button("refresh");
-							self.$dialog.find('.zScale').attr('disabled', 'disabled').button("refresh");
-							self.$dialog.find('.thresholdInputs input').each(function(i){
+							self.$element.find('.inverse').attr('disabled', 'disabled').button("refresh");
+							self.$element.find('.zScale').attr('disabled', 'disabled').button("refresh");
+							self.$element.find('.thresholdInputs input').each(function(i){
 								$(this).attr('disabled', 'disabled');
 							});
 							break;
@@ -126,11 +98,11 @@ var DynamicImageView = function(options)
 			});
 
 	// Initialize threshold 
-	var $slider = this.$dialog.find('.thresholdSlider').slider({
+	var $slider = this.$element.find('.thresholdSlider').slider({
 			range: true,
 			slide: function( event, ui ) {
-				self.$dialog.find( "#min" ).val( ui.values[0] );
-				self.$dialog.find( "#max" ).val( ui.values[1] );
+				self.$element.find( "#min" ).val( ui.values[0] );
+				self.$element.find( "#max" ).val( ui.values[1] );
 			},
 			// Compute histogram on stop, because it's more efficient with huge amount of data
 			stop: function( event, ui ) {
@@ -138,7 +110,7 @@ var DynamicImageView = function(options)
 			}
 		}).slider("disable");
 
-	this.$dialog.find('.thresholdInputs').change(function(){
+	this.$element.find('.thresholdInputs').change(function(){
 		// Check validity
 		var inputMin = parseFloat($(this).children('#min').val());
 		if ( isNaN(inputMin) || inputMin < self.image.min )
@@ -158,7 +130,7 @@ var DynamicImageView = function(options)
 	});
 	
 	// Initialize colormap selectmenu
-	var $selectmenu = this.$dialog.find('.colormap').selectmenu({
+	var $selectmenu = this.$element.find('.colormap').selectmenu({
 		select: function(e)
 		{
 			selectedColormap = $(this).children('option:selected').val();
@@ -167,7 +139,7 @@ var DynamicImageView = function(options)
 		}
 	});
 	
-	this.$dialog.find('.inverse').button({
+	this.$element.find('.inverse').button({
 		text: false,
 		icons: {
         	primary: ""
@@ -175,7 +147,7 @@ var DynamicImageView = function(options)
 	});
 
 	// Initialize inverse checkbox
-	this.$dialog.find('.inverse').click(function(){
+	this.$element.find('.inverse').click(function(){
 
 		$(this).button("option", {
 			icons: {
@@ -190,7 +162,7 @@ var DynamicImageView = function(options)
 
 	var _z1 = null;
 	var _z2 = null;
-	var zScaleButton = new AnimatedButton(this.$dialog.find('.zScale')[0], {
+	var zScaleButton = new AnimatedButton(this.$element.find('.zScale')[0], {
 		onclick: function(){
 			if ( _z1 && _z2 )
 			{
@@ -208,10 +180,10 @@ var DynamicImageView = function(options)
 						_z1 = z1;
 						_z2 = z2;
 
-						self.$dialog.find( "#min" ).val( z1 ).animate({ color: '#6BCAFF', 'border-color': '#6BCAFF' }, 300, function(){
+						self.$element.find( "#min" ).val( z1 ).animate({ color: '#6BCAFF', 'border-color': '#6BCAFF' }, 300, function(){
 							$(this).animate({color: '#F8A102', 'border-color': 'transparent'});
 						});
-						self.$dialog.find( "#max" ).val( z2 ).animate({ color: '#6BCAFF', 'border-color': '#6BCAFF' }, 300, function(){
+						self.$element.find( "#max" ).val( z2 ).animate({ color: '#6BCAFF', 'border-color': '#6BCAFF' }, 300, function(){
 							$(this).animate({color: '#F8A102', 'border-color': 'transparent'});
 						});
 
@@ -244,34 +216,15 @@ DynamicImageView.prototype.updateThreshold = function(min, max)
 	this.image.tmin = min;
 	this.image.tmax = max;
 
-	this.$dialog.find( "#min" ).val( min );
-	this.$dialog.find( "#max" ).val( max );
+	this.$element.find( "#min" ).val( min );
+	this.$element.find( "#max" ).val( max );
 
 	// Update slider
-	this.$dialog.find('.thresholdSlider').slider({
+	this.$element.find('.thresholdSlider').slider({
 		values: [min, max]
 	});
 
 	this.render();
-}
-
-/**************************************************************************************************************/
-
-/**
- *	Toggle visibility of dialog
- */
-DynamicImageView.prototype.toggle = function()
-{
-	if ( this.$dialog.dialog( "isOpen" ) )
-	{
-		$('#'+this.activator).removeClass('selected');
-		this.$dialog.dialog("close");
-	}
-	else
-	{
-		$('#'+this.activator).addClass('selected');
-		this.$dialog.dialog("open");
-	}
 }
 
 /**************************************************************************************************************/
@@ -286,7 +239,7 @@ DynamicImageView.prototype.setImage = function(image)
 
 	var step = (image.max-image.min)/1000;
 	var self = this;
-	this.$dialog.find('.thresholdSlider').slider('option', {
+	this.$element.find('.thresholdSlider').slider('option', {
 		values: [image.min, image.max],
 		min: image.min,
 		max: image.max,
@@ -295,10 +248,10 @@ DynamicImageView.prototype.setImage = function(image)
 
 	// Put min/max values into placeholder
 	// Maybe not the most ergonomic way to do, but I found it cool J
-	this.$dialog.find('#min').attr("placeholder", image.min);
-	this.$dialog.find('#max').attr("placeholder", image.max);
+	this.$element.find('#min').attr("placeholder", image.min);
+	this.$element.find('#max').attr("placeholder", image.max);
 
-	// Create histogram attached to the canvas2d created in dialog
+	// Create histogram attached to the canvas2d
 	this.histogram = new Histogram({
 		canvas: 'histogram_'+this.id,
 		image: image,
@@ -316,19 +269,7 @@ DynamicImageView.prototype.setImage = function(image)
  */
 DynamicImageView.prototype.remove = function()
 {
-
-	if ( this.unselect )
-	{
-		this.unselect();
-	}
-
-	if( this.disable )
-	{
-		this.disable();
-	}
-
 	this.image.dispose();
-	this.$dialog.remove();
 }
 
 /**************************************************************************************************************/

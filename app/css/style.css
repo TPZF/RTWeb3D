@@ -4,7 +4,7 @@
 @import url('reverseNameResolver.css');
 @import url('featurePopup.css');
 @import url('sidebar.css');
-@import url('serviceBar.css');
+@import url('layerServiceView.css');
 @import url('mollweideViewer.css');
 @import url('imageProcessing.css');
 @import url('share.css');
@@ -239,3 +239,4 @@ input::-moz-placeholder
 {
 	color: rgb(255, 173, 0);
 }
+

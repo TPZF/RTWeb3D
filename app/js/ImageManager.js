@@ -37,7 +37,7 @@ var progressBars = {};
 function computeFits(featureData, url)
 {
 	// Remove all spaces from identifier
-	var id = "imageView_" + featureData.feature.properties.identifier.replace(/\s{1,}|\.{1,}/g, "") + "true";
+	var id = "imageView_" + featureData.feature.properties.identifier.replace(/\s{1,}|\.{1,}/g, "") + "_fits";
 	var progressBar = new SimpleProgressBar( { id: id } );
 
 	var xhr = FitsLoader.loadFits(url, function(fits){
@@ -62,45 +62,14 @@ function handleFits(fitsData, featureData)
 	var image = new DynamicImage(globe.renderContext, typedArray, gl.LUMINANCE, gl.FLOAT, fitsData.width, fitsData.height);
 
 	var feature = featureData.feature;
-	var layer = featureData.layer;
 
-	// Create dynamic image view and attach it to feature
-	feature.div = new DynamicImageView({
-		image : image,
-		activator: 'dynamicImageView',
-		id: feature.properties.identifier,
-		url: featureData.feature.services.download.url,
-		changeShaderCallback: function(contrast){
-			if ( contrast == "raw" )
-			{
-				var targetStyle = new FeatureStyle( feature.properties.style );
-				targetStyle.fillShader = {
-					fragmentCode: null,
-					updateUniforms: null
-				};
-				layer.modifyFeatureStyle( feature, targetStyle );
-			}
-			else
-			{
-				var targetStyle = new FeatureStyle( feature.properties.style );
-				targetStyle.fillShader = {
-					fragmentCode: image.fragmentCode,
-					updateUniforms: image.updateUniforms
-				};
-				layer.modifyFeatureStyle( feature, targetStyle );
-			}
-		},
-		disable: function(){
-			$('#dynamicImageView').removeClass('dynamicAvailable').addClass('dynamicNotAvailable');	
-		},
-		unselect: function(){
-			$('#dynamicImageView').removeClass('selected');
-		}
-	});
+	// Set dynamic image view to the service view
+	feature.serviceView.setHistogramContent(image);
 
 	// Enable dynamic image view
 	$('#dynamicImageView').addClass('dynamicAvailable').removeClass('dynamicNotAvailable');
 
+	var layer = featureData.layer;
 	// Attach texture to style
 	var targetStyle = new FeatureStyle( feature.properties.style );
 	targetStyle.fillTexture = image.texture;
@@ -125,10 +94,10 @@ function removeFits(featureData)
 	}
 	
 	// Remove dynamic image view
-	if ( featureData.feature.div )
+	if ( featureData.feature.serviceView )
 	{
-		featureData.feature.div.remove();
-		delete featureData.feature.div;
+		featureData.feature.serviceView.remove();
+		delete featureData.feature.serviceView;
 	}
 
 	removeFitsFromRenderer(featureData);

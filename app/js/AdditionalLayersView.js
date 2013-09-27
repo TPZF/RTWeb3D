@@ -228,16 +228,46 @@ function createHtmlForAdditionalLayer( gwLayer )
 
 	if ( gwLayer.fitsShader )
 	{
-		// Supports fits, so create dynamic image view
-		gwLayer.div = new DynamicImageView({
-			activator : 'addFitsView_'+gwLayer.name,
-			id : gwLayer.name,
-			disable : function(){
-				$('#addFitsView_'+gwLayer.name).button("disable");
+		// Supports fits, so create dynamic image view in dialog
+		var dialogId = "addFitsViewDialog_"+gwLayer.name;
+		var $dialog = $('<div id="'+dialogId+'"></div>').appendTo('body').dialog({
+			title: 'Image processing',
+			autoOpen: false,
+			show: {
+				effect: "fade",
+		    	duration: 300
 			},
-			unselect: function(){
+			hide: {
+				effect: "fade",
+				duration: 300
+			},
+			width: 400,
+			resizable: false,
+			width: 'auto',
+			minHeight: 'auto',
+			close: function(event, ui)
+			{
 				$('#addFitsView_'+gwLayer.name).removeAttr("checked").button("refresh");
-			},
+				$(this).dialog("close");
+			}
+		});
+
+		// Dialog activator
+		$('#addFitsView_'+gwLayer.name).on('click', function(){
+
+			if ( $dialog.dialog( "isOpen" ) )
+			{
+				$dialog.dialog("close");
+			}
+			else
+			{
+				$dialog.dialog("open");
+			}
+		});
+
+		// Add dynamic image view content to dialog
+		gwLayer.div = new DynamicImageView( dialogId, {
+			id : gwLayer.name,
 			changeShaderCallback: function(contrast)
 			{
 				if ( contrast == "raw" )
@@ -395,11 +425,6 @@ function initToolbarEvents ()
 
 		globe.removeLayer(layer);
 		globe.addLayer(layer);
-	});
-	// Show/hide Dynamic image service
-	$('#additionalLayers').on("click", '.addFitsView', function(event){
-		var layer = $(this).parent().parent().data("layer");
-		layer.div.toggle();		
 	});
 }
 

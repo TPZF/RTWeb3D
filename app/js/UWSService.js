@@ -21,23 +21,23 @@
  * UWS service
  *	- CutOut and ZScale currently
  */
-define( [ "jquery.ui", "CutOutView", "ZScaleView", "underscore-min", "text!../templates/uwsService.html", "jquery.ui.selectmenu" ],
-		function($, CutOutView, ZScaleView, _, uwsServiceHTMLTemplate) {
+define( [ "jquery.ui", "CutOutViewFactory", "ZScaleView", "underscore-min", "text!../templates/uwsService.html", "jquery.ui.selectmenu" ],
+		function($, CutOutViewFactory, ZScaleView, _, uwsServiceHTMLTemplate) {
 
 // Template generating UWS services div
 var uwsServiceTemplate = _.template(uwsServiceHTMLTemplate);
 
 return {
-	init: function(gl, nav, conf)
+	init: function(gl, nav, pm, conf)
 	{
 		if ( conf.cutOut )
 		{
-			CutOutView.init(gl, nav, conf.cutOut);
+			CutOutViewFactory.init(gl, nav, pm, conf.cutOut);
 		}
 
 		if ( conf.zScale )
 		{
-			ZScaleView.init(conf.zScale);
+			ZScaleView.init(pm, conf.zScale);
 		}
 	},
 
@@ -70,8 +70,9 @@ return {
 				}
 			});
 
-		CutOutView.add("cutOut");
 		ZScaleView.add("zScale");
+
+		tabs.tabs("refresh");
 	},
 
 	/**
@@ -86,7 +87,9 @@ return {
 			tabs.tabs("remove",index);
 		});
 
-		CutOutView.remove();
+		ZScaleView.remove();
+			
+		tabs.tabs("refresh");
 	}
 }
 

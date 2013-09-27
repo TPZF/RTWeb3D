@@ -278,7 +278,8 @@ return {
 		$selectedFeatureDiv.on("click", '#dynamicImageView', function(event){
 			if ($(this).is('.dynamicAvailable'))
 			{
-				pickingManager.getSelectedData().feature.div.toggle();
+				$(this).toggleClass('selected');
+				pickingManager.getSelectedData().feature.serviceView.toggle();
 			}
 		});
 

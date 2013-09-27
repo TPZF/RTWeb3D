@@ -98,7 +98,6 @@
 	color:#f6931f;
 	font-weight:bold;
 	pointer-events: none;
-	-webkit-touch-callout: none;
 	-webkit-user-select: none;
 	-moz-user-select: moz-none;
 }

@@ -1,15 +1,3 @@
-/********************/
-/*		Core		*/
-/********************/
-#serviceBar
-{
-	position: absolute;
-	top: 15px;
-	left: 300px;
-	display: none;
-	z-index: 9003;
-}
-
 /*****************************
 /***	Service tabs		*/
 /****************************/
@@ -288,7 +276,6 @@
 
 #zScale
 {
-	display: none;
 	margin-top: 5px;
 	font-size: 1.1em;
 	position: relative;

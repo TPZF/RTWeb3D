@@ -107,6 +107,11 @@ function attachForm(layer)
 						.html(layer.openSearchForm ? layer.openSearchForm : "OpenSearch parameter isn't available");
 				}
 			});
+		},
+		error: function(thrownError)
+		{
+			$('#osForm_'+layer.id)
+				.html("("+thrownError.status+") "+thrownError.statusText+"<br/>For more details, contact administrator.");
 		}
 	});
 }

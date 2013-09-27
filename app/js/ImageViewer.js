@@ -17,8 +17,8 @@
 * along with SITools2. If not, see <http://www.gnu.org/licenses/>. 
 ******************************************************************************/ 
 
-define(["gw/FeatureStyle", "underscore-min", "text!../templates/imageViewerItem.html"],
-	function(FeatureStyle, _, imageViewerItemHTMLTemplate){
+define(["gw/FeatureStyle", "FeatureServiceView", "underscore-min", "text!../templates/imageViewerItem.html"],
+	function(FeatureStyle, FeatureServiceView, _, imageViewerItemHTMLTemplate){
 
 var navigation;
 var globe;
@@ -63,10 +63,29 @@ return {
 	addView: function(selectedData, isFits)
 	{	
 		var feature = selectedData.feature;
-		//Remove all spaces, points and add isFits property for correct progress bar handling
-		var id = selectedData.feature.properties.identifier.replace(/\s{1,}|\.{1,}/g, "") + isFits;
+		//Remove all spaces, points
+		var id = selectedData.feature.properties.identifier.replace(/\s{1,}|\.{1,}/g, "");
+		// Add isFits property for correct progress bar handling
+		if ( isFits )
+		{
+			id+="_fits";
+		}
 		var name = selectedData.feature.properties.identifier;
 		var $li;
+		
+		// Create service view for the given feature
+		selectedData.feature.serviceView = new FeatureServiceView({
+				id: "featureServices_"+ id,
+				layer: selectedData.layer,
+				feature: feature,
+				disable: function(){
+					$('#dynamicImageView').removeClass('dynamicAvailable').addClass('dynamicNotAvailable');	
+				},
+				unselect: function(){
+					$('#dynamicImageView').removeClass('selected');
+				}
+			}
+		);
 		if ( $('#loadedImages ul li[id="'+id+'"]').length == 0 )
 		{
 			// Create only if not already added
@@ -118,13 +137,13 @@ return {
 					imageManager.removeImage(selectedData, isFits);
 				}).end()
 				// Image processing
-				.find('.imageProcessing').button({
+				.find('.featureServices').button({
 					text: false,
 					icons: {
 						primary: "ui-icon-image"
 					}
 				}).on('click', function(){
-					feature.div.toggle();
+					selectedData.feature.serviceView.toggle();
 				}).end();
 
 			if ( $('#loadedImages ul li').length == 1 )
@@ -155,7 +174,11 @@ return {
 	 */
 	removeView: function(selectedData, isFits)
 	{
-		var id = "imageView_" + selectedData.feature.properties.identifier.replace(/\s{1,}|\.{1,}/g, "") + isFits;
+		var id = "imageView_" + selectedData.feature.properties.identifier.replace(/\s{1,}|\.{1,}/g, "");
+		if ( isFits )
+		{
+			id+="_fits";
+		}
 		$('#loadedImages ul li[id="'+id+'"]').fadeOut(function(){
 			$(this).remove();
 			if ( $('#loadedImages ul li').length == 0 )

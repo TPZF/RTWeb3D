@@ -21,10 +21,11 @@
  * UWS ZScale View
  * TODO unify all UWS services
  */
-define( [ "jquery.ui", "ZScale", "PickingManager", "AnimatedButton" ],
-		function($, ZScale, PickingManager, AnimatedButton) {
+define( [ "jquery.ui", "ZScale", "AnimatedButton" ],
+		function($, ZScale, AnimatedButton) {
 
 var runButton;
+var pickingManager;
 
 /**************************************************************************************************************/
 
@@ -41,7 +42,7 @@ function showMessage(message)
 function findUrl()
 {
 	var url = null;
-	var selectedData = PickingManager.getSelectedData();
+	var selectedData = pickingManager.getSelectedData();
 	if ( selectedData )
 	{
 		// Data selected
@@ -83,8 +84,9 @@ function runJob()
 
 return {
 
-	init: function(conf)
+	init: function(pm, conf)
 	{
+		pickingManager = pm;
 		ZScale.init(conf.baseUrl);
 	},
 

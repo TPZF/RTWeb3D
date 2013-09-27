@@ -106,23 +106,44 @@ return {
 			}
 		});
 
-		backgroundDiv = new DynamicImageView({
-			activator : 'fitsView',
-			id : 'backgroundFitsView',
-			enable : function(){
-				$('#fitsView').button("enable");
+		var dialogId = backgroundDiv;
+		var $dialog = $('<div id="'+dialogId+'"></div>').appendTo('body').dialog({
+			title: 'Image processing',
+			autoOpen: false,
+			show: {
+				effect: "fade",
+		    	duration: 300
 			},
-			disable : function(){
-				$('#fitsView').button("disable");
+			hide: {
+				effect: "fade",
+				duration: 300
 			},
-			unselect: function(){
+			width: 400,
+			resizable: false,
+			width: 'auto',
+			minHeight: 'auto',
+			close: function(event, ui)
+			{
 				$('#fitsView').removeAttr("checked").button("refresh");
+				$(this).dialog("close");
 			}
 		});
 
 		// Show/hide Dynamic image service
 		$('#fitsView').on("click", function(event){
-			backgroundDiv.toggle();
+
+			if ( $dialog.dialog( "isOpen" ) )
+			{
+				$dialog.dialog("close");
+			}
+			else
+			{
+				$dialog.dialog("open");
+			}
+		});
+
+		backgroundDiv = new DynamicImageView(dialogId, {
+			id : 'backgroundFitsView',
 		});
 
 		$('#fitsType').button();

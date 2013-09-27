@@ -21,8 +21,8 @@
  *	Layer service view
  *	The view representing the services for each layer
  */
-define( [ "jquery.ui", "OpenSearchService", "MocService", "XMatchService", "UWSService" ],
-			function($, OpenSearchService, MocService, XMatchService, UWSService) {
+define( [ "jquery.ui", "PickingManager", "OpenSearchService", "MocService", "XMatchService", "UWSService" ],
+			function($, PickingManager, OpenSearchService, MocService, XMatchService, UWSService) {
 
 var layerServiceView = '<div id="layerServiceView" title="Avaliable services">\
 							<div id="layerServices">\
@@ -69,8 +69,8 @@ return {
 	init: function(gl, nav, lm, configuration)
 	{
 		MocService.init(gl, configuration);
-		UWSService.init(gl, nav, configuration);
-		XMatchService.init(gl,lm,configuration);
+		UWSService.init(gl, nav, PickingManager, configuration);
+		XMatchService.init(gl, lm, configuration);
 
 		for ( var i=0; i<services.length; i++ )
 		{

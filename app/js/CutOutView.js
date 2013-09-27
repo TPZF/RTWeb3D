@@ -20,67 +20,41 @@
 /**
  * UWS CutOut View
  */
-define( [ "jquery.ui", "SelectionTool", "PickingManager", "CutOut", "gw/CoordinateSystem", "AnimatedButton", "underscore-min", "text!../templates/cutOut.html" ],
-		function($, SelectionTool, PickingManager, CutOut, CoordinateSystem, AnimatedButton, _, cutOutHTMLTemplate) {
-
-var selectionTool;
-var runButton;
+define( [ "jquery.ui", "SelectionTool", "CutOut", "gw/CoordinateSystem", "AnimatedButton", "underscore-min", "text!../templates/cutOut.html" ],
+		function($, SelectionTool, CutOut, CoordinateSystem, AnimatedButton, _, cutOutHTMLTemplate) {
 
 // Template generating UWS services div
 var cutOutTemplate = _.template(cutOutHTMLTemplate);
 
-/**************************************************************************************************************/
-
-/**
- *	Show message
- */
-function showMessage(message)
+var CutOutView = function(element, selectionTool, pickingManager)
 {
-	$('#jobInfo').html(message).stop().slideDown(300).delay(2000).slideUp();
-}
 
-/**************************************************************************************************************/
+	this.pickingManager = pickingManager;
+	// Initialize selection tool
+	this.selectionTool = selectionTool;
 
-/**
- *	Toggle
- */
-function toggleSelectionTool()
-{
-	// Deactivate picking events
-	PickingManager.deactivate();
-    selectionTool.toggle();
-    $('#layerServices').slideUp();
-}
+	var cutOutContent = cutOutTemplate();
+	var self = this;
+	$('#'+element).html("");
+	this.$content = $(cutOutContent)
+		.appendTo('#'+element)
+		.find('#selectionTool')
+			.button()
+			.click(function(){
+				self.$content.slideUp();
+				// Deactivate picking events
+				self.pickingManager.deactivate();
+				self.selectionTool.toggle();
+			}).end()
+		.find('#clearSelection')
+			.button()
+			.click(function(){
+				self.selectionTool.clear();
+			}).end();
 
-/**************************************************************************************************************/
-
-/**
- *	Find url to cut
- *
- *	@return url of image to cut if it's inside the selection and feature is selected, null otherwise
- */
-function findUrl()
-{
-	var url = null;
-	if ( selectionTool.pickPoint )
-	{
-		// Area selected
-		var selectedData = PickingManager.getSelectedData();
-		if ( selectedData )
-		{
-			// Data selected
-		    url = selectedData.feature.services.download.url
-		}
-		else
-		{
-			showMessage('Please select observation to cut');
-		}
-	}
-	else
-	{
-		showMessage('Please select area to cut');
-	}
-	return url;
+	this.runButton = new AnimatedButton( $('#'+element).find('#runJob')[0], {
+		onclick: $.proxy(this.runJob, this)
+	} );
 }
 
 /**************************************************************************************************************/
@@ -88,28 +62,29 @@ function findUrl()
 /**
  *	Run job
  */
-function runJob()
+CutOutView.prototype.runJob = function()
 {	
-	var url = findUrl();
+	var url = this.findUrl();
 	if ( url )
 	{
-		runButton.startAnimation();
+		this.runButton.startAnimation();
 		// Convert to equatorial due to CutOut protocol
 		if ( CoordinateSystem.type != "EQ" )
 		{
-			selectionTool.geoPickPoint = CoordinateSystem.convertFromDefault(selectionTool.geoPickPoint, "EQ");
+			this.selectionTool.geoPickPoint = CoordinateSystem.convertFromDefault(this.selectionTool.geoPickPoint, "EQ");
 		}
 
 		var parameters = {
 			url: url,
-			ra: selectionTool.geoPickPoint[0],
-			dec: selectionTool.geoPickPoint[1],
-			radius: selectionTool.geoRadius
+			ra: this.selectionTool.geoPickPoint[0],
+			dec: this.selectionTool.geoPickPoint[1],
+			radius: this.selectionTool.geoRadius
 		};
+		var self = this;
 		CutOut.post(parameters, {
 			successCallback: function(results)
 			{
-				showMessage('Completed');
+				self.showMessage('Completed');
 				for ( var x in results )
 				{
 					var proxyIndex = x.search('file_id=');
@@ -123,16 +98,16 @@ function runJob()
 					{
 						shortName = x;
 					}
-					runButton.stopAnimation();
+					self.runButton.stopAnimation();
 					$('<li style="display: none;">'+shortName+' <a href="' + results[x] +'" download="'+shortName+'"><img style="vertical-align: middle; width: 20px; height: 20px;" title="Download" src="css/images/download1.png"></a></li>')
-						.appendTo($('#cutoutResults').find('ul'))
+						.appendTo(self.$content.find('.cutoutResults').find('ul'))
 						.fadeIn(400);
 				}
 			},
 			failCallback: function(error)
 			{
-				runButton.stopAnimation();
-				showMessage(error);
+				self.runButton.stopAnimation();
+				self.showMessage(error);
 			}
 		});
 	}
@@ -140,60 +115,42 @@ function runJob()
 
 /**************************************************************************************************************/
 
-return {
-
-	init: function(gl, nav, conf)
+/**
+ *	
+ */
+CutOutView.prototype.findUrl = function()
+{
+	var url = null;
+	if ( this.selectionTool.pickPoint )
 	{
-		// Initialize cutout service
-		CutOut.init(conf);
-
-		// Initialize selection tool
-		selectionTool = new SelectionTool({
-			globe: gl,
-			navigation: nav,
-			onselect: function(){
-				$('#layerServices').slideDown();
-				// Activate picking events
-				PickingManager.activate();
-				selectionTool.toggle();
-			}
-		});
-	},
-
-	/**************************************************************************************************************/
-
-	/**
-	 *	Append HTML to the given element
-	 */
-	add: function(element)
-	{
-		var cutOutContent = cutOutTemplate();
-		$(cutOutContent)
-			.appendTo('#'+element)
-			.parent().find('#selectionTool')
-				.button()
-				.click(toggleSelectionTool).end()
-			.parent().find('#clearSelection')
-				.button()
-				.click(function(){
-					selectionTool.clear();
-				});
-
-		runButton = new AnimatedButton( $('#'+element).find('#runJob')[0], {
-			onclick: runJob
-		} );
-	},
-
-	/**************************************************************************************************************/
-
-	/**
-	 *	Remove view
-	 */
-	remove: function(){
-		selectionTool.clear();
+		// Area selected
+		var selectedData = this.pickingManager.getSelectedData();
+		if ( selectedData )
+		{
+			// Data selected
+		    url = selectedData.feature.services.download.url
+		}
+		else
+		{
+			this.showMessage('Please select observation to cut');
+		}
 	}
+	else
+	{
+		this.showMessage('Please select area to cut');
+	}
+	return url;
 }
 
 /**************************************************************************************************************/
+
+CutOutView.prototype.showMessage = function(message)
+{
+	this.$content.find('.jobStatus').html(message).stop().slideDown(300).delay(2000).slideUp();
+}
+
+/**************************************************************************************************************/
+
+return CutOutView;
 
 });
