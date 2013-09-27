@@ -20,8 +20,8 @@
 /**
  * AdditionalLayersView module
  */
-define(["jquery.ui", "gw/FeatureStyle", "gw/OpenSearchLayer", "MocLayer", "gw/VectorLayer", "PickingManager", "DynamicImageView", "LayerServiceView", "Samp", "underscore-min", "text!../templates/additionalLayer.html", "jquery.nicescroll.min"],
-		function($, FeatureStyle, OpenSearchLayer, MocLayer, VectorLayer, PickingManager, DynamicImageView, LayerServiceView, Samp, _, additionalLayerHTMLTemplate){
+define(["jquery.ui", "gw/FeatureStyle", "gw/OpenSearchLayer", "HEALPixFITSLayer", "MocLayer", "gw/VectorLayer", "PickingManager", "DynamicImageView", "LayerServiceView", "Samp", "underscore-min", "text!../templates/additionalLayer.html", "jquery.nicescroll.min"],
+		function($, FeatureStyle, OpenSearchLayer, HEALPixFITSLayer, MocLayer, VectorLayer, PickingManager, DynamicImageView, LayerServiceView, Samp, _, additionalLayerHTMLTemplate){
 
 var globe;
 var navigation;
@@ -101,7 +101,7 @@ function createHtmlForAdditionalLayer( gwLayer )
 {
 	var currentIndex = gwLayer.id;
 
-	var layerDiv = additionalLayerTemplate( { layer: gwLayer, currentIndex: currentIndex, OpenSearchLayer: OpenSearchLayer } );
+	var layerDiv = additionalLayerTemplate( { layer: gwLayer, currentIndex: currentIndex, OpenSearchLayer: OpenSearchLayer, HEALPixFITSLayer: HEALPixFITSLayer } );
 	var layerContainer = gwLayer.gridProgram ? '#coordinateGrids' : '#additionalLayers';
 	var $layerDiv = $(layerDiv)
 		.appendTo(layerContainer)
@@ -226,7 +226,7 @@ function createHtmlForAdditionalLayer( gwLayer )
 		}
 	});
 
-	if ( gwLayer.fitsShader )
+	if ( gwLayer instanceof HEALPixFITSLayer )
 	{
 		// Supports fits, so create dynamic image view in dialog
 		var dialogId = "addFitsViewDialog_"+gwLayer.name;

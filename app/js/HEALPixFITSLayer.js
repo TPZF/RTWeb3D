@@ -42,7 +42,6 @@ var HEALPixFITSLayer = function(options)
 	this.levelZeroImage = null;
 
 	// Customization parameters for fits rendering
-	this.customShader = null;
 
 	// TODO use DynamicImage shaders by unifying shader programs between TileManager and ConvexPolygonRenderer
 	//		* inverse Y coordinates, some var names refactor..
@@ -51,10 +50,18 @@ var HEALPixFITSLayer = function(options)
 		varying vec2 texCoord;\n\
 		uniform sampler2D colorTexture; \n\
 		uniform float opacity; \n\
+		uniform float inversed; \n\
+		bool isnan(float val) {\n\
+				return (val <= 0.0 || 0.0 <= val) ? ((val == 5e-324) ? true : false) : true;\n\
+		}\n\
 		void main(void)\n\
 		{\n\
-				vec4 color = texture2D(colorTexture, vec2(texCoord.x, 1.0 - texCoord.y));\n\
-				gl_FragColor = vec4(color.r,color.g,color.b, color.a*opacity);\n\
+			vec4 color = texture2D(colorTexture, vec2(texCoord.x, (inversed == 1.) ? 1.0 - texCoord.y : texCoord.y));\n\
+			gl_FragColor = vec4(color.r,color.g,color.b, color.a*opacity);\n\
+			if (isnan( (gl_FragColor.r + gl_FragColor.g + gl_FragColor.b) / 3. ) )\n\
+			{\n\
+				gl_FragColor.a = 0.;\n\
+			}\n\
 		}\n\
 		";
 
@@ -66,20 +73,27 @@ var HEALPixFITSLayer = function(options)
 		uniform float min; \n\
 		uniform float max; \n\
 		uniform float opacity; \n\
+		bool isnan(float val) {\n\
+			return (val <= 0.0 || 0.0 <= val) ? false : true;\n\
+		}\n\
 		void main(void)\n\
 		{\n\
-				float i = texture2D(colorTexture,vec2(texCoord.x, 1.0 - texCoord.y)).r;\n\
-				float d = clamp( ( i - min ) / (max - min), 0.0, 1.0 );\n\
-				vec4 cmValue = texture2D(colormap, vec2(d,0.));\n\
-				gl_FragColor = vec4(cmValue.r,cmValue.g,cmValue.b,1.);\n\
-				gl_FragColor.a *= opacity;\n\
+			float i = texture2D(colorTexture,vec2(texCoord.x, 1.0 - texCoord.y)).r;\n\
+			float d = clamp( ( i - min ) / (max - min), 0.0, 1.0 );\n\
+			vec4 cmValue = texture2D(colormap, vec2(d,0.));\n\
+			gl_FragColor = vec4(cmValue.r,cmValue.g,cmValue.b, cmValue.a*opacity);\n\
+			if (isnan( i ) )\n\
+			{\n\
+				 gl_FragColor.a = 0.;\n\
+			}\n\
 		}\n\
 		";
 
-	this.fitsShader = {
+	this.customShader = {
 		fragmentCode: this.rawFragShader,
 		updateUniforms : function(gl, program){
 			// Level zero image is required to init uniforms
+			gl.uniform1f(program.uniforms["inversed"], self.inversed );
 			if ( self.levelZeroImage )
 			{
 				gl.uniform1f(program.uniforms["max"], self.levelZeroImage.tmax );
@@ -273,14 +287,15 @@ HEALPixFITSLayer.prototype.handleImage = function(imgRequest)
  */
 HEALPixFITSLayer.prototype.requestLevelZeroImage = function()
 {
+	// Revert to raw rendering
+	this.customShader.fragmentCode = this.rawFragShader;
 	if ( this.dataType == "fits" )
 	{
-		// Update custom shader before level zero image loading in case of overlay
-		this.customShader = this.fitsShader;
+		this.inversed = 1.;
 	}
 	else
 	{
-		this.customShader = null;
+		this.inversed = 0.;
 	}
 
 	var url = this.baseUrl + "/Norder3/Allsky."+this.dataType;

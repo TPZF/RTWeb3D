@@ -40,7 +40,7 @@
 		}
 		%>
 
-		<% if ( layer.fitsShader )
+		<% if ( layer instanceof HEALPixFITSLayer )
 		{
 		%>
 			<input type="checkbox" class="isFits" id="isFits_<%= currentIndex %>" /><label for="isFits_<%= currentIndex %>">Fits</label>

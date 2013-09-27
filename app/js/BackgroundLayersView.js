@@ -20,7 +20,8 @@
 /**
  * BackgroundLayersView module
  */
-define(["jquery.ui", "DynamicImageView", "PickingManager"], function($, DynamicImageView, PickingManager){
+define(["jquery.ui", "DynamicImageView", "PickingManager", "HEALPixFITSLayer"],
+		function($, DynamicImageView, PickingManager, HEALPixFITSLayer){
 
 // Necessary for selectmenu initialization
 var backgroundLayersIcons = []; 
@@ -37,7 +38,7 @@ var backgroundDiv;
  */
 function updateBackgroundOptions(layer)
 {		
-	if ( layer.fitsShader )
+	if ( layer instanceof HEALPixFITSLayer )
 	{
 		$("#fitsType").removeAttr('disabled').button("refresh");
 		// Dynamic image view button visibility
