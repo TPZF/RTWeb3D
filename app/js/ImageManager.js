@@ -20,8 +20,8 @@
 /**
  * Image manager
  */
-define( [ "jquery.ui", "gw/FeatureStyle", "gw/DynamicImage", "SimpleProgressBar", "FitsLoader", "ImageViewer", "Utils", "fits" ],
-			function($, FeatureStyle, DynamicImage, SimpleProgressBar, FitsLoader, ImageViewer, Utils) {
+define( [ "jquery.ui", "gw/FeatureStyle", "gw/DynamicImage", "SimpleProgressBar", "FitsLoader", "ImageViewer", "Utils", "ImageProcessing", "fits" ],
+			function($, FeatureStyle, DynamicImage, SimpleProgressBar, FitsLoader, ImageViewer, Utils, ImageProcessing) {
 
 var globe = null;
 var progressBars = {};
@@ -62,19 +62,15 @@ function handleFits(fitsData, featureData)
 	var image = new DynamicImage(globe.renderContext, typedArray, gl.LUMINANCE, gl.FLOAT, fitsData.width, fitsData.height);
 
 	var feature = featureData.feature;
-
-	// Set dynamic image view to the service view
-	feature.imageProcessing.setHistogramContent(image);
-
-	// Enable dynamic image view
-	// $('#dynamicImageView').addClass('dynamicAvailable').removeClass('dynamicNotAvailable');
-
 	var layer = featureData.layer;
 	// Attach texture to style
 	var targetStyle = new FeatureStyle( feature.properties.style );
 	targetStyle.fillTexture = image.texture;
 	targetStyle.uniformValues = image;
 	layer.modifyFeatureStyle( feature, targetStyle );
+
+	// Set dynamic image view to the service view
+	ImageProcessing.setData(featureData);
 }
 
 /**********************************************************************************************/
@@ -92,13 +88,6 @@ function removeFits(featureData)
 		progressXhr.abort();
 		delete progressBars[id];
 	}
-	
-	// Remove dynamic image view
-	if ( featureData.feature.imageProcessing )
-	{
-		featureData.feature.imageProcessing.remove();
-		delete featureData.feature.imageProcessing;
-	}
 
 	removeFitsFromRenderer(featureData);
 }
@@ -111,6 +100,11 @@ function removeFits(featureData)
 function removeFitsFromRenderer(featureData)
 {
 	var gl = globe.renderContext.gl;
+	if ( featureData.feature.properties.style.uniformValues )
+	{
+		featureData.feature.properties.style.uniformValues.dispose();
+	}
+	// TODO : style could still contain fillTextures, is it normal ?
 	var texture = featureData.feature.properties.style.fillTexture;
 	if ( texture )
 	{

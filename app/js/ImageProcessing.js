@@ -17,98 +17,36 @@
 * along with SITools2. If not, see <http://www.gnu.org/licenses/>. 
 ******************************************************************************/ 
 
+/**
+ *	ImageProcessing module
+ */
 define( [ "jquery.ui", "SelectionTool", "CutOutViewFactory", "DynamicImageView", "gw/FeatureStyle" ],
 		function($, SelectionTool, CutOutViewFactory, DynamicImageView, FeatureStyle) {
 
 /**************************************************************************************************************/
 
-/**
- *	ImageProcessing
- *	@param options
- *		Required:
- *		<ul>
- *			<li>id: Identifier</li>
- *			<li>feature: The feature which will be modified by services
- *			<li>layer: The layer to which the feature belongs to
- *		</ul>
- *		Optional:
- *		<ul>
- *			<li>disable: Disable callback</li>
- *			<li>unselect: Unselect callback</li>
- *		</ul>
- */
-var ImageProcessing = function(options)
-{
-	this.id = options.id;
-	this.feature = options.feature;
-	this.layer = options.layer;
-
-	// Callbacks
-	this.disable = options.disable || null;
-	this.unselect = options.unselect || null;
-
-	var dialog =
-		'<div>\
-			<div class="imageProcessing" id="imageProcessing'+this.id+'" title="Image processing">\
-				<h3>Histogram</h3>\
-				<div id="histogramView_'+this.id+'">\
-				<p> Fits is loading, histogram information isn\'t available yet </p>\
-				</div>\
-				<h3>Cutout</h3>\
-				<div id="cutOutView_'+this.id+'"></div>\
-			</div>\
-		</div>';
-
-	var self = this;
-	this.$dialog = $(dialog).appendTo('body').dialog({
-		title: 'Image processing',
-		autoOpen: false,
-		show: {
-			effect: "fade",
-			duration: 300
-		},
-		hide: {
-			effect: "fade",
-			duration: 300
-		},
-		width: 500,
-		resizable: false,
-		minHeight: 'auto',
-		close: function(event, ui)
-		{
-			if ( self.unselect )
-			{
-				self.unselect();
-			}
-			
-			$(this).dialog("close");
-
-		}
-	}).find(".imageProcessing").accordion({
-		autoHeight: false,
-		active: 0,
-		collapsible: true,
-		heightStyle: "content"
-	}).end();
-
-	this.histogramElement = null; // to set when image image is loaded
-	this.cutOutElement = CutOutViewFactory.addView("cutOutView_"+this.id);
-}
+var feature;
+var layer;
+var disable;
+var unselect;
+var $dialog;
+var histogramElement;
+var cutOutElement;
 
 /**************************************************************************************************************/
 
 /**
  *	Toggle visibility of dialog
  */
-ImageProcessing.prototype.toggle = function()
+function toggle()
 {
-	if ( this.$dialog.dialog( "isOpen" ) )
+	if ( $dialog.dialog( "isOpen" ) )
 	{
-		this.$dialog.dialog("close");
+		$dialog.dialog("close");
 	}
 	else
 	{
-		this.$dialog.dialog("open");
+		$dialog.dialog("open");
 	}
 }
 
@@ -117,63 +55,188 @@ ImageProcessing.prototype.toggle = function()
 /**
  *	Remove view
  */
-ImageProcessing.prototype.remove = function()
+function remove()
 {
-
-	if ( this.unselect )
+	if ( unselect )
 	{
-		this.unselect();
+		unselect();
 	}
 
-	if( this.disable )
+	if( disable )
 	{
-		this.disable();
+		disable();
 	}
-	if ( this.histogramElement )
-		this.histogramElement.remove();
 
-	CutOutViewFactory.removeView(this.cutOutElement);
-	this.$dialog.remove();
+	if ( histogramElement )
+		histogramElement.remove();
+
+	CutOutViewFactory.removeView(cutOutElement);
+	$dialog.remove();
 }
 
 /**************************************************************************************************************/
 
 /**
- *	Set histogram layout content based on DynamicImageView
+ *	Set data to process
+ *
+ *	@param selectedData Object containing feature and layer extracted by <PickingManager>
  */
-ImageProcessing.prototype.setHistogramContent = function(image)
+function setData(selectedData)
 {
-	// Create dynamic image view and attach it to feature
-	var feature = this.feature;
-	var self = this;
-	var div = new DynamicImageView("histogramView_"+this.id, {
-		image : image,
-		id: feature.properties.identifier,
-		url: feature.services.download.url,
-		changeShaderCallback: function(contrast){
-			if ( contrast == "raw" )
-			{
-				var targetStyle = new FeatureStyle( feature.properties.style );
-				targetStyle.fillShader = {
-					fragmentCode: null,
-					updateUniforms: null
-				};
-				self.layer.modifyFeatureStyle( feature, targetStyle );
-			}
-			else
-			{
-				var targetStyle = new FeatureStyle( feature.properties.style );
-				targetStyle.fillShader = {
-					fragmentCode: image.fragmentCode,
-					updateUniforms: image.updateUniforms
-				};
-				self.layer.modifyFeatureStyle( feature, targetStyle );
-			}
-		}
-	});
-	this.histogramElement = div;
+    if ( feature && feature.properties.identifier == selectedData.feature.properties.identifier )
+    {
+        this.toggle();    
+    }
+    else
+    {
+       if ( !$dialog.dialog( "isOpen" ) )
+       {
+            this.toggle();
+       }
+    }
+    
+    feature = selectedData.feature;
+	layer = selectedData.layer;
+    
+    var image = selectedData.feature.properties.style.uniformValues;
+	if ( !image )
+    {
+        $dialog.find('.histogramContent').children('div').fadeOut(function(){
+				$(this).siblings('p').fadeIn();
+		});
+    }
+    else
+    {
+    	this.setImage(image);
+    }
 }
 
-return ImageProcessing;
+/**************************************************************************************************************/
+
+return {
+
+	/**
+	 *	Init
+	 *
+	 *	@param options
+	 *		<ul>
+	 *			<li>feature: The feature to process
+	 *			<li>layer: The layer to which the feature belongs to
+	 *			<li>disable: Disable callback</li>
+	 *			<li>unselect: Unselect callback</li>
+	 *		</ul>
+	 */
+	init: function(options)
+	{
+		if ( options )
+		{
+			//this.id = options.id;
+			feature = options.feature || null;
+			layer = options.layer || null;
+
+			// Callbacks
+			disable = options.disable || null;
+			unselect = options.unselect || null;
+		}
+
+		var dialog =
+			'<div>\
+				<div class="imageProcessing" id="imageProcessing" title="Image processing">\
+					<h3>Histogram</h3>\
+					<div class="histogramContent">\
+						<p> Fits isn\'t loaded, thus histogram information isn\'t available</p>\
+						<div style="display: none;" id="histogramView"></div>\
+					</div>\
+					<h3>Cutout</h3>\
+					<div id="cutOutView"></div>\
+				</div>\
+			</div>';
+
+		$dialog = $(dialog).appendTo('body').dialog({
+			title: 'Image processing',
+			autoOpen: false,
+			show: {
+				effect: "fade",
+				duration: 300
+			},
+			hide: {
+				effect: "fade",
+				duration: 300
+			},
+			width: 500,
+			resizable: false,
+			minHeight: 'auto',
+			close: function(event, ui)
+			{
+				if ( unselect )
+				{
+					unselect();
+				}
+				
+				$(this).dialog("close");
+
+			}
+		}).find(".imageProcessing").accordion({
+			autoHeight: false,
+			active: 0,
+			collapsible: true,
+			heightStyle: "content"
+		}).end();
+
+		histogramElement = new DynamicImageView( "histogramView", {
+			id: "featureImageProcessing",
+			changeShaderCallback: function(contrast){
+				if ( contrast == "raw" )
+				{
+					var targetStyle = new FeatureStyle( feature.properties.style );
+					targetStyle.fillShader = {
+						fragmentCode: null,
+						updateUniforms: null
+					};
+					layer.modifyFeatureStyle( feature, targetStyle );
+				}
+				else
+				{
+					var targetStyle = new FeatureStyle( feature.properties.style );
+					targetStyle.fillShader = {
+						fragmentCode: this.image.fragmentCode,
+						updateUniforms: this.image.updateUniforms
+					};
+					layer.modifyFeatureStyle( feature, targetStyle );
+				}
+			}
+		})
+		cutOutElement = CutOutViewFactory.addView("cutOutView");
+	},
+
+	setData: setData,
+	setImage: function(image)
+	{
+		histogramElement.setImage(image);
+		$dialog.find('.histogramContent').children('p').fadeOut(function(){
+			$(this).siblings('div').fadeIn();
+		});
+	},
+	toggle: toggle,
+	isOpened: function()
+	{
+		return $dialog.dialog( "isOpen" );
+	},
+	removeData: function(data)
+	{
+		if ( data.feature.properties.identifier == feature.properties.identifier )
+		{
+			if ( this.isOpened() )
+			{
+				this.toggle();
+			}
+			$dialog.find('.histogramContent').children('div').fadeOut(function(){
+				$(this).siblings('p').fadeIn();
+			});
+			feature = null;
+			layer = null;
+		}
+	}
+};
 
 });

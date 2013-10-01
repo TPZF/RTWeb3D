@@ -465,9 +465,9 @@ return {
 
 		activate();
 	
-		FeaturePopup.init(this, gl, configuration);
 		// Initialize the fits manager
 		ImageManager.init(this, globe, navigation);
+		FeaturePopup.init(this, ImageManager, gl, configuration);
 	},
 
 	/**************************************************************************************************************/

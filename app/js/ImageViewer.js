@@ -73,19 +73,6 @@ return {
 		var name = selectedData.feature.properties.identifier;
 		var $li;
 		
-		// Create service view for the given feature
-		selectedData.feature.imageProcessing = new ImageProcessing({
-				id: "imageProcessing_"+ id,
-				layer: selectedData.layer,
-				feature: feature,
-				disable: function(){
-					$('#dynamicImageView').removeClass('dynamicAvailable').addClass('dynamicNotAvailable');	
-				},
-				unselect: function(){
-					$('#dynamicImageView').removeClass('selected');
-				}
-			}
-		);
 		if ( $('#loadedImages ul li[id="'+id+'"]').length == 0 )
 		{
 			// Create only if not already added
@@ -135,6 +122,7 @@ return {
 				}).on('click', function(){
 					// Remove image
 					imageManager.removeImage(selectedData, isFits);
+					ImageProcessing.removeData(selectedData);
 				}).end()
 				// Image processing
 				.find('.imageProcessing').button({
@@ -143,7 +131,7 @@ return {
 						primary: "ui-icon-image"
 					}
 				}).on('click', function(){
-					selectedData.feature.imageProcessing.toggle();
+					ImageProcessing.setData(selectedData);
 				}).end();
 
 			if ( $('#loadedImages ul li').length == 1 )
@@ -174,8 +162,7 @@ return {
 	 */
 	removeView: function(selectedData, isFits)
 	{
-		var id = Utils.formatId(selectedData.feature.properties.identifier);
-		id = "imageView_" + id;
+		var id = "imageView_" + Utils.formatId(selectedData.feature.properties.identifier);
 		if ( isFits )
 		{
 			id+="_fits";

@@ -68,28 +68,17 @@ var DynamicImageView = function(element, options)
 						case "sqr":
 						case "asin":
 							// Enable all interactive components
-							$slider.slider( "enable" );
-							$selectmenu.selectmenu( "enable" );
-							self.$element.find('.inverse').removeAttr('disabled').button("refresh");
-							self.$element.find('.zScale').removeAttr('disabled').button("refresh");
-							self.image.updateColormap(selectedContrast, selectedColormap, isInversed);
-							self.$element.find('.thresholdInputs input').each(function(i){
-								$(this).removeAttr('disabled');
-							});
+							self.enableUI();
 							break;
 						case "raw":
 							// Disable all interactive components
-							$selectmenu.selectmenu( "disable" );
-							$slider.slider( "disable" );
-							self.$element.find('.inverse').attr('disabled', 'disabled').button("refresh");
-							self.$element.find('.zScale').attr('disabled', 'disabled').button("refresh");
-							self.$element.find('.thresholdInputs input').each(function(i){
-								$(this).attr('disabled', 'disabled');
-							});
+							self.disableUI();
 							break;
 						default:
 							break;
 					}
+
+					self.image.updateColormap(selectedContrast, selectedColormap, isInversed);
 					if ( self.changeShaderCallback )
 						self.changeShaderCallback(selectedContrast);
 
@@ -134,6 +123,7 @@ var DynamicImageView = function(element, options)
 		select: function(e)
 		{
 			selectedColormap = $(this).children('option:selected').val();
+			self.image.colormap = selectedColormap;
 			self.image.updateColormap(selectedContrast, selectedColormap, isInversed);
 			self.image.renderContext.requestFrame();
 		}
@@ -199,14 +189,50 @@ var DynamicImageView = function(element, options)
 		}
 	});
 
+	// Create histogram attached to the canvas2d
+	this.histogram = new Histogram({
+		canvas: 'histogram_'+this.id,
+		nbBeans: 256,
+		onUpdate: $.proxy(this.updateThreshold, this)
+	});
+
 	// Set image if defined
 	if ( options.image )
 	{
+		options.image.colormap = "grey";
 		this.setImage(options.image);
 	}
 }
 
 /**************************************************************************************************************/
+
+/**
+ *	Enable all UI elements
+ */
+DynamicImageView.prototype.enableUI = function()
+{
+	this.$element.find('.colormap').selectmenu( "enable" );
+	this.$element.find('.thresholdSlider').slider( "enable" );
+	this.$element.find('.inverse').removeAttr('disabled').button("refresh");
+	this.$element.find('.zScale').removeAttr('disabled').button("refresh");
+	this.$element.find('.thresholdInputs input').each(function(i){
+		$(this).removeAttr('disabled');
+	});
+}
+
+/**
+ *	Disable all UI elements
+ */
+DynamicImageView.prototype.disableUI = function()
+{
+	this.$element.find('.colormap').selectmenu( "disable" );
+	this.$element.find('.thresholdSlider').slider( "disable" );
+	this.$element.find('.inverse').attr('disabled', 'disabled').button("refresh");
+	this.$element.find('.zScale').attr('disabled', 'disabled').button("refresh");
+	this.$element.find('.thresholdInputs input').each(function(i){
+		$(this).attr('disabled', 'disabled');
+	});
+}
 
 /**
  *	Update threshold
@@ -234,9 +260,14 @@ DynamicImageView.prototype.updateThreshold = function(min, max)
  */
 DynamicImageView.prototype.setImage = function(image)
 {
-	if ( this.image )
-		this.image.dispose();
-
+	if( image.transferFn == "raw" )
+	{
+		this.disableUI();
+	}
+	else
+	{
+		this.enableUI();
+	}
 	var step = (image.max-image.min)/1000;
 	var self = this;
 	this.$element.find('.thresholdSlider').slider('option', {
@@ -246,20 +277,23 @@ DynamicImageView.prototype.setImage = function(image)
 		step: step
 	});
 
+	this.histogram.setImage(image);
+
 	// Put min/max values into placeholder
 	// Maybe not the most ergonomic way to do, but I found it cool J
-	this.$element.find('#min').attr("placeholder", image.min);
-	this.$element.find('#max').attr("placeholder", image.max);
-
-	// Create histogram attached to the canvas2d
-	this.histogram = new Histogram({
-		canvas: 'histogram_'+this.id,
-		image: image,
-		nbBeans: 256,
-		onUpdate: $.proxy(this.updateThreshold, this)
-	});
+	this.$element.find('#min').attr("placeholder", image.min).end()
+				 .find('#max').attr("placeholder", image.max);
+	
+	// Update UI values
+	this.$element.find('.inverse').attr('checked', (image.inverse) ? 'checked' : false).button('refresh').end()
+				 .find('.contrast')
+					.find('input[value='+image.transferFn+']').attr('checked','checked').end()
+				 .buttonset("refresh").end()
+				 .find('.colormap').val(image.colormap);
 
 	this.image = image;
+	this.updateThreshold(image.tmin, image.tmax);
+	this.render();
 }
 
 /**************************************************************************************************************/

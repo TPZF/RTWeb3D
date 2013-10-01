@@ -214,7 +214,6 @@ var Histogram = function(options)
 								[hwidth+triangleHalfWidth,originY+paddingBottom-1, 0]
 						);
 
-	this.update();
 
 	// Show bin pointed by mouse
 	var self = this;
@@ -485,6 +484,16 @@ Histogram.prototype.update = function()
 {
 	compute(this);
 	this.draw();
+}
+
+/**************************************************************************************************************/
+
+/**
+ *	Set image
+ */
+Histogram.prototype.setImage = function(image)
+{
+	this.image = image;
 }
 
 /**************************************************************************************************************/

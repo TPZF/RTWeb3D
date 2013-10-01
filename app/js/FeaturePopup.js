@@ -20,11 +20,12 @@
 /**
  * FeaturePopup module
  */
-define( [ "jquery.ui", "IFrame", "JsonProcessor", "gw/FeatureStyle", "gw/VectorLayer", "ImageManager", "Samp", "underscore-min", "text!../templates/featureList.html", "text!../templates/featureDescription.html", "text!../templates/descriptionTable.html", "jquery.nicescroll.min" ],
-	function($, IFrame, JsonProcessor, FeatureStyle, VectorLayer, ImageManager, Samp, _, featureListHTMLTemplate, featureDescriptionHTMLTemplate, descriptionTableHTMLTemplate) {
+define( [ "jquery.ui", "IFrame", "JsonProcessor", "Utils", "ImageProcessing", "gw/FeatureStyle", "gw/VectorLayer", "Samp", "underscore-min", "text!../templates/featureList.html", "text!../templates/featureDescription.html", "text!../templates/descriptionTable.html", "jquery.nicescroll.min" ],
+	function($, IFrame, JsonProcessor, Utils, ImageProcessing, FeatureStyle, VectorLayer, Samp, _, featureListHTMLTemplate, featureDescriptionHTMLTemplate, descriptionTableHTMLTemplate) {
 
 var featureListHTML = '';
 var pickingManager = null;
+var imageManager = null;
 var globe = null;
 
 // Create selected feature div
@@ -225,11 +226,21 @@ return {
 	 *	@param pm <PickingManager>
 	 *	@param gl <GlobWeb.Globe>
 	 */
-	init: function(pm, gl, configuration){
-
+	init: function(pm, im, gl, configuration){
 		pickingManager = pm;
+		imageManager = im;
 		globe = gl;
 		var self = this;
+		
+		// Initialize image processing popup
+		ImageProcessing.init({
+			disable: function(){
+				$('#dynamicImageView').removeClass('dynamicAvailable').addClass('dynamicNotAvailable');	
+			},
+			unselect: function(){
+				$('#dynamicImageView').removeClass('selected');
+			}
+		});
 
 		// Show/hide quicklook
 		$selectedFeatureDiv.on("click", '#quicklook', function(event){
@@ -240,16 +251,16 @@ return {
 			if ( otherQuicklookOn )
 			{
 				// Remove fits quicklook
-				ImageManager.removeImage(selectedData, !isFits);
+				imageManager.removeImage(selectedData, !isFits);
 			}
 
 			if ( selectedData.feature.properties.style.fill == true )
 			{
-				ImageManager.removeImage(selectedData, isFits);
+				imageManager.removeImage(selectedData, isFits);
 			} 
 			else
 			{
-				ImageManager.addImage(selectedData, isFits );
+				imageManager.addImage(selectedData, isFits );
 			}
 		});
 
@@ -258,29 +269,27 @@ return {
 			var isFits = true;
 
 			var otherQuicklookOn = selectedData.feature.properties.style.fill && selectedData.feature.properties.style.fillTextureUrl;
-			if ( selectedData.feature.properties.style.fill && selectedData.feature.properties.style.fillTextureUrl )
+			if ( otherQuicklookOn )
 			{
 				// Remove quicklook
-				ImageManager.removeImage(selectedData, !isFits);
+				imageManager.removeImage(selectedData, !isFits);
 			}
 
 			if ( selectedData.feature.properties.style.fill == true )
 			{
-				ImageManager.removeImage(selectedData, isFits);
+				imageManager.removeImage(selectedData, isFits);
 			} 
 			else
 			{
-				ImageManager.addImage(selectedData, isFits );
+				imageManager.addImage(selectedData, isFits );
 			}
 		});
 
 		// Show/hide Dynamic image service
 		$selectedFeatureDiv.on("click", '#dynamicImageView', function(event){
-			if ($(this).is('.dynamicAvailable'))
-			{
-				$(this).toggleClass('selected');
-				pickingManager.getSelectedData().feature.imageProcessing.toggle();
-			}
+			$(this).toggleClass('selected');
+			var selectedData = pickingManager.getSelectedData();
+			ImageProcessing.setData(selectedData);
 		});
 
 		// Show/hide Dynamic image service
