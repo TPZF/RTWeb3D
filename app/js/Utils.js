@@ -120,8 +120,16 @@ return {
 			astro[1]+="°";
 		}
 		return astro;
-	}
+	},
 
+	/**
+	 *	Format the given feature identifier to remove special caracters(as ?, [, ], ., etc..) which cannot be used as HTML id's
+	 */
+	formatId : function(id)
+	{
+		return id.replace(/\s{1,}|\.{1,}|\[{1,}|\]{1,}/g, "");
+	}
+ 
 };
 
 });

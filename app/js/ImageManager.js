@@ -20,8 +20,8 @@
 /**
  * Image manager
  */
-define( [ "jquery.ui", "gw/FeatureStyle", "gw/DynamicImage", "SimpleProgressBar", "FitsLoader", "ImageViewer", "fits" ],
-			function($, FeatureStyle, DynamicImage, SimpleProgressBar, FitsLoader, ImageViewer) {
+define( [ "jquery.ui", "gw/FeatureStyle", "gw/DynamicImage", "SimpleProgressBar", "FitsLoader", "ImageViewer", "Utils", "fits" ],
+			function($, FeatureStyle, DynamicImage, SimpleProgressBar, FitsLoader, ImageViewer, Utils) {
 
 var globe = null;
 var progressBars = {};
@@ -37,7 +37,7 @@ var progressBars = {};
 function computeFits(featureData, url)
 {
 	// Remove all spaces from identifier
-	var id = "imageView_" + featureData.feature.properties.identifier.replace(/\s{1,}|\.{1,}/g, "") + "_fits";
+	var id = "imageView_" + Utils.formatId(featureData.feature.properties.identifier) + "_fits";
 	var progressBar = new SimpleProgressBar( { id: id } );
 
 	var xhr = FitsLoader.loadFits(url, function(fits){

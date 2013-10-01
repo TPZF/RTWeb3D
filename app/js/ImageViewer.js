@@ -17,8 +17,8 @@
 * along with SITools2. If not, see <http://www.gnu.org/licenses/>. 
 ******************************************************************************/ 
 
-define(["gw/FeatureStyle", "ImageProcessing", "underscore-min", "text!../templates/imageViewerItem.html"],
-	function(FeatureStyle, ImageProcessing, _, imageViewerItemHTMLTemplate){
+define(["gw/FeatureStyle", "ImageProcessing", "Utils", "underscore-min", "text!../templates/imageViewerItem.html"],
+	function(FeatureStyle, ImageProcessing, Utils, _, imageViewerItemHTMLTemplate){
 
 var navigation;
 var globe;
@@ -63,8 +63,8 @@ return {
 	addView: function(selectedData, isFits)
 	{	
 		var feature = selectedData.feature;
-		//Remove all spaces, points
-		var id = selectedData.feature.properties.identifier.replace(/\s{1,}|\.{1,}/g, "");
+		// Remove all spaces, points
+		var id = Utils.formatId(selectedData.feature.properties.identifier);
 		// Add isFits property for correct progress bar handling
 		if ( isFits )
 		{
@@ -174,7 +174,8 @@ return {
 	 */
 	removeView: function(selectedData, isFits)
 	{
-		var id = "imageView_" + selectedData.feature.properties.identifier.replace(/\s{1,}|\.{1,}/g, "");
+		var id = Utils.formatId(selectedData.feature.properties.identifier);
+		id = "imageView_" + id;
 		if ( isFits )
 		{
 			id+="_fits";
