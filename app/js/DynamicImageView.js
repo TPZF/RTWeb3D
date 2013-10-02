@@ -260,14 +260,6 @@ DynamicImageView.prototype.updateThreshold = function(min, max)
  */
 DynamicImageView.prototype.setImage = function(image)
 {
-	if( image.transferFn == "raw" )
-	{
-		this.disableUI();
-	}
-	else
-	{
-		this.enableUI();
-	}
 	var step = (image.max-image.min)/1000;
 	var self = this;
 	this.$element.find('.thresholdSlider').slider('option', {
@@ -289,7 +281,16 @@ DynamicImageView.prototype.setImage = function(image)
 				 .find('.contrast')
 					.find('input[value='+image.transferFn+']').attr('checked','checked').end()
 				 .buttonset("refresh").end()
-				 .find('.colormap').val(image.colormap);
+				 .find('.colormap').val(image.colormap).selectmenu();
+
+	if( image.transferFn == "raw" )
+	{
+		this.disableUI();
+	}
+	else
+	{
+		this.enableUI();
+	}
 
 	this.image = image;
 	this.updateThreshold(image.tmin, image.tmax);
