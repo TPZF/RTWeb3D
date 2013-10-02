@@ -85,7 +85,7 @@ function setData(selectedData)
 {
     if ( feature && feature.properties.identifier == selectedData.feature.properties.identifier )
     {
-        this.toggle();    
+        this.toggle();
     }
     else
     {
@@ -97,7 +97,8 @@ function setData(selectedData)
     
     feature = selectedData.feature;
 	layer = selectedData.layer;
-    
+    cutOutElement.setUrl(selectedData.feature.services.download.url);
+
     var image = selectedData.feature.properties.style.uniformValues;
 	if ( !image )
     {
@@ -213,6 +214,7 @@ return {
 	setImage: function(image)
 	{
 		histogramElement.setImage(image);
+		cutOutElement.setUrl(image.url);
 		$dialog.find('.histogramContent').children('p').fadeOut(function(){
 			$(this).siblings('div').fadeIn();
 		});

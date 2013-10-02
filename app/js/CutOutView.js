@@ -28,7 +28,7 @@ var cutOutTemplate = _.template(cutOutHTMLTemplate);
 
 var CutOutView = function(element, selectionTool, pickingManager)
 {
-
+	this.url;
 	this.pickingManager = pickingManager;
 	// Initialize selection tool
 	this.selectionTool = selectionTool;
@@ -64,53 +64,49 @@ var CutOutView = function(element, selectionTool, pickingManager)
  */
 CutOutView.prototype.runJob = function()
 {	
-	var url = this.findUrl();
-	if ( url )
+	this.runButton.startAnimation();
+	// Convert to equatorial due to CutOut protocol
+	if ( CoordinateSystem.type != "EQ" )
 	{
-		this.runButton.startAnimation();
-		// Convert to equatorial due to CutOut protocol
-		if ( CoordinateSystem.type != "EQ" )
-		{
-			this.selectionTool.geoPickPoint = CoordinateSystem.convertFromDefault(this.selectionTool.geoPickPoint, "EQ");
-		}
-
-		var parameters = {
-			url: url,
-			ra: this.selectionTool.geoPickPoint[0],
-			dec: this.selectionTool.geoPickPoint[1],
-			radius: this.selectionTool.geoRadius
-		};
-		var self = this;
-		CutOut.post(parameters, {
-			successCallback: function(results)
-			{
-				self.showMessage('Completed');
-				for ( var x in results )
-				{
-					var proxyIndex = x.search('file_id=');
-
-					var shortName;
-					if ( proxyIndex >= 0 )
-					{
-						shortName = x.substr(proxyIndex+8);
-					}
-					else
-					{
-						shortName = x;
-					}
-					self.runButton.stopAnimation();
-					$('<li style="display: none;">'+shortName+' <a href="' + results[x] +'" download="'+shortName+'"><img style="vertical-align: middle; width: 20px; height: 20px;" title="Download" src="css/images/download1.png"></a></li>')
-						.appendTo(self.$content.find('.cutoutResults').find('ul'))
-						.fadeIn(400);
-				}
-			},
-			failCallback: function(error)
-			{
-				self.runButton.stopAnimation();
-				self.showMessage(error);
-			}
-		});
+		this.selectionTool.geoPickPoint = CoordinateSystem.convertFromDefault(this.selectionTool.geoPickPoint, "EQ");
 	}
+
+	var parameters = {
+		url: url,
+		ra: this.selectionTool.geoPickPoint[0],
+		dec: this.selectionTool.geoPickPoint[1],
+		radius: this.selectionTool.geoRadius
+	};
+	var self = this;
+	CutOut.post(parameters, {
+		successCallback: function(results)
+		{
+			self.showMessage('Completed');
+			for ( var x in results )
+			{
+				var proxyIndex = x.search('file_id=');
+
+				var shortName;
+				if ( proxyIndex >= 0 )
+				{
+					shortName = x.substr(proxyIndex+8);
+				}
+				else
+				{
+					shortName = x;
+				}
+				self.runButton.stopAnimation();
+				$('<li style="display: none;">'+shortName+' <a href="' + results[x] +'" download="'+shortName+'"><img style="vertical-align: middle; width: 20px; height: 20px;" title="Download" src="css/images/download1.png"></a></li>')
+					.appendTo(self.$content.find('.cutoutResults').find('ul'))
+					.fadeIn(400);
+			}
+		},
+		failCallback: function(error)
+		{
+			self.runButton.stopAnimation();
+			self.showMessage(error);
+		}
+	});
 }
 
 /**************************************************************************************************************/
@@ -147,6 +143,13 @@ CutOutView.prototype.findUrl = function()
 CutOutView.prototype.showMessage = function(message)
 {
 	this.$content.find('.jobStatus').html(message).stop().slideDown(300).delay(2000).slideUp();
+}
+
+/**************************************************************************************************************/
+
+CutOutView.prototype.setUrl = function(url)
+{
+	this.url = url;
 }
 
 /**************************************************************************************************************/
