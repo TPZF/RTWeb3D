@@ -20,8 +20,8 @@
 /**
  * Samp module : performing communication between applications using SAMP protocol
  */
-define(["jquery.ui", "gw/CoordinateSystem", "gw/VectorLayer", "ImageManager", "ImageViewer", "Utils", "samp"],
-	function($, CoordinateSystem, VectorLayer, ImageManager, ImageViewer, Utils) {
+define(["jquery.ui", "gw/CoordinateSystem", "gw/FeatureStyle", "gw/VectorLayer", "ImageManager", "ImageViewer", "Utils", "samp"],
+	function($, CoordinateSystem, FeatureStyle, VectorLayer, ImageManager, ImageViewer, Utils) {
 
 var globe;
 var navigation;
