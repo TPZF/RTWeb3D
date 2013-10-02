@@ -20,18 +20,16 @@
 /**
  * Samp module : performing communication between applications using SAMP protocol
  */
-define(["jquery.ui", "gw/CoordinateSystem", "gw/VectorLayer", "FitsLoader", "ImageManager", "samp", "wcs"],
-	function($, CoordinateSystem, VectorLayer, FitsLoader, ImageManager) {
+define(["jquery.ui", "gw/CoordinateSystem", "gw/VectorLayer", "ImageManager", "ImageViewer", "Utils", "samp"],
+	function($, CoordinateSystem, VectorLayer, ImageManager, ImageViewer, Utils) {
 
 var globe;
 var navigation;
 var additionalLayersView;
 
 var connector;	// SAMP connector
-
-var wcs;	// WCS mapper to find location of coming fits images
-var nbSampLayers = 0;
-var pointAtReceived = false;
+var sampLayer;	// SAMP vector layer containing all incoming fits images
+var pointAtReceived = false; // Parameter avoiding looping while receiving coord.pointAt.sky SAMP event
 
 /**************************************************************************************************************/
 
@@ -109,20 +107,6 @@ function initUI()
 /**************************************************************************************************************/
 
 /**
- *	Create geographic coordinate from x,y image pixel using WCS
- */
-function createCoordinate( x, y )
-{
-	var coordinate = wcs.pixelToCoordinate([x,y]);
-	// Convert to geographic representation
-	if ( coordinate.ra > 180 )
-		coordinate.ra -= 360;
-	return [coordinate.ra, coordinate.dec];
-}
-
-/**************************************************************************************************************/
-
-/**
  *	Create SAMP ClientTracker object which handles incoming messages
  */
 function createClientTracker()
@@ -173,66 +157,41 @@ function createClientTracker()
 
 	callHandler["image.load.fits"] = function(senderId, message, isCall) {
 		var params = message["samp.params"];
-		var origUrl = params["url"];
-      	var url = "/sitools/proxy?external_url="+params['image-id'];
 
-		FitsLoader.loadFits(url, function(fits){
-			var hdu = fits.getHDU();
-			var fitsData = hdu.data;
-			
-			// Create mapper
-			wcs = new WCS.Mapper(hdu.header);
-			var coords = [];
+		// Create feature
+		var feature = {
+			"geometry": {
+				"gid": params['name'],
+				"coordinates": [],
+				"type": "Polygon"
+			},
+			"properties": {
+				"identifier": params['name']
+			},
+			"services": {
+				"download": {
+					"mimetype": "image/fits",
+					"url": params['image-id']
+				}
+			},
+			"type": "Feature"
+		};
 
-			// Find coordinates of coming fits
-			coords.push( createCoordinate(0,fitsData.height) );
-			coords.push( createCoordinate(fitsData.width,fitsData.height) );
-			coords.push( createCoordinate(fitsData.width,0) );
-			coords.push( createCoordinate(0,0) );
-			// Close the polygon
-			coords.push(coords[0]);
-			
-			// Create vector layer
-			var gwLayer = new VectorLayer({
-				name: "SAMP_"+nbSampLayers
-			});
-			gwLayer.type = "GeoJSON";
-			gwLayer.dataType = "line";
-			gwLayer.deletable = true;
-			gwLayer.pickable = true;
-			globe.addLayer(gwLayer);
-
-			// Create feature
-			var id = "samp_"+params['name'];
-			var feature = {
-				"geometry": {
-					"gid": id,
-					"coordinates": [coords],
-					"type": "Polygon"
-				},
-				"properties": {
-					"identifier": id
-				},
-				"services": {
-					"download": {
-						"mimetype": "image/fits",
-						"url": origUrl
-					}
-				},
-				"type": "Feature"
-			};
-
-			gwLayer.addFeature( feature );
-
-			// Add fits to feature
-			ImageManager.addImage( {layer: gwLayer, feature: feature}, true );
-
-			// Add view
-			additionalLayersView.addView( gwLayer );
-			nbSampLayers++;
+		// Get fits texture from url
+		var featureData = {
+			layer: sampLayer,
+			feature: feature
+		};
+		var url = "/sitools/proxy?external_url=" + encodeURIComponent(params['image-id']);		
+		ImageViewer.addView(featureData, true);
+		ImageManager.computeFits(featureData, url, function(featureData, fits){
+			// Update feature coordinates according to Fits header
+			var coords = Utils.getPolygonCoordinatesFromFits(fits);
+			featureData.feature.geometry.coordinates = [coords];
+			sampLayer.addFeature(featureData.feature);
 		});
-
-		console.log("Image coming from SAMP loaded");
+		// Show image viewer
+		ImageViewer.show();
 	};
 
 	callHandler["coord.pointAt.sky"] = function(senderId, message, isCall) {
@@ -352,6 +311,30 @@ function init(gl, nav, alv)
 			}
 		}
 	});
+
+	// Generate random color
+	var rgb = Utils.generateColor();
+	var rgba = rgb.concat([1]);
+
+	// Create style
+	var options = {
+		name: "SAMP",
+		style: new FeatureStyle({
+			fillColor: rgba,
+			strokeColor: rgba,
+			visible: false
+		})
+	};
+	// Create vector layer
+	var sampLayer = new VectorLayer( options );
+
+	// Add view in layer manager
+	sampLayer.type = "GeoJSON";
+	sampLayer.dataType = "line";
+	sampLayer.deletable = true;
+	sampLayer.pickable = true;
+	globe.addLayer(sampLayer);
+	additionalLayersView.addView( sampLayer );
 
 	// Unregister samp connector onunload or refresh
 	$(window).unload(function(){

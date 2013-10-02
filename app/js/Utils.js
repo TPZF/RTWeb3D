@@ -20,7 +20,7 @@
 /**
  * Utility module : contains various functions useful for differnt modules
  */
- define(["gw/CoordinateSystem"], function( CoordinateSystem ) {
+ define(["gw/CoordinateSystem", "wcs"], function( CoordinateSystem ) {
 
 /**
  *	HSV values in [0..1[
@@ -58,26 +58,18 @@ function hsv_to_rgb(h, s, v) {
 	return [r, g, b];
 }
 
-/*
-FL : check if it is used?
-function RGBColor(color_string)
+/**
+ *	Create geographic coordinate from x,y image pixel using WCS
+ */
+function createCoordinate( x, y )
 {
-
-    // some getters
-    this.toRGB = function () {
-       return 'rgb(' + this.r + ', ' + this.g + ', ' + this.b + ')';
-    }
-    this.toHex = function () {
-       var r = this.r.toString(16);
-       var g = this.g.toString(16);
-       var b = this.b.toString(16);
-       if (r.length == 1) r = '0' + r;
-       if (g.length == 1) g = '0' + g;
-       if (b.length == 1) b = '0' + b;
-       return '#' + r + g + b;
-    }
+	var coordinate = wcs.pixelToCoordinate([x,y]);
+	// Convert to geographic representation
+	if ( coordinate.ra > 180 )
+		coordinate.ra -= 360;
+	return [coordinate.ra, coordinate.dec];
 }
-*/
+
 return {
   
 	roundNumber : function (num, dec) {
@@ -127,7 +119,29 @@ return {
 	 */
 	formatId : function(id)
 	{
-		return id.replace(/\s{1,}|\.{1,}|\[{1,}|\]{1,}/g, "");
+		return id.replace(/\s{1,}|\.{1,}|\[{1,}|\]{1,}|\~{1,}/g, "");
+	},
+	
+	/**
+	 *	Get GeoJson polygon coordinates representing fits using wcs data from header
+	 */
+	getPolygonCoordinatesFromFits: function(fits)
+	{
+		var hdu = fits.getHDU();
+		var fitsData = hdu.data;
+			
+		// Create mapper
+		wcs = new WCS.Mapper(hdu.header);
+		var coords = [];
+
+		// Find coordinates of coming fits
+		coords.push( createCoordinate(0,fitsData.height) );
+		coords.push( createCoordinate(fitsData.width,fitsData.height) );
+		coords.push( createCoordinate(fitsData.width,0) );
+		coords.push( createCoordinate(0,0) );
+		// Close the polygon
+		coords.push(coords[0]);
+		return coords;
 	}
  
 };

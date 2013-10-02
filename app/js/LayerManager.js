@@ -20,8 +20,8 @@
 /**
  * LayerManager module
  */
-define( [ "jquery.ui", "gw/FeatureStyle", "gw/HEALPixLayer", "gw/VectorLayer", "gw/CoordinateGridLayer", "gw/TileWireframeLayer", "gw/OpenSearchLayer", "ClusterOpenSearchLayer", "MocLayer", "HEALPixFITSLayer", "Utils", "ErrorDialog", "JsonProcessor", "LayerServiceView", "BackgroundLayersView", "AdditionalLayersView"], 
-	function($, FeatureStyle, HEALPixLayer, VectorLayer, CoordinateGridLayer, TileWireframeLayer, OpenSearchLayer, ClusterOpenSearchLayer, MocLayer, HEALPixFITSLayer, Utils, ErrorDialog, JsonProcessor, LayerServiceView, BackgroundLayersView, AdditionalLayersView) {
+define( [ "jquery.ui", "gw/FeatureStyle", "gw/HEALPixLayer", "gw/VectorLayer", "gw/CoordinateGridLayer", "gw/TileWireframeLayer", "gw/OpenSearchLayer", "ClusterOpenSearchLayer", "MocLayer", "HEALPixFITSLayer", "Utils", "ErrorDialog", "JsonProcessor", "LayerServiceView", "BackgroundLayersView", "AdditionalLayersView", "FitsLoader", "ImageManager", "ImageViewer"], 
+	function($, FeatureStyle, HEALPixLayer, VectorLayer, CoordinateGridLayer, TileWireframeLayer, OpenSearchLayer, ClusterOpenSearchLayer, MocLayer, HEALPixFITSLayer, Utils, ErrorDialog, JsonProcessor, LayerServiceView, BackgroundLayersView, AdditionalLayersView, FitsLoader, ImageManager, ImageViewer) {
 
 /**
  * Private variables
@@ -206,46 +206,115 @@ function handleDrop(evt) {
 		
 		var name = f.name;
 		var reader = new FileReader();
-
 		$('#loading').show();
-		
-		reader.onloadend = function(e) {
-			
-			try {
-				var response = $.parseJSON(this.result);
-			} catch (e) {
-				ErrorDialog.open("JSON parsing error : " + e.type + "<br/> For more details see http://jsonlint.com/.");
-				return false;
-			}
-			
-			// Generate random color
-			var rgb = Utils.generateColor();
-			var rgba = rgb.concat([1]);
-			
-			// Create style
-			var options = { name: name };
-			options.style = new FeatureStyle({ rendererHint: "Basic", iconUrl: "css/images/star.png", fillColor: rgba, strokeColor: rgba, visible: true });
-			var gwLayer = new VectorLayer( options );
-			// Add the type GeoJSON to be able to zoom on the layer ! (cf HTML generation of additional layer)
-			gwLayer.type = "GeoJSON";
-			gwLayer.deletable = true;
-			globe.addLayer(gwLayer);
 
-			// Add geoJson layer
-			JsonProcessor.handleFeatureCollection( gwLayer, response );
-			gwLayer.addFeatureCollection( response );
+		if ( f.type == "image/fits" )
+		{
+			// Handle fits image
+			reader.onloadend = function(e) {
+				var arrayBuffer = this.result;
+				var fits = FitsLoader.parseFits(arrayBuffer);
 
-			$('#loading').hide();
+				// Create vector layer
+				var rgb = Utils.generateColor();
+				var rgba = rgb.concat([1]);
 
-			AdditionalLayersView.addView( gwLayer );
-			
-			// Warn the service bar a new layer is added (the layer is active by default)
-			// TODO : a better way should be find, replace ServiceBar by LayerServiceView
-			// ServiceBar.addLayer(gwLayer);
+				var options = {
+					name: name,
+					style: new FeatureStyle({
+						fillColor: rgba,
+						strokeColor: rgba
+					})
+				};
+				var gwLayer = new VectorLayer( options );
+				gwLayer.type = "GeoJSON";
+				gwLayer.dataType = "line";
+				gwLayer.deletable = true;
+				gwLayer.pickable = true;
+				globe.addLayer(gwLayer);
 
-			gwLayers.push(gwLayer);
-		};
-		reader.readAsText(f);
+				// Create feature
+				var coords = Utils.getPolygonCoordinatesFromFits(fits);
+				var feature = {
+					"geometry": {
+						"gid": name,
+						"coordinates": [coords],
+						"type": "Polygon"
+					},
+					"properties": {
+						"identifier": name
+					},
+					"type": "Feature"
+				};
+
+				gwLayer.addFeature( feature );
+
+				// Add fits texture
+				var featureData = {
+					layer: gwLayer,
+					feature: feature
+				};
+				var fitsData = fits.getHDU().data;
+				ImageViewer.addView(featureData, true);
+				ImageManager.handleFits( fitsData, featureData );
+				ImageViewer.show();
+
+				AdditionalLayersView.addView( gwLayer );
+				gwLayers.push(gwLayer);
+				$('#loading').hide();
+			};
+			reader.readAsArrayBuffer(f);
+		}
+		else
+		{
+			reader.onloadend = function(e) {
+				// Handle json if possible
+				try {
+					var response = $.parseJSON(this.result);
+				} catch (e) {
+					ErrorDialog.open("JSON parsing error : " + e.type + "<br/> For more details see http://jsonlint.com/.");
+					$('#loading').hide();
+					return false;
+				}
+				
+				// Generate random color
+				var rgb = Utils.generateColor();
+				var rgba = rgb.concat([1]);
+				
+				// Create style
+				var options = {
+					name: name,
+					style: new FeatureStyle({
+						iconUrl: "css/images/star.png",
+						fillColor: rgba,
+						strokeColor: rgba,
+						visible: true
+					})
+				};
+
+				// Create vector layer
+				var gwLayer = new VectorLayer( options );
+				// Add the type GeoJSON to be able to zoom on the layer ! (cf HTML generation of additional layer)
+				gwLayer.type = "GeoJSON";
+				gwLayer.deletable = true;
+				gwLayer.pickable = true;
+				globe.addLayer(gwLayer);
+
+				// Add feature collection
+				JsonProcessor.handleFeatureCollection( gwLayer, response );
+				gwLayer.addFeatureCollection( response );
+
+				// Warn the service bar a new layer is added (the layer is active by default)
+				// TODO : a better way should be find, replace ServiceBar by LayerServiceView
+				// ServiceBar.addLayer(gwLayer);
+				
+				AdditionalLayersView.addView( gwLayer );
+				gwLayers.push(gwLayer);
+				$('#loading').hide();
+			};
+			reader.readAsText(f);
+		}
+
 	});
 }
 

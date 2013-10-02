@@ -34,7 +34,7 @@ var progressBars = {};
  *	@param featureData Feature data(layer,feature)
  *	@param url Url of fits file
  */
-function computeFits(featureData, url)
+function computeFits(featureData, url, preprocessing)
 {
 	// Remove all spaces from identifier
 	var id = "imageView_" + Utils.formatId(featureData.feature.properties.identifier) + "_fits";
@@ -42,6 +42,12 @@ function computeFits(featureData, url)
 
 	var xhr = FitsLoader.loadFits(url, function(fits){
 		var fitsData = fits.getHDU().data;
+
+		if ( preprocessing )
+		{
+			preprocessing(featureData, fits);
+		}
+
 		handleFits(fitsData, featureData);
 	}, null, progressBar.onprogress.bind(progressBar));
 
@@ -67,10 +73,14 @@ function handleFits(fitsData, featureData)
 	var targetStyle = new FeatureStyle( feature.properties.style );
 	targetStyle.fillTexture = image.texture;
 	targetStyle.uniformValues = image;
+	targetStyle.fill = true;
 	layer.modifyFeatureStyle( feature, targetStyle );
 
-	// Set dynamic image view to the service view
-	ImageProcessing.setData(featureData);
+	// Store image url for zScale processing
+	image.url = feature.services.download.url;
+
+	// Set image on image processing popup
+	ImageProcessing.setImage(image);
 }
 
 /**********************************************************************************************/
@@ -223,7 +233,8 @@ return {
 		// Show image viewer
 		ImageViewer.show();
 	},
-
+	
+	computeFits: computeFits,
 	handleFits: handleFits
 }
 

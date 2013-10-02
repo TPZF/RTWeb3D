@@ -41,7 +41,6 @@ define(['jquery.ui', 'underscore-min', "gw/FeatureStyle", "./Histogram", "ZScale
 var DynamicImageView = function(element, options)
 {
 	this.id = options.id;
-
 	this.changeShaderCallback = options.changeShaderCallback;
 
 	// Interaction parameters
@@ -150,42 +149,29 @@ var DynamicImageView = function(element, options)
 		self.render();
 	});
 
-	var _z1 = null;
-	var _z2 = null;
 	var zScaleButton = new AnimatedButton(this.$element.find('.zScale')[0], {
 		onclick: function(){
-			if ( _z1 && _z2 )
-			{
-				zScaleButton.stopAnimation();
-				self.updateThreshold(_z1,_z2);
-			}
-			else
-			{
-				zScaleButton.startAnimation();
-				ZScale.post(options.url, {
-					successCallback: function(z1, z2)
-					{
-						zScaleButton.stopAnimation();
-						// Store zScale values
-						_z1 = z1;
-						_z2 = z2;
+			zScaleButton.startAnimation();
+			ZScale.post(self.image.url, {
+				successCallback: function(z1, z2)
+				{
+					zScaleButton.stopAnimation();
 
-						self.$element.find( "#min" ).val( z1 ).animate({ color: '#6BCAFF', 'border-color': '#6BCAFF' }, 300, function(){
-							$(this).animate({color: '#F8A102', 'border-color': 'transparent'});
-						});
-						self.$element.find( "#max" ).val( z2 ).animate({ color: '#6BCAFF', 'border-color': '#6BCAFF' }, 300, function(){
-							$(this).animate({color: '#F8A102', 'border-color': 'transparent'});
-						});
+					self.$element.find( "#min" ).val( z1 ).animate({ color: '#6BCAFF', 'border-color': '#6BCAFF' }, 300, function(){
+						$(this).animate({color: '#F8A102', 'border-color': 'transparent'});
+					});
+					self.$element.find( "#max" ).val( z2 ).animate({ color: '#6BCAFF', 'border-color': '#6BCAFF' }, 300, function(){
+						$(this).animate({color: '#F8A102', 'border-color': 'transparent'});
+					});
 
-						self.updateThreshold(z1,z2);
-					},
-					failCallback: function()
-					{
-						zScaleButton.stopAnimation();
-						console.log("ZScale failed");
-					}
-				});
-			}
+					self.updateThreshold(z1,z2);
+				},
+				failCallback: function()
+				{
+					zScaleButton.stopAnimation();
+					ErrorDialog("ZScale internal server error<br/>");
+				}
+			});
 		}
 	});
 
