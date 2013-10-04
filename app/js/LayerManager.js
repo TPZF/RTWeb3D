@@ -137,7 +137,7 @@ function createLayerFromConf(layer) {
 			}
 
 			gwLayer.dataType = layer.dataType || "line";
-			gwLayer.pickable = layer.pickable || true;
+			gwLayer.pickable = layer.hasOwnProperty('pickable') ? layer.pickable : true;
 
 			break;
 			
@@ -169,7 +169,7 @@ function createLayerFromConf(layer) {
 			}
 
 			gwLayer.dataType = layer.dataType;
-			gwLayer.pickable = layer.pickable || true;
+			gwLayer.pickable = layer.hasOwnProperty('pickable') ? layer.pickable : true;
 			break;
 
 		case "Moc":
