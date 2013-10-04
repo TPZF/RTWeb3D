@@ -26,11 +26,9 @@ define( [ "jquery.ui", "MocLayer", "Utils" ],
 /**************************************************************************************************************/
 
 /**
- *	Create moc sublayer
- *
- *	@param layer Parent layer
+ *	Request moc description for the given layer
  */
-function createMocSublayer(layer, successCallback, errorCallback)
+function requestMocDesc(layer, successCallback, errorCallback)
 {
 	// Get moc template
 	if ( layer.coverage != "Not available" )
@@ -50,18 +48,20 @@ function createMocSublayer(layer, successCallback, errorCallback)
 					{
 						describeUrl = describeUrl.substring( 0, splitIndex );
 					}
-					handleMocLayer( layer, describeUrl );
-					requestSkyCoverage(layer, describeUrl+"?media=txt", successCallback);
+					layer.describeUrl = describeUrl;
+					successCallback(layer);
 
 				}
 				else
 				{
+					layer.describeUrl = "Not available";
 					layer.coverage = "Not available";
 					if( errorCallback )
 						errorCallback(layer);
 				}
 			},
 			error: function(xhr){
+				layer.describeUrl = "Not available";
 				layer.coverage = "Not available";
 				if( errorCallback )
 					errorCallback(layer);
@@ -73,9 +73,51 @@ function createMocSublayer(layer, successCallback, errorCallback)
 /**************************************************************************************************************/
 
 /**
+ *	Get moc sky coverage information
+ */
+function getSkyCoverage(layer, successCallback, errorCallback)
+{
+	if ( !layer.describeUrl )
+	{
+		requestMocDesc( layer, function(layer){
+			requestSkyCoverage( layer, layer.describeUrl+"?media=txt", successCallback );
+		}, errorCallback );
+	}
+	else
+	{
+		requestSkyCoverage( layer, layer.describeUrl+"?media=txt", successCallback );
+	}
+}
+
+/**************************************************************************************************************/
+
+/**
+ *	Create moc sublayer
+ *
+ *	@param layer Parent layer
+ */
+function createMocSublayer(layer, successCallback, errorCallback)
+{
+	if ( !layer.describeUrl )
+	{
+		requestMocDesc( layer, function(layer){
+			handleMocLayer( layer, layer.describeUrl );
+			requestSkyCoverage( layer, layer.describeUrl+"?media=txt", successCallback );
+		}, errorCallback );
+	}
+	else
+	{
+		handleMocLayer( layer, layer.describeUrl );
+		requestSkyCoverage( layer, layer.describeUrl+"?media=txt", successCallback );
+	}
+}
+
+/**************************************************************************************************************/
+
+/**
  *	Requesting moc sky coverage information and stock it as layer parameter
  */
-function requestSkyCoverage(layer, mocServiceUrl, successCallback)
+function requestSkyCoverage( layer, mocServiceUrl, successCallback )
 {
 	// Request MOC space coverage
 	$.ajax({
@@ -146,7 +188,7 @@ function findMocSublayer(layer)
 return {
 	createMocSublayer: createMocSublayer,
 	findMocSublayer: findMocSublayer,
-	requestSkyCoverage: requestSkyCoverage
+	getSkyCoverage: getSkyCoverage
 }
 
 });

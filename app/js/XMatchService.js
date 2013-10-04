@@ -205,7 +205,7 @@ return {
 			// Create if doesn't exist
 			if ( !serviceLayer )
 			{
-				MocBase.createMocSublayer( layer, function(layer){
+				MocBase.getSkyCoverage( layer, function(layer){
 					$("#xMatchService #mocLayer_"+layer.id).find('.mocCoverage').html("Sky coverage: "+layer.coverage);
 					$("#xMatchService #mocLayer_"+layer.id).find('input[type="checkbox"]').removeAttr("disabled").button("refresh");
 				}, function(layer){

@@ -103,8 +103,9 @@ function attachForm(layer)
 				},
 				error: function()
 				{
+					layer.openSearchForm = "OpenSearch parameter isn't available";
 					$('#osForm_'+layer.id)
-						.html(layer.openSearchForm ? layer.openSearchForm : "OpenSearch parameter isn't available");
+						.html(layer.openSearchForm);
 				}
 			});
 		},
