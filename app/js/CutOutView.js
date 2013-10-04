@@ -72,7 +72,7 @@ CutOutView.prototype.runJob = function()
 	}
 
 	var parameters = {
-		url: url,
+		url: this.url,
 		ra: this.selectionTool.geoPickPoint[0],
 		dec: this.selectionTool.geoPickPoint[1],
 		radius: this.selectionTool.geoRadius
@@ -107,35 +107,6 @@ CutOutView.prototype.runJob = function()
 			self.showMessage(error);
 		}
 	});
-}
-
-/**************************************************************************************************************/
-
-/**
- *	
- */
-CutOutView.prototype.findUrl = function()
-{
-	var url = null;
-	if ( this.selectionTool.pickPoint )
-	{
-		// Area selected
-		var selectedData = this.pickingManager.getSelectedData();
-		if ( selectedData )
-		{
-			// Data selected
-		    url = selectedData.feature.services.download.url
-		}
-		else
-		{
-			this.showMessage('Please select observation to cut');
-		}
-	}
-	else
-	{
-		this.showMessage('Please select area to cut');
-	}
-	return url;
 }
 
 /**************************************************************************************************************/
