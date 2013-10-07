@@ -126,20 +126,7 @@ return {
 			},
 			success: function(response, textStatus, xhr){
 				var xmlDoc = $.parseXML( xhr.responseText );
-
-				var tag;
-				if ( window.chrome )
-				{
-					// Chrome
-					tag = "jobId";
-				}
-				else
-				{
-					// Mozilla
-					tag = "uws:jobId";
-				}
-
-				currentJob = xmlDoc.getElementsByTagName(tag)[0].textContent;
+				currentJob = $(xmlDoc).find('uws\\:jobId, jobId').text();
 
 				// Check job phase every "checkDelay" seconds
 				checkFn = window.setInterval( checkPhase, checkDelay );
