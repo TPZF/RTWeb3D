@@ -17,36 +17,53 @@
 * along with SITools2. If not, see <http://www.gnu.org/licenses/>. 
 ******************************************************************************/ 
 
-define( [ "jquery.ui", "UWSBase", "Utils" ], function($, UWSBase, Utils) {
-
-/**************************************************************************************************************/
-
 /**
- * UWS ZScale service
+ * UWS Manager
  */
-var ZScale = function(name, baseUrl, options)
-{
-	UWSBase.prototype.constructor.call( this, name, baseUrl, options )
+
+define( [ "jquery.ui", "CutOut", "HEALPixCut", "ZScale" ],
+	function($, CutOut, HEALPixCut, ZScale) {
+
+var cutOutService;
+var zScaleService;
+var healpixCutService;
+
+return {
+	init: function(conf)
+ 	{
+ 		if ( conf.cutOut )
+ 		{
+ 			cutOutService = new CutOut( 'CutOut', conf.cutOut.baseUrl );
+ 		}
+
+ 		if ( conf.healpixcut )
+ 		{
+ 			healpixCutService = new HEALPixCut( 'HealpixCut', conf.healpixcut.baseUrl );
+ 		}
+
+ 		if ( conf.zScale )
+ 		{
+ 			zScaleService = new ZScale( 'ZScale', conf.zScale.baseUrl );
+ 		}
+ 	},
+
+ 	post: function(serviceName, params, options)
+ 	{
+ 		switch(serviceName)
+ 		{
+ 			case "cutout":
+ 				cutOutService.post(params, options);
+ 				break;
+ 			case "healpixcut":
+ 				healpixCutService.post(params, options);
+ 				break;
+ 			case "zscale":
+ 				zScaleService.post(params, options);
+ 				break;
+ 			default:
+ 				console.error("Not supported");
+ 		}
+ 	}
 }
-
-/**************************************************************************************************************/
-
-Utils.inherits( UWSBase, ZScale );
-
-/**************************************************************************************************************/
-
-/**
- *	@inherits <UMSBase.handleResults>
- */
-ZScale.prototype.handleResults = function(response)
-{
-	return {
-		z1: parseFloat(response.results.result[0]['@xlink:href']),
-		z2: parseFloat(response.results.result[1]['@xlink:href'])
-	};
-	
-}
-
-return ZScale;
 
 });

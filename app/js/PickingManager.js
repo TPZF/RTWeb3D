@@ -20,8 +20,8 @@
 /**
  * PickingManager module
  */
-define( [ "jquery.ui", "gw/FeatureStyle", "gw/CoordinateSystem", "gw/OpenSearchLayer", "FeaturePopup", "ImageManager" ],
-		function($, FeatureStyle, CoordinateSystem, OpenSearchLayer, FeaturePopup, ImageManager) {
+define( [ "jquery.ui", "gw/FeatureStyle", "gw/CoordinateSystem", "gw/OpenSearchLayer", "FeaturePopup", "ImageManager", "CutOutViewFactory" ],
+		function($, FeatureStyle, CoordinateSystem, OpenSearchLayer, FeaturePopup, ImageManager, CutOutViewFactory) {
 
 var globe;
 var navigation;
@@ -467,6 +467,12 @@ return {
 	
 		// Initialize the fits manager
 		ImageManager.init(this, globe, navigation);
+
+		if ( configuration.cutOut )
+		{
+			// CutOutView factory ... TODO : move it/refactor it/do something with it...
+			CutOutViewFactory.init(globe, navigation, this, configuration.cutOut);
+		}
 		FeaturePopup.init(this, ImageManager, gl, configuration);
 	},
 

@@ -17,8 +17,8 @@
 * along with SITools2. If not, see <http://www.gnu.org/licenses/>. 
 ******************************************************************************/ 
 
-define(['jquery.ui', 'underscore-min', "gw/FeatureStyle", "./Histogram", "ZScale", "CutOutViewFactory", "AnimatedButton", "text!../templates/dynamicImageView.html", "jquery.ui.selectmenu"],
-	function($,_, FeatureStyle, Histogram, ZScale, CutOutViewFactory, AnimatedButton, dynamicImageViewHTML) {
+define(['jquery.ui', 'underscore-min', "gw/FeatureStyle", "./Histogram", "UWSManager", "CutOutViewFactory", "AnimatedButton", "ErrorDialog", "text!../templates/dynamicImageView.html", "jquery.ui.selectmenu"],
+	function($,_, FeatureStyle, Histogram, UWSManager, CutOutViewFactory, AnimatedButton, ErrorDialog, dynamicImageViewHTML) {
  
 /**************************************************************************************************************/
 
@@ -34,7 +34,6 @@ define(['jquery.ui', 'underscore-min', "gw/FeatureStyle", "./Histogram", "ZScale
  *		<h3>Optional:</h3>
  *		<ul>
  *			<li>image: The image represented by this view</li>
- *			<li>url: Url to the image for Zscale processing
  *			<li>changeShaderCallback: Callback for shader changing</li>
  *		</ul>
  */
@@ -151,16 +150,20 @@ var DynamicImageView = function(element, options)
 
 	var zScaleButton = new AnimatedButton(this.$element.find('.zScale')[0], {
 		onclick: function(){
+			var params = {
+				PHASE: "RUN",
+				uri: self.image.url
+			};
 			zScaleButton.startAnimation();
-			ZScale.post(self.image.url, {
-				successCallback: function(z1, z2)
+			UWSManager.post('zscale', params, {
+				successCallback: function(result)
 				{
 					zScaleButton.stopAnimation();
 
-					self.$element.find( "#min" ).val( z1 ).animate({ color: '#6BCAFF', 'border-color': '#6BCAFF' }, 300, function(){
+					self.$element.find( "#min" ).val( result.z1 ).animate({ color: '#6BCAFF', 'border-color': '#6BCAFF' }, 300, function(){
 						$(this).animate({color: '#F8A102', 'border-color': 'transparent'});
 					});
-					self.$element.find( "#max" ).val( z2 ).animate({ color: '#6BCAFF', 'border-color': '#6BCAFF' }, 300, function(){
+					self.$element.find( "#max" ).val( result.z2 ).animate({ color: '#6BCAFF', 'border-color': '#6BCAFF' }, 300, function(){
 						$(this).animate({color: '#F8A102', 'border-color': 'transparent'});
 					});
 
@@ -169,7 +172,7 @@ var DynamicImageView = function(element, options)
 				failCallback: function()
 				{
 					zScaleButton.stopAnimation();
-					ErrorDialog("ZScale internal server error<br/>");
+					ErrorDialog.open("ZScale internal server error<br/>");
 				}
 			});
 		}
@@ -206,6 +209,8 @@ DynamicImageView.prototype.enableUI = function()
 	});
 }
 
+/**************************************************************************************************************/
+
 /**
  *	Disable all UI elements
  */
@@ -219,6 +224,8 @@ DynamicImageView.prototype.disableUI = function()
 		$(this).attr('disabled', 'disabled');
 	});
 }
+
+/**************************************************************************************************************/
 
 /**
  *	Update threshold

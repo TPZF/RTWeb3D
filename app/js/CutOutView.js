@@ -17,15 +17,15 @@
 * along with SITools2. If not, see <http://www.gnu.org/licenses/>. 
 ******************************************************************************/ 
 
-/**
- * UWS CutOut View
- */
-define( [ "jquery.ui", "SelectionTool", "CutOut", "gw/CoordinateSystem", "AnimatedButton", "underscore-min", "text!../templates/cutOut.html" ],
-		function($, SelectionTool, CutOut, CoordinateSystem, AnimatedButton, _, cutOutHTMLTemplate) {
+define( [ "jquery.ui", "SelectionTool", "UWSManager", "gw/CoordinateSystem", "AnimatedButton", "underscore-min", "text!../templates/cutOut.html" ],
+		function($, SelectionTool, UWSManager, CoordinateSystem, AnimatedButton, _, cutOutHTMLTemplate) {
 
 // Template generating UWS services div
 var cutOutTemplate = _.template(cutOutHTMLTemplate);
 
+/**
+ * UWS CutOut View
+ */
 var CutOutView = function(element, selectionTool, pickingManager)
 {
 	this.url;
@@ -72,13 +72,14 @@ CutOutView.prototype.runJob = function()
 	}
 
 	var parameters = {
-		url: this.url,
+		PHASE: "RUN",
+		uri: this.url,
 		ra: this.selectionTool.geoPickPoint[0],
 		dec: this.selectionTool.geoPickPoint[1],
 		radius: this.selectionTool.geoRadius
 	};
 	var self = this;
-	CutOut.post(parameters, {
+	UWSManager.post('cutout', parameters, {
 		successCallback: function(results)
 		{
 			self.showMessage('Completed');

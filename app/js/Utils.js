@@ -77,6 +77,14 @@ return {
 		return result;
 	},
 
+	inherits : function(base, sub) 
+	{
+		function tempCtor() {}
+		tempCtor.prototype = base.prototype;
+		sub.prototype = new tempCtor();
+		sub.prototype.constructor = sub;
+	},
+
 	/**
 	 *	Generate eye-friendly color based on hsv
 	 */

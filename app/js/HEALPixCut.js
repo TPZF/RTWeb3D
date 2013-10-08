@@ -17,50 +17,32 @@
 * along with SITools2. If not, see <http://www.gnu.org/licenses/>. 
 ******************************************************************************/ 
 
-define( [ "jquery.ui", "Utils", "UWSBase" ], function($, Utils, UWSBase) {
+/**
+ * UWS HEALPixCut service
+ */
+define( [ "jquery.ui", "UWSBase", "Utils" ], function($, UWSBase, Utils) {
 
 /**************************************************************************************************************/
 
-/**
- * UWS CutOut service
- */
-var CutOut = function( name, baseUrl, options )
+var HEALPixCut = function(name, baseUrl, options)
 {
-	UWSBase.prototype.constructor.call( this, name, baseUrl, options );
+	UWSBase.prototype.constructor.call( this, name, baseUrl, options )
 }
 
 /**************************************************************************************************************/
 
-Utils.inherits( UWSBase, CutOut );
+Utils.inherits( UWSBase, HEALPixCut );
 
 /**************************************************************************************************************/
 
 /**
  *	@inherits <UMSBase.handleResults>
  */
-CutOut.prototype.handleResults = function(response)
+HEALPixCut.prototype.handleResults = function(response)
 {
-	var results = {};
-	for ( var i=0; i<response.results.result.length; i++ )
-	{
-		var result = response.results.result[i];
-		var name = result['@id'];
-		var url =  result['@xlink:href'];
-
-		//Encode special caracters(at least '?')
-		if ( url.search("[?]") > 0 )
-		{
-			var lastSlash = url.lastIndexOf('/') + 1;
-			url = url.substr( 0, lastSlash ) + encodeURIComponent(name);
-		}
-
-		results[name] = url;
-	}
-	return results;
+	return response.results.result[0]['@xlink:href'];
 }
 
-return CutOut;
-
-/**************************************************************************************************************/
+return HEALPixCut;
 
 });
