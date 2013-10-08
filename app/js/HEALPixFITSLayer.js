@@ -154,6 +154,10 @@ var HEALPixFITSLayer = function(options)
 				self._ready = false;
 				console.log( "Error while loading background");
 			}
+		},
+		abortCallback: function(iq){
+			self._ready = false;
+			console.log("Background image request has been aborted");
 		}
 	});
 }
@@ -191,8 +195,10 @@ HEALPixFITSLayer.prototype._attach = function( g )
 HEALPixFITSLayer.prototype._detach = function( g )
 {
 	// Abort image request if in progress
-	this.imageRequest.abort();
-	this._ready = false;
+	if ( !this._ready )
+	{
+		this.imageRequest.abort();
+	}
 	this.disposeResources();
 
 	RasterLayer.prototype._detach.call( this );

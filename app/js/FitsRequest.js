@@ -48,16 +48,29 @@ ImageRequest.prototype.send = function(url)
 				}
 				else
 				{
-					console.log( "Error while loading " + url );
-					if ( self.failCallback )
+					if ( xhr.status != 0 )
 					{
-						self.failCallback(self);
+						// Fail
+	                    console.log( "Error while loading " + url );
+						if ( self.failCallback )
+						{
+							self.failCallback(self);
+						}
 					}
 				}
-				self.xhr = null;
+				xhr = null;
 			}
 		};
-		
+
+		xhr.onabort = function(e)
+		{
+			if ( self.abortCallback )
+			{
+				self.abortCallback(self);
+			}
+			self.xhr = null;
+		}
+
 		xhr.open("GET", url);
 		xhr.responseType = 'arraybuffer';
 		xhr.send();
@@ -75,7 +88,10 @@ ImageRequest.prototype.send = function(url)
 				self.successCallback.call(self);
 			}
 		}
-		this.image.onerror = this.failCallback.bind(this);
+		this.image.onerror = function(){
+			if ( self.failCallback )
+				self.failCallback(self);
+		};
 		this.image.src = url;
 	}
 }
@@ -91,7 +107,14 @@ ImageRequest.prototype.abort = function()
 	{
 		this.xhr.abort();
 	}
-	// this.image.src = '';
+	else
+	{
+		if ( this.abortCallback )
+		{
+			this.abortCallback(this);
+		}
+		this.image.src = '';
+	}
 }
 
 /**************************************************************************************************************/
