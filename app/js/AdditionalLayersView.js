@@ -20,8 +20,8 @@
 /**
  * AdditionalLayersView module
  */
-define(["jquery.ui", "gw/FeatureStyle", "gw/OpenSearchLayer", "HEALPixFITSLayer", "MocLayer", "gw/VectorLayer", "PickingManager", "DynamicImageView", "LayerServiceView", "Samp", "underscore-min", "text!../templates/additionalLayer.html", "jquery.nicescroll.min"],
-		function($, FeatureStyle, OpenSearchLayer, HEALPixFITSLayer, MocLayer, VectorLayer, PickingManager, DynamicImageView, LayerServiceView, Samp, _, additionalLayerHTMLTemplate){
+define(["jquery.ui", "gw/CoordinateSystem", "gw/FeatureStyle", "gw/OpenSearchLayer", "HEALPixFITSLayer", "MocLayer", "gw/VectorLayer", "PickingManager", "DynamicImageView", "LayerServiceView", "Samp", "ErrorDialog", "underscore-min", "text!../templates/additionalLayer.html", "jquery.nicescroll.min"],
+		function($, CoordinateSystem, FeatureStyle, OpenSearchLayer, HEALPixFITSLayer, MocLayer, VectorLayer, PickingManager, DynamicImageView, LayerServiceView, Samp, ErrorDialog, _, additionalLayerHTMLTemplate){
 
 var globe;
 var navigation;
@@ -350,30 +350,33 @@ function initToolbarEvents ()
 
 	$('#additionalLayers').on('click', ".exportLayer", function(){
 
-		// For debug
-		var layer = $(this).parent().parent().data("layer");
-		// TODO make generic
-		//  * demonstrator only for debug purpose
-		//	* coordinate system : extract from CoordinateSystem.type(Transform EQ/GAL to EQUATORIAL/GALACACTIC)
-
-		// Find max visible order & visible pixel indices
-		var maxOrder = 3;
-		var pixelIndices = "";
-		for ( var i=0; i<globe.tileManager.tilesToRender.length; i++ )
+		if ( Samp.isConnected() )
 		{
-			var tile = globe.tileManager.tilesToRender[i];
-			if ( maxOrder < tile.order )
-				maxOrder = tile.order;
-
-			pixelIndices+=tile.pixelIndex;
-			if ( i < globe.tileManager.tilesToRender.length - 1 )
+			var layer = $(this).parent().parent().data("layer");
+			
+			// Find max visible order & visible pixel indices
+			var maxOrder = 3;
+			var pixelIndices = "";
+			for ( var i=0; i<globe.tileManager.tilesToRender.length; i++ )
 			{
-				pixelIndices+=",";
-			}
-		}
+				var tile = globe.tileManager.tilesToRender[i];
+				if ( maxOrder < tile.order )
+					maxOrder = tile.order;
 
-		var url = "http://demonstrator.telespazio.com"+layer.serviceUrl+"/search?order="+maxOrder+"&healpix="+pixelIndices+"&coordSystem=EQUATORIAL&media=votable";
-		var message = Samp.sendVOTable(url);
+				pixelIndices+=tile.pixelIndex;
+				if ( i < globe.tileManager.tilesToRender.length - 1 )
+				{
+					pixelIndices+=",";
+				}
+			}
+
+			var url = window.location.origin + layer.serviceUrl+"/search?order="+maxOrder+"&healpix="+pixelIndices+"&coordSystem="+ ( CoordinateSystem.type=="EQ" ? "EQUATORIAL" : "GALACTIC" )+ "&media=votable";
+			var message = Samp.sendVOTable(url);
+		}
+		else
+		{
+			ErrorDialog.open("You must be connected to SAMP Hub");
+		}
 	});
 
 	// ZoomTo event (available for GlobWeb.VectorLayers only)
