@@ -21,8 +21,8 @@
  *	Layer service view
  *	The view representing the services for each layer
  */
-define( [ "jquery.ui", "OpenSearchService", "MocService", "XMatchService" ],
-			function($, OpenSearchService, MocService, XMatchService ) {
+define( [ "jquery.ui", "OpenSearchService", "MocService", "XMatchService", "HEALPixCutService" ],
+			function($, OpenSearchService, MocService, XMatchService, HEALPixCutService ) {
 
 var layerServiceView = '<div id="layerServiceView" title="Avaliable services">\
 							<div id="layerServices">\
@@ -63,6 +63,13 @@ var tabs = $('#layerServices').tabs({
 
 var services = [ OpenSearchService, MocService, XMatchService ];
 
+var serviceMapping = {
+	"OpenSearch" : OpenSearchService,
+	"Moc": MocService,
+	"XMatch": XMatchService,
+	"HEALPixCut" : HEALPixCutService
+};
+
 var currentLayer;
 
 return {
@@ -70,33 +77,44 @@ return {
 	{
 		MocService.init(gl, configuration);
 		XMatchService.init(gl, lm, configuration);
-
-		for ( var i=0; i<services.length; i++ )
-		{
-			services[i].addService(tabs);
-		}
-
-		tabs.tabs("refresh");
+		HEALPixCutService.init(gl, nav)
 	},
 
 	show: function(layer)
 	{
+		var service;
+
+		// Remove previous services
 		if ( currentLayer )
 		{
-			for ( var i=0; i<services.length; i++ )
+			for ( var i=0; i<currentLayer.availableServices.length; i++)
 			{
-				if ( services[i].removeLayer )
-					services[i].removeLayer(currentLayer);
+				service = serviceMapping[currentLayer.availableServices[i]];
+				if ( service.removeLayer )
+					service.removeLayer(currentLayer);
+				service.removeService(tabs);
 			}
 		}
 
-		for ( var i=0; i<services.length; i++ )
+		for ( var i=0; i<layer.availableServices.length; i++ )
 		{
-			if ( services[i].addLayer )
-				services[i].addLayer(layer);
+			service = serviceMapping[layer.availableServices[i]];
+			if ( service )
+			{
+				service.addService(tabs);
+				if ( service.addLayer )
+					service.addLayer(layer);
+			}
+			else
+			{
+				// Unrecognized service, remove it
+				console.error("Mapping doesn't exist, service must be = { OpenSearch, Moc, XMatch or HEALPixCut }");
+				layer.availableServices.splice(i,1);
+			}
 		}
-
 		currentLayer = layer;
+
+		tabs.tabs('refresh');
 
 		$layerServiceView
 			.dialog( "open" );

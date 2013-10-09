@@ -31,11 +31,16 @@
 		<%
 		}
 
-		if ( layer instanceof OpenSearchLayer )
+		if ( layer.availableServices )
 		{
 		%>
 			<button class="layerServices">Available services</button>
-			<button class="exportLayer">Export visible tiles</button>
+		<%
+		}
+		if ( layer instanceof OpenSearchLayer )
+		{
+		%>
+			<button class="exportLayer">Export visible tiles by SAMP</button>
 		<%
 		}
 		%>

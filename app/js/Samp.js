@@ -212,6 +212,13 @@ function createClientTracker()
 		globe.renderContext.requestFrame();
 	};
 
+	callHandler["samp.hub.event.unregister"] = function(senderId, message, isCall) {
+		// Update jQuery UI buttons
+		$('#registerSamp').removeAttr('disabled').button("refresh");
+		$("#unregisterSamp").attr('disabled','disabled').button("refresh");
+		$('#sampInvoker').css('background-image', 'url(css/images/samp_off.png)');
+	}
+
 	return clientTracker;
 }
 
@@ -337,12 +344,19 @@ function init(gl, nav, alv)
 	additionalLayersView.addView( sampLayer );
 
 	// Unregister samp connector onunload or refresh
-	$(window).unload(function(){
-		connector.unregister();
-	});
+	// $(window).unload(function(e){
+	// 	e.preventDefault();
+	// 	connector.unregister();
+	// 	// Wait one second before reloading
+	// 	setTimeout(function(){
+	// 		window.location.reload();
+	// 	}, 1000);
+	// });
 	window.onbeforeunload = function() {
+		// Doesn't work onrefresh actually
 		connector.unregister();
 	}
+	
 }
 
 /**************************************************************************************************************/

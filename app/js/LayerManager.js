@@ -106,6 +106,7 @@ function createLayerFromConf(layer) {
 			{
 				gwLayer = new HEALPixLayer(options);
 			}
+			gwLayer.availableServices = layer.availableServices;
 
 			break;
 		
@@ -170,6 +171,7 @@ function createLayerFromConf(layer) {
 
 			gwLayer.dataType = layer.dataType;
 			gwLayer.pickable = layer.hasOwnProperty('pickable') ? layer.pickable : true;
+			gwLayer.availableServices = layer.availableServices;
 			break;
 
 		case "Moc":

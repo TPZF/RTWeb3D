@@ -68,12 +68,11 @@ function displayClickEvent()
 function addHTMLXMatchLayer(layer)
 {
 	var content = mocServiceTemplate( { layer: layer, display: false } );
-	var serviceLayer = MocBase.findMocSublayer(layer);
 	$(content)
 		.appendTo('#xMatchService .mocLayers')
 		.data("layer",layer)
 		.find('input[type="checkbox"]')
-			.attr("disabled", (serviceLayer) ? false : true)
+			.attr("disabled", (layer.coverage && layer.coverage != "Not available") ? false : true)
 			.button({
 				text:false,
 				icons: {
@@ -126,9 +125,8 @@ function addIntersectionLayer(layersToIntersect)
 		{
 			var layer = layersToIntersect[i];
 
-			var mocLayer = MocBase.findMocSublayer(layer);
 			layerNames += layer.name;
-			url += mocLayer.serviceUrl;
+			url += layer.describeUrl;
 			if ( i != layersToIntersect.length-1 )
 			{
 				url += ';'
@@ -253,10 +251,18 @@ return {
 	 */
 	removeService: function(tabs)
 	{
-		tabs.find( '.ui-tabs-nav li[aria-controls="xMatchService"]').fadeOut(300, function(){
-			var index = $(this).index();
-			tabs.tabs("remove",index);
-		});
+		tabs.find( '.ui-tabs-nav li[aria-controls="xMatchService"]').css("opacity", 0.);
+		var index = $(this).index();
+		tabs.tabs("remove",index);
+
+		var allLayers = layerManager.getLayers();
+		var allOSLayers = _.filter(allLayers, function(layer){ return (layer instanceof OpenSearchLayer) });
+
+		for ( var i=0; i<allOSLayers.length; i++ )
+		{
+			var layer = allOSLayers[i];
+			$( "#xMatchService #mocLayer_"+layer.id ).remove();
+		}
 
 		if ( intersectionLayer )
 		{

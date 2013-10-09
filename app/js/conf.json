@@ -7,9 +7,11 @@
     "debug": true,
     "coordSystem": "EQ", // Default coordinate system
     "navigation": {
-		"initTarget": [14.06,-1.252403], // HST
+		// "initTarget": [14.06,-1.252403], // HST
 		// "initTarget": [4.3500, 3.0794], //Asteroides
 		// "initTarget": [84.7625, -69.1689], //Doradus
+		// "initTarget": [258.5167, -12.9106], // OS/Samp bug
+		"initTarget": [1.0, 89.0], // Polaris
 		"initFov": 1,
 		"inertia": true,
 		"minFov": 0.001,
@@ -17,23 +19,26 @@
 	},
     // SiTools2 services configuration
 	"nameResolver": {
-		"baseUrl": "/sitools/rtwebgl/plugin/nameResolver",
+		"baseUrl": "/sitools/mizar/plugin/nameResolver",
 		"zoomFov": 2
 	},
 	"reverseNameResolver": {
-		"baseUrl": "/sitools/rtwebgl/plugin/reverseNameResolver/"
+		"baseUrl": "/sitools/mizar/plugin/reverseNameResolver/"
 	},
 	"coverageService": {
-		"baseUrl": "/sitools/rtwebgl/plugin/coverage?moc="
+		"baseUrl": "/sitools/mizar/plugin/coverage?moc="
 	},
 	"solarObjects": {
-		"baseUrl": "/sitools/rtwebgl/plugin/solarObjects/"
+		"baseUrl": "/sitools/mizar/plugin/solarObjects/"
 	},
 	"cutOut": {
 		"baseUrl": "/sitools/cutout"
 	},
 	"zScale": {
 		"baseUrl": "/sitools/zscale"
+	},
+	"healpixcut": {
+       "baseUrl": "/sitools/healpixcut"
 	},
 	"stats": {
 		"verbose": false,
@@ -198,7 +203,8 @@
 			"background": true,
 			"dataType": "jpg",
 			"fitsSupported": true,
-			"coordSystem": "GAL"
+			"coordSystem": "GAL",
+			"availableServices": [ "HEALPixCut", "SAMP" ]
 		},
 		// Overlay
 		{
@@ -272,7 +278,8 @@
 			"name": "Herschel (OpenSearch)",
 			"serviceUrl": "/sitools/oherschel",
 			"visible": false,
-			"minOrder": 3
+			"minOrder": 3,
+			"availableServices": [ "OpenSearch", "Moc", "XMatch" ]
 		},
 		/**
 		 *	OpenSearch SOLR Fuse layer
@@ -292,7 +299,8 @@
 			"accuracyOrder" : 10,
 			"color": "#FFCC11",
 			"displayProperties": [ "ra", "dec", "src_type", "dateobs", "imageSize" ],
-			"useCluster": true
+			"useCluster": true,
+			"availableServices": [ "OpenSearch", "Moc", "XMatch" ]
 		},
 		/**
 		 *	OpenSearch SIA ESO layer
@@ -336,7 +344,8 @@
 			"name": "Iso",
 			"serviceUrl": "/sitools/iso",
 			"visible": false,
-			"minOrder": 3
+			"minOrder": 3,
+			"availableServices": [ "Moc", "XMatch" ]
 		},
 		/**
 		 *	OpenSearch ConeSearch I320 layer
@@ -352,7 +361,8 @@
 			"description":"The SPM4 Catalog contains absolute proper motions, celestial coordinates, and B,V photometry for 103,319,647 stars and galaxies between the south celestial pole and -20 degrees declination. The  catalog is roughly complete to V=17.5. It is based on photographic  and CCD observations taken with the Yale Southern Observatory's  double-astrograph at Cesco Observatory in El Leoncito, Argentina. The first-epoch survey, taken from 1965 to 1979, was entirely photographic. The second-epoch survey is approximately 1/3 photographic (taken from 1988 to 1998) and 2/3 CCD-based (taken  from 2004 through 2008). Full details about the creation of the SPM4.0 catalog can be found in the paper, and also in  the document \"spm4_doc.txt\" file which describes the original files, accessible from tttp://www.astro.yale.edu/astrom/spm4cat/",
 			"serviceUrl": "/sitools/i320",
 			"visible": false,
-			"minOrder": 9
+			"minOrder": 9,
+			"availableServices": [ "Moc", "XMatch" ]
 		},
 		/**
 		 *	OpenSearch ConeSearch USNOB1 layer
@@ -369,7 +379,8 @@
 			"attribution": "USNOB1 coming from CDS VizieR catalogue",
 			"serviceUrl": "/sitools/ovo",
 			"visible": false,
-			"minOrder": 9
+			"minOrder": 9,
+			"availableServices": [ "Moc", "XMatch" ]
 		},
 		/**
 		 *	OpenSearch ConeSearch IMCCE layer
@@ -383,7 +394,8 @@
 			"dataType": "point",
 			"name": "IMCCE",
 			"serviceUrl": "/sitools/solar",
-			"minOrder": 7
+			"minOrder": 7,
+			"availableServices": [ "Moc", "XMatch" ]
 		}
 	]
 }

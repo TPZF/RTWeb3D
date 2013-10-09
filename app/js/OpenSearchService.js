@@ -192,10 +192,8 @@ return {
 	 */
 	removeService: function(tabs)
 	{
-		tabs.find( '.ui-tabs-nav li[aria-controls="OpenSearchService"]').fadeOut(300, function(){
-			var index = $(this).index();
-			tabs.tabs("remove",index);
-		});
+		var index = $(this).index();
+		tabs.tabs("remove",index);
 	}
 }
 

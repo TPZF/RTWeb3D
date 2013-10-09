@@ -110,11 +110,11 @@ return {
 		// Create if doesn't exist
 		if ( !serviceLayer )
 		{
-			MocBase.createMocSublayer( layer, function(){
+			MocBase.createMocSublayer( layer, function(layer){
 				$("#MocService #mocLayer_"+layer.id).find('input[type="checkbox"]').removeAttr("disabled").button("refresh");
 				$("#MocService #mocLayer_"+layer.id).find('.mocCoverage').html("Sky coverage: "+layer.coverage);
 
-			}, function(){
+			}, function(layer){
 				$("#MocService #mocLayer_"+layer.id).find('.mocCoverage').html("Sky coverage: Not available").end()
 										.find('.mocStatus').html('(Not found)');
 			} );
@@ -176,10 +176,8 @@ return {
 	 */
 	removeService: function(tabs)
 	{
-		tabs.find( '.ui-tabs-nav li[aria-controls="MocService"]').fadeOut(300, function(){
-			var index = $(this).index();
-			tabs.tabs("remove",index);
-		});
+		var index = $(this).index();
+		tabs.tabs("remove",index);
 	}
 }
 

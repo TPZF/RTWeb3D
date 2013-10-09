@@ -13,7 +13,7 @@
 	}
 	%>
 	<span class="mocName"><%=layer.name%></span>
-	<span class="mocStatus"></span>
+	<span class="mocStatus"><% if ( layer.coverage == "Not available" ) print("(Not found)"); %> </span>
 	<span class="mocCoverage">Sky coverage: <%= layer.coverage %></span>
 	<br/>
 </div>

@@ -17,13 +17,13 @@
 * along with SITools2. If not, see <http://www.gnu.org/licenses/>. 
 ******************************************************************************/ 
 
-/**
- * UWS HEALPixCut service
- */
 define( [ "jquery.ui", "UWSBase", "Utils" ], function($, UWSBase, Utils) {
 
 /**************************************************************************************************************/
 
+/**
+ * 	UWS HEALPixCut service
+ */
 var HEALPixCut = function(name, baseUrl, options)
 {
 	UWSBase.prototype.constructor.call( this, name, baseUrl, options )

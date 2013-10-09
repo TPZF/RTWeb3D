@@ -20,8 +20,8 @@
 /**
  * BackgroundLayersView module
  */
-define(["jquery.ui", "DynamicImageView", "PickingManager", "HEALPixFITSLayer"],
-		function($, DynamicImageView, PickingManager, HEALPixFITSLayer){
+define(["jquery.ui", "DynamicImageView", "PickingManager", "HEALPixFITSLayer", "LayerServiceView", "Samp", "ErrorDialog"],
+		function($, DynamicImageView, PickingManager, HEALPixFITSLayer, LayerServiceView, Samp, ErrorDialog){
 
 // Necessary for selectmenu initialization
 var backgroundLayersIcons = []; 
@@ -51,6 +51,16 @@ function updateBackgroundOptions(layer)
 	{
 		$("#fitsType").attr('disabled','disabled').button("refresh");
 		$('#fitsView').button("disable");
+	}
+
+	var $layerServices = $('#backgroundLayers').find('.layerServices');
+	if ( !layer.availableServices )
+	{
+		$layerServices.attr('disabled','disabled').button('refresh');
+	}
+	else
+	{
+		$layerServices.removeAttr('disabled').button('refresh');
 	}
 }
 
@@ -106,6 +116,39 @@ return {
 				primary: "ui-icon-image"
 			}
 		});
+
+		$('#backgroundLayers').find('.layerServices').button({
+			text: false,
+			icons: {
+				primary: "ui-icon-wrench"
+			}
+		}).click(function(event){
+			var index = $('#backgroundLayersSelect').data('selectmenu').index();
+			var layer = $('#backgroundLayersSelect').children().eq(index).data("layer");
+			LayerServiceView.show( layer );
+		});
+
+		$('#backgroundLayers').find('.exportLayer').button({
+			text: false,
+			icons: {
+				primary: "ui-icon-extlink"
+			}
+		}).click(function(event){
+			if ( Samp.isConnected() )
+			{
+				var healpixLayer = globe.tileManager.imageryProvider;
+				for ( var i=0; i<globe.tileManager.tilesToRender.length; i++ )
+				{
+					var tile = globe.tileManager.tilesToRender[i];
+					var url = window.location.origin + healpixLayer.getUrl( tile );
+					Samp.sendImage(url);
+				}
+			}
+			else
+			{
+				ErrorDialog.open('You must be connected to SAMP Hub');
+			}
+		});		
 
 		var dialogId = backgroundDiv;
 		var $dialog = $('<div id="'+dialogId+'"></div>').appendTo('body').dialog({

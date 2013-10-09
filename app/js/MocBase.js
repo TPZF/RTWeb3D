@@ -31,43 +31,41 @@ define( [ "jquery.ui", "MocLayer", "Utils" ],
 function requestMocDesc(layer, successCallback, errorCallback)
 {
 	// Get moc template
-	if ( layer.coverage != "Not available" )
-	{
-		$.ajax({
-			type: "GET",
-			url: layer.serviceUrl,
-			dataType: "xml",
-			success: function(xml) {
-				var mocdesc = $(xml).find('Url[rel="mocdesc"]');
-				var describeUrl = $(mocdesc).attr("template");
-				if ( describeUrl )
+	$.ajax({
+		type: "GET",
+		url: layer.serviceUrl,
+		dataType: "xml",
+		success: function(xml) {
+			var mocdesc = $(xml).find('Url[rel="mocdesc"]');
+			var describeUrl = $(mocdesc).attr("template");
+			if ( describeUrl )
+			{
+				// Cut request parameters if exists
+				var splitIndex = describeUrl.indexOf( "?q=" );
+				if ( splitIndex != -1 )
 				{
-					// Cut request parameters if exists
-					var splitIndex = describeUrl.indexOf( "?q=" );
-					if ( splitIndex != -1 )
-					{
-						describeUrl = describeUrl.substring( 0, splitIndex );
-					}
-					layer.describeUrl = describeUrl;
-					successCallback(layer);
+					describeUrl = describeUrl.substring( 0, splitIndex );
+				}
+				layer.describeUrl = describeUrl;
+				successCallback(layer);
 
-				}
-				else
-				{
-					layer.describeUrl = "Not available";
-					layer.coverage = "Not available";
-					if( errorCallback )
-						errorCallback(layer);
-				}
-			},
-			error: function(xhr){
+			}
+			else
+			{
 				layer.describeUrl = "Not available";
 				layer.coverage = "Not available";
 				if( errorCallback )
 					errorCallback(layer);
 			}
-		});
-	}
+		},
+		error: function(xhr){
+			layer.describeUrl = "Not available";
+			layer.coverage = "Not available";
+			if( errorCallback )
+				errorCallback(layer);
+		}
+	});
+
 }
 
 /**************************************************************************************************************/
@@ -77,15 +75,22 @@ function requestMocDesc(layer, successCallback, errorCallback)
  */
 function getSkyCoverage(layer, successCallback, errorCallback)
 {
-	if ( !layer.describeUrl )
+	if ( layer.coverage != "Not available" )
 	{
-		requestMocDesc( layer, function(layer){
+		if ( !layer.describeUrl )
+		{
+			requestMocDesc( layer, function(layer){
+				requestSkyCoverage( layer, layer.describeUrl+"?media=txt", successCallback );
+			}, errorCallback );
+		}
+		else
+		{
 			requestSkyCoverage( layer, layer.describeUrl+"?media=txt", successCallback );
-		}, errorCallback );
+		}
 	}
 	else
 	{
-		requestSkyCoverage( layer, layer.describeUrl+"?media=txt", successCallback );
+		errorCallback(layer);
 	}
 }
 
@@ -98,17 +103,24 @@ function getSkyCoverage(layer, successCallback, errorCallback)
  */
 function createMocSublayer(layer, successCallback, errorCallback)
 {
-	if ( !layer.describeUrl )
+	if ( layer.describeUrl != "Not available" )
 	{
-		requestMocDesc( layer, function(layer){
+		if ( !layer.describeUrl )
+		{
+			requestMocDesc( layer, function(layer){
+				handleMocLayer( layer, layer.describeUrl );
+				requestSkyCoverage( layer, layer.describeUrl+"?media=txt", successCallback );
+			}, errorCallback );
+		}
+		else
+		{
 			handleMocLayer( layer, layer.describeUrl );
 			requestSkyCoverage( layer, layer.describeUrl+"?media=txt", successCallback );
-		}, errorCallback );
+		}
 	}
 	else
 	{
-		handleMocLayer( layer, layer.describeUrl );
-		requestSkyCoverage( layer, layer.describeUrl+"?media=txt", successCallback );
+		errorCallback(layer);
 	}
 }
 
@@ -119,16 +131,23 @@ function createMocSublayer(layer, successCallback, errorCallback)
  */
 function requestSkyCoverage( layer, mocServiceUrl, successCallback )
 {
-	// Request MOC space coverage
-	$.ajax({
-		type: "GET",
-		url: mocServiceUrl,
-		success: function(response){
-			layer.coverage = Utils.roundNumber(parseFloat(response),5)+"%";
-			if ( successCallback )
-				successCallback(layer);
-		}
-	});	
+	if ( !layer.coverage )
+	{
+		// Request MOC space coverage
+		$.ajax({
+			type: "GET",
+			url: mocServiceUrl,
+			success: function(response){
+				layer.coverage = Utils.roundNumber(parseFloat(response),5)+"%";
+				if ( successCallback )
+					successCallback(layer);
+			}
+		});	
+	}
+	else
+	{
+		successCallback(layer);
+	}
 }
 
 /**************************************************************************************************************/
@@ -188,7 +207,8 @@ function findMocSublayer(layer)
 return {
 	createMocSublayer: createMocSublayer,
 	findMocSublayer: findMocSublayer,
-	getSkyCoverage: getSkyCoverage
+	getSkyCoverage: getSkyCoverage,
+	requestSkyCoverage: requestSkyCoverage
 }
 
 });

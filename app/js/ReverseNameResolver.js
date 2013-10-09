@@ -20,8 +20,8 @@
 /**
  * Name resolver module : search object name and zoom to them
  */
-define(["jquery.ui", "gw/CoordinateSystem", "gw/Numeric", "IFrame", "Utils", "Samp", "UWSManager", "ErrorDialog", "underscore-min", "text!../templates/featureDescription.html", "text!../templates/descriptionTable.html"],
-	function($, CoordinateSystem, Numeric, IFrame, Utils, Samp, UWSManager, ErrorDialog, _, featureDescriptionHTMLTemplate, descriptionTableHTMLTemplate) {
+define(["jquery.ui", "gw/CoordinateSystem", "gw/Numeric", "IFrame", "Utils", "ErrorDialog", "underscore-min", "text!../templates/featureDescription.html", "text!../templates/descriptionTable.html"],
+	function($, CoordinateSystem, Numeric, IFrame, Utils, ErrorDialog, _, featureDescriptionHTMLTemplate, descriptionTableHTMLTemplate) {
 
 var globe;
 var configuration = {};
@@ -40,12 +40,6 @@ var reverseNameResolverHTML =
 			<input type="submit" value="Find Object Name" />\
 			<div id="coordinatesInfo"></div>\
 			<div id="healpixInfo"></div>\
-			<br/>\
-			<div style="text-align: center;">\
-				<button style="width: 22px; height: 22px;" id="sendViewport">Send viewport</button>\
-				<button style="width: 22px; height: 22px;" id="healpixcut">Cut HEALPix of viewport</button>\
-			</div>\
-			<div class="healpixCutResult"></div>\
 		</div>\
 		<div id="reverseSearchResult"></div>\
 		<div class="closeBtn">\
@@ -177,117 +171,6 @@ function setBehavior()
 	$reverseNameResolver.on("click", '.propertiesTable a', function(event){
 		event.preventDefault();
 		IFrame.show(event.target.innerHTML);
-	});
-
-	$('#sendViewport').button({
-		text: false,
-		icons: {
-			primary: "ui-icon-extlink"
-		}
-	}).click(function(event){
-		if ( Samp.isConnected() )
-		{
-			var healpixLayer = globe.tileManager.imageryProvider;;
-			for ( var i=0; i<globe.tileManager.tilesToRender.length; i++ )
-			{
-				var tile = globe.tileManager.tilesToRender[i];
-				var url = window.location.origin + healpixLayer.getUrl( tile );
-				Samp.sendImage(url);
-			}
-		}
-		else
-		{
-			ErrorDialog.open('You must be connected to SAMP Hub');
-		}
-	});
-
-	$('#healpixcut').button({
-		text: false,
-		icons: {
-			primary: "ui-icon-scissors"
-		}
-	}).click(function(event){
-
-
-		// Find RA/Dec of each corner of viewport
-		var coords = [ [0,0], [globe.renderContext.canvas.width, 0], [globe.renderContext.canvas.width, globe.renderContext.canvas.height], [0, globe.renderContext.canvas.height] ];
-		for ( var i=0; i<coords.length; i++ )
-		{
-			var geo = globe.getLonLatFromPixel( coords[i][0], coords[i][1] );
-			// Convert to RA/Dec
-			if ( geo[0] < 0 )
-			{
-				geo[0]+=360;
-			}
-			coords[i] = geo;
-		}
-
-		// Find angle between eye and north
-		var geo = [];
-		CoordinateSystem.from3DToGeo(navigation.center3d, geo);
-
-		var LHV = [];
-		CoordinateSystem.getLHVTransform(geo, LHV);
-		
-		var north = [LHV[4],LHV[5],LHV[6]];
-		var cosNorth = vec3.dot(navigation.up, north);
-		var radNorth = Math.acos(cosNorth);
-		if ( isNaN(radNorth) )
-		{
-			console.error("North is NaN'ed...");
-			return;
-		}
-		var degNorth = radNorth * 180/Math.PI;		
-		
-		// Depending on z component of east vector find if angle is positive or negative
-	    if ( globe.renderContext.viewMatrix[8] < 0 ) {
-	    	degNorth *= -1;
-	    }
-
-		// Find angles between top-left/top-right and top-right/bottom-right points of viewport
-		var xDotProduct = vec3.dot( CoordinateSystem.fromGeoTo3D(coords[0]), CoordinateSystem.fromGeoTo3D(coords[1]) );
-		var yDotProduct = vec3.dot( CoordinateSystem.fromGeoTo3D(coords[1]), CoordinateSystem.fromGeoTo3D(coords[2]) );
-	    var cdelt1 = Numeric.toDegree(Math.acos(xDotProduct)) /* * 3600*/;
-	    var cdelt2 = Numeric.toDegree(Math.acos(yDotProduct)) /* * 3600*/;
-
-		var parameters = {
-			long1: coords[0][0],
-			lat1: coords[0][1],
-			long2: coords[1][0],
-			lat2: coords[1][1],
-			long3: coords[2][0],
-			lat3: coords[2][1],
-			long4: coords[3][0],
-			lat4: coords[3][1],
-			rotation: degNorth,
-			coordSystem: CoordinateSystem.type == "EQ" ? "EQUATORIAL" : "GALACTIC",
-			cdelt1: cdelt1,
-			cdelt2: cdelt2,
-			filename: "HFI_SkyMap_857_2048_R1.10_nominal.fits",	// Constant HEALPix map
-			PHASE: "RUN"
-		}
-
-		console.log(parameters);
-		$('#reverseNameResolver').find('.healpixCutResult').html('Healpix cut is in progress, be patient, it may take some time.');
-		UWSManager.post( 'healpixcut', parameters, {
-			successCallback: function( result )
-			{
-				$('#reverseNameResolver').find('.healpixCutResult').stop(true,true).css('opacity', 1.).html(
-					'Download HEALPix cut result : <a href="' + result +'" download="result.fits"><img style="vertical-align: middle; width: 20px; height: 20px;" title="Download" src="css/images/download1.png"></a>'
-				);
-			},
-			failCallback: function(message){
-				ErrorDialog.open(message);
-			},
-			onloadCallback: function()
-			{
-				$('#reverseNameResolver').find('.healpixCutResult').animate({opacity: 0.}, 300, function(){
-					$(this).animate({opacity: 1.}, 300);
-				});
-				console.log("loading...");
-			}
-		} );
-
 	});
 
 	navigation.subscribe("modified", function(){
