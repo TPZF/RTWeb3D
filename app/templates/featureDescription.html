@@ -11,36 +11,39 @@
 		</table>
 	</div>
 	
-	<div id="services">
-		<%
-		if ( properties.quicklook ) { %>
-			<img title="Quicklook" id='quicklook' src="css/images/quicklook.png" class=<%= (properties.style.fillTextureUrl && properties.style.fill ? 'selected' : '' ) %> />
-		<% } %>
+	<% if ( services ) {
+	%>
+		<div id="services">
+			<%
+			if ( properties.quicklook ) { %>
+				<img title="Quicklook" id='quicklook' src="css/images/quicklook.png" class=<%= (properties.style.fillTextureUrl && properties.style.fill ? 'selected' : '' ) %> />
+			<% } %>
 
-		<% if ( services )
-		{
-			if ( services.download )
+			<% if ( services )
 			{
-				if ( services.download.mimetype == "image/fits" )
-				{ 
-					var fitsQuicklookOn = properties.style.fill && !properties.style.fillTextureUrl;
-					%>
-					<img title="Fits quicklook" id='quicklookFits' src="css/images/quicklook_fits.png" class=<%= (fitsQuicklookOn ? 'selected' : '' ) %> />
-					<img title="Solar object service" id="solarObjects" src="css/images/solarObjectsService.png" class=<%= (services.solarObjects && services.solarObjects.layer.visible() ? 'selected' : '' ) %> />
-					<img style="display: none" id="solarObjectsSpinner" src="css/images/loading.gif" />
-					<span title="Image processing" id="dynamicImageView" class='dynamicAvailable' />
-					<img title="Export image by SAMP" id="sendImage" src="css/images/exportSamp.png" />
-				<%
+				if ( services.download )
+				{
+					if ( services.download.mimetype == "image/fits" )
+					{ 
+						var fitsQuicklookOn = properties.style.fill && !properties.style.fillTextureUrl;
+						%>
+						<img title="Fits quicklook" id='quicklookFits' src="css/images/quicklook_fits.png" class=<%= (fitsQuicklookOn ? 'selected' : '' ) %> />
+						<img title="Solar object service" id="solarObjects" src="css/images/solarObjectsService.png" class=<%= (services.solarObjects && services.solarObjects.layer.visible() ? 'selected' : '' ) %> />
+						<img style="display: none" id="solarObjectsSpinner" src="css/images/loading.gif" />
+						<span title="Image processing" id="dynamicImageView" class='dynamicAvailable' />
+						<img title="Export image by SAMP" id="sendImage" src="css/images/exportSamp.png" />
+					<%
+					}
+				 	%>
+					<a href="<%= services ? services.download.url : "" %>" target="_self" download><img title="Download" src="css/images/download1.png"></a>
+					<%
 				}
-			 	%>
-				<a href="<%= services ? services.download.url : "" %>" target="_self" download><img title="Download" src="css/images/download1.png"></a>
-				<%
-			}
-			if ( services.healpix ) { %>
-				<img title="Healpix service" id='healpix' src="css/images/healpix.png" class=<%= (services.healpix.layer.visible() ? 'selected' : '' ) %> />
-			<% }
-		} %>
-		<div style="display: none;" id="serviceStatus"></div>
-	</div>
+				if ( services.healpix ) { %>
+					<img title="Healpix service" id='healpix' src="css/images/healpix.png" class=<%= (services.healpix.layer.visible() ? 'selected' : '' ) %> />
+				<% }
+			} %>
+			<div style="display: none;" id="serviceStatus"></div>
+		</div>
+	<% } %>
 
 </div>

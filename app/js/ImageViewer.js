@@ -17,8 +17,8 @@
 * along with SITools2. If not, see <http://www.gnu.org/licenses/>. 
 ******************************************************************************/ 
 
-define(["gw/FeatureStyle", "ImageProcessing", "Utils", "underscore-min", "text!../templates/imageViewerItem.html"],
-	function(FeatureStyle, ImageProcessing, Utils, _, imageViewerItemHTMLTemplate){
+define(["require", "gw/FeatureStyle", "ImageProcessing", "Utils", "underscore-min", "text!../templates/imageViewerItem.html"],
+	function(require,FeatureStyle, ImageProcessing, Utils, _, imageViewerItemHTMLTemplate){
 
 var navigation;
 var globe;
@@ -72,6 +72,7 @@ return {
 		}
 		var name = selectedData.feature.properties.identifier;
 		var $li;
+		var $metadataDialog;
 		
 		if ( $('#loadedImages ul li[id="'+id+'"]').length == 0 )
 		{
@@ -132,6 +133,56 @@ return {
 					}
 				}).on('click', function(){
 					ImageProcessing.setData(selectedData);
+				}).end()
+				.find('.metadata').button({
+					text: false,
+					icons: {
+						primary: "ui-icon-info"
+					}
+				}).on('click', function(){
+
+					// Create metadata dialog if doesn't exist
+					if ( !$metadataDialog )
+					{
+						// TODO : refactor this circular dependency...
+						var featurePopup = require("FeaturePopup");
+						var output = featurePopup.generateFeatureMetadata( selectedData.layer, selectedData.feature );
+						$metadataDialog = $('<div>'+output+'</div>').dialog({
+							autoOpen: true,
+							show: {
+								effect: "fade",
+								duration: 300
+							},
+							hide: {
+								effect: "fade",
+								duration: 300
+							},
+							title: "Metadata",
+							width: 350,
+							resizable: false,
+							zIndex: 12,
+							stack: false,
+							close: function(){
+								$(this).find('.featureProperties').getNiceScroll().remove();
+								$(this).dialog("destroy").remove();
+							},
+							drag: function()
+							{
+								$(this).find('.featureProperties').getNiceScroll().resize();
+							}
+						});
+						$metadataDialog.find('.featureProperties').niceScroll({
+							autohidemode: false
+						});
+					}
+					else
+					{
+						if ( $metadataDialog.dialog( "isOpen" ) )
+						{
+							$metadataDialog.dialog("close");
+							$metadataDialog = null;
+						}
+					}
 				}).end();
 
 			if ( $('#loadedImages ul li').length == 1 )

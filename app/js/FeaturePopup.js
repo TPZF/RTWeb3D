@@ -207,13 +207,18 @@ function createHTMLSelectedFeatureDiv( layer, feature )
 		createDictionary(layer, feature.properties);
 	}
 
-	var output = featureDescriptionTemplate( { dictionary: layer.dictionary, services: feature.services, properties: buildProperties(feature.properties, layer.displayProperties), descriptionTableTemplate: descriptionTableTemplate } );
+	var output = featureDescriptionTemplate( {
+		dictionary: layer.dictionary,
+		services: feature.services,
+		properties: buildProperties(feature.properties, layer.displayProperties),
+		descriptionTableTemplate: descriptionTableTemplate
+	} );
 	
 	$('#rightDiv').html( output );
-	$('.featureProperties').niceScroll({
+	$selectedFeatureDiv.find('.featureProperties').niceScroll({
 		autohidemode: false
 	});
-	$('.featureProperties').getNiceScroll().hide();
+	$selectedFeatureDiv.find('.featureProperties').getNiceScroll().hide();
 }
 
 /**********************************************************************************************/
@@ -431,7 +436,7 @@ return {
 		$selectedFeatureDiv.on("click", '.section', function(event){
 			// TODO slideToggle works with div -> add div to the tab generation
 			$(this).siblings('table').fadeToggle("slow", "linear", function(){
-				$('.featureProperties').getNiceScroll().resize();
+				$selectedFeatureDiv.find('.featureProperties').getNiceScroll().resize();
 			});/*slideToggle(300)*/;
 			if ( $(this).siblings('#arrow').is('.arrow-right') )
 			{
@@ -472,7 +477,7 @@ return {
 	 *	@param callback Callback 
 	 */
 	hide: function(callback){
-		$('.featureProperties').getNiceScroll().remove();
+		$selectedFeatureDiv.find('.featureProperties').getNiceScroll().remove();
 		// if ( $selectedFeatureDiv.css('display') != 'none') { 
 			$selectedFeatureDiv.fadeOut(300, callback );
 		// }
@@ -490,7 +495,7 @@ return {
 	show: function(x, y, callback){
 		computeDivPosition(x,y);
 		$selectedFeatureDiv.fadeIn(500, function() {
-			$('.featureProperties').getNiceScroll().resize();
+			$selectedFeatureDiv.find('.featureProperties').getNiceScroll().resize();
 			if (callback) callback();
 		});
 	},
@@ -525,14 +530,28 @@ return {
 	 * 	Show feature information
 	 */
 	showFeatureInformation: function(layer, feature){
-		$('.featureProperties').getNiceScroll().remove();
+		$selectedFeatureDiv.find('.featureProperties').getNiceScroll().remove();
 		$('#rightDiv').fadeOut(300, function(){
 			createHTMLSelectedFeatureDiv( layer, feature );
 			$(this).fadeIn(300, function(){
-				$('.featureProperties').getNiceScroll().resize();
-				$('.featureProperties').getNiceScroll().show();
+				$selectedFeatureDiv.find('.featureProperties').getNiceScroll().resize();
+				$selectedFeatureDiv.find('.featureProperties').getNiceScroll().show();
 			});
 		});
+	},
+
+	/**********************************************************************************************/
+
+	/**
+	 *	Generate feature meta data for the given feature
+	 */
+	generateFeatureMetadata: function( layer, feature )
+	{
+		return featureDescriptionTemplate( {
+			dictionary: layer.dictionary,
+			properties: buildProperties(feature.properties, layer.displayProperties),
+			descriptionTableTemplate: descriptionTableTemplate
+		} );
 	}
 
 	/**********************************************************************************************/

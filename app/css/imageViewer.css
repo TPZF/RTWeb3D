@@ -141,7 +141,7 @@
 	top: 8px;
 }
 
-#loadedImages .zoomTo, #loadedImages .delete, #loadedImages .imageProcessing
+#loadedImages .zoomTo, #loadedImages .delete, #loadedImages .imageProcessing, #loadedImages .metaData
 {
 	height: 20px;
 	width: 20px;
