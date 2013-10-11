@@ -388,7 +388,7 @@ $(function()
 			Samp.init(globe, navigation, AdditionalLayersView);
 
 			// Eye position tracker initialization
-			PositionTracker.init(globe, navigation);
+			PositionTracker.init({ element: "posTracker", globe: globe, navigation : navigation });
 
 			// UWS services initialization
 			UWSManager.init(data);

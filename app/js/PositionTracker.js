@@ -18,28 +18,30 @@
 ******************************************************************************/ 
 
 /**
- * Samp module : performing communication between applications using SAMP protocol
+ * Position tracker : show mouse position formated in default coordinate system
  */
 define(["jquery.ui", "gw/CoordinateSystem", "Utils"],
 	function($, CoordinateSystem, Utils) {
 
 var globe;
 var navigation;
+var element;
 
-function updatePosition()
+function updatePosition(event)
 {
-	var geoPos = [];
-    CoordinateSystem.from3DToGeo(navigation.center3d, geoPos);
-    var astro = Utils.formatCoordinates([ geoPos[0], geoPos[1] ]);
-    $('#posTracker').html(astro[0] + " x " + astro[1]);
+	var geoPos = globe.getLonLatFromPixel( event.clientX, event.clientY );
+	var astro = Utils.formatCoordinates([ geoPos[0], geoPos[1] ]);
+    $('#'+element).html(astro[0] + " x " + astro[1]);
 }
 
 return {
-	init: function(gl, nav)
+	init: function(options)
 	{
-		globe = gl;
-		navigation = nav;
-		navigation.subscribe("modified", updatePosition);
+		globe = options.globe;
+		navigation = options.navigation;
+		element = options.element;
+
+		$('.canvas').on('mousemove', updatePosition);
 	}
 }
 
