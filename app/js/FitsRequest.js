@@ -79,6 +79,7 @@ ImageRequest.prototype.send = function(url)
 	else
 	{
 		this.image = new Image();
+		this.image.aborted = false;
 		this.image.crossOrigin = '';
 		this.image.dataType = "byte";
 		this.image.onload = function(){
@@ -89,7 +90,7 @@ ImageRequest.prototype.send = function(url)
 			}
 		}
 		this.image.onerror = function(){
-			if ( self.failCallback )
+			if ( self.failCallback && !this.aborted )
 				self.failCallback(self);
 		};
 		this.image.src = url;
@@ -111,6 +112,7 @@ ImageRequest.prototype.abort = function()
 	{
 		if ( this.abortCallback )
 		{
+			this.image.aborted = true;
 			this.abortCallback(this);
 		}
 		this.image.src = '';
