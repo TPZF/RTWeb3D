@@ -106,7 +106,11 @@ function createLayerFromConf(layer) {
 			{
 				gwLayer = new HEALPixLayer(options);
 			}
-			gwLayer.availableServices = layer.availableServices;
+			if ( layer.availableServices )
+			{
+				gwLayer.availableServices = layer.availableServices;
+				gwLayer.healpixCutFileName = layer.healpixCutFileName;
+			}
 
 			break;
 		

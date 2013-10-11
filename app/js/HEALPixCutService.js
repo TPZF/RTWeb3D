@@ -42,7 +42,12 @@ return {
 
 		// Append content
 		tabs.append('<div id="HEALPixCut">\
-						<button id="HEALPixCutBtn">Cut viewport</button>\
+						Arcsec per pixel of result:\
+						<div style="margin-left: 20px; margin-bottom: 10px;" class="imageProperties">\
+							<label for="cdelt1">X axis: </label><input type="text" id="cdelt1" /><br/>\
+							<label for="cdelt2">Y axis: </label><input type="text" id="cdelt2" />\
+						</div>\
+						<button style="margin-left: auto; margin-right: auto; display: block;" id="HEALPixCutBtn">Cut viewport</button>\
 						<div style="display: inline-block; width: auto; height: 1em;" class="status"></div>\
 						<div style="margin-top: 15px;">\
 							<em style="font-size: 14px;">Results</em>\
@@ -92,11 +97,11 @@ return {
 		    	degNorth *= -1;
 		    }
 
-			// Find angles between top-left/top-right and top-right/bottom-right points of viewport
-			var xDotProduct = vec3.dot( CoordinateSystem.fromGeoTo3D(coords[0]), CoordinateSystem.fromGeoTo3D(coords[1]) );
-			var yDotProduct = vec3.dot( CoordinateSystem.fromGeoTo3D(coords[1]), CoordinateSystem.fromGeoTo3D(coords[2]) );
-		    var cdelt1 = Numeric.toDegree(Math.acos(xDotProduct)) /* * 3600*/;
-		    var cdelt2 = Numeric.toDegree(Math.acos(yDotProduct)) /* * 3600*/;
+		    var cdelt1 = parseFloat( $('#cdelt1').val() );
+		    var cdelt2 = parseFloat( $('#cdelt2').val() );
+
+		    // Get choosen layer
+		    var healpixLayer = globe.tileManager.imageryProvider;
 
 			var parameters = {
 				long1: coords[0][0],
@@ -111,11 +116,11 @@ return {
 				coordSystem: CoordinateSystem.type == "EQ" ? "EQUATORIAL" : "GALACTIC",
 				cdelt1: cdelt1,
 				cdelt2: cdelt2,
-				filename: "HFI_SkyMap_857_2048_R1.10_nominal.fits",	// Constant HEALPix map
+				filename: healpixLayer.healpixCutFileName,
 				PHASE: "RUN"
 			}
 
-			$('#HEALPixCut').find('.status').html('Healpix cut is in progress, be patient, it may take some time.').css('display: inline-block');
+			$('#HEALPixCut').find('.status').html('Healpix cut is in progress, be patient, it may take some time.').fadeIn().css('display: inline-block');
 			UWSManager.post( 'healpixcut', parameters, {
 				successCallback: function( result )
 				{

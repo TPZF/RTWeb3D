@@ -204,7 +204,8 @@
 			"dataType": "jpg",
 			"fitsSupported": true,
 			"coordSystem": "GAL",
-			"availableServices": [ "HEALPixCut", "SAMP" ]
+			"availableServices": [ "HEALPixCut" ],
+			"healpixCutFileName" : "HFI_SkyMap_857_2048_R1.10_nominal.fits"
 		},
 		// Overlay
 		{
