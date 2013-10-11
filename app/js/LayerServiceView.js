@@ -24,7 +24,7 @@
 define( [ "jquery.ui", "OpenSearchService", "MocService", "XMatchService", "HEALPixCutService" ],
 			function($, OpenSearchService, MocService, XMatchService, HEALPixCutService ) {
 
-var layerServiceView = '<div id="layerServiceView" title="Avaliable services">\
+var layerServiceView = '<div id="layerServiceView" title="Available services">\
 							<div id="layerServices">\
 								<ul>\
 								</ul>\
