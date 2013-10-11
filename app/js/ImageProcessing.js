@@ -226,7 +226,7 @@ return {
 	},
 	removeData: function(data)
 	{
-		if ( data.feature.properties.identifier == feature.properties.identifier )
+		if ( feature && data.feature.properties.identifier == feature.properties.identifier )
 		{
 			if ( this.isOpened() )
 			{

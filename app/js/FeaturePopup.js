@@ -549,6 +549,7 @@ return {
 	{
 		return featureDescriptionTemplate( {
 			dictionary: layer.dictionary,
+			services : false,
 			properties: buildProperties(feature.properties, layer.displayProperties),
 			descriptionTableTemplate: descriptionTableTemplate
 		} );

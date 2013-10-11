@@ -159,11 +159,12 @@ function createHtmlForAdditionalLayer( gwLayer )
 		toolsDiv.slideToggle(updateScroll);
 	});
 
-	// Manage 'custom' checkbox
-	// jQuery UI button is not sexy enough :)
-	// Toggle some classes when the user clicks on the visibility checkbox
-	$('#visible_'+currentIndex).click( function() {
-		var isOn = !$(this).hasClass('ui-state-active');
+	// Layer visibility management
+	$('.canvas').on('click', '#visible_'+currentIndex, function(){
+		// Manage 'custom' checkbox
+		// jQuery UI button is not sexy enough :)
+		// Toggle some classes when the user clicks on the visibility checkbox
+		var isOn = !$('#visible_'+currentIndex).hasClass('ui-state-active');
 		gwLayer.visible( isOn );
 
 		if ( gwLayer.subLayers )
@@ -187,20 +188,14 @@ function createHtmlForAdditionalLayer( gwLayer )
 		$layerDiv.find('.slider').slider( isOn ? "enable" : "disable" );
 		
 		// Change button's state
-		$(this).toggleClass('ui-state-active')
+		$('#visible_'+currentIndex).toggleClass('ui-state-active')
 			   .toggleClass('ui-state-default')
 			   .find('span')
 			   	  .toggleClass('ui-icon-check')
 			   	  .toggleClass('ui-icon-empty');
 
-		if ( isOn )
-		{
-			toolsDiv.slideDown(updateScroll);
-		}
-		else
-		{
-			toolsDiv.slideUp(updateScroll);
-		}
+		// Trigger on ImageViewer visibility button
+		$('#layerVisibility_'+gwLayer.id).trigger('click');
 
 	});
 

@@ -77,7 +77,10 @@ function handleFits(fitsData, featureData)
 	layer.modifyFeatureStyle( feature, targetStyle );
 
 	// Store image url for zScale processing
-	image.url = feature.services.download.url;
+	if ( feature.services )
+	{
+		image.url = feature.services.download.url;
+	}
 
 	// Set image on image processing popup
 	ImageProcessing.setImage(image);

@@ -25,6 +25,7 @@ define(function() {
 var SimpleProgressBar = function(options)
 {
 	var id = options.id;
+	this.percentOutput = options.hasOwnProperty('percentOutput') ? options.percentOutput : false;
 
 	this.$element = $('<div style="display: none;" class="progress"><div></div></div>')
     		.appendTo('#'+id)
@@ -37,7 +38,13 @@ SimpleProgressBar.prototype.onprogress = function(evt)
 	{				
 		var percentComplete = Math.floor( (evt.loaded / evt.total)*100 );
 		var progressBarWidth = percentComplete * this.$element.width() / 100;
-		this.$element.find('div').css('width', progressBarWidth).html(percentComplete + "%&nbsp;");
+		this.$element.find('div').css('width', progressBarWidth);
+
+		if ( this.percentOut )
+		{
+			this.$element.find('div').html(percentComplete + "%&nbsp;");
+		}
+
 		if ( percentComplete >= 99 )
 		{
 			this.$element.delay(1000).fadeOut('slow');

@@ -47,72 +47,84 @@
 #loadedImages ul
 {
   list-style: none;
-  margin: 0;
-  padding: 0;
-  #background: linear-gradient(#666666, #333333);
   border-radius: 10px;
+  text-overflow: ellipsis;
+  overflow-x: hidden;
 }
 
-/*** Image view items ***/
-#loadedImages ul li
+/*** Layer items ***/
+#loadedImages .imageLayers
+{
+	margin: 0px;
+	padding: 0px;
+}
+
+.imageLayers > .layer > ul
+{
+	font-size: 0.7em;
+	margin: 0px;
+	padding: 10 10 0 10;
+}
+
+#loadedImages .layer > label:hover
+{
+	cursor: pointer;
+}
+
+
+#loadedImages .layerName
+{
+	width: 85%;
+	vertical-align: middle;
+	text-overflow: ellipsis;
+	overflow-x: hidden;
+	display: inline-block;
+}
+
+
+/*** Image items ***/
+#loadedImages .image > label:hover
+{
+	cursor: pointer;
+}
+
+#loadedImages .imageName
+{
+	width: 160px;
+	text-overflow: ellipsis;
+	overflow-x: hidden;
+	display: inline-block;
+	vertical-aligh: middle;
+	position: relative;
+	z-index: 3;
+}
+
+
+
+#loadedImages .ui-accordion-content
+{
+	padding: 0.5em 0.5em;
+}
+
+.layerVisibility+label
+{
+	width: 20px;
+	height: 20px;
+	vertical-align: middle;
+}
+
+.image
 {
 	position: relative;
 }
 
-#loadedImages ul li:first-child label
-{
-  border-top: none;
-  border-top-left-radius: 4px;
-  border-top-right-radius: 4px;
-}
-#loadedImages ul li:last-child label
-{
-  border-bottom: none;
-  border-bottom-left-radius: 4px;
-  border-bottom-right-radius: 4px;
-}
-
-#loadedImages ul li label
-{
-	display: block;
-	padding: 10px;
-	cursor: pointer;
-	border-bottom: 1px solid rgba(0, 0, 0, 0.01);
-	-webkit-transition: all 200ms linear;
-	-moz-transition: all 200ms linear;
-	-o-transition: all 200ms linear;
-	transition: all 200ms linear;
-	background: #404853;
-  	background: linear-gradient(#666666, #333333);
-	color: rgb(255, 255, 255);
-	font-size: 12px;
-	text-overflow: ellipsis;
-	overflow-x: hidden;
-	padding-right: 81px;
-}
-
-#loadedImages ul li label:hover {
-	background: #288db1; /* Old browsers */
-	background: -moz-linear-gradient(top, #288db1 0%, #288db1 50%, #047aa4 51%, #59b4d4 100%); /* FF3.6+ */
-	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#288db1), color-stop(50%,#288db1), color-stop(51%,#047aa4), color-stop(100%,#59b4d4)); /* Chrome,Safari4+ */
-	background: -webkit-linear-gradient(top, #288db1 0%,#288db1 50%,#047aa4 51%,#59b4d4 100%); /* Chrome10+,Safari5.1+ */
-	background: linear-gradient(to bottom, #288db1 0%,#288db1 50%,#047aa4 51%,#59b4d4 100%); /* W3C */
-}
-
-#loadedImages ul li input:checked + label {
-	background: #f58400; /* Old browsers */
-	background: -moz-linear-gradient(top, #f58400 0%, #ffaf0f 100%); /* FF3.6+ */
-	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#f58400), color-stop(100%,#ffaf0f)); /* Chrome,Safari4+ */
-	background: -webkit-linear-gradient(top, #f58400 0%,#ffaf0f 100%); /* Chrome10+,Safari5.1+ */
-	background: linear-gradient(to bottom, #f58400 0%,#ffaf0f 100%); /* W3C */
-	text-indent: 5px;
-	box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.09),0 -1px 2px 0 rgba(0, 0, 0, 0.09);
-}
-
 /*** Progress bar ***/
 #loadedImages .progress {
-	width: 100%;
-	height: 8px;
+	opacity: 0.8;
+	top: 0px;
+	left: 20px;
+	width: 80%;
+	height: 16px;
 	position: absolute;
 	bottom: -5px;
 	z-index: 2;
@@ -136,9 +148,7 @@
 /*** Different item options: zoomTo, delete, imageProcessing ***/
 #loadedImages .options
 {
-	position: absolute;
-	right: 12px;
-	top: 8px;
+	margin-left: 20px;
 }
 
 #loadedImages .zoomTo, #loadedImages .delete, #loadedImages .imageProcessing, #loadedImages .metaData
@@ -147,14 +157,3 @@
 	width: 20px;
 	margin: 0px;
 }
-
-
-/* jQueryUI colors */
-/*background: #666666; /* Old browsers */
-/*background: -moz-linear-gradient(top, #666666 0%, #626262 2%, #626262 50%, #555555 51%, #666666 100%); /* FF3.6+ */
-/*background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#666666), color-stop(2%,#626262), color-stop(50%,#626262), color-stop(51%,#555555), color-stop(100%,#666666)); /* Chrome,Safari4+ */
-/*background: -webkit-linear-gradient(top, #666666 0%,#626262 2%,#626262 50%,#555555 51%,#666666 100%); /* Chrome10+,Safari5.1+ */
-/*background: -o-linear-gradient(top, #666666 0%,#626262 2%,#626262 50%,#555555 51%,#666666 100%); /* Opera 11.10+ */
-/*background: -ms-linear-gradient(top, #666666 0%,#626262 2%,#626262 50%,#555555 51%,#666666 100%); /* IE10+ */
-/*background: linear-gradient(to bottom, #666666 0%,#626262 2%,#626262 50%,#555555 51%,#666666 100%); /* W3C */
-

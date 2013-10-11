@@ -17,18 +17,103 @@
 * along with SITools2. If not, see <http://www.gnu.org/licenses/>. 
 ******************************************************************************/ 
 
-define(["require", "gw/FeatureStyle", "ImageProcessing", "Utils", "underscore-min", "text!../templates/imageViewerItem.html"],
-	function(require,FeatureStyle, ImageProcessing, Utils, _, imageViewerItemHTMLTemplate){
+define(["require", "gw/FeatureStyle", "ImageProcessing", "Utils", "underscore-min", "text!../templates/imageViewerLayerItem.html", "text!../templates/imageViewerImageItem.html"],
+	function(require,FeatureStyle, ImageProcessing, Utils, _, imageViewerLayerItemHTMLTemplate, imageViewerImageItemHTMLTemplate){
 
 var navigation;
 var globe;
 var pickingManager;
 var imageManager;
 
+var layers = [];
 var featuresWithImages = [];
 
+// Template generating the div representing layer which contains loaded images
+var imageViewerLayerItemTemplate = _.template(imageViewerLayerItemHTMLTemplate);
 // Template generating the li representing image
-var imageViewerItemTemplate = _.template(imageViewerItemHTMLTemplate);
+var imageViewerImageItemTemplate = _.template(imageViewerImageItemHTMLTemplate);
+
+function disableImageUI(layer)
+{
+	$('#loadedImages').find('.imageLayers div[id="imageLayer_'+layer.id+'"] ul')
+		.find('button, input').each(function(){
+			$(this).attr('disabled','disabled').button('refresh');
+		})
+}
+
+function enableImageUI(layer)
+{
+	$('#loadedImages').find('.imageLayers div[id="imageLayer_'+layer.id+'"] ul')
+		.find('button, input').each(function(){
+			$(this).removeAttr('disabled').button('refresh');
+		})
+}
+
+function createLayerView(layer)
+{
+	var imageViewerLayerItemContent = imageViewerLayerItemTemplate( { id: layer.id, name: layer.name });
+	$layer = $(imageViewerLayerItemContent)
+		.appendTo($('#loadedImages').find('.imageLayers'));
+
+	// Stylize layer visibility checkbox
+	$layer.find('#layerVisibility_'+layer.id).button({
+		text: false,
+		icons: {
+        	primary: "ui-icon-check"
+      	}
+	});
+
+	// Slide loaded images for current layer onclick
+	$layer.on('click', 'label.layerName', function(){
+		$("#imageLayer_"+layer.id+ " > ul").slideToggle();
+	});
+
+	// Layer visibility management
+	var $layerVisibility = $('#layerVisibility_'+layer.id);
+	$('.canvas').on('click', '#layerVisibility_'+layer.id, function(){
+
+		var isChecked = ($layerVisibility.button('option', 'icons').primary == "ui-icon-check");
+		if ( $('#visible_'+layer.id ).hasClass('ui-state-active') == isChecked )
+		{
+			// Trigger event on LayerManager visibility button
+			$('#visible_'+layer.id).trigger("click");
+		}
+		else
+		{
+			// Manage visibility of ImageViewer checkbox
+			var isOn = layer.visible();
+			$layerVisibility.button("option", {
+				icons: {
+					primary: isOn ? "ui-icon-check" : ""
+				},
+			}).button('refresh');
+
+			if ( isOn )
+			{
+				enableImageUI(layer);
+			}
+			else
+			{
+				disableImageUI(layer);
+			}
+		}
+	});
+
+	if ( layers.length == 0 )
+	{
+		$('#loadedImages p').fadeOut(function(){
+			$layer.fadeIn();
+		});
+	}
+	else
+	{
+		$layer.fadeIn();
+	}
+
+	layers.push(layer);
+
+	return $layer;
+}
 
 return {
 
@@ -62,24 +147,37 @@ return {
 	 */
 	addView: function(selectedData, isFits)
 	{	
+		// Get or create layer view
+		var $layer;
+		var layer = selectedData.layer;
+		if ( layers.indexOf(selectedData.layer) < 0 )
+		{
+			$layer = createLayerView(selectedData.layer)
+		}
+		else
+		{
+			$layer = $('#loadedImages').find('.imageLayers div[id="imageLayer_'+layer.id+'"]');
+		}
+
 		var feature = selectedData.feature;
-		// Remove all spaces, points
+		// Remove special caracters from feature id
 		var id = Utils.formatId(selectedData.feature.properties.identifier);
 		// Add isFits property for correct progress bar handling
 		if ( isFits )
 		{
 			id+="_fits";
 		}
+
 		var name = selectedData.feature.properties.identifier;
 		var $li;
 		var $metadataDialog;
-		
-		if ( $('#loadedImages ul li[id="'+id+'"]').length == 0 )
+
+		if ( $layer.find('ul li[id="'+id+'"]').length == 0 )
 		{
 			// Create only if not already added
-			var imageViewerItemContent = imageViewerItemTemplate( { id: id, name: name });
+			var imageViewerItemContent = imageViewerImageItemTemplate( { id: id, name: name });
 			$li = $(imageViewerItemContent)
-				.appendTo('#loadedImages ul')
+				.appendTo($layer.find('ul'))
 				// ZoomTo
 				.find('.zoomTo').button({
 					text: false,
@@ -104,7 +202,19 @@ return {
 
 				}).end()
 				// Visibility
-				.find('input').click(function(){
+				.find('input').button({
+					text: false,
+					icons: {
+			        	primary: "ui-icon-check"
+			      	}
+				}).click(function(){
+
+					$(this).button("option", {
+						icons: {
+							primary: $(this)[0].checked ? "ui-icon-check" : ""
+						}
+					});
+
 					if ( $(this).is(':checked') )
 					{
 						imageManager.showImage(selectedData);
@@ -123,7 +233,8 @@ return {
 				}).on('click', function(){
 					// Remove image
 					imageManager.removeImage(selectedData, isFits);
-					ImageProcessing.removeData(selectedData);
+					if ( isFits )
+						ImageProcessing.removeData(selectedData);
 				}).end()
 				// Image processing
 				.find('.imageProcessing').button({
@@ -165,6 +276,7 @@ return {
 							close: function(){
 								$(this).find('.featureProperties').getNiceScroll().remove();
 								$(this).dialog("destroy").remove();
+								$metadataDialog = null;
 							},
 							drag: function()
 							{
@@ -180,21 +292,15 @@ return {
 						if ( $metadataDialog.dialog( "isOpen" ) )
 						{
 							$metadataDialog.dialog("close");
-							$metadataDialog = null;
 						}
 					}
 				}).end();
 
-			if ( $('#loadedImages ul li').length == 1 )
-			{
-				$('#loadedImages p').fadeOut(function(){
-					$li.fadeIn();
-				});
-			}
-			else
-			{
-				$li.fadeIn();
-			}
+			$li.on('click', 'label.imageName', function(){
+				$(this).siblings('.options').slideToggle();
+			});
+
+			$li.fadeIn();
 
 			// Disable image processing button for not fits images
 			if ( !isFits )
@@ -218,10 +324,26 @@ return {
 		{
 			id+="_fits";
 		}
-		$('#loadedImages ul li[id="'+id+'"]').fadeOut(function(){
+		$('#loadedImages').find('li.image[id="'+id+'"]').fadeOut(function(){
+
+			// No more loaded image views for current layer
+			if ( $(this).siblings().length == 0 )
+			{
+				// Remove layer view
+				$('#loadedImages').find('.imageLayers div[id="imageLayer_'+selectedData.layer.id+'"]').fadeOut(300, function(){
+					// Remove layer view
+					$(this).remove();
+
+					// Show "No image was loaded"
+					if ( layers.length == 0 )
+						$('#loadedImages p').fadeIn();
+				});
+
+				var index = layers.indexOf(selectedData.layer);
+				layers.splice(index, 1);
+			}
+
 			$(this).remove();
-			if ( $('#loadedImages ul li').length == 0 )
-				$('#loadedImages p').fadeIn();
 		})
 
 		var featureIndex = featuresWithImages.indexOf(selectedData);

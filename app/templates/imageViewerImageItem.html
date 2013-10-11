@@ -1,0 +1,11 @@
+<li class="image" id="imageView_<%= id %>" style="display: none;">
+	<input type="checkbox" name="imageView" id="<%= id %>" checked />
+	<label style="width: 15px; height: 15px;" for="<%= id %>"></label>
+	<label class="imageName" title="<%= name %>"><%= name %></label>
+	<div style="display: none;" class="options">
+		<button class="zoomTo">Zoom to..</button>
+		<button class="imageProcessing" id="imageProcessing_<%= id %>">Image processing</button>
+		<button class="delete">Delete</button>
+		<button class="metadata">Show metadata</button>
+	</div>
+</li>
