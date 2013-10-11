@@ -199,6 +199,7 @@ HEALPixFITSLayer.prototype._detach = function( g )
 	{
 		this.imageRequest.abort();
 	}
+	this._ready = false;
 	this.disposeResources();
 
 	RasterLayer.prototype._detach.call( this );
