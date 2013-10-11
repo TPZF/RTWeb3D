@@ -333,12 +333,11 @@ function init(gl, nav, alv)
 		})
 	};
 	// Create vector layer
-	var sampLayer = new VectorLayer( options );
+	sampLayer = new VectorLayer( options );
 
 	// Add view in layer manager
 	sampLayer.type = "GeoJSON";
 	sampLayer.dataType = "line";
-	sampLayer.deletable = true;
 	sampLayer.pickable = true;
 	globe.addLayer(sampLayer);
 	additionalLayersView.addView( sampLayer );
