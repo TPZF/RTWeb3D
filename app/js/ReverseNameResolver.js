@@ -76,10 +76,6 @@ $( "#reverseNameResolver input[type=submit]")
 		equatorialCoordinates[1] = equatorialCoordinates[1].replace("' ",":");
 		equatorialCoordinates[1] = equatorialCoordinates[1].replace("\"","");
 
-		var decDegree = parseInt(equatorialCoordinates[1]);
-		if ( decDegree >= 0 )
-			equatorialCoordinates[1] = "+" + equatorialCoordinates[1];
-
 		// Find max order
 		var maxOrder = 3;
 		globe.tileManager.visitTiles( function( tile ){ if ( maxOrder < tile.order ) maxOrder = tile.order} );
