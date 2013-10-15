@@ -65,11 +65,6 @@ var CutOutView = function(element, selectionTool, pickingManager)
 CutOutView.prototype.runJob = function()
 {	
 	this.runButton.startAnimation();
-	// Convert to equatorial due to CutOut protocol
-	if ( CoordinateSystem.type != "EQ" )
-	{
-		this.selectionTool.geoPickPoint = CoordinateSystem.convertFromDefault(this.selectionTool.geoPickPoint, "EQ");
-	}
 
 	var parameters = {
 		PHASE: "RUN",

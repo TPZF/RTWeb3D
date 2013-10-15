@@ -74,7 +74,8 @@ function generateURL()
 	var sharedParameters = {
 		initTarget: geo,
 		fov: navigation.renderContext.fov,
-		visibility: visibility
+		visibility: visibility,
+		up: navigation.up
 	}
 
 	url+= "sharedParameters=" + JSON.stringify(sharedParameters);

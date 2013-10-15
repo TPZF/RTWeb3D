@@ -55,23 +55,44 @@ var Compass = function(options){
 		var geo = [];
 		CoordinateSystem.from3DToGeo(navigation.center3d, geo);
 
+		if ( CoordinateSystem.type != "EQ" )
+		{
+			geo = CoordinateSystem.convert(geo, 'EQ', 'GAL');
+		}
+
 		var LHV = [];
 		CoordinateSystem.getLHVTransform(geo, LHV);
-		
-		var north = [LHV[4],LHV[5],LHV[6]];
-		var cosNorth = vec3.dot(navigation.up, north);
-		//var sinNorth = vec3.cross(navigation.up, north);
-		// var tanangle = Math.atan2(cosNorth, sinNorth[0]);
-		// var degTanangle = tanangle * 180 / Math.PI;
 
+		var temp = [];
+		var north = [LHV[4],LHV[5],LHV[6]];
+		var vertical = [LHV[8], LHV[9], LHV[10]];
+
+		if ( CoordinateSystem.type != "EQ" )
+		{
+			north = CoordinateSystem.transformVec( [LHV[4],LHV[5],LHV[6]] );
+			CoordinateSystem.from3DToGeo(north, temp);
+			temp = CoordinateSystem.convert(temp, 'EQ', 'GAL');
+			CoordinateSystem.fromGeoTo3D(temp, north);
+
+			vertical = CoordinateSystem.transformVec( [LHV[8],LHV[9],LHV[10]] );
+			CoordinateSystem.from3DToGeo(vertical, temp);
+			temp = CoordinateSystem.convert(temp, 'EQ', 'GAL');
+			CoordinateSystem.fromGeoTo3D(temp, vertical);
+		}
+
+		// Find angle between up and north
+		var cosNorth = vec3.dot(navigation.up, north);
 		var radNorth = Math.acos(cosNorth);
 		if ( isNaN(radNorth) )
 			return;
 		var degNorth = radNorth * 180/Math.PI;
-		//console.log(degTanangle);
 		
-		// Depending on z component of east vector find if angle is positive or negative
-	    if ( navigation.globe.renderContext.viewMatrix[8] < 0 ) {
+		// Find sign between up and north
+		var sign;
+		vec3.cross( navigation.up, north, temp );
+		sign = vec3.dot( temp, [vertical[0], vertical[1], vertical[2]] );
+	    if ( sign < 0 )
+	    {
 	    	degNorth *= -1;
 	    }
 	    northText.setAttribute("transform", "rotate(" + degNorth + " 40 40)");

@@ -20,12 +20,14 @@
 /**
  * Samp module : performing communication between applications using SAMP protocol
  */
-define(["jquery.ui", "gw/CoordinateSystem", "gw/FeatureStyle", "gw/VectorLayer", "ImageManager", "ImageViewer", "Utils", "samp"],
-	function($, CoordinateSystem, FeatureStyle, VectorLayer, ImageManager, ImageViewer, Utils) {
+define(["jquery.ui", "gw/CoordinateSystem", "gw/FeatureStyle", "gw/VectorLayer", "Utils", "samp"],
+	function($, CoordinateSystem, FeatureStyle, VectorLayer, Utils) {
 
 var globe;
 var navigation;
 var additionalLayersView;
+var imageManager;
+var imageViewer;
 
 var connector;	// SAMP connector
 var sampLayer;	// SAMP vector layer containing all incoming fits images
@@ -183,15 +185,15 @@ function createClientTracker()
 			feature: feature
 		};
 		var url = "/sitools/proxy?external_url=" + encodeURIComponent(params['image-id']);		
-		ImageViewer.addView(featureData, true);
-		ImageManager.computeFits(featureData, url, function(featureData, fits){
+		imageViewer.addView(featureData, true);
+		imageManager.computeFits(featureData, url, function(featureData, fits){
 			// Update feature coordinates according to Fits header
 			var coords = Utils.getPolygonCoordinatesFromFits(fits);
 			featureData.feature.geometry.coordinates = [coords];
 			sampLayer.addFeature(featureData.feature);
 		});
 		// Show image viewer
-		ImageViewer.show();
+		imageViewer.show();
 	};
 
 	callHandler["coord.pointAt.sky"] = function(senderId, message, isCall) {
@@ -201,10 +203,6 @@ function createClientTracker()
 		var dec = parseFloat(params["dec"]);
 		// var proxyUrl = clientTracker.connection.translateUrl(origUrl);
 		var geoPick = [ra, dec];
-		if ( CoordinateSystem.type != "EQ" )
-		{
-			geoPick = CoordinateSystem.convertToDefault(geoPick, "EQ");
-		}
 		var center3d = [];
 		CoordinateSystem.fromGeoTo3D( geoPick, center3d );
 		navigation.center3d = center3d;
@@ -284,11 +282,13 @@ function initSamp()
 /**
  *	Init SAMP module
  */
-function init(gl, nav, alv)
+function init(gl, nav, alv, im, iv)
 {
 	globe = gl;
 	navigation = nav;
 	additionalLayersView = alv;
+	imageViewer = iv;
+	imageManager = im;
 
 	initUI();
 	initSamp();
@@ -301,13 +301,7 @@ function init(gl, nav, alv)
 			if ( !pointAtReceived )
 			{
 				// Mizar is connected to Hub
-				geoPick = CoordinateSystem.from3DToGeo( navigation.center3d );
-				// geoPick = globe.getLonLatFromPixel(event.clientX, event.clientY);
-				if ( CoordinateSystem.type != "EQ" )
-				{
-					geoPick = CoordinateSystem.convertFromDefault(geoPick, "EQ");
-				}
-
+				var geoPick = CoordinateSystem.from3DToGeo( navigation.center3d );
 				var message = new samp.Message("coord.pointAt.sky",
 												{"ra": geoPick[0].toString(), "dec": geoPick[1].toString()});
 				connector.connection.notifyAll([message]);

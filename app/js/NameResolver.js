@@ -124,32 +124,33 @@ function setSearchBehavior()
 			// Convert to geo and zoom
 			var geoPos = [];
 			CoordinateSystem.fromEquatorialToGeo([word[0], word[1]], geoPos);
+
+			if ( CoordinateSystem.type != "EQ" )
+			{
+				geoPos = CoordinateSystem.convert(geoPos, CoordinateSystem.type, 'EQ');
+			}
+
 			zoomTo(geoPos[0], geoPos[1]);
 		}
 		else if ( matchDegree ) {
 			var lon = parseFloat(matchDegree[1]);
 			var lat = parseFloat(matchDegree[3]);
-			zoomTo(lon, lat);
+			var geo = [lon, lat];
+
+			if ( CoordinateSystem.type != "EQ" )
+			{
+				geo = CoordinateSystem.convert(geo, CoordinateSystem.type,  'EQ');
+			}
+
+			zoomTo(geo[0], geo[1]);
 		}
 		else
 		{
+			// Name of the object which could be potentially found by name resolver
 			$("#searchSpinner").fadeIn(animationDuration);
 			$('#searchClear').fadeOut(animationDuration);
 
-			// Name of the object which could be potentially found by name resolver
-			var url = configuration.baseUrl + "/" + objectName;
-
-			switch ( CoordinateSystem.type ) {
-				case "EQ":
-					url += "/EQUATORIAL"
-					break;
-				case "GAL":
-					url += "/GALACTIC";
-					break;
-				default:
-					console.error("Not implemented");
-					return;
-			}
+			var url = configuration.baseUrl + "/" + objectName + "/EQUATORIAL";
 
 			$('#resolverSearchResult').fadeOut(animationDuration);
 			$.ajax({

@@ -57,13 +57,6 @@ $( "#reverseNameResolver input[type=submit]")
 
 		$('#reverseSearchField input[type="submit"]').attr('disabled', 'disabled');
 
-		// Converting to equatorial system due to protocol of reverseNameResolver
-		// TODO wait for sitools update to remove this hack
-		if ( CoordinateSystem.type != "EQ" )
-		{
-			geoPick = CoordinateSystem.convertFromDefault(geoPick, "EQ");
-		}
-
 		var equatorialCoordinates = [];
 		CoordinateSystem.fromGeoToEquatorial( geoPick, equatorialCoordinates );
 

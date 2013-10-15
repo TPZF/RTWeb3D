@@ -66,9 +66,9 @@ require.config({
  * Main module
  */
 require( ["jquery.ui", "gw/CoordinateSystem", "gw/Globe", "gw/Stats", "gw/AstroNavigation", "gw/AttributionHandler", "gw/VectorLayer",
-	"LayerManager", "NameResolver", "ReverseNameResolver", "Utils", "PickingManager", "FeaturePopup", "IFrame", "Compass", "MollweideViewer", "ErrorDialog", "AboutDialog", "Share", "Samp", "AdditionalLayersView", "UWSManager", "PositionTracker", "StarProvider", "ConstellationProvider", "JsonProvider", "OpenSearchProvider",
+	"LayerManager", "NameResolver", "ReverseNameResolver", "Utils", "PickingManager", "FeaturePopup", "IFrame", "Compass", "MollweideViewer", "ErrorDialog", "AboutDialog", "Share", "Samp", "AdditionalLayersView", "ImageManager", "ImageViewer", "UWSManager", "PositionTracker", "StarProvider", "ConstellationProvider", "JsonProvider", "OpenSearchProvider",
 	"gw/EquatorialCoordinateSystem", "gw/ConvexPolygonRenderer", "gw/PointSpriteRenderer", "gw/PointRenderer"],
-	function($, CoordinateSystem, Globe, Stats, AstroNavigation, AttributionHandler, VectorLayer, LayerManager, NameResolver, ReverseNameResolver, Utils, PickingManager, FeaturePopup, IFrame, Compass, MollweideViewer, ErrorDialog, AboutDialog, Share, Samp, AdditionalLayersView, UWSManager, PositionTracker) {
+	function($, CoordinateSystem, Globe, Stats, AstroNavigation, AttributionHandler, VectorLayer, LayerManager, NameResolver, ReverseNameResolver, Utils, PickingManager, FeaturePopup, IFrame, Compass, MollweideViewer, ErrorDialog, AboutDialog, Share, Samp, AdditionalLayersView, ImageManager, ImageViewer, UWSManager, PositionTracker) {
 
 // Console fix	
 window.console||(console={log:function(){}});
@@ -123,6 +123,7 @@ function setSharedParameters(data, sharedParameters)
 	// Init navigation parameters
 	data.navigation.initTarget = sharedParameters.initTarget;
 	data.navigation.initFov = sharedParameters.fov;
+	data.navigation.up = sharedParameters.up;
 
 	// Set visibility of layers
 	for ( var x in sharedParameters.visibility )
@@ -224,93 +225,9 @@ $(function()
 	$('#defaultCoordSystem').selectmenu({
 		select: function(e)
 		{
-			var newCoordSystem = $(this).children('option:selected').val();
-						
-			var prevCoordSystem = CoordinateSystem.type;
+			var newCoordSystem = $(this).children('option:selected').val();				
 			CoordinateSystem.type = newCoordSystem;
-
-			// Convert navigation to default coordinate system selected by user
-			var geo = CoordinateSystem.from3DToGeo(navigation.center3d);
-			geo = CoordinateSystem.convertToDefault(geo, prevCoordSystem);
-			navigation.center3d = CoordinateSystem.fromGeoTo3D(geo);
-			navigation.computeViewMatrix();
-			
-			// Features could be added to tile, so set new base imagery before
-			var index = $('#backgroundLayersSelect').data('selectmenu').index();
-			var layer = $('#backgroundLayersSelect').children().eq(index).data("layer");
-			globe.setBaseImagery( layer );
-
-			// Convert all vector layers to default coordinate system selected by user
-			var layers = LayerManager.getLayers();
-			for ( var i=0; i<layers.length; i++ )
-			{
-				if ( layers[i] instanceof VectorLayer )
-				{
-					var layer = layers[i];
-
-					if ( layer.features.length > 0 )
-					{
-						var features = layer.features.slice(0); // clone array
-
-						// Remove feature in previous coordinate system
-						CoordinateSystem.type = prevCoordSystem;
-						layer.removeAllFeatures();
-						// Add features in new coordinate system
-						CoordinateSystem.type = newCoordSystem;
-
-						for ( var j=0; j<features.length; j++ )
-						{
-							var feature = features[j];
-							if ( feature.geometry.type == "Point" )
-							{
-								feature.geometry.coordinates = CoordinateSystem.convertToDefault(feature.geometry.coordinates, prevCoordSystem);
-								
-								// Convert to geographic to simplify picking
-								if ( feature.geometry.coordinates[0] > 180 )
-									feature.geometry.coordinates[0] -= 360;
-							}
-							else if ( feature.geometry.type == "Polygon" || feature.geometry.type == "MultiPolygon" )
-							{
-								var rings = [];
-								var geometry = feature.geometry;
-								if ( geometry['type'] == 'MultiPolygon' )
-								{
-									for ( var k=0; k<geometry['coordinates'].length; k++ )
-									{
-										rings.push( geometry['coordinates'][k][0] );
-									}
-								}
-								else
-								{
-									rings.push( geometry['coordinates'][0] );
-								}
-
-								for ( var r=0; r<rings.length; r++ )
-								{
-									var coords = rings[r];
-									var numPoints = coords.length;
-									for ( var k=0; k<numPoints; k++ )
-									{
-										// Convert to default coordinate system if needed
-										coords[k] = CoordinateSystem.convertToDefault(coords[k], prevCoordSystem);
-
-										// Convert to geographic representation
-										if ( coords[k][0] > 180 )
-											coords[k][0] -= 360;
-									}
-								}
-							}
-						}
-						layer.addFeatureCollection({
-							type:"FeatureCollection",
-							features:features
-						});
-					}
-				}
-			}
-
 			mollweideViewer.setCoordSystem( newCoordSystem );
-			globe.renderContext.requestFrame();
 		}
 	});
 
@@ -385,7 +302,7 @@ $(function()
 			Share.init({navigation : navigation});
 
 			// Initialize SAMP component
-			Samp.init(globe, navigation, AdditionalLayersView);
+			Samp.init(globe, navigation, AdditionalLayersView, ImageManager, ImageViewer);
 
 			// Eye position tracker initialization
 			PositionTracker.init({ element: "posTracker", globe: globe, navigation : navigation });

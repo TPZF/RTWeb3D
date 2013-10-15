@@ -133,10 +133,6 @@ function extractDatabase()
 		
 		// Convert to default coordinate system
 		var posGeo = [RA, Decl];
-		if ( CoordinateSystem.type != "EQ" )
-		{
-			posGeo = CoordinateSystem.convertToDefault(posGeo, "EQ");
-		}
 
 		// Calculate the center of constillation
 		var pos3d = [];

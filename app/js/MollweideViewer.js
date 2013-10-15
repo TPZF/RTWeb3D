@@ -98,14 +98,7 @@ var MollweideViewer = function(options) {
         updateMollweideFov();
     };
 
-    if ( CoordinateSystem.type == "GAL" )
-    {
-        this.imageObj.src = 'css/images/MollweideSky_GAL.png';
-    }
-    else
-    {
-        this.imageObj.src = 'css/images/MollweideSky_EQ.png';
-    }
+    this.setCoordSystem( CoordinateSystem.type );
 
     /**********************************************************************************************/
 
@@ -114,8 +107,18 @@ var MollweideViewer = function(options) {
      */
     function computeMollweidePosition( pos )
     {
-        var geoPos = [];
-        CoordinateSystem.from3DToGeo(pos, geoPos);
+        var geoPos = CoordinateSystem.from3DToGeo(pos);
+
+        if ( CoordinateSystem.type != "EQ" )
+        {
+            geoPos = CoordinateSystem.convert(geoPos, 'EQ', CoordinateSystem.type)
+            // Convert to geographic
+            if ( geoPos[0]>180 )
+            {
+                geoPos[0]-=360;
+            }
+        }
+
 
         var lambda = geoPos[0] * Math.PI/180 ; // longitude
         var theta0 = geoPos[1] * Math.PI/180;  // latitude
@@ -153,8 +156,15 @@ var MollweideViewer = function(options) {
         var phi = Math.asin( (2*auxTheta + Math.sin(2*auxTheta))/Math.PI );
         var lambda = (Math.PI * center3d.x) / ( 2 * Math.sqrt(2) * Math.cos(auxTheta));
 
+        var geo = [lambda*180/Math.PI, phi*180/Math.PI];
+        if ( CoordinateSystem.type != "EQ" )
+        {
+            geo = CoordinateSystem.convert(geo, CoordinateSystem.type, "EQ");
+        }
+
         // Update navigation
-        CoordinateSystem.fromGeoTo3D([lambda*180/Math.PI, phi*180/Math.PI], navigation.center3d);
+        CoordinateSystem.fromGeoTo3D(geo, navigation.center3d);
+
         navigation.computeViewMatrix();
     }
 

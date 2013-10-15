@@ -365,7 +365,7 @@ function initToolbarEvents ()
 				}
 			}
 
-			var url = window.location.origin + layer.serviceUrl+"/search?order="+maxOrder+"&healpix="+pixelIndices+"&coordSystem="+ ( CoordinateSystem.type=="EQ" ? "EQUATORIAL" : "GALACTIC" )+ "&media=votable";
+			var url = window.location.origin + layer.serviceUrl+"/search?order="+maxOrder+"&healpix="+pixelIndices+"&coordSystem=EQUATORIAL&media=votable";
 			var message = Samp.sendVOTable(url);
 		}
 		else

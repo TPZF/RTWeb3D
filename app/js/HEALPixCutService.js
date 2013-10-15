@@ -113,7 +113,7 @@ return {
 				long4: coords[3][0],
 				lat4: coords[3][1],
 				rotation: degNorth,
-				coordSystem: CoordinateSystem.type == "EQ" ? "EQUATORIAL" : "GALACTIC",
+				coordSystem: "EQUATORIAL",
 				cdelt1: cdelt1,
 				cdelt2: cdelt2,
 				filename: healpixLayer.healpixCutFileName,

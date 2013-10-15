@@ -104,10 +104,10 @@ return {
 					else if ( gwLayer.dataType != 'point' )
 						gwLayer.dataType = "none";
 
-					// Convert to default coordinate system if needed
-					if ( CoordinateSystem.type != coordSystem )
+					// Convert to EQUATORIAL coordinate system if needed
+					if ( 'EQ' != coordSystem )
 					{
-						currentFeature.geometry.coordinates = CoordinateSystem.convertToDefault(currentFeature.geometry.coordinates, coordSystem);
+						currentFeature.geometry.coordinates = CoordinateSystem.convert(currentFeature.geometry.coordinates, coordSystem, 'EQ');
 					}
 
 					// Convert to geographic representation
@@ -143,9 +143,9 @@ return {
 						for ( var j=0; j<numPoints; j++ )
 						{
 							// Convert to default coordinate system if needed
-							if ( CoordinateSystem.type != coordSystem )
+							if ( 'EQ' != coordSystem )
 							{
-								coords[j] = CoordinateSystem.convertToDefault(coords[j], coordSystem);
+								coords[j] = CoordinateSystem.convert(coords[j], coordSystem, 'EQ');
 							}
 
 							// Convert to geographic representation

@@ -110,6 +110,8 @@ return {
 		}
 		else 
 		{
+			geo = CoordinateSystem.convert( geo, 'EQ', CoordinateSystem.type );
+
 			// convert longitude to positive [0..360]
 			if (geo[0] < 0)
 				geo[0]+=360;
