@@ -169,7 +169,7 @@ function handleMocLayer(layer, mocServiceUrl)
 
 	serviceLayer.style.fill = true;
 	serviceLayer.style.fillColor[3] = 0.3;
-	if ( layer.globe )
+	if ( layer.globe && layer.visible() )
 	{
 		// Add sublayer to engine
 		layer.globe.addLayer( serviceLayer );
