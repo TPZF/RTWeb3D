@@ -17,8 +17,8 @@
 * along with SITools2. If not, see <http://www.gnu.org/licenses/>. 
 ******************************************************************************/ 
 
-define(["require", "gw/FeatureStyle", "ImageProcessing", "Utils", "underscore-min", "text!../templates/imageViewerLayerItem.html", "text!../templates/imageViewerImageItem.html"],
-	function(require,FeatureStyle, ImageProcessing, Utils, _, imageViewerLayerItemHTMLTemplate, imageViewerImageItemHTMLTemplate){
+define(["require", "gw/FeatureStyle", "ImageProcessing", "Utils", "Samp", "underscore-min", "text!../templates/imageViewerLayerItem.html", "text!../templates/imageViewerImageItem.html"],
+	function(require,FeatureStyle, ImageProcessing, Utils, Samp, _, imageViewerLayerItemHTMLTemplate, imageViewerImageItemHTMLTemplate){
 
 var navigation;
 var globe;
@@ -294,13 +294,20 @@ return {
 							$metadataDialog.dialog("close");
 						}
 					}
-				}).end();
-
+				}).end()
+				.find('.sampExport').button({
+					text: false,
+					icons: {
+						primary: "ui-icon-extlink"
+					}
+				}).on('click', function(){
+					Samp.sendImage(feature.services.download.url);
+				}).end()
+				.fadeIn();
+			
 			$li.on('click', 'label.imageName', function(){
 				$(this).siblings('.options').slideToggle();
 			});
-
-			$li.fadeIn();
 
 			// Disable image processing button for not fits images
 			if ( !isFits )
