@@ -31,6 +31,7 @@ define( [ "jquery.ui", "gw/BaseLayer", 'gw/FeatureStyle', "gw/Utils", "gw/HEALPi
  * 	@param options Configuration options
  * 		<ul>
  *			<li>serviceUrl : Url of the service providing the MOC data(necessary option)</li>
+ *			<li>startOrder : Starting order of HEALPix tiling
  *		</ul>
  */
 var MocLayer = function(options)
@@ -39,6 +40,7 @@ var MocLayer = function(options)
 	BaseLayer.prototype.constructor.call( this, options );
 
 	this.serviceUrl = options.serviceUrl;
+	this.startOrder = options.startOrder || 2;
 
 	// Set style
 	if ( options && options['style'] )
@@ -87,6 +89,36 @@ MocLayer.prototype._attach = function( g )
 			console.error( xhr.responseText );
 		}
 	});
+	
+	// As post renderer, moc layer will regenerate data on tiles in case of base imagery change
+	g.tileManager.addPostRenderer(this);
+}
+
+/**************************************************************************************************************/
+
+/**
+ *	Generates moc data on tiles
+ */
+MocLayer.prototype.generate = function(tile)
+{
+	if ( this.featuresSet && tile.order == this.startOrder )
+	{
+		var geometries = this.featuresSet[tile.pixelIndex];
+		for ( var i=0; i<geometries.length; i++ )
+		{
+			this.polygonRenderer.addGeometryToTile( this.polygonBucket, geometries[i], tile );
+		}
+	}
+}
+
+/**************************************************************************************************************/
+
+/**
+ *	Render
+ */
+MocLayer.prototype.render = function()
+{
+	// No rendering
 }
 
 /**************************************************************************************************************/
@@ -96,13 +128,18 @@ MocLayer.prototype._attach = function( g )
  */
 MocLayer.prototype._detach = function()
 {
-	for ( var x in this.featuresSet )
+	for ( var tileIndex in this.featuresSet )
 	{
-		this.polygonRenderer.removeGeometryFromTile(this.featuresSet[x].geometry, this.featuresSet[x].tile);
+		var tile = this.globe.tileManager.level0Tiles[tileIndex];
+		for ( var i=0; i<this.featuresSet[tileIndex].length; i++ )
+		{
+			this.polygonRenderer.removeGeometryFromTile(this.featuresSet[tileIndex][i], tile);
+		}
 	}
 	this.featuresSet = null;
 	this.polygonRenderer = null;
 	this.polygonBucket = null;
+	this.globe.tileManager.removePostRenderer(this);
 
 	BaseLayer.prototype._detach.call(this);
 }
@@ -110,13 +147,13 @@ MocLayer.prototype._detach = function()
 /**************************************************************************************************************/
 
 /**
- *	Return children indices of order 3
+ *	Return children indices of starting tiling order
  *	@param index Parent index
  *	@param order Parent order
  */
 MocLayer.prototype.findChildIndices = function(index, order)
 {
-	var childOrder = 3;
+	var childOrder = this.startOrder;
 	var orderDepth = childOrder - order;
 	var numSubTiles = Math.pow(4,orderDepth); // Number of subtiles depending on order
 	var firstSubTileIndex = index * numSubTiles;
@@ -132,13 +169,13 @@ MocLayer.prototype.findChildIndices = function(index, order)
 /**************************************************************************************************************/
 
 /**
- *	Return index of parent of order 3
+ *	Return index of parent of starting tiling order
  *	@param index Child index
  *	@param order Child order
  */
 MocLayer.prototype.findParentIndex = function(index, order)
 {
-	var parentOrder = 3;
+	var parentOrder = this.startOrder;
 	var orderDepth = order - parentOrder;
 	var parentIndex = Math.floor( index / (Math.pow(4,orderDepth)) );
 	return parentIndex;
@@ -163,11 +200,11 @@ MocLayer.prototype.handleDistribution = function(response)
 		{
 			var pixelIndex = response[key][i];
 
-			if ( order > 3 )
+			if ( order > this.startOrder )
 			{
 				var parentIndex = this.findParentIndex(pixelIndex, order);
 			}
-			else if ( order == 3 )
+			else if ( order == this.startOrder )
 			{
 				var parentIndex = pixelIndex;
 			}
@@ -175,7 +212,7 @@ MocLayer.prototype.handleDistribution = function(response)
 			{
 				// Handle low orders(< 3) by creating children polygons of order 3
 				var indices = this.findChildIndices( pixelIndex, order );
-				response["3"] = response["3"].concat( indices );
+				response[this.startOrder.toString()] = response[this.startOrder.toString()].concat( indices );
 				continue;
 			}
 
@@ -240,10 +277,12 @@ MocLayer.prototype.handleDistribution = function(response)
 				
 			var parentTile = this.globe.tileManager.level0Tiles[parentIndex];
 
-			this.featuresSet[ geometry.gid ] = {
-				geometry: geometry,
-				tile: parentTile
-			};
+			if ( !this.featuresSet[ parentIndex ] )
+			{
+				this.featuresSet[parentIndex] = [];
+			}
+
+			this.featuresSet[parentIndex].push(geometry);
 
 			this.polygonRenderer.addGeometryToTile( this.polygonBucket, geometry, parentTile );
 		}
