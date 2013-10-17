@@ -31,7 +31,7 @@ var HEALPixFITSLayer = function(options)
 	RasterLayer.prototype.constructor.call( this, options );
 	
 	this.tilePixelSize = options.tilePixelSize || 512;
-	this.tiling = new HEALPixTiling( options.baseLevel || 3, options );
+	this.tiling = new HEALPixTiling( options.baseLevel || 2, options );
 	this.numberOfLevels = options.numberOfLevels || 10;
 	this.type = "ImageryRaster";
 	this.baseUrl = options['baseUrl'];
@@ -227,6 +227,121 @@ HEALPixFITSLayer.prototype.getUrl = function(tile)
 	url += "."+this.dataType;
 	
 	return url;
+}
+
+/**************************************************************************************************************/
+
+/**
+ *	Extract fits data from levelZeroImage.pixels to fitsPixel according to pixel index
+ *
+ *	@param pi Pixel index
+ *	@param fitsPixel Resulting typed vector containing fits data
+ *	@param sx X-offset of fitsPixel
+ *	@param sy Y-offset of fitsPixel
+ */
+HEALPixFITSLayer.prototype.extractFitsData = function( pi, fitsPixel, sx, sy )
+{
+	var size = 64;
+	var height = this.levelZeroImage.height;
+	var width = this.levelZeroImage.width;
+	var pixels = this.levelZeroImage.pixels;
+
+	var startIndex = size * width * ( 28 - Math.floor(pi /27) ) + ( pi % 27 ) * size;
+
+	// Extract fits data
+	var typedLine;
+	for ( var i=0; i<size; i++ )
+	{
+		typedLine = pixels.subarray( startIndex + i*width, startIndex + i*width + size );
+		fitsPixel.set(typedLine, sy + i*128 + sx);
+	}
+}
+
+/**************************************************************************************************************/
+
+/**
+ *	Generate the level0 texture for the tiles
+ */
+HEALPixFITSLayer.prototype.generateLevel0Textures = function(tiles,tilePool)
+{
+	if ( this.dataType != "fits" )
+	{
+		// Create a canvas to build the texture
+		var canvas = document.createElement("canvas");
+		canvas.width = 128;
+		canvas.height = 128;
+		
+		var context = canvas.getContext("2d");
+		
+		for ( var i = 0; i < tiles.length; i++ )
+		{
+			var tile = tiles[i];
+			
+			// Top left
+			var pi = tile.pixelIndex * 4;
+			var sx = ( pi % 27) * 64;
+			var sy = ( Math.floor(pi /27) ) * 64;
+			context.drawImage(this.levelZeroImage,sx,sy,64,64,0,0,64,64);
+			
+			// Top right
+			pi = tile.pixelIndex * 4 + 2;
+			var sx = ( pi % 27) * 64;
+			var sy = ( Math.floor(pi /27) ) * 64;
+			context.drawImage(this.levelZeroImage,sx,sy,64,64,64,0,64,64);
+			
+			// Bottom left
+			pi = tile.pixelIndex * 4 + 1;
+			var sx = ( pi % 27) * 64;
+			var sy = ( Math.floor(pi /27) ) * 64;
+			context.drawImage(this.levelZeroImage,sx,sy,64,64,0,64,64,64);
+			
+			// Bottom right
+			pi = tile.pixelIndex * 4 + 3;
+			var sx = ( pi % 27) * 64;
+			var sy = ( Math.floor(pi /27) ) * 64;
+			context.drawImage(this.levelZeroImage,sx,sy,64,64,64,64,64,64);
+
+			var imgData = context.getImageData(0, 0, 128, 128);
+			imgData.dataType = 'byte';
+			
+			tile.texture = tilePool.createGLTexture( imgData );
+			tile.imageSize = 128;
+		}
+	}
+	else
+	{
+		for ( var i = 0; i < tiles.length; i++ )
+		{
+			var tile = tiles[i];		
+			var fitsPixel = new Float32Array(128*128);
+
+			// Top left
+			var pi = tile.pixelIndex * 4;
+			this.extractFitsData(pi, fitsPixel, 0, 128*64);
+			
+			// Top right
+			pi = tile.pixelIndex * 4 + 2;
+			this.extractFitsData(pi, fitsPixel, 64, 128*64);
+			
+			// Bottom left
+			pi = tile.pixelIndex * 4 + 1;
+			this.extractFitsData(pi, fitsPixel, 0, 0);
+			
+			// Bottom right
+			pi = tile.pixelIndex * 4 + 3;
+			this.extractFitsData(pi, fitsPixel, 64, 0);
+
+			var imgData = {
+				typedArray : fitsPixel,
+				width : 128,
+				height : 128,
+				dataType : 'float'
+			}
+			
+			tile.texture = tilePool.createGLTexture( imgData );
+			tile.imageSize = 128;
+		}
+	}
 }
 
 /**************************************************************************************************************/
