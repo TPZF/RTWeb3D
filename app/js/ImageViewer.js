@@ -358,6 +358,17 @@ return {
 	},
 
 	/**
+	 *	Remove all image views of the given layer
+	 */
+	 removeLayer: function(layer)
+	 {
+	 	var $layer = $('#loadedImages').find('.imageLayers div[id="imageLayer_'+layer.id+'"]');
+	 	$layer.find('ul li').each(function(){
+	 		$(this).find('.delete').trigger("click");
+	 	});
+	 },
+
+	/**
 	 *	Show image viewer
 	 */
 	show: function()

@@ -20,8 +20,8 @@
 /**
  * AdditionalLayersView module
  */
-define(["jquery.ui", "gw/CoordinateSystem", "gw/FeatureStyle", "gw/OpenSearchLayer", "HEALPixFITSLayer", "MocLayer", "gw/VectorLayer", "PickingManager", "DynamicImageView", "LayerServiceView", "Samp", "ErrorDialog", "underscore-min", "text!../templates/additionalLayer.html", "jquery.nicescroll.min"],
-		function($, CoordinateSystem, FeatureStyle, OpenSearchLayer, HEALPixFITSLayer, MocLayer, VectorLayer, PickingManager, DynamicImageView, LayerServiceView, Samp, ErrorDialog, _, additionalLayerHTMLTemplate){
+define(["jquery.ui", "gw/CoordinateSystem", "gw/FeatureStyle", "gw/OpenSearchLayer", "HEALPixFITSLayer", "MocLayer", "gw/VectorLayer", "PickingManager", "DynamicImageView", "LayerServiceView", "Samp", "ImageViewer", "ErrorDialog", "underscore-min", "text!../templates/additionalLayer.html", "jquery.nicescroll.min"],
+		function($, CoordinateSystem, FeatureStyle, OpenSearchLayer, HEALPixFITSLayer, MocLayer, VectorLayer, PickingManager, DynamicImageView, LayerServiceView, Samp, ImageViewer, ErrorDialog, _, additionalLayerHTMLTemplate){
 
 var globe;
 var navigation;
@@ -331,8 +331,9 @@ function initToolbarEvents ()
 		});
 
 		var layer = $(this).parent().parent().data("layer");
-		globe.removeLayer(layer);
 		PickingManager.removePickableLayer( layer );
+		ImageViewer.removeLayer( layer );
+		globe.removeLayer(layer);
 
 		updateScroll();
 	});
