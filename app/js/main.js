@@ -29,6 +29,10 @@ require.config({
 		"jquery.nicescroll.min": "../externals/jquery.nicescroll.min",
 		"fits": "../externals/fits",
 		"samp": "../externals/samp",
+		"gzip": "../externals/gzip",
+		"crc32": "../externals/crc32",
+		"deflate-js": "../externals/deflate",
+		"inflate-js": "../externals/inflate",
 		"wcs": "../externals/wcs",
 		"jquery.ui.timepicker": "../externals/jquery.ui.timepicker",
 		"gw": "../externals/GlobWeb/src/"
@@ -57,6 +61,10 @@ require.config({
 		'jquery.nicescroll.min': {
 			deps: ['jquery'],
 			exports: ''
+		},
+		'gzip' : {
+			deps: ['deflate-js', 'inflate-js', 'crc32'],
+			exports: 'gZip'
 		}
 	},
 	waitSeconds: 0

@@ -17,8 +17,8 @@
 * along with SITools2. If not, see <http://www.gnu.org/licenses/>. 
 ******************************************************************************/ 
 
-define(['gw/Utils', 'gw/HEALPixTiling', 'gw/RasterLayer', 'gw/DynamicImage', 'FitsLoader', 'gw/ImageRequest', './FitsRequest'], 
-	function(Utils, HEALPixTiling, RasterLayer, DynamicImage, FitsLoader, ImageRequest) {
+define(['gw/Utils', 'gw/HEALPixTiling', 'gw/RasterLayer', 'gw/DynamicImage', 'FitsLoader', 'gzip', 'gw/ImageRequest', './FitsRequest'], 
+	function(Utils, HEALPixTiling, RasterLayer, DynamicImage, FitsLoader, gZip, ImageRequest) {
 
 /**************************************************************************************************************/
 
@@ -116,6 +116,24 @@ var HEALPixFITSLayer = function(options)
 
 			if ( self.dataType == "fits" )
 			{
+				// Unzip if g-zipped
+				try {
+					var data = new Uint8Array(self.imageRequest.image);
+					var res = gZip.unzip( data );
+					self.imageRequest.image = new Uint8Array( res ).buffer;
+				}
+				catch ( err )
+				{
+					if ( err != 'Not a GZIP file' )
+					{
+						// G-zip error
+						console.error(err);
+						this.failCallback();
+						return;
+					}
+					// Image isn't g-zipped, handle image as fits
+				}
+
 				self.handleImage(self.imageRequest);
 				var fitsData = self.imageRequest.image;
 				if ( self.globe )
