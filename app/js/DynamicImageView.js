@@ -154,6 +154,12 @@ var DynamicImageView = function(element, options)
 				PHASE: "RUN",
 				uri: self.image.url
 			};
+
+			if ( !self.image.url )
+			{
+				ErrorDialog.open('ZScale can\'t find image url');
+			}
+
 			zScaleButton.startAnimation();
 			UWSManager.post('zscale', params, {
 				successCallback: function(result)

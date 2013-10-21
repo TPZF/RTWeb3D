@@ -166,7 +166,11 @@ function blurSelection()
 			default:
 				break;
 		}
-		selectedData.layer.modifyFeatureStyle( selectedData.feature, style );
+		if ( selectedData.layer.globe )
+		{
+			// Layer is still attached to globe
+			selectedData.layer.modifyFeatureStyle( selectedData.feature, style );
+		}
 	}
 }
 

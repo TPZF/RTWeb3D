@@ -144,6 +144,9 @@ return {
 		wcs = new WCS.Mapper(hdu.header);
 		var coords = [];
 
+		var test = wcs.coordinateToPixel(99.77120833333333, 5.540722222222222);
+		var iTest = wcs.pixelToCoordinate([4844.563607341353, 0.46768419804220684]);
+
 		// Find coordinates of coming fits
 		coords.push( createCoordinate(0,fitsData.height) );
 		coords.push( createCoordinate(fitsData.width,fitsData.height) );
@@ -152,6 +155,35 @@ return {
 		// Close the polygon
 		coords.push(coords[0]);
 		return coords;
+	},
+
+	/**
+	 *	Compute barycenter of the given GeoJSON geometry
+	 */
+	computeGeometryBarycenter: function(geometry)
+	{
+		switch (geometry.type)
+		{
+			case "Point":
+				return [ geometry.coordinates[0], geometry.coordinates[1] ];
+				break;
+			case "Polygon":
+				var sLon = 0;
+				var sLat = 0;
+				var nbPoints = 0;
+				for( var j=0; j<geometry.coordinates[0].length-1; j++ )
+				{
+					sLon+=geometry.coordinates[0][j][0];
+					sLat+=geometry.coordinates[0][j][1];
+					nbPoints++;
+				}
+				break;
+			default:
+				return;
+				break;
+		}
+
+		return [sLon/nbPoints, sLat/nbPoints];
 	}
  
 };

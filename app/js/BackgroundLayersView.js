@@ -40,7 +40,7 @@ function updateBackgroundOptions(layer)
 {		
 	if ( layer instanceof HEALPixFITSLayer )
 	{
-		$("#fitsType").removeAttr('disabled').button("refresh");
+		$("#fitsType").removeAttr('disabled').removeAttr('checked').button("refresh");
 		// Dynamic image view button visibility
 		if ( layer.dataType == 'jpeg' )
 		{

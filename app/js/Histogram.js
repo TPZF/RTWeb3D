@@ -187,6 +187,8 @@ function _pointInTriangle(p,a,b,c)
  *		<ul>
  *			<li>image: The image which is represented by current histogram(required)</li>
  *			<li>nbBins: Number of bins, representing the sampling of histogram(optional)</li>
+ *			<li>onUpdate: On update callback
+ *			<li>accuracy: The accuracy of histogram(numbers after floating point)
  *		</ul>
  */
 var Histogram = function(options)
@@ -194,6 +196,7 @@ var Histogram = function(options)
 	nbBins = options.nbBins || 256;
 	this.image = options.image;
 	this.onUpdate = options.onUpdate;
+	this.accuracy = options.accuracy || 6;
 
 	// Init canvas
 	var canvas = document.getElementById(options.canvas);
@@ -311,7 +314,7 @@ var Histogram = function(options)
  */
 Histogram.prototype.getHistValue = function( position )
 {
-	return Math.floor((((position[0]-originX)/256.)*(this.image.tmax-this.image.tmin) + this.image.tmin)*1000)/1000;
+	return Math.floor((((position[0]-originX)/256.)*(this.image.tmax-this.image.tmin) + this.image.tmin)*Math.pow(10,this.accuracy))/Math.pow(10, this.accuracy);
 }
 
 /**************************************************************************************************************/

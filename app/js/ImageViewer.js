@@ -185,17 +185,9 @@ return {
 						primary: "ui-icon-zoomin"
 					}
 				}).on('click', function(){
-					var meanLon = 0;
-				    var meanLat = 0;
-				    var nbPoints = 0;
-					var currentGeometry = feature.geometry;
-					for( var j=0; j<currentGeometry.coordinates[0].length-1; j++ )
-					{
-						meanLon+=currentGeometry.coordinates[0][j][0];
-						meanLat+=currentGeometry.coordinates[0][j][1];
-						nbPoints++;
-					}
-					navigation.zoomTo([meanLon/nbPoints, meanLat/nbPoints], 0.1, 2000, function(){
+
+					var barycenter = Utils.computeGeometryBarycenter( feature.geometry );
+						navigation.zoomTo([barycenter[0], barycenter[1]], 0.1, 2000, function(){
 						// Update selection
 						pickingManager.focusFeature(selectedData);
 					});
