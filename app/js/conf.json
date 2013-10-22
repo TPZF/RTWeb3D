@@ -40,6 +40,9 @@
 	"healpixcut": {
        "baseUrl": "/sitools/healpixcut"
 	},
+	"shortener": {
+		"baseUrl": "/sitools/shortener"
+	},
 	"stats": {
 		"verbose": false,
 		"visible": true

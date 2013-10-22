@@ -262,8 +262,28 @@ $(function()
 			{
 				var startIndex = sharedParametersIndex + "sharedParameters=".length;
 				var sharedString = documentURI.substr(startIndex);
-				var sharedParameters = JSON.parse( unescape(sharedString) );
-				setSharedParameters(data, sharedParameters);
+				if ( data.shortener )
+				{
+					$.ajax({
+						type: "GET",
+						url: data.shortener.baseUrl +'/'+ sharedString,
+						async: false,
+						success: function(sharedConf)
+						{
+							setSharedParameters(data, sharedConf);
+						},
+						error: function(thrownError)
+						{
+							console.error(thrownError);
+						}
+					});
+				}
+				else
+				{
+					console.log("Shortener plugin isn't defined, try to extract as a string");
+					var sharedParameters = JSON.parse( unescape(sharedString) );
+					setSharedParameters(data, sharedParameters);
+				}
 			}
 
 			// Add stats
@@ -307,7 +327,7 @@ $(function()
 			mollweideViewer = new MollweideViewer({ globe : globe, navigation : navigation });
 
 			// Share configuration module init
-			Share.init({navigation : navigation});
+			Share.init({navigation : navigation, configuration: data});
 
 			// Initialize SAMP component
 			Samp.init(globe, navigation, AdditionalLayersView, ImageManager, ImageViewer);

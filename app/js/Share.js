@@ -23,6 +23,7 @@
 define(["jquery.ui", "gw/CoordinateSystem", "LayerManager"], function($, CoordinateSystem, LayerManager) {
 
 var navigation;
+var baseUrl;
 
 /**
  *	Generate url with current navigation parameters as : fov, eye, visibility, rotation(TODO)
@@ -78,21 +79,46 @@ function generateURL()
 		up: navigation.up
 	}
 
-	url+= "sharedParameters=" + JSON.stringify(sharedParameters);
+	if ( baseUrl )
+	{
+		// Use SiTools shortener plugin
+		$.ajax({
+			type: "POST",
+			url: baseUrl,
+			async: false,
+			data: { context: JSON.stringify( sharedParameters ) },
+			success: function(response)
+			{
+				url+='sharedParameters='+response;
+			},
+			error: function(thrownError)
+			{
+				console.error(thrownError);
+			}
+		});
+	}
+	else
+	{
+		// No shortener plugin, stringify shared parameters
+		url+= "sharedParameters=" + JSON.stringify(sharedParameters);
+	}
 
 	return url;
 }
 
 function init(options)
 {
-
 	navigation = options.navigation;
+	if ( options.configuration.hasOwnProperty('shortener') )
+	{
+		baseUrl = options.configuration.shortener.baseUrl;
+	}
 
 	$('#share').on('click', function(){
 		var url = generateURL();
 		$('#shareInput').val(url);
 		$(this).fadeOut(300, function(){
-		    $(this).next().fadeIn();
+			$(this).next().fadeIn();
 			$('#shareInput').select();
 		});
 	});
