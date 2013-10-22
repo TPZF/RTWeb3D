@@ -20,8 +20,8 @@
 /**
  * AdditionalLayersView module
  */
-define(["jquery.ui", "gw/CoordinateSystem", "gw/FeatureStyle", "gw/OpenSearchLayer", "HEALPixFITSLayer", "MocLayer", "gw/VectorLayer", "PickingManager", "DynamicImageView", "LayerServiceView", "Samp", "ImageViewer", "ErrorDialog", "underscore-min", "text!../templates/additionalLayer.html", "jquery.nicescroll.min"],
-		function($, CoordinateSystem, FeatureStyle, OpenSearchLayer, HEALPixFITSLayer, MocLayer, VectorLayer, PickingManager, DynamicImageView, LayerServiceView, Samp, ImageViewer, ErrorDialog, _, additionalLayerHTMLTemplate){
+define(["jquery.ui", "gw/CoordinateSystem", "gw/FeatureStyle", "gw/OpenSearchLayer", "HEALPixFITSLayer", "MocLayer", "gw/VectorLayer", "PickingManager", "DynamicImageView", "LayerServiceView", "Samp", "ImageViewer", "ErrorDialog", "Utils", "underscore-min", "text!../templates/additionalLayer.html", "jquery.nicescroll.min"],
+		function($, CoordinateSystem, FeatureStyle, OpenSearchLayer, HEALPixFITSLayer, MocLayer, VectorLayer, PickingManager, DynamicImageView, LayerServiceView, Samp, ImageViewer, ErrorDialog, Utils, _, additionalLayerHTMLTemplate){
 
 var globe;
 var navigation;
@@ -221,6 +221,13 @@ function createHtmlForAdditionalLayer( gwLayer )
 		}
 	});
 
+	$('.downloadAsVO').button({
+		text: false,
+		icons: {
+			primary: "ui-icon-arrowthickstop-1-s"
+		}
+	})
+
 	if ( gwLayer instanceof HEALPixFITSLayer )
 	{
 		// Supports fits, so create dynamic image view in dialog
@@ -301,6 +308,29 @@ function addView ( gwLayer )
 		PickingManager.addPickableLayer(gwLayer);
 }
 
+/**
+ *	Build visible tiles url
+ */
+function buildVisibleTilesUrl(layer)
+{
+	// Find max visible order & visible pixel indices
+	var maxOrder = 3;
+	var pixelIndices = "";
+	for ( var i=0; i<globe.tileManager.tilesToRender.length; i++ )
+	{
+		var tile = globe.tileManager.tilesToRender[i];
+		if ( maxOrder < tile.order )
+			maxOrder = tile.order;
+
+		pixelIndices+=tile.pixelIndex;
+		if ( i < globe.tileManager.tilesToRender.length - 1 )
+		{
+			pixelIndices+=",";
+		}
+	}
+	return window.location.origin + layer.serviceUrl+"/search?order="+maxOrder+"&healpix="+pixelIndices+"&coordSystem=EQUATORIAL&media=votable";
+}
+
 /**************************************************************************************************************/
 
 /**
@@ -350,29 +380,23 @@ function initToolbarEvents ()
 		{
 			var layer = $(this).parent().parent().data("layer");
 			
-			// Find max visible order & visible pixel indices
-			var maxOrder = 3;
-			var pixelIndices = "";
-			for ( var i=0; i<globe.tileManager.tilesToRender.length; i++ )
-			{
-				var tile = globe.tileManager.tilesToRender[i];
-				if ( maxOrder < tile.order )
-					maxOrder = tile.order;
-
-				pixelIndices+=tile.pixelIndex;
-				if ( i < globe.tileManager.tilesToRender.length - 1 )
-				{
-					pixelIndices+=",";
-				}
-			}
-
-			var url = window.location.origin + layer.serviceUrl+"/search?order="+maxOrder+"&healpix="+pixelIndices+"&coordSystem=EQUATORIAL&media=votable";
+			var url = buildVisibleTilesUrl(layer);
 			var message = Samp.sendVOTable(url);
 		}
 		else
 		{
 			ErrorDialog.open("You must be connected to SAMP Hub");
 		}
+	});
+	
+	// Download features on visible tiles as VO table
+	$('#additionalLayers').on('click', '.downloadAsVO', function(){
+		var layer = $(this).parent().parent().parent().data("layer");
+		var url = buildVisibleTilesUrl(layer);
+		var posGeo = CoordinateSystem.from3DToGeo( navigation.center3d );
+		var astro = Utils.formatCoordinates( posGeo );
+		$(this).parent().attr('href', url)
+						.attr('download', layer.name+"_"+astro[0]+'_'+astro[1]);
 	});
 
 	// ZoomTo event (available for GlobWeb.VectorLayers only)
@@ -381,33 +405,17 @@ function initToolbarEvents ()
 		var layer = $(this).parent().parent().data("layer");
 		var sLon = 0;
 		var sLat = 0;
-		var nbPoints = 0;
+		var nbGeometries = 0;
 
 		for (var i=0; i<layer.features.length; i++)
 		{
-			var currentGeometry = layer.features[i].geometry;
-			switch (currentGeometry.type)
-			{
-				case "Polygon":
-					for( var j=0; j<currentGeometry.coordinates[0].length; j++ )
-					{
-						sLon+=currentGeometry.coordinates[0][j][0];
-						sLat+=currentGeometry.coordinates[0][j][1];
-						nbPoints++;
-					}
-					break;
-				case "Point":
-					sLon+=currentGeometry.coordinates[0];
-					sLat+=currentGeometry.coordinates[1];
-					nbPoints++;
-					break;
-				default:
-					break;
-			}
-
+			var barycenter = Utils.computeGeometryBarycenter( layer.features[i].geometry );
+			sLon += barycenter[0];
+			sLat += barycenter[1];
+			nbGeometries++;
 		}
 
-		navigation.zoomTo([sLon/nbPoints, sLat/nbPoints], 2.);
+		navigation.zoomTo([sLon/nbGeometries, sLat/nbGeometries], 2., 2000);
 	});
 
 	$('#additionalLayers').on('click', '.isFits', function(event){
