@@ -17,11 +17,14 @@
 * along with SITools2. If not, see <http://www.gnu.org/licenses/>. 
 ******************************************************************************/ 
 
-define( [ "jquery.ui", "SelectionTool", "UWSManager", "gw/CoordinateSystem", "AnimatedButton", "underscore-min", "text!../templates/cutOut.html" ],
-		function($, SelectionTool, UWSManager, CoordinateSystem, AnimatedButton, _, cutOutHTMLTemplate) {
+define( [ "jquery.ui", "SelectionTool", "UWSManager", "Samp", "gw/CoordinateSystem", "AnimatedButton", "ErrorDialog", "underscore-min", "text!../templates/cutOut.html", "text!../templates/cutResultItem.html" ],
+		function($, SelectionTool, UWSManager, Samp, CoordinateSystem, AnimatedButton, ErrorDialog, _, cutOutHTMLTemplate, cutResultHTMLTemplate) {
 
 // Template generating UWS services div
 var cutOutTemplate = _.template(cutOutHTMLTemplate);
+
+// Template generating the cutOut result li
+var cutResultTemplate = _.template(cutResultHTMLTemplate);
 
 /**
  * UWS CutOut View
@@ -55,6 +58,17 @@ var CutOutView = function(element, selectionTool, pickingManager)
 	this.runButton = new AnimatedButton( $('#'+element).find('#runJob')[0], {
 		onclick: $.proxy(this.runJob, this)
 	} );
+
+	this.$content.on('click', '.sampExport', function(event){
+		if ( Samp.isConnected() )
+		{
+			Samp.sendImage( $(this).data('url') );
+		}
+		else
+		{
+			ErrorDialog.open('You must be connected to SAMP Hub');
+		}			
+	});
 }
 
 /**************************************************************************************************************/
@@ -92,7 +106,14 @@ CutOutView.prototype.runJob = function()
 					shortName = x;
 				}
 				self.runButton.stopAnimation();
-				$('<li style="display: none;">'+shortName+' <a href="' + results[x] +'" download="'+shortName+'"><img style="vertical-align: middle; width: 20px; height: 20px;" title="Download" src="css/images/download1.png"></a></li>')
+
+				var result = {
+					name: shortName,
+					url: results[x]
+				};
+
+				var cutOutResult = cutResultTemplate({result: result});
+				$(cutOutResult)
 					.appendTo(self.$content.find('.cutoutResults').find('ul'))
 					.fadeIn(400);
 			}

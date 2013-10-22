@@ -287,7 +287,7 @@
 
 /*** HEALPixCut ***/
 
-.imageProperties > input
+#HEALPixCut input
 {
 	box-shadow: 0px 0px 3px 1px #F8A102;
 	border-radius: 3px;
@@ -299,7 +299,22 @@
 	outline: none;
 }
 
-.imageProperties > input:focus
+#HEALPixCut input:focus
 {
 	box-shadow: 0px 0px 3px 1px #6BCAFF;
+}
+
+.inputError
+{
+	box-shadow: 0px 0px 3px 1px #FF0000 !important;
+}
+
+/*** CutOut & HEALPixCut ***/
+
+.cutResult .sampExport
+{
+	cursor: pointer;
+	vertical-align: middle;
+	width: 20px;
+	height: 20px;
 }

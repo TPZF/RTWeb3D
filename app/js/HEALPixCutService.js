@@ -20,17 +20,36 @@
 /**
  * Moc display & Moc xMatch services
  */
-define( [ "jquery.ui", "gw/CoordinateSystem", "gw/Numeric", "UWSManager", "ErrorDialog", "Utils" ],
-		function($, CoordinateSystem, Numeric, UWSManager, ErrorDialog, Utils) {
+define( [ "jquery.ui", "gw/CoordinateSystem", "gw/Numeric", "UWSManager", "Samp", "ErrorDialog", "Utils", "underscore-min", "text!../templates/healpixCutService.html", "text!../templates/cutResultItem.html"  ],
+		function($, CoordinateSystem, Numeric, UWSManager, Samp, ErrorDialog, Utils, _, healpixCutServiceHTMLTemplate, healpixCutServiceItemHTMLTemplate ) {
 
 var globe;
 var navigation;
-var nbLayers = 0;
+var results = [];
+
+// Template generating the healpixCut service content
+var healpixCutServiceTemplate = _.template(healpixCutServiceHTMLTemplate);
+
+// Template generating the result of healpix cut
+var healpixCutServiceItemTemplate = _.template(healpixCutServiceItemHTMLTemplate);
 
 return {
 	init: function(gl, nav){
 		globe = gl;
 		navigation = nav;
+
+		$('#HEALPixCut').on('click', '.sampExport', function(event){
+		
+			if ( Samp.isConnected() )
+			{
+				Samp.sendImage( $(this).data('url') );
+			}
+			else
+			{
+				ErrorDialog.open('You must be connected to SAMP Hub');
+			}
+			
+		});
 	},
 
 	addService: function(tabs)
@@ -41,25 +60,16 @@ return {
 			.fadeIn(300);		
 
 		// Append content
-		tabs.append('<div id="HEALPixCut">\
-						Arcsec per pixel of result:\
-						<div style="margin-left: 20px; margin-bottom: 10px;" class="imageProperties">\
-							<label for="cdelt1">X axis: </label><input type="text" id="cdelt1" /><br/>\
-							<label for="cdelt2">Y axis: </label><input type="text" id="cdelt2" />\
-						</div>\
-						<button style="margin-left: auto; margin-right: auto; display: block;" id="HEALPixCutBtn">Cut viewport</button>\
-						<div style="display: inline-block; width: auto; height: 1em;" class="status"></div>\
-						<div style="margin-top: 15px;">\
-							<em style="font-size: 14px;">Results</em>\
-							<div class="HEALPixCutResults">\
-								<ul style="list-style-type: none;">\
-								</ul>\
-							</div>\
-						</div>\
-					</div>');
+		var healpixCutServiceContent = healpixCutServiceTemplate({ itemTemplate: healpixCutServiceItemTemplate, results: results });
+		tabs.append(healpixCutServiceContent)
+			.find('li').fadeIn();
 
+
+		tabs.find('input').on('focus', function(){
+			$(this).removeClass('inputError');
+		});
+		
 		$('#HEALPixCutBtn').button().click(function(event){
-
 			// Find RA/Dec of each corner of viewport
 			var coords = [ [0,0], [globe.renderContext.canvas.width, 0], [globe.renderContext.canvas.width, globe.renderContext.canvas.height], [0, globe.renderContext.canvas.height] ];
 			for ( var i=0; i<coords.length; i++ )
@@ -103,6 +113,22 @@ return {
 		    // Get choosen layer
 		    var healpixLayer = globe.tileManager.imageryProvider;
 
+		    if ( !healpixLayer.healpixCutFileName )
+		    {
+		    	ErrorDialog.open("healpixCutFileName isn't defined for current layer<br/>");
+		    }
+
+		    if ( isNaN(cdelt1) || isNaN(cdelt2) )
+		    {
+		    	$('#HEALPixCut').find('input').each(function(){
+		    		if (!$(this).val())
+		    		{
+		    			$(this).addClass('inputError');
+		    		}
+		    	});
+		    	return;
+		    }
+
 			var parameters = {
 				long1: coords[0][0],
 				lat1: coords[0][1],
@@ -124,12 +150,18 @@ return {
 			UWSManager.post( 'healpixcut', parameters, {
 				successCallback: function( result )
 				{
-					$('#HEALPixCut').find('.status').hide();
+					var name = 'Viewport ( '+ astro[0] + ' x '+ astro[1] +' )'; 
+					var result = {
+						name: name,
+						url: result,
+						downloadName: name.replace('"','&quot;' ) + '.fits'
+					};
+					results.push( result );
 
-					$('<li style="display: none;">Viewport ('+ astro[0] +' x '+ astro[1] +') : <a href="' + result +'" download="result.fits"><img style="vertical-align: middle; width: 20px; height: 20px;" title="Download" src="css/images/download1.png"></a></li>')
-						.appendTo( $('#HEALPixCut').find('.HEALPixCutResults ul') )
-						.fadeIn();
-					nbLayers++;
+					$('#HEALPixCut').find('.status').hide();
+					var healpixCutItem = healpixCutServiceItemTemplate({result: result});
+					$(healpixCutItem)
+						.appendTo( $('#HEALPixCut').find('.HEALPixCutResults ul') ).fadeIn();
 				},
 				failCallback: function(message){
 					$('#HEALPixCut').find('.status').hide();
@@ -140,7 +172,6 @@ return {
 					$('#HEALPixCut').find('.status').animate({opacity: 0.}, 400, function(){
 						$(this).animate({opacity: 1.}, 400);
 					});
-					console.log("loading...");
 				}
 			} );
 
@@ -149,7 +180,7 @@ return {
 
 	removeService: function(tabs)
 	{
-		tabs.find( '.ui-tabs-nav li[aria-controls="MocService"]').css("opacity", 0.);
+		tabs.find( '.ui-tabs-nav li[aria-controls="HEALPixCut"]').css("opacity", 0.);
 		var index = $(this).index();
 		tabs.tabs("remove",index);
 	}
