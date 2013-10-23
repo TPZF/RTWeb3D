@@ -434,9 +434,9 @@ Histogram.prototype.draw = function()
  *	TODO : create different module
  *	Compute histogram values
  */
-function compute(histogram)
+Histogram.prototype.compute = function()
 {
-	var image = histogram.image;
+	var image = this.image;
 	// Initialize histogram
 	hist = new Array(nbBins);
 	for ( var i=0; i<hist.length; i++ )
@@ -476,17 +476,6 @@ function compute(histogram)
 		hist[i] = Math.log(1 + hist[i]);
 	}
 	hmax = Math.log(1 + hmax);
-}
-
-/**************************************************************************************************************/
-
-/**
- *	Update the histogram
- */
-Histogram.prototype.update = function()
-{
-	compute(this);
-	this.draw();
 }
 
 /**************************************************************************************************************/

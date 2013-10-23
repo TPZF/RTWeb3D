@@ -249,6 +249,7 @@ DynamicImageView.prototype.updateThreshold = function(min, max)
 		values: [min, max]
 	});
 
+	this.histogram.compute();
 	this.render();
 }
 
@@ -313,7 +314,7 @@ DynamicImageView.prototype.remove = function()
  */
 DynamicImageView.prototype.render = function()
 {
-	this.histogram.update();
+	this.histogram.draw();
 	this.image.renderContext.requestFrame();
 }
 
