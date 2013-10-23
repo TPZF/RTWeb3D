@@ -37,19 +37,6 @@ return {
 	init: function(gl, nav){
 		globe = gl;
 		navigation = nav;
-
-		$('#HEALPixCut').on('click', '.sampExport', function(event){
-		
-			if ( Samp.isConnected() )
-			{
-				Samp.sendImage( $(this).data('url') );
-			}
-			else
-			{
-				ErrorDialog.open('You must be connected to SAMP Hub');
-			}
-			
-		});
 	},
 
 	addService: function(tabs)
@@ -67,6 +54,17 @@ return {
 
 		tabs.find('input').on('focus', function(){
 			$(this).removeClass('inputError');
+		});
+
+		$('#HEALPixCut').on('click', '.sampExport', function(event){
+			if ( Samp.isConnected() )
+			{
+				Samp.sendImage( $(this).data('url') );
+			}
+			else
+			{
+				ErrorDialog.open('You must be connected to SAMP Hub');
+			}
 		});
 		
 		$('#HEALPixCutBtn').button().click(function(event){
