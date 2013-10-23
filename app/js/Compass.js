@@ -150,7 +150,16 @@ var Compass = function(options){
 	});
 
 	northText.addEventListener("click", function(){
-		navigation.setUpToNorth();
+		var up = [0,0,1];
+		
+		if ( CoordinateSystem.type != "EQ" )
+		{
+			var temp = [];
+			CoordinateSystem.from3DToGeo(up, temp);
+			temp = CoordinateSystem.convert(temp, 'GAL', 'EQ');
+			CoordinateSystem.fromGeoTo3D(temp, up);
+		}
+		navigation.moveUpTo(up);
 	});
 
     // Update fov when moving
