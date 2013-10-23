@@ -70,7 +70,15 @@ function handleFits(fitsData, featureData)
 	var feature = featureData.feature;
 	var layer = featureData.layer;
 	// Attach texture to style
-	var targetStyle = new FeatureStyle( feature.properties.style );
+	var targetStyle;
+	if ( feature.properties.style )
+	{
+		targetStyle = new FeatureStyle( feature.properties.style );
+	}
+	else
+	{
+		targetStyle = new FeatureStyle( layer.style );
+	}
 	targetStyle.fillTexture = image.texture;
 	targetStyle.uniformValues = image;
 	targetStyle.fill = true;
