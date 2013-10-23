@@ -20,14 +20,20 @@
 /**
  * Samp module : performing communication between applications using SAMP protocol
  */
-define(["jquery.ui", "gw/CoordinateSystem", "gw/FeatureStyle", "gw/VectorLayer", "Utils", "samp"],
-	function($, CoordinateSystem, FeatureStyle, VectorLayer, Utils) {
+define(["jquery.ui", "underscore-min", "gw/CoordinateSystem", "gw/FeatureStyle", "gw/VectorLayer", "Utils", "samp"],
+	function($, _, CoordinateSystem, FeatureStyle, VectorLayer, Utils) {
 
 var globe;
 var navigation;
 var additionalLayersView;
 var imageManager;
 var imageViewer;
+var tables = {};
+var highlightStyle = new FeatureStyle( {
+	strokeColor: [1., 1., 1., 1.],
+	fillColor: [1., 1., 1., 1.]
+} );
+var highlightedData;
 
 var connector;	// SAMP connector
 var sampLayer;	// SAMP vector layer containing all incoming fits images
@@ -157,6 +163,32 @@ function createClientTracker()
 		xhr.send(null);
 	};
 
+	callHandler["table.highlight.row"] = function(senderId, message, isCall) {
+		var params = message["samp.params"];
+		var url = params['url'];
+		var row = params['row'];
+
+		if ( highlightedData )
+		{
+			highlightedData.layer.modifyFeatureStyle( highlightedData.feature, highlightedData.layer.style );
+		}
+
+		if ( tables[url] )
+		{
+			var layer = tables[url].layer;
+			var feature = tables[url].features[parseInt(row)];
+
+			layer.modifyFeatureStyle( feature, highlightStyle );
+			highlightedData = {
+				layer: layer,
+				feature: feature
+			}
+
+			var barycenter = Utils.computeGeometryBarycenter( feature.geometry );
+			navigation.zoomTo( barycenter, (navigation.renderContext.fov < 1. ? navigation.renderContext.fov : 1.), 300. );
+		}
+	};
+
 	callHandler["image.load.fits"] = function(senderId, message, isCall) {
 		var params = message["samp.params"];
 
@@ -192,6 +224,8 @@ function createClientTracker()
 			featureData.feature.geometry.coordinates = [coords];
 			sampLayer.addFeature(featureData.feature);
 		});
+
+		additionalLayersView.showView(sampLayer);
 		// Show image viewer
 		imageViewer.show();
 	};
@@ -335,6 +369,7 @@ function init(gl, nav, alv, im, iv)
 	sampLayer.pickable = true;
 	globe.addLayer(sampLayer);
 	additionalLayersView.addView( sampLayer );
+	additionalLayersView.hideView( sampLayer );
 
 	// Unregister samp connector onunload or refresh
 	// $(window).unload(function(e){
@@ -371,14 +406,64 @@ return {
 		}
 	},
 
-	sendVOTable: function(url)
+	sendVOTable: function(layer, url)
 	{
 		if (this.isConnected())
 		{
-			// Send message
-			var msg = new samp.Message("table.load.votable", {url: url});
-			connector.connection.notifyAll([msg]);
+			$.ajax({
+				type: "GET",
+				url: url,
+				success: function(response) {
+
+					if ( response.totalResults > 0 )
+					{
+						// Store table to be able to highlight features later
+						tables[ url+'&media=votable' ] = {
+							layer: layer,
+							features: []
+						};
+						for ( var i=0; i<response.features.length; i++ )
+						{
+							var feature = response.features[i];
+							tables[url+'&media=votable'].features.push(feature);
+						}
+					}
+					// Send message
+					var msg = new samp.Message("table.load.votable", {url: url+"&media=votable"});
+					connector.connection.notifyAll([msg]);
+					console.log('VOTable has been sent');
+				},
+				error: function(thrownError)
+				{
+					console.error(thrownError);
+				}
+			});
 			return "VOTable has been sent";
+		}
+		else
+		{
+			return "Connect to SAMP Hub first";
+		}
+	},
+
+	highlightFeature: function(layer, feature)
+	{
+		if ( this.isConnected() )
+		{
+			for ( var url in tables )
+			{
+				var table = tables[url];
+				if ( layer == table.layer )
+				{
+					var featureToHighlight = _.filter( table.features, function(x){ return(feature.properties.identifier == x.properties.identifier) } );
+					if ( featureToHighlight.length )
+					{
+						var featureRow = table.features.indexOf(featureToHighlight[0]);
+						var msg = new samp.Message("table.highlight.row", {url: url, row: featureRow.toString()});
+						connector.connection.notifyAll([msg]);
+					}
+				}
+			}
 		}
 		else
 		{

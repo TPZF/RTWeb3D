@@ -328,7 +328,7 @@ function buildVisibleTilesUrl(layer)
 			pixelIndices+=",";
 		}
 	}
-	return window.location.origin + layer.serviceUrl+"/search?order="+maxOrder+"&healpix="+pixelIndices+"&coordSystem=EQUATORIAL&media=votable";
+	return window.location.origin + layer.serviceUrl+"/search?order="+maxOrder+"&healpix="+pixelIndices+"&coordSystem=EQUATORIAL";
 }
 
 /**************************************************************************************************************/
@@ -381,7 +381,7 @@ function initToolbarEvents ()
 			var layer = $(this).parent().parent().data("layer");
 			
 			var url = buildVisibleTilesUrl(layer);
-			var message = Samp.sendVOTable(url);
+			var message = Samp.sendVOTable(layer, url);
 		}
 		else
 		{
@@ -393,6 +393,7 @@ function initToolbarEvents ()
 	$('#additionalLayers').on('click', '.downloadAsVO', function(){
 		var layer = $(this).parent().parent().parent().data("layer");
 		var url = buildVisibleTilesUrl(layer);
+		url+="&media=votable";
 		var posGeo = CoordinateSystem.from3DToGeo( navigation.center3d );
 		var astro = Utils.formatCoordinates( posGeo );
 		$(this).parent().attr('href', url)
@@ -456,7 +457,15 @@ return {
 		} );
 	},
 	addView : addView,
-	updateUI : initToolbarEvents
+	updateUI : initToolbarEvents,
+	hideView: function(layer)
+	{
+		$('#addLayer_'+layer.id).hide();
+	},
+	showView: function(layer)
+	{
+		$('#addLayer_'+layer.id).show();
+	}
 }
 
 });

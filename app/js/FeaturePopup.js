@@ -459,6 +459,8 @@ return {
 			
 			$('#featureList div:eq('+featureIndexToFocus+')').addClass('selected');
 			self.showFeatureInformation( selectedData.layer, selectedData.feature );
+
+			Samp.highlightFeature(selectedData.layer, selectedData.feature);
 		});
 
 		// Show/hide external resource
