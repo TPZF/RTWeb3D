@@ -144,6 +144,7 @@ return {
 		wcs = new WCS.Mapper(hdu.header);
 		var coords = [];
 
+		// Debug test: isn't working currently
 		var test = wcs.coordinateToPixel(99.77120833333333, 5.540722222222222);
 		var iTest = wcs.pixelToCoordinate([4844.563607341353, 0.46768419804220684]);
 
@@ -171,11 +172,26 @@ return {
 				var sLon = 0;
 				var sLat = 0;
 				var nbPoints = 0;
-				for( var j=0; j<geometry.coordinates[0].length-1; j++ )
+				for( var i=0; i<geometry.coordinates[0].length-1; i++ )
 				{
-					sLon+=geometry.coordinates[0][j][0];
-					sLat+=geometry.coordinates[0][j][1];
+					sLon+=geometry.coordinates[0][i][0];
+					sLat+=geometry.coordinates[0][i][1];
 					nbPoints++;
+				}
+				break;
+			case "MultiPolygon":
+				var sLon = 0;
+				var sLat = 0;
+				var nbPoints = 0;
+				for ( var i=0; i<geometry.coordinates.length; i++ )
+				{
+					var polygon = geometry.coordinates[i][0];
+					for ( var j=0; j<polygon.length-1; j++ )
+					{
+						sLon+=polygon[j][0];
+						sLat+=polygon[j][1];
+						nbPoints++;
+					}
 				}
 				break;
 			default:
