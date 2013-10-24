@@ -309,10 +309,6 @@ function handleDrop(evt) {
 				// Add feature collection
 				JsonProcessor.handleFeatureCollection( gwLayer, response );
 				gwLayer.addFeatureCollection( response );
-
-				// Warn the service bar a new layer is added (the layer is active by default)
-				// TODO : a better way should be find, replace ServiceBar by LayerServiceView
-				// ServiceBar.addLayer(gwLayer);
 				
 				AdditionalLayersView.addView( gwLayer );
 				gwLayers.push(gwLayer);
@@ -377,13 +373,22 @@ function initLayers(layers)
 			{
 				// Add to engine
 				globe.addLayer( gwLayer );
-				AdditionalLayersView.addView( gwLayer );
+				AdditionalLayersView.addView( gwLayer, layer.category );
 			}
 
 			gwLayers.push(gwLayer);
 		}
 	}
-	
+
+	// Create accordeon
+	$( "#accordion" ).accordion( {
+		header: "> div > h3",
+		autoHeight: false,
+		active: 0,
+		collapsible: true,
+		heightStyle: "content"
+	} ).show();
+
 	BackgroundLayersView.updateUI();
 	AdditionalLayersView.updateUI();
 	

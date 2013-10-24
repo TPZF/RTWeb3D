@@ -25,6 +25,10 @@ define(["jquery.ui", "gw/CoordinateSystem", "gw/FeatureStyle", "gw/OpenSearchLay
 
 var globe;
 var navigation;
+var categories = {
+	"Other": 'otherLayers',
+	"Coordinate systems": 'coordinateSystems'
+};
 
 // Template generating the additional layer div in sidemenu
 var additionalLayerTemplate = _.template(additionalLayerHTMLTemplate);
@@ -85,11 +89,31 @@ function generateLineLegend( gwLayer, canvas )
 /**************************************************************************************************************/
 
 /**
+ *	Initialize nice scroll for the given category
+ */
+function initNiceScroll(categoryId)
+{
+	// Nice scrollbar initialization
+	$('#'+categoryId).niceScroll({ autohidemode: false });
+	// Hide scroll while accordion animation
+	$( "#accordion" ).on( "accordionbeforeactivate", function(event, ui) {
+		$('#'+categoryId).niceScroll().hide();
+	} );
+	// Show&resize scroll on the end of accordion animation
+	$( "#accordion" ).on( "accordionactivate", function( event, ui ) {
+		$('#'+categoryId).niceScroll().show();
+		updateScroll(categoryId);
+	} );
+}
+
+/**************************************************************************************************************/
+
+/**
  *	Update scroll event
  */
-function updateScroll()
+function updateScroll(categoryId)
 {
-	$('#additionalLayers').getNiceScroll().resize();
+	$('#accordion').find('#'+categoryId).getNiceScroll().resize();
 }
 
 /**************************************************************************************************************/
@@ -97,14 +121,13 @@ function updateScroll()
 /**
  *	Create the Html for addtionnal layer
  */
-function createHtmlForAdditionalLayer( gwLayer )
+function createHtmlForAdditionalLayer( gwLayer, categoryId )
 {
 	var currentIndex = gwLayer.id;
 
 	var layerDiv = additionalLayerTemplate( { layer: gwLayer, currentIndex: currentIndex, OpenSearchLayer: OpenSearchLayer, HEALPixFITSLayer: HEALPixFITSLayer } );
-	var layerContainer = gwLayer.gridProgram ? '#coordinateGrids' : '#additionalLayers';
 	var $layerDiv = $(layerDiv)
-		.appendTo(layerContainer)
+		.appendTo('#'+categoryId)
 		.data("layer", gwLayer);
 
 	var $canvas = $layerDiv.find('.legend');
@@ -155,8 +178,8 @@ function createHtmlForAdditionalLayer( gwLayer )
 		
 	// Open tools div when the user clicks on the layer label
 	var toolsDiv = $('#addLayer_'+currentIndex+' .layerTools');
-	$(layerContainer).on("click", '#addLayer_'+currentIndex+' > label', function() {
-		toolsDiv.slideToggle(updateScroll);
+	$('#'+categoryId).on("click", '#addLayer_'+currentIndex+' > label', function() {
+		toolsDiv.slideToggle(updateScroll.bind(this, categoryId));
 	});
 
 	// Layer visibility management
@@ -290,10 +313,32 @@ function createHtmlForAdditionalLayer( gwLayer )
 /**
  * 	Create HTML for the given layer
  */
-function addView ( gwLayer )
-{
+function addView ( gwLayer, category )
+{	
+	// Other as default
+	if ( !category )
+	{
+		category = 'Other';
+	}
+
+	// Create new category if doesn't exists
+	var categoryId;
+	if ( !categories[category] )
+	{
+		categoryId = Utils.formatId( category );
+		$('<div><h3>'+ category +'</h3>\
+			<div id="'+categoryId+'"></div></div>')
+				.insertBefore($('#otherLayers').parent());
+
+		categories[category] = categoryId;
+	}
+	else
+	{
+		categoryId = categories[category];
+	}
+
 	// Add HTML
-	createHtmlForAdditionalLayer( gwLayer );
+	createHtmlForAdditionalLayer( gwLayer, categoryId );
 
 	// Spinner event
 	globe.subscribe("startLoad", function(layer){
@@ -302,11 +347,12 @@ function addView ( gwLayer )
 	globe.subscribe("endLoad", function(layer){
 		$('#addLayer_'+layer.id).find('.spinner').fadeOut(500);
 	});
-	updateScroll();
 
 	if ( gwLayer.pickable )
 		PickingManager.addPickableLayer(gwLayer);
 }
+
+/**************************************************************************************************************/
 
 /**
  *	Build visible tiles url
@@ -354,7 +400,7 @@ function initToolbarEvents ()
 	});
 
 	// Delete layer event
-	$('#additionalLayers').on("click",'.deleteLayer', function(){
+	$('#accordion').on("click",'.deleteLayer', function(){
 		
 		$(this).parent().parent().fadeOut(300, function(){
 			$(this).remove();
@@ -364,17 +410,16 @@ function initToolbarEvents ()
 		PickingManager.removePickableLayer( layer );
 		ImageViewer.removeLayer( layer );
 		globe.removeLayer(layer);
-
-		updateScroll();
+		updateScroll('otherLayers');
 	});
 
 	// Layer services
-	$('#additionalLayers').on('click', ".layerServices", function(){
+	$('#accordion').on('click', ".layerServices", function(){
 		var layer = $(this).parent().parent().data("layer");
 		LayerServiceView.show( layer );
 	});
 
-	$('#additionalLayers').on('click', ".exportLayer", function(){
+	$('#accordion').on('click', ".exportLayer", function(){
 
 		if ( Samp.isConnected() )
 		{
@@ -390,7 +435,7 @@ function initToolbarEvents ()
 	});
 	
 	// Download features on visible tiles as VO table
-	$('#additionalLayers').on('click', '.downloadAsVO', function(){
+	$('#accordion').on('click', '.downloadAsVO', function(){
 		var layer = $(this).parent().parent().parent().data("layer");
 		var url = buildVisibleTilesUrl(layer);
 		url+="&media=votable";
@@ -401,7 +446,7 @@ function initToolbarEvents ()
 	});
 
 	// ZoomTo event (available for GlobWeb.VectorLayers only)
-	$('#additionalLayers').on("click", ".zoomTo", function(){
+	$('#accordion').on("click", ".zoomTo", function(){
 
 		var layer = $(this).parent().parent().data("layer");
 		var sLon = 0;
@@ -419,7 +464,7 @@ function initToolbarEvents ()
 		navigation.zoomTo([sLon/nbGeometries, sLat/nbGeometries], 2., 2000);
 	});
 
-	$('#additionalLayers').on('click', '.isFits', function(event){
+	$('#accordion').on('click', '.isFits', function(event){
 		var isFits = $(this).is(':checked');
 		var layer = $(this).parent().parent().data("layer");
 		layer.dataType = isFits ? 'fits' : 'jpg';
@@ -434,6 +479,12 @@ function initToolbarEvents ()
 		globe.removeLayer(layer);
 		globe.addLayer(layer);
 	});
+	
+	// Initialize nice scroll for categories
+	for ( var x in categories )
+	{
+		initNiceScroll(categories[x]);
+	}
 }
 
 /**************************************************************************************************************/
@@ -443,18 +494,6 @@ return {
 	{
 		globe = gl;
 		navigation = nav;
-
-		// Nice scrollbar initialization
-		$('#additionalLayers').niceScroll({ autohidemode: false });
-		// Hide scroll while accordion animation
-		$( "#accordion" ).on( "accordionbeforeactivate", function(event, ui) {
-			$('#additionalLayers').niceScroll().hide();
-		} );
-		// Show&resize scroll on the end of accordion animation
-		$( "#accordion" ).on( "accordionactivate", function( event, ui ) {
-			$('#additionalLayers').niceScroll().show();
-			updateScroll();
-		} );
 	},
 	addView : addView,
 	updateUI : initToolbarEvents,

@@ -47,7 +47,8 @@
 
 /*** Additionnal layers ***/
 
-#additionalLayers {
+/* Layer container by category */
+#accordion > div > div {
 	max-height: 450px;
 }
 

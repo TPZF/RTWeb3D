@@ -17,35 +17,39 @@
 	
 		<div class="sidebar">
 			<div id="accordion" style="display: none;">
-				
-				<h3>Background layer</h3>
-				<div id="backgroundLayers">
-					<fieldset>
-						<select style="display: none;" id="backgroundLayersSelect">
-						</select>
-					</fieldset>
-					<img style="display: none" id="backgroundSpinner" src="css/images/loading.gif">
-					<br/>
-					<div id="backgroundOptions">
-						<input type="checkbox" id="fitsType" /><label for="fitsType">Fits</label>
-						<input type="checkbox" id="fitsView" /><label for="fitsView">Image processing</label>
-						<button class="layerServices">Available services</button>
-						<button class="exportLayer">Send viewport by SAMP</button>
+				<div>
+					<h3>Background layer</h3>
+					<div id="backgroundLayers">
+						<fieldset>
+							<select style="display: none;" id="backgroundLayersSelect">
+							</select>
+						</fieldset>
+						<img style="display: none" id="backgroundSpinner" src="css/images/loading.gif">
+						<br/>
+						<div id="backgroundOptions">
+							<input type="checkbox" id="fitsType" /><label for="fitsType">Fits</label>
+							<input type="checkbox" id="fitsView" /><label for="fitsView">Image processing</label>
+							<button class="layerServices">Available services</button>
+							<button class="exportLayer">Send viewport by SAMP</button>
+						</div>
 					</div>
 				</div>
 
-				<h3>Additional layers</h3>
-				<div id="additionalLayers">
+				<div>
+					<h3>Other</h3>
+					<div id="otherLayers"></div>
 				</div>
 
-				<h3>Coordinate systems</h3>
-				<div id="coordinateSystems">
-					<em>Default coordinate system:</em>
-					<select id="defaultCoordSystem" style="width:100; height:200;">
-						<option value="EQ">Equatorial</option>
-						<option value="GAL">Galactic</option>
-					</select>
-					<div style="margin-top: 10px" id="coordinateGrids">
+				<div>
+					<h3>Coordinate systems</h3>
+					<div id="coordinateSystems">
+						<em>Default coordinate system:</em>
+						<select id="defaultCoordSystem" style="width:100; height:200;">
+							<option value="EQ">Equatorial</option>
+							<option value="GAL">Galactic</option>
+						</select>
+						<div style="margin-top: 10px" id="coordinateGrids">
+						</div>
 					</div>
 				</div>
 			</div>

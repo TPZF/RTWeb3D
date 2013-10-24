@@ -89,7 +89,6 @@ var aboutShowed = false;
 
 function hideLoading()
 {
-
 	// Show about information only at the end of first loading
 	if ( localStorage.showAbout == undefined && !aboutShowed )
 	{
@@ -151,14 +150,6 @@ function setSharedParameters(data, sharedParameters)
 
 $(function()
 {
-	// Create accordeon
-	$( "#accordion" ).accordion( {
-		autoHeight: false,
-		active: 0,
-		collapsible: true,
-		heightStyle: "content"
-	} ).show();
-	
 	var confURL = 'js/conf.json'; // default
 
 	var documentURI =  window.document.documentURI;

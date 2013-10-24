@@ -53,6 +53,7 @@
 		 *	Built-in star/constellation catalogs
 		 */
 		{
+			"category": "Other",
 			"type": "GeoJSON",
 			"name": "Constellations",
 			"icon": "css/images/constellation_icon.png",
@@ -68,6 +69,7 @@
 			"color": "rgb(8, 59, 167)"
 		},
 		{
+			"category": "Other",
 			"type": "GeoJSON",
 			"name": "Brighten stars",
 			"icon": "css/images/star_icon.png",
@@ -87,6 +89,7 @@
          * Coordinate grids
 		 */
 		{
+			"category": "Coordinate systems",
 			"type": "coordinateGrid",
 			"name": "Equatorial grid",
 			"visible": false,
@@ -96,6 +99,7 @@
 			"longFormat": "HMS"
 		},
 		{
+			"category": "Coordinate systems",
 			"type": "coordinateGrid",
 			"name": "Galactic grid",
 			"visible": false,
@@ -108,6 +112,7 @@
 		 *	Healpix grid
 		 */
 		{
+			"category": "Other",
 			"type": "healpixGrid",
 			"name": "Healpix grid",
 			"outline": true
@@ -174,6 +179,7 @@
 			"background": true
 		},
 		{
+			"category": "Image",
 			"type": "healpix",
 			"name": "SDSS",
 			"baseUrl": "/sitools/Alasky/SDSS/Color",
@@ -210,8 +216,23 @@
 			"availableServices": [ "HEALPixCut" ],
 			"healpixCutFileName" : "HFI_SkyMap_857_2048_R1.10_nominal.fits"
 		},
+        {
+			"type": "healpix",
+			"name": "Planck-HFI-857",
+			"baseUrl": "/sitools/Alasky/PLANCK/HFI857",
+			"description": "PLANCK HFI 857 from CDS",
+			"attribution": "Planck HFI-857 background from <object width='48' height='32' data=\"css/images/cds.svg\" type=\"image/svg+xml\"></object>",
+			"visible": false,
+			"background": true,
+			"coordSystem": "GAL",
+			"fitsSupported": true,
+			"dataType": "jpg",
+			"availableServices": [ "HEALPixCut" ],
+			"healpixCutFileName": "HFI_SkyMap_857_2048_R1.10_nominal.fits"
+        },
 		// Overlay
 		{
+			"category": "Image",
 			"type": "healpix",
 			"name": "PlanckFITS",
 			"baseUrl" : "/sitools/Alasky/PLANCK/CMB",
@@ -229,7 +250,8 @@
 		 *	Plugin: Proxy Healpix Image cache
 		 *	urlClient: http://healpix.ias.u-psud.fr/PLWSAG-4ALLSKY
 		 */
-		{ 
+		{
+			"category": "Image",
 			"type": "healpix",
 			"name": "PSWALLSKY",
 			"baseUrl": "/sitools/proxytest",
@@ -244,6 +266,7 @@
 		 *	Layer initialized from GeoJSON file
 		 */
 		{
+			"category": "Image",
 			"type": "GeoJSON",
 			"data": {
 				"type": "JSON",
@@ -257,6 +280,7 @@
 		 *	Doradus Healpix raster layer
 		 */
 		{
+			"category": "Image",
 			"type": "healpix",
 			"name": "DoradusPNG",
 			"baseUrl": "http://demonstrator.telespazio.com/doradus",
@@ -313,6 +337,7 @@
 		 *	siaSearchUrl: http://archive.eso.org/apps/siaserver/EsoProxySiap?
 		 */
 		{
+			"category": "Catalog",
 			"type": "DynamicOpenSearch",
 			"dataType": "line",
 			"name": "ESO",
@@ -329,6 +354,7 @@
 		 *	siaSearchUrl: http://archives.esac.esa.int/hst/hst-vo/hla_sia?REQUEST=queryData&
 		 */
 		{
+			"category": "Catalog",
 			"type": "DynamicOpenSearch",
 			"dataType": "line",
 			"name": "HST",
@@ -343,6 +369,7 @@
 		 *	siaSearchUrl: http://archives.esac.esa.int/ida/aio/jsp/siap.jsp?imageType=image&
 		 */
 		{
+			"category": "Catalog",
 			"type": "DynamicOpenSearch",
 			"dataType": "line",
 			"name": "Iso",
@@ -359,6 +386,7 @@
 		 *	coneSearchUrl: http://vizier.u-strasbg.fr/viz-bin/votable/-A?-source=I/320/spm4&
 		 */
 		{
+			"category": "Catalog",
 			"type": "DynamicOpenSearch",
 			"dataType": "point",
 			"name": "SPM4",
@@ -376,6 +404,7 @@
 		 *	coneSearchUrl: http://vizier.u-strasbg.fr/viz-bin/votable/-A?-source=I/284&
 		 */
 		{
+			"category": "Catalog",
 			"type": "DynamicOpenSearch",
 			"dataType": "point",
 			"name": "USNO-B1.0",
@@ -394,12 +423,30 @@
 		 *	coneSearchUrl: http://vo.imcce.fr/webservices/skybot/skybotconesearch_query.php?from=SITools2&EPOCH=now&
 		 */
 		{
+			"category": "Solar system",
 			"type": "DynamicOpenSearch",
 			"dataType": "point",
 			"name": "IMCCE",
 			"serviceUrl": "/sitools/solar",
 			"minOrder": 7,
 			"availableServices": [ "Moc", "XMatch" ]
+		}
+		/**
+		 *	OpenSearch ConeSearch exoplanet layer
+		 *
+		 *	Plugin: VO OpenSearch Application
+		 *	coneSearchUrl: http://exoplanet.eu/catalog/conesearch?
+		 */
+		{
+			"category": "Solar system",
+			"type": "DynamicOpenSearch",
+			"dataType": "point",
+			"name": "Exoplanets",
+			"description":"The Extrasolar Planets Encyclopaedia (http://exoplanet.eu)",
+			"serviceUrl": "/sitools/exoplanet",
+			"visible": false,
+			"minOrder": 3,
+			"availableServices" : [ "Moc", "XMatch" ]
 		}
 	]
 }
