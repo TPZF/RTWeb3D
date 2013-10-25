@@ -21,7 +21,10 @@
  * Tool designed to select areas on globe
  */
 
-define( [ "jquery.ui", "gw/VectorLayer", "gw/Numeric", "gw/CoordinateSystem", "gw/glMatrix" ], function($, VectorLayer, Numeric, CoordinateSystem){
+define( [ "jquery.ui", "gw/VectorLayer", "gw/Numeric", "gw/CoordinateSystem", "Utils", "gw/glMatrix" ],
+	function($, VectorLayer, Numeric, CoordinateSystem, Utils){
+
+
 
 /**
  *	@constructor
@@ -56,42 +59,90 @@ var SelectionTool = function(options)
 
 	var self = this;
 	var dragging = false;
+	var drawing = true;
 	
 	this.renderContext.canvas.addEventListener("mousedown", function(event){
-		if ( !self.activated )
+
+		var pickPoint = [event.clientX, event.clientY];
+		var geoPickPoint = globe.getLonLatFromPixel(event.clientX, event.clientY);
+
+		var pickIsInside = self.selectionFeature && Utils.pointInRing( geoPickPoint, self.selectionFeature.geometry.coordinates[0] );
+		if ( !self.activated && !pickIsInside )
 			return;
 
-		self.radius = 0.;
-		// Desactivate standard navigation events
+		// Dragging : moving/resizing OR drawing selection
 		navigation.stop();
-
 		dragging = true;
-		self.pickPoint = [event.clientX, event.clientY];
-		self.geoPickPoint = globe.getLonLatFromPixel(event.clientX, event.clientY);
+
+		if ( self.activated )
+		{
+			self.pickPoint = pickPoint;
+			self.geoPickPoint = geoPickPoint;
+			self.radius = 0.;
+			drawing = true;
+		}
+		else
+		{
+			drawing = false;
+		}
 	});
 
 	this.renderContext.canvas.addEventListener("mousemove", function(event){
-		if ( !self.activated || !dragging )
+		if ( !dragging )
 			return;
 
-		// Update radius
-		self.radius = Math.sqrt( Math.pow(event.clientX - self.pickPoint[0], 2) + Math.pow(event.clientY - self.pickPoint[1], 2) );
+		var geoPickPoint = globe.getLonLatFromPixel( event.clientX, event.clientY );
+		if ( drawing )
+		{
+			// Update radius
+			self.radius = Math.sqrt( Math.pow(event.clientX - self.pickPoint[0], 2) + Math.pow(event.clientY - self.pickPoint[1], 2) );
+			self.computeGeoRadius( geoPickPoint );
+		}
+		else
+		{
+			var inside = false;
+
+			// Control point is more far from center than radius
+			// Check if user clicked on control point first
+			for ( var i=0; i<self.selectionFeature.geometry.coordinates[0].length; i++ )
+			{
+				var controlPoint = self.selectionFeature.geometry.coordinates[0][i];
+				inside |= Utils.pointInSphere( geoPickPoint, controlPoint, 20 );
+			}
+			
+			// Check if user is resizing selection tool
+			for ( var i=-Math.PI; i<=Math.PI; i+=0.1 )
+			{
+				var controlPoint = globe.getLonLatFromPixel( self.pickPoint[0] + self.radius*Math.cos(i), self.pickPoint[1] + self.radius*Math.sin(i) );
+				inside |= Utils.pointInSphere( geoPickPoint, controlPoint, 20 );	
+			}
+
+			if ( inside )
+			{
+				// Update radius
+				self.radius = Math.sqrt( Math.pow(event.clientX - self.pickPoint[0], 2) + Math.pow(event.clientY - self.pickPoint[1], 2) );
+				self.computeGeoRadius( geoPickPoint );
+			}
+			else
+			{
+				// Update pick point position
+				self.pickPoint = [event.clientX, event.clientY];
+				self.geoPickPoint = globe.getLonLatFromPixel(event.clientX, event.clientY);
+
+				// TODO: scale radius of selection shape if fov has been changed
+			}
+		}
 		self.updateSelection();
 	});
 
 	this.renderContext.canvas.addEventListener("mouseup", function(event){
-		if ( !self.activated )
+		if ( !dragging )
 			return;
 
 		// Compute geo radius
 		var stopPickPoint = globe.getLonLatFromPixel(event.clientX, event.clientY);
 
-		// Find angle between start and stop vectors which is in fact the radius
-		var dotProduct = vec3.dot( CoordinateSystem.fromGeoTo3D(stopPickPoint), CoordinateSystem.fromGeoTo3D(self.geoPickPoint) );
-		var theta = Math.acos(dotProduct);
-		self.geoRadius = Numeric.toDegree(theta);
-
-		if ( onselect )
+		if ( self.activated && onselect )
 		{
 			onselect();
 		}
@@ -100,6 +151,19 @@ var SelectionTool = function(options)
 		navigation.start();
 		dragging = false;
 	});
+}
+
+/**********************************************************************************************/
+
+/**
+ *	Compute selection tool radius between pickPoint and the given point
+ */
+SelectionTool.prototype.computeGeoRadius = function(pt)
+{
+	// Find angle between start and stop vectors which is in fact the radius
+	var dotProduct = vec3.dot( CoordinateSystem.fromGeoTo3D(pt), CoordinateSystem.fromGeoTo3D(this.geoPickPoint) );
+	var theta = Math.acos(dotProduct);
+	self.geoRadius = Numeric.toDegree(theta);
 }
 
 /**********************************************************************************************/

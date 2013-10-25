@@ -20,8 +20,8 @@
 /**
  * PickingManager module
  */
-define( [ "jquery.ui", "gw/FeatureStyle", "gw/CoordinateSystem", "gw/OpenSearchLayer", "FeaturePopup", "ImageManager", "CutOutViewFactory" ],
-		function($, FeatureStyle, CoordinateSystem, OpenSearchLayer, FeaturePopup, ImageManager, CutOutViewFactory) {
+define( [ "jquery.ui", "gw/FeatureStyle", "gw/CoordinateSystem", "gw/OpenSearchLayer", "FeaturePopup", "ImageManager", "CutOutViewFactory", "Utils" ],
+		function($, FeatureStyle, CoordinateSystem, OpenSearchLayer, FeaturePopup, ImageManager, CutOutViewFactory, Utils) {
 
 var globe;
 var navigation;
@@ -276,68 +276,6 @@ function fixDateLine(pickPoint, coords)
 /**************************************************************************************************************/
 
 /**
-*	Determine if a point lies inside a polygon
-* 
-* 	@param {Float[]} point Point in geographic coordinates
-* 	@param {Float[][]} ring Array of points representing the polygon
-*/
-function pointInRing( point, ring )
-{
-	var nvert = ring.length;
-	if ( ring[0][0] == ring[nvert-1][0] && ring[0][1] == ring[nvert-1][1] )
-	{
-		nvert--;
-	}
-	var inPoly = false;
-	var j = nvert-1;
-	for (var i = 0; i < nvert; j = i++)
-	{
-		if ( ((ring[i][1] > point[1]) != (ring[j][1] > point[1])) &&
-			(point[0] < (ring[j][0] - ring[i][0]) * (point[1] - ring[i][1]) / (ring[j][1] - ring[i][1]) + ring[i][0]) )
-		{
-			inPoly = !inPoly;
-		}
-	}
-	return inPoly;
-}
-
-/**************************************************************************************************************/
-
-/**
- *	Determine if a point lies inside a sphere of radius depending on viewport
- */
-function pointInSphere( point, sphere, pointTextureHeight )
-{
-	var point3D = [];
-	var sphere3D = [];
-
-	// Compute pixel size vector to offset the points from the earth
-	var pixelSizeVector = globe.renderContext.computePixelSizeVector();
-
-	CoordinateSystem.fromGeoTo3D( point, point3D );
-	CoordinateSystem.fromGeoTo3D( sphere, sphere3D );
-
-	var radius = pointTextureHeight * (pixelSizeVector[0] * sphere3D[0] + pixelSizeVector[1] * sphere3D[1] + pixelSizeVector[2] * sphere3D[2] + pixelSizeVector[3]);
-
-	//Calculate the squared distance from the point to the center of the sphere
-	var vecDist = [];
-	vec3.subtract(point3D, sphere3D, vecDist);
-	vecDist = vec3.dot(vecDist, vecDist);
-
-	//Calculate if the squared distance between the sphere's center and the point
-	//is less than the squared radius of the sphere
-	if( vecDist < radius * radius )
-	{
-	    return true;
-	}
-
-	//If not, return false
-	return false;
-}
-
-/**************************************************************************************************************/
-
-/**
  * 	Compute the selection at the picking point
  */
 function computePickSelection( pickPoint )
@@ -376,7 +314,7 @@ function computePickSelection( pickPoint )
 						{
 							case "Polygon":
 								var ring = fixDateLine(pickPoint, feature['geometry']['coordinates'][0]);
-								if ( pointInRing( pickPoint, ring ) )
+								if ( Utils.pointInRing( pickPoint, ring ) )
 								{
 									newSelection.push( { feature: feature, layer: pickableLayer } );
 								}
@@ -385,7 +323,7 @@ function computePickSelection( pickPoint )
 								for ( var p=0; p<feature['geometry']['coordinates'].length; p++ )
 								{
 									var ring = fixDateLine(pickPoint, feature['geometry']['coordinates'][p][0]);
-									if( pointInRing( pickPoint, ring ) )
+									if( Utils.pointInRing( pickPoint, ring ) )
 									{
 										newSelection.push( { feature: feature, layer: pickableLayer } );
 									}
@@ -395,14 +333,14 @@ function computePickSelection( pickPoint )
 								var point = feature['geometry']['coordinates'];
 								if ( feature.cluster )
 								{
-									if ( pointInSphere( pickPoint, point, pickableLayer.clusterBucket.textureHeight ) )
+									if ( Utils.pointInSphere( pickPoint, point, pickableLayer.clusterBucket.textureHeight ) )
 									{
 										newSelection.push( { feature: feature, layer: pickableLayer } );
 									}
 								}
 								else
 								{
-									if ( pointInSphere( pickPoint, point, pickableLayer.pointBucket.textureHeight ) )
+									if ( Utils.pointInSphere( pickPoint, point, pickableLayer.pointBucket.textureHeight ) )
 									{
 										newSelection.push( { feature: feature, layer: pickableLayer } );
 									}
@@ -425,7 +363,7 @@ function computePickSelection( pickPoint )
 					{
 						case "Polygon":
 							var ring = fixDateLine(pickPoint, feature['geometry']['coordinates'][0]);
-							if ( pointInRing( pickPoint, ring ) )
+							if ( Utils.pointInRing( pickPoint, ring ) )
 							{
 								newSelection.push( { feature: feature, layer: pickableLayer } );
 							}
@@ -434,14 +372,14 @@ function computePickSelection( pickPoint )
 							for ( var p=0; p<feature['geometry']['coordinates'].length; p++ )
 							{
 								var ring = fixDateLine(pickPoint, feature['geometry']['coordinates'][p][0]);
-								if( pointInRing( pickPoint, ring ) )
+								if( Utils.pointInRing( pickPoint, ring ) )
 								{
 									newSelection.push( { feature: feature, layer: pickableLayer } );
 								}
 							}
 							break;
 						case "Point":
-							if ( pointInSphere( pickPoint, feature['geometry']['coordinates'], 10 ) )
+							if ( Utils.pointInSphere( pickPoint, feature['geometry']['coordinates'], 10 ) )
 							{
 								newSelection.push( { feature: feature, layer: pickableLayer } );
 							}

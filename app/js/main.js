@@ -74,9 +74,9 @@ require.config({
  * Main module
  */
 require( ["jquery.ui", "gw/EquatorialCoordinateSystem", "gw/Globe", "gw/Stats", "gw/AstroNavigation", "gw/AttributionHandler", "gw/VectorLayer",
-	"LayerManager", "NameResolver", "ReverseNameResolver", "Utils", "PickingManager", "FeaturePopup", "IFrame", "Compass", "MollweideViewer", "ErrorDialog", "AboutDialog", "Share", "Samp", "AdditionalLayersView", "ImageManager", "ImageViewer", "UWSManager", "PositionTracker", "StarProvider", "ConstellationProvider", "JsonProvider", "OpenSearchProvider",
+	"LayerManager", "NameResolver", "ReverseNameResolver", "Utils", "PickingManager", "FeaturePopup", "IFrame", "Compass", "MollweideViewer", "ErrorDialog", "AboutDialog", "Share", "Samp", "AdditionalLayersView", "ImageManager", "ImageViewer", "UWSManager", "PositionTracker", "MeasureTool", "StarProvider", "ConstellationProvider", "JsonProvider", "OpenSearchProvider",
 	"gw/ConvexPolygonRenderer", "gw/PointSpriteRenderer", "gw/PointRenderer"],
-	function($, CoordinateSystem, Globe, Stats, AstroNavigation, AttributionHandler, VectorLayer, LayerManager, NameResolver, ReverseNameResolver, Utils, PickingManager, FeaturePopup, IFrame, Compass, MollweideViewer, ErrorDialog, AboutDialog, Share, Samp, AdditionalLayersView, ImageManager, ImageViewer, UWSManager, PositionTracker) {
+	function($, CoordinateSystem, Globe, Stats, AstroNavigation, AttributionHandler, VectorLayer, LayerManager, NameResolver, ReverseNameResolver, Utils, PickingManager, FeaturePopup, IFrame, Compass, MollweideViewer, ErrorDialog, AboutDialog, Share, Samp, AdditionalLayersView, ImageManager, ImageViewer, UWSManager, PositionTracker, MeasureTool) {
 
 // Console fix	
 window.console||(console={log:function(){}});
@@ -328,6 +328,9 @@ $(function()
 
 			// UWS services initialization
 			UWSManager.init(data);
+
+			// Initialization of tools useful for different modules
+			Utils.init(globe);
 
 			// Update fov when moving
 			navigation.subscribe("modified", updateFov);

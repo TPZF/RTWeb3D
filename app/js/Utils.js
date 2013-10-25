@@ -22,6 +22,8 @@
  */
  define(["gw/CoordinateSystem", "wcs"], function( CoordinateSystem ) {
 
+var globe;
+
 /**
  *	HSV values in [0..1[
  *	returns [r, g, b] values from 0 to 255
@@ -71,7 +73,12 @@ function createCoordinate( x, y )
 }
 
 return {
-  
+  	
+	init: function(gl)
+	{
+		globe = gl;
+	},
+
 	roundNumber : function (num, dec) {
 		var result = Math.round(num*Math.pow(10,dec))/Math.pow(10,dec);
 		return result;
@@ -200,6 +207,64 @@ return {
 		}
 
 		return [sLon/nbPoints, sLat/nbPoints];
+	},
+
+	/**
+	*	Determine if a point lies inside a polygon
+	* 
+	* 	@param {Float[]} point Point in geographic coordinates
+	* 	@param {Float[][]} ring Array of points representing the polygon
+	*/
+	pointInRing: function( point, ring )
+	{
+		var nvert = ring.length;
+		if ( ring[0][0] == ring[nvert-1][0] && ring[0][1] == ring[nvert-1][1] )
+		{
+			nvert--;
+		}
+		var inPoly = false;
+		var j = nvert-1;
+		for (var i = 0; i < nvert; j = i++)
+		{
+			if ( ((ring[i][1] > point[1]) != (ring[j][1] > point[1])) &&
+				(point[0] < (ring[j][0] - ring[i][0]) * (point[1] - ring[i][1]) / (ring[j][1] - ring[i][1]) + ring[i][0]) )
+			{
+				inPoly = !inPoly;
+			}
+		}
+		return inPoly;
+	},
+
+	/**
+	 *	Determine if a point lies inside a sphere of radius depending on viewport
+	 */
+	pointInSphere: function( point, sphere, pointTextureHeight )
+	{
+		var point3D = [];
+		var sphere3D = [];
+
+		// Compute pixel size vector to offset the points from the earth
+		var pixelSizeVector = globe.renderContext.computePixelSizeVector();
+
+		CoordinateSystem.fromGeoTo3D( point, point3D );
+		CoordinateSystem.fromGeoTo3D( sphere, sphere3D );
+
+		var radius = pointTextureHeight * (pixelSizeVector[0] * sphere3D[0] + pixelSizeVector[1] * sphere3D[1] + pixelSizeVector[2] * sphere3D[2] + pixelSizeVector[3]);
+
+		//Calculate the squared distance from the point to the center of the sphere
+		var vecDist = [];
+		vec3.subtract(point3D, sphere3D, vecDist);
+		vecDist = vec3.dot(vecDist, vecDist);
+
+		//Calculate if the squared distance between the sphere's center and the point
+		//is less than the squared radius of the sphere
+		if( vecDist < radius * radius )
+		{
+		    return true;
+		}
+
+		//If not, return false
+		return false;
 	}
  
 };
