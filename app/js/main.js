@@ -298,6 +298,8 @@ $(function()
 
 			// Add attribution handler
 			new AttributionHandler( globe, {element: 'attributions'});
+
+			new MeasureTool({ globe: globe, navigation: navigation } );
 			
 			// Initialize the name resolver
 			NameResolver.init(globe, navigation, data);
