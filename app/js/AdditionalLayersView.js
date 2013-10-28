@@ -326,7 +326,7 @@ function addView ( gwLayer, category )
 	if ( !categories[category] )
 	{
 		categoryId = Utils.formatId( category );
-		$('<div><h3>'+ category +'</h3>\
+		$('<div class="category"><h3>'+ category +'</h3>\
 			<div id="'+categoryId+'"></div></div>')
 				.insertBefore($('#otherLayers').parent());
 
@@ -400,7 +400,7 @@ function initToolbarEvents ()
 	});
 
 	// Delete layer event
-	$('#accordion').on("click",'.deleteLayer', function(){
+	$('.category').on("click",'.deleteLayer', function(){
 		
 		$(this).parent().parent().fadeOut(300, function(){
 			$(this).remove();
@@ -414,12 +414,12 @@ function initToolbarEvents ()
 	});
 
 	// Layer services
-	$('#accordion').on('click', ".layerServices", function(){
+	$('.category').on('click', ".layerServices", function(){
 		var layer = $(this).parent().parent().data("layer");
 		LayerServiceView.show( layer );
 	});
 
-	$('#accordion').on('click', ".exportLayer", function(){
+	$('.category').on('click', ".exportLayer", function(){
 
 		if ( Samp.isConnected() )
 		{
@@ -435,7 +435,7 @@ function initToolbarEvents ()
 	});
 	
 	// Download features on visible tiles as VO table
-	$('#accordion').on('click', '.downloadAsVO', function(){
+	$('.category').on('click', '.downloadAsVO', function(){
 		var layer = $(this).parent().parent().parent().data("layer");
 		var url = buildVisibleTilesUrl(layer);
 		url+="&media=votable";
@@ -446,7 +446,7 @@ function initToolbarEvents ()
 	});
 
 	// ZoomTo event (available for GlobWeb.VectorLayers only)
-	$('#accordion').on("click", ".zoomTo", function(){
+	$('.category').on("click", ".zoomTo", function(){
 
 		var layer = $(this).parent().parent().data("layer");
 		var sLon = 0;
@@ -464,7 +464,7 @@ function initToolbarEvents ()
 		navigation.zoomTo([sLon/nbGeometries, sLat/nbGeometries], 2., 2000);
 	});
 
-	$('#accordion').on('click', '.isFits', function(event){
+	$('.category').on('click', '.isFits', function(event){
 		var isFits = $(this).is(':checked');
 		var layer = $(this).parent().parent().data("layer");
 		layer.dataType = isFits ? 'fits' : 'jpg';
