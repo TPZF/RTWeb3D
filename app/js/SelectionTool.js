@@ -59,31 +59,52 @@ var SelectionTool = function(options)
 
 	var self = this;
 	var dragging = false;
-	var drawing = true;
+	var state;
 	
 	this.renderContext.canvas.addEventListener("mousedown", function(event){
 
 		var pickPoint = [event.clientX, event.clientY];
 		var geoPickPoint = globe.getLonLatFromPixel(event.clientX, event.clientY);
 
-		var pickIsInside = self.selectionFeature && Utils.pointInRing( geoPickPoint, self.selectionFeature.geometry.coordinates[0] );
-		if ( !self.activated && !pickIsInside )
+		if ( !self.activated && !self.selectionFeature )
 			return;
 
 		// Dragging : moving/resizing OR drawing selection
-		navigation.stop();
-		dragging = true;
-
 		if ( self.activated )
 		{
+			// Draw
+			navigation.stop();
+			dragging = true;
 			self.pickPoint = pickPoint;
 			self.geoPickPoint = geoPickPoint;
 			self.radius = 0.;
-			drawing = true;
+			state = "resize";
 		}
 		else
 		{
-			drawing = false;
+			var pickIsInside = Utils.pointInRing( geoPickPoint, self.selectionFeature.geometry.coordinates[0] );
+			if ( !pickIsInside )
+				return;
+
+			navigation.stop();
+			dragging = true;
+			// Resize/move
+			var inside = false;
+			// Check if user clicked on one of control points
+			for ( var i=0; i<self.selectionFeature.geometry.coordinates[0].length; i++ )
+			{
+				var controlPoint = self.selectionFeature.geometry.coordinates[0][i];
+				inside |= Utils.pointInSphere( geoPickPoint, controlPoint, 20 );
+			}
+
+			if ( inside )
+			{
+				state = "resize";
+			}
+			else
+			{
+				state = "move";
+			}
 		}
 	});
 
@@ -92,45 +113,19 @@ var SelectionTool = function(options)
 			return;
 
 		var geoPickPoint = globe.getLonLatFromPixel( event.clientX, event.clientY );
-		if ( drawing )
+		if ( state == "resize" )
 		{
 			// Update radius
 			self.radius = Math.sqrt( Math.pow(event.clientX - self.pickPoint[0], 2) + Math.pow(event.clientY - self.pickPoint[1], 2) );
 			self.computeGeoRadius( geoPickPoint );
 		}
-		else
+		else if ( state == "move" )
 		{
-			var inside = false;
+			// Update pick point position
+			self.pickPoint = [event.clientX, event.clientY];
+			self.geoPickPoint = globe.getLonLatFromPixel(event.clientX, event.clientY);
 
-			// Control point is more far from center than radius
-			// Check if user clicked on control point first
-			for ( var i=0; i<self.selectionFeature.geometry.coordinates[0].length; i++ )
-			{
-				var controlPoint = self.selectionFeature.geometry.coordinates[0][i];
-				inside |= Utils.pointInSphere( geoPickPoint, controlPoint, 20 );
-			}
-			
-			// Check if user is resizing selection tool
-			for ( var i=-Math.PI; i<=Math.PI; i+=0.1 )
-			{
-				var controlPoint = globe.getLonLatFromPixel( self.pickPoint[0] + self.radius*Math.cos(i), self.pickPoint[1] + self.radius*Math.sin(i) );
-				inside |= Utils.pointInSphere( geoPickPoint, controlPoint, 20 );	
-			}
-
-			if ( inside )
-			{
-				// Update radius
-				self.radius = Math.sqrt( Math.pow(event.clientX - self.pickPoint[0], 2) + Math.pow(event.clientY - self.pickPoint[1], 2) );
-				self.computeGeoRadius( geoPickPoint );
-			}
-			else
-			{
-				// Update pick point position
-				self.pickPoint = [event.clientX, event.clientY];
-				self.geoPickPoint = globe.getLonLatFromPixel(event.clientX, event.clientY);
-
-				// TODO: scale radius of selection shape if fov has been changed
-			}
+			// TODO: scale radius of selection shape if fov has been changed(or not?)
 		}
 		self.updateSelection();
 	});
@@ -163,7 +158,7 @@ SelectionTool.prototype.computeGeoRadius = function(pt)
 	// Find angle between start and stop vectors which is in fact the radius
 	var dotProduct = vec3.dot( CoordinateSystem.fromGeoTo3D(pt), CoordinateSystem.fromGeoTo3D(this.geoPickPoint) );
 	var theta = Math.acos(dotProduct);
-	self.geoRadius = Numeric.toDegree(theta);
+	this.geoRadius = Numeric.toDegree(theta);
 }
 
 /**********************************************************************************************/
