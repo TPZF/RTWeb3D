@@ -69,6 +69,18 @@ var CutOutView = function(element, selectionTool, pickingManager)
 			ErrorDialog.open('You must be connected to SAMP Hub');
 		}			
 	});
+
+	this.$content.on('click', '.deleteResult', function(event){
+		var jobId = $(this).parent().data('jobid');
+		UWSManager.delete( 'healpixcut', jobId, {
+			successCallback: function()
+			{
+				$(this).fadeOut(function(){
+					$(this).remove();
+				});
+			}
+		} );
+	});
 }
 
 /**************************************************************************************************************/
@@ -89,30 +101,40 @@ CutOutView.prototype.runJob = function()
 	};
 	var self = this;
 	UWSManager.post('cutout', parameters, {
-		successCallback: function(results)
+		successCallback: function(response, jobId)
 		{
 			self.showMessage('Completed');
-			for ( var x in results )
+			for ( var i=0; i<response.results.result.length; i++ )
 			{
-				var proxyIndex = x.search('file_id=');
+				var result = response.results.result[i];
+				var name = result['@id'];
+				var url =  result['@xlink:href'];
 
+				//Encode special caracters(at least '?')
+				if ( url.search("[?]") > 0 )
+				{
+					var lastSlash = url.lastIndexOf('/') + 1;
+					url = url.substr( 0, lastSlash ) + encodeURIComponent(name);
+				}
+
+				var proxyIndex = name.search('file_id=');
 				var shortName;
 				if ( proxyIndex >= 0 )
 				{
-					shortName = x.substr(proxyIndex+8);
+					shortName = name.substr(proxyIndex+8);
 				}
 				else
 				{
-					shortName = x;
+					shortName = name;
 				}
 				self.runButton.stopAnimation();
 
 				var result = {
 					name: shortName,
-					url: results[x]
+					url: url
 				};
 
-				var cutOutResult = cutResultTemplate({result: result});
+				var cutOutResult = cutResultTemplate({result: result, jobId: jobId});
 				$(cutOutResult)
 					.appendTo(self.$content.find('.cutoutResults').find('ul'))
 					.fadeIn(400);

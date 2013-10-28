@@ -66,6 +66,18 @@ return {
 				ErrorDialog.open('You must be connected to SAMP Hub');
 			}
 		});
+
+		$('#HEALPixCut').on('click', '.deleteResult', function(event){
+			var jobId = $(this).parent().data('jobid');
+			UWSManager.delete( 'healpixcut', jobId, {
+				successCallback: function()
+				{
+					$(this).fadeOut(function(){
+						$(this).remove();
+					})
+				}
+			} );
+		});
 		
 		$('#HEALPixCutBtn').button().click(function(event){
 			// Find RA/Dec of each corner of viewport
@@ -146,18 +158,18 @@ return {
 
 			$('#HEALPixCut').find('.status').html('Healpix cut is in progress, be patient, it may take some time.').fadeIn().css('display: inline-block');
 			UWSManager.post( 'healpixcut', parameters, {
-				successCallback: function( result )
+				successCallback: function( response, jobId )
 				{
 					var name = 'Viewport ( '+ astro[0] + ' x '+ astro[1] +' )'; 
 					var result = {
 						name: name,
-						url: result,
+						url: response.results.result[0]['@xlink:href'],
 						downloadName: name.replace('"','&quot;' ) + '.fits'
 					};
-					results.push( result );
+					results.push( response.result );
 
 					$('#HEALPixCut').find('.status').hide();
-					var healpixCutItem = healpixCutServiceItemTemplate({result: result});
+					var healpixCutItem = healpixCutServiceItemTemplate({result: result, jobId: jobId});
 					$(healpixCutItem)
 						.appendTo( $('#HEALPixCut').find('.HEALPixCutResults ul') ).fadeIn();
 				},

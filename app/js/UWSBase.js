@@ -34,18 +34,8 @@ var UWSBase = function(name, baseUrl, options)
 	this.onloadCallback = null;
 
 	this.checkFn = null; // Interval function
-	this.checkDelay = options && options.hasOwnProperty('checkDelay') ? options.checkDelay : 1000;
+	this.checkDelay = options && options.hasOwnProperty('checkDelay') ? options.checkDelay : 2000;
 	this.currentJob;
-}
-
-/**************************************************************************************************************/
-
-/**
- *	Method to override by inheritated classes
- */
-UWSBase.prototype.handleResults = function(response)
-{
-	return response.results;
 }
 
 /**************************************************************************************************************/
@@ -60,14 +50,10 @@ UWSBase.prototype.getJobResults = function()
 		type: "GET",
 		url: this.baseUrl + "/" + this.currentJob + '/results?media=json',
 		success: function(response, textStatus, xhr){
-			
-			var results = self.handleResults(response);
-
 			if ( self.successCallback )
-				self.successCallback(results);
+				self.successCallback(response, self.currentJob);
 		},
 		error: function(xhr, textStatus, thrownError){
-			window.clearInterval(self.checkFn);
 			if ( self.failCallback )
 				self.failCallback('Internal server error');
 		}
@@ -150,6 +136,40 @@ UWSBase.prototype.post = function(parameters, options)
 				window.clearInterval(self.checkFn);
 				if ( self.failCallback )
 					self.failCallback(self.name + ' service: ' + thrownError);
+				console.error( xhr.responseText );
+			}
+		});
+	}
+}
+
+/**************************************************************************************************************/
+
+/**
+ *	Send DELETE request to remove the results of the given job
+ */
+UWSBase.prototype.delete = function(jobId, options)
+{
+	var successCallback = options.successCallback;
+	var failCallback = options.failCallback;
+
+	if ( !this.baseUrl )
+	{
+		if ( this.failCallback )	
+			this.failCallback(this.name + ' service: baseUrl is undefined');
+		console.error(this.name + ' service baseUrl is undefined');
+	}
+	else
+	{
+		$.ajax({
+			type: "DELETE",
+			url: this.baseUrl + "/" + jobId,
+			success: function(response, textStatus, xhr){
+				if ( successCallback )
+					successCallback();
+			},
+			error: function (xhr, textStatus, thrownError) {
+				if ( failCallback )
+					failCallback(self.name + ' service: ' + thrownError);
 				console.error( xhr.responseText );
 			}
 		});

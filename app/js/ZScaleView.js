@@ -65,8 +65,10 @@ function runJob()
 	{
 		runButton.startAnimation();
 		ZScale.post(url, {
-			successCallback: function(z1, z2)
+			successCallback: function(response)
 			{
+				var z1 = parseFloat(response.results.result[0]['@xlink:href']);
+				var z2 = parseFloat(response.results.result[1]['@xlink:href']);
 				runButton.stopAnimation();
 				$('#z1').html("z1: "+z1);
 				$('#z2').html("z2: "+z2);

@@ -1,4 +1,5 @@
-<li class="cutResult" style="display: none;"><%= result.name %>:
+<li data-jobid="<%= jobId %>" class="cutResult" style="display: none;"><%= result.name %>:
 	<img data-url="<%= result.url %>" title="Export image by SAMP" class="sampExport" src="css/images/exportSamp.png" />
 	<a href="<%= result.url %>" download="<% (result.downloadName) ? print(result.downloadName) : print(result.name) %>"><img style="vertical-align: middle; width: 20px; height: 20px;" title="Download" src="css/images/download1.png"></a>
+	<img title="Delete result" class="deleteResult" src="css/images/delete.png" />
 </li>

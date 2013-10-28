@@ -162,14 +162,16 @@ var DynamicImageView = function(element, options)
 
 			zScaleButton.startAnimation();
 			UWSManager.post('zscale', params, {
-				successCallback: function(result)
+				successCallback: function(response)
 				{
 					zScaleButton.stopAnimation();
+					var z1 = parseFloat(response.results.result[0]['@xlink:href']);
+					var z2 = parseFloat(response.results.result[1]['@xlink:href']);
 
-					self.$element.find( "#min" ).val( result.z1 ).animate({ color: '#6BCAFF', 'border-color': '#6BCAFF' }, 300, function(){
+					self.$element.find( "#min" ).val( z1 ).animate({ color: '#6BCAFF', 'border-color': '#6BCAFF' }, 300, function(){
 						$(this).animate({color: '#F8A102', 'border-color': 'transparent'});
 					});
-					self.$element.find( "#max" ).val( result.z2 ).animate({ color: '#6BCAFF', 'border-color': '#6BCAFF' }, 300, function(){
+					self.$element.find( "#max" ).val( z2 ).animate({ color: '#6BCAFF', 'border-color': '#6BCAFF' }, 300, function(){
 						$(this).animate({color: '#F8A102', 'border-color': 'transparent'});
 					});
 

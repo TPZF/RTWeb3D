@@ -21,8 +21,8 @@
  * UWS Manager
  */
 
-define( [ "jquery.ui", "CutOut", "HEALPixCut", "ZScale" ],
-	function($, CutOut, HEALPixCut, ZScale) {
+define( [ "jquery.ui", "UWSBase" ],
+	function($, UWSBase) {
 
 var cutOutService;
 var zScaleService;
@@ -33,17 +33,17 @@ return {
  	{
  		if ( conf.cutOut )
  		{
- 			cutOutService = new CutOut( 'CutOut', conf.cutOut.baseUrl );
+ 			cutOutService = new UWSBase( 'CutOut', conf.cutOut.baseUrl );
  		}
 
  		if ( conf.healpixcut )
  		{
- 			healpixCutService = new HEALPixCut( 'HealpixCut', conf.healpixcut.baseUrl );
+ 			healpixCutService = new UWSBase( 'HealpixCut', conf.healpixcut.baseUrl );
  		}
 
  		if ( conf.zScale )
  		{
- 			zScaleService = new ZScale( 'ZScale', conf.zScale.baseUrl );
+ 			zScaleService = new UWSBase( 'ZScale', conf.zScale.baseUrl );
  		}
  	},
 
@@ -59,6 +59,24 @@ return {
  				break;
  			case "zscale":
  				zScaleService.post(params, options);
+ 				break;
+ 			default:
+ 				console.error("Not supported");
+ 		}
+ 	},
+
+ 	delete: function(serviceName, jobId, options)
+ 	{
+ 		switch(serviceName)
+ 		{
+ 			case "cutout":
+ 				cutOutService.delete(jobId, options)
+ 				break;
+ 			case "healpixcut":
+ 				healpixCutService.delete(jobId, options);
+ 				break;
+ 			case "zscale":
+ 				zScaleService.delete(jobId, options);
  				break;
  			default:
  				console.error("Not supported");

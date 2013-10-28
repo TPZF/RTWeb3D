@@ -311,7 +311,7 @@
 
 /*** CutOut & HEALPixCut ***/
 
-.cutResult .sampExport
+.cutResult .sampExport, .cutResult .deleteResult
 {
 	cursor: pointer;
 	vertical-align: middle;
