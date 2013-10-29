@@ -45,7 +45,11 @@ function enableImageUI(layer)
 {
 	$('#loadedImages').find('.imageLayers div[id="imageLayer_'+layer.id+'"] ul')
 		.find('button, input').each(function(){
-			$(this).removeAttr('disabled').button('refresh');
+			// Don't enable image processing for not fits files
+			if ( !$(this).hasClass('fitsUnavailable') )
+			{
+				$(this).removeAttr('disabled').button('refresh');
+			}
 		})
 }
 
@@ -64,13 +68,13 @@ function createLayerView(layer)
 	});
 
 	// Slide loaded images for current layer onclick
-	$layer.on('click', 'label.layerName', function(){
+	$layer.find('label.layerName').click(function(){
 		$("#imageLayer_"+layer.id+ " > ul").slideToggle();
 	});
 
 	// Layer visibility management
 	var $layerVisibility = $('#layerVisibility_'+layer.id);
-	$('.canvas').on('click', '#layerVisibility_'+layer.id, function(){
+	$('#layerVisibility_'+layer.id).click(function(){
 
 		var isChecked = ($layerVisibility.button('option', 'icons').primary == "ui-icon-check");
 		if ( $('#visible_'+layer.id ).hasClass('ui-state-active') == isChecked )
@@ -175,7 +179,7 @@ return {
 		if ( $layer.find('ul li[id="'+id+'"]').length == 0 )
 		{
 			// Create only if not already added
-			var imageViewerItemContent = imageViewerImageItemTemplate( { id: id, name: name });
+			var imageViewerItemContent = imageViewerImageItemTemplate( { id: id, name: name, isFits: isFits });
 			$li = $(imageViewerItemContent)
 				.appendTo($layer.find('ul'))
 				// ZoomTo
@@ -187,7 +191,7 @@ return {
 				}).on('click', function(){
 
 					var barycenter = Utils.computeGeometryBarycenter( feature.geometry );
-						navigation.zoomTo([barycenter[0], barycenter[1]], 0.1, 2000, function(){
+					navigation.zoomTo([barycenter[0], barycenter[1]], 0.1, 2000, function(){
 						// Update selection
 						pickingManager.focusFeature(selectedData);
 					});

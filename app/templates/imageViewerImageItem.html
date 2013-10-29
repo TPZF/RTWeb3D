@@ -4,7 +4,7 @@
 	<label class="imageName" title="<%= name %>"><%= name %></label>
 	<div style="display: none;" class="options">
 		<button class="zoomTo">Zoom to..</button>
-		<button class="imageProcessing" id="imageProcessing_<%= id %>">Image processing</button>
+		<button class="<% if (!isFits) print('fitsUnavailable') %> imageProcessing" id="imageProcessing_<%= id %>">Image processing</button>
 		<button class="sampExport">Send image by SAMP</button>
 		<button class="metadata">Show metadata</button>
 		<button class="delete">Delete</button>
