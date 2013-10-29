@@ -189,7 +189,7 @@
 	padding: 3px;
 }
 
-#services a, #services img, #services span
+#services img, #services span
 {
 	padding: 4px;
 }
@@ -201,9 +201,8 @@
 
 #solarObjectsSpinner
 {
-	float: left;
-	left: 345px;
-	top: 363px;
+	top: -10px;
+	right: -10px;
 	width: 15px;
 	position: absolute;
 	display: inline-block;

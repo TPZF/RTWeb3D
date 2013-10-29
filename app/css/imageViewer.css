@@ -75,7 +75,7 @@
 #loadedImages .layerName
 {
 	width: 85%;
-	vertical-align: middle;
+	vertical-align: bottom;
 	text-overflow: ellipsis;
 	overflow-x: hidden;
 	display: inline-block;
@@ -94,7 +94,6 @@
 	text-overflow: ellipsis;
 	overflow-x: hidden;
 	display: inline-block;
-	vertical-aligh: middle;
 	position: relative;
 	z-index: 3;
 }

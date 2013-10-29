@@ -28,8 +28,10 @@
 						var fitsQuicklookOn = properties.style.fill && !properties.style.fillTextureUrl;
 						%>
 						<img title="Fits quicklook" id='quicklookFits' src="css/images/quicklook_fits.png" class=<%= (fitsQuicklookOn ? 'selected' : '' ) %> />
-						<img title="Solar object service" id="solarObjects" src="css/images/solarObjectsService.png" class=<%= (services.solarObjects && services.solarObjects.layer.visible() ? 'selected' : '' ) %> />
-						<img style="display: none" id="solarObjectsSpinner" src="css/images/loading.gif" />
+						<span style="display: inline-block; position: relative;">
+							<img title="Solar object service" id="solarObjects" src="css/images/solarObjectsService.png" class=<%= (services.solarObjects && services.solarObjects.layer.visible() ? 'selected' : '' ) %> />
+							<img style="display: none" id="solarObjectsSpinner" src="css/images/loading.gif" />
+						</span>
 						<span title="Image processing" id="dynamicImageView" class='dynamicAvailable' />
 						<img title="Export image by SAMP" id="sendImage" src="css/images/exportSamp.png" />
 					<%
