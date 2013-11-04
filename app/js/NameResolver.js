@@ -89,7 +89,7 @@ function setSearchBehavior()
 		objectName = objectName.replace(/\s{2,}/g, ' '); // Replace multiple spaces by a single one
 		var coordinatesExp = new RegExp("\\d{1,2}[h|:]\\d{1,2}[m|:]\\d{1,2}([\\.]\\d+)?s?\\s[-+]?[\\d]+[°|:]\\d{1,2}['|:]\\d{1,2}([\\.]\\d+)?\"?", "g");
 		var healpixRE = /^healpix\((\d)+,(\d+)\)/;
-		var degRE = /^(\d+(\.\d+)?)\s(-?\d+(\.\d+)?)/;
+		var degRE = /^(\d+(\.\d+)?),?\s(-?\d+(\.\d+)?)/;
 		var matchHealpix = healpixRE.exec(objectName);
 		var matchDegree = degRE.exec(objectName);
 		if ( matchHealpix ) 

@@ -90,62 +90,69 @@ var CutOutView = function(element, selectionTool, pickingManager)
  */
 CutOutView.prototype.runJob = function()
 {	
-	this.runButton.startAnimation();
+	if ( this.selectionTool.selectionFeature )
+	{
+		this.runButton.startAnimation();
 
-	var parameters = {
-		PHASE: "RUN",
-		uri: this.url,
-		ra: this.selectionTool.geoPickPoint[0],
-		dec: this.selectionTool.geoPickPoint[1],
-		radius: this.selectionTool.geoRadius
-	};
-	var self = this;
-	UWSManager.post('cutout', parameters, {
-		successCallback: function(response, jobId)
-		{
-			self.showMessage('Completed');
-			for ( var i=0; i<response.results.result.length; i++ )
+		var parameters = {
+			PHASE: "RUN",
+			uri: this.url,
+			ra: this.selectionTool.geoPickPoint[0],
+			dec: this.selectionTool.geoPickPoint[1],
+			radius: this.selectionTool.geoRadius
+		};
+		var self = this;
+		UWSManager.post('cutout', parameters, {
+			successCallback: function(response, jobId)
 			{
-				var result = response.results.result[i];
-				var name = result['@id'];
-				var url =  result['@xlink:href'];
+				self.showMessage('Completed');
+				for ( var i=0; i<response.results.result.length; i++ )
+				{
+					var result = response.results.result[i];
+					var name = result['@id'];
+					var url =  result['@xlink:href'];
 
-				//Encode special caracters(at least '?')
-				if ( url.search("[?]") > 0 )
-				{
-					var lastSlash = url.lastIndexOf('/') + 1;
-					url = url.substr( 0, lastSlash ) + encodeURIComponent(name);
-				}
+					//Encode special caracters(at least '?')
+					if ( url.search("[?]") > 0 )
+					{
+						var lastSlash = url.lastIndexOf('/') + 1;
+						url = url.substr( 0, lastSlash ) + encodeURIComponent(name);
+					}
 
-				var proxyIndex = name.search('file_id=');
-				var shortName;
-				if ( proxyIndex >= 0 )
-				{
-					shortName = name.substr(proxyIndex+8);
+					var proxyIndex = name.search('file_id=');
+					var shortName;
+					if ( proxyIndex >= 0 )
+					{
+						shortName = name.substr(proxyIndex+8);
+					}
+					else
+					{
+						shortName = name;
+					}
+					self.runButton.stopAnimation();
+
+					var result = {
+						name: shortName,
+						url: url
+					};
+
+					var cutOutResult = cutResultTemplate({result: result, jobId: jobId});
+					$(cutOutResult)
+						.appendTo(self.$content.find('.cutoutResults').find('ul'))
+						.fadeIn(400);
 				}
-				else
-				{
-					shortName = name;
-				}
+			},
+			failCallback: function(error)
+			{
 				self.runButton.stopAnimation();
-
-				var result = {
-					name: shortName,
-					url: url
-				};
-
-				var cutOutResult = cutResultTemplate({result: result, jobId: jobId});
-				$(cutOutResult)
-					.appendTo(self.$content.find('.cutoutResults').find('ul'))
-					.fadeIn(400);
+				self.showMessage(error);
 			}
-		},
-		failCallback: function(error)
-		{
-			self.runButton.stopAnimation();
-			self.showMessage(error);
-		}
-	});
+		});
+	}
+	else
+	{
+		this.showMessage('Please, select area to cut');
+	}
 }
 
 /**************************************************************************************************************/
