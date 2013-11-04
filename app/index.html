@@ -13,6 +13,22 @@
 
 <body>
 	
+	<div id="webGLNotAvailable">
+		If you see this message, WebGL is not supported in your browser.<br>
+		Please install a recent version of <a href="http://www.mozilla.com">Firefox</a> or <a href="http://www.google.com/chrome">Google Chrome</a>.<br>
+		If you already have a recent version of Firefox or Google Chrome, your graphics driver are too old, please update it.<br>
+		On Google Chrome, you can check why it is not working by entering "about:gpu" in the url bar.
+	</div>
+
+	<div id="webGLContextLost">
+		If you see this message, WebGL context was lost.<br>
+		Please re-launch your browser. We are working on restoring without relaunching.
+	</div>
+
+	<div id="loading">
+		<img src="css/images/loading.gif" />
+	</div>
+
 	<div class="canvas">
 	
 		<div class="sidebar">
@@ -88,21 +104,6 @@
 				</div>
 				
 			</div>
-
-		</div>
-		
-		<!-- <img src="images/logos.png" id="telespazio"></img> -->
-		
-		<div id="webGLNotAvailable">
-			If you see this message, WebGL is not supported in your browser.<br>
-			Please install a recent version of <a href="http://www.mozilla.com">Firefox</a> or <a href="http://www.google.com/chrome">Google Chrome</a>.<br>
-			If you already have a recent version of Firefox or Google Chrome, your graphics driver are too old, please update it.<br>
-			On Google Chrome, you can check why it is not working by entering "about:gpu" in the url bar.
-		</div>
-
-		<div id="webGLContextLost">
-			If you see this message, WebGL context was lost.<br>
-			Please re-launch your browser. We are working on restoring without relaunching.
 		</div>
 		
 		<!-- Left-Bottom-section -->
@@ -133,11 +134,6 @@
 				</div> -->
 			</div>
 			<div id="fps" class="statBox ui-widget">FPS : 0</div>	
-		</div>
-		
-		
-		<div id="loading">
-			<img src="css/images/loading.gif" />
 		</div>
 		
 		<div class="noSelect" id="attributions"></div>

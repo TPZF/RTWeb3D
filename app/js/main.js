@@ -343,14 +343,16 @@ $(function()
 		}
 	});
 	
-	// For debug
-	// document.addEventListener("keydown", function(event){
-	// 	if ( event.keyCode == 32 )
-	// 	{
-	// 		// Space
-	// 		globe.tileManager.freeze = !globe.tileManager.freeze;
-	// 	}
-	// });
+	// Fullscreen mode
+	document.addEventListener("keydown", function(event){
+		// Ctrl + Space
+		if ( event.ctrlKey == true && event.keyCode == 32 )
+		{
+			$('.canvas > canvas').siblings().each(function(){
+				$(this).fadeToggle();
+			});
+		}
+	});
 	
 	/*** Refactor into common ? ***/
 	// Fade hover styled image effect
