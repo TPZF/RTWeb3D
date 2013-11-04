@@ -21,8 +21,8 @@
  * Tool designed to select areas on globe
  */
 
-define( [ "jquery.ui", "gw/VectorLayer", "gw/Numeric", "gw/CoordinateSystem", "Utils", "gw/glMatrix" ],
-	function($, VectorLayer, Numeric, CoordinateSystem, Utils){
+define( [ "jquery.ui", "gw/VectorLayer", "gw/FeatureStyle", "gw/Numeric", "gw/CoordinateSystem", "Utils", "gw/glMatrix" ],
+	function($, VectorLayer, FeatureStyle, Numeric, CoordinateSystem, Utils){
 
 
 
@@ -33,6 +33,7 @@ define( [ "jquery.ui", "gw/VectorLayer", "gw/Numeric", "gw/CoordinateSystem", "U
  *			<li>globe: Globe</li>
  *			<li>navigation: Navigation</li>
  *			<li>onselect: On selection callback</li>
+ *			<li>style: Selection tool style</li>
  *		</ul>
  */
 var SelectionTool = function(options)
@@ -45,8 +46,22 @@ var SelectionTool = function(options)
 	this.activated = false;
 	this.renderContext = globe.renderContext;
 
+	// Set style
+	var style;
+	if ( options && options['style'] )
+	{
+		style = options['style'];
+	}
+	else
+	{
+		style = new FeatureStyle();
+	}
+	style.zIndex = 2;
+
 	// Layer containing selection feature
-	this.selectionLayer = new VectorLayer();
+	this.selectionLayer = new VectorLayer({
+		style: style
+	});
 	globe.addLayer(this.selectionLayer);
 	
 	this.selectionFeature = null;

@@ -11,6 +11,7 @@
 		// "initTarget": [4.3500, 3.0794], //Asteroides
 		// "initTarget": [84.7625, -69.1689], //Doradus
 		// "initTarget": [258.5167, -12.9106], // OS/Samp bug
+		//"initTarget": [199.87550000000002, -12.743169444444444], // Footprint
 		"initTarget": [1.0, 89.0], // Polaris
 		"initFov": 1,
 		"inertia": true,
@@ -306,7 +307,7 @@
 			"name": "Herschel (OpenSearch)",
 			"serviceUrl": "/sitools/oherschel",
 			"visible": false,
-			"minOrder": 3,
+			"minOrder": 2,
 			"availableServices": [ "OpenSearch", "Moc", "XMatch" ]
 		},
 		/**
@@ -323,7 +324,7 @@
 			"name": "Fuse (OpenSearch)",
 			"serviceUrl": "/sitools/ofuse",
 			"visible": false,
-			"minOrder": 3,
+			"minOrder": 2,
 			"accuracyOrder" : 10,
 			"color": "#FFCC11",
 			"displayProperties": [ "ra", "dec", "src_type", "dateobs", "imageSize" ],
@@ -344,7 +345,7 @@
 			"serviceUrl": "/sitools/eso/siap",
 			"visible": false,
             "attribution":"Science Archive Facility of ESO",
-			"minOrder": 3,
+			"minOrder": 2,
 			"invertY": true
 		},
 		/**
@@ -360,7 +361,7 @@
 			"name": "HST",
 			"serviceUrl": "/sitools/sia",
 			"visible": false,
-			"minOrder": 3
+			"minOrder": 2
 		},
 		/**
 		 *	OpenSearch Sia ISO layer
@@ -375,7 +376,7 @@
 			"name": "Iso",
 			"serviceUrl": "/sitools/iso",
 			"visible": false,
-			"minOrder": 3,
+			"minOrder": 2,
 			"availableServices": [ "Moc", "XMatch" ]
 		},
 		/**

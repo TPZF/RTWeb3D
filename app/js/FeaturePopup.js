@@ -337,8 +337,8 @@ return {
 			{
 				// Create solar object layer
 				var defaultVectorStyle = new FeatureStyle({ 
-					rendererHint: "Basic", 
-					iconUrl: "css/images/star.png"
+					iconUrl: "css/images/star.png",
+					zIndex: 2
 				});
 
 				var options = {
@@ -498,6 +498,13 @@ return {
 		computeDivPosition(x,y);
 		$selectedFeatureDiv.fadeIn(500, function() {
 			$selectedFeatureDiv.find('.featureProperties').getNiceScroll().resize();
+
+			var $leftDiv = $('#leftDiv');
+			var popupMaxHeight = 300;
+			if ( $leftDiv.find('#featureList').height() > popupMaxHeight )
+			{
+				$leftDiv.find('.scroll-arrow-up, .scroll-arrow-down').css('display', 'block');
+			}
 			if (callback) callback();
 		});
 	},
@@ -510,10 +517,7 @@ return {
 	 * 	@param {<GlobWeb.Feature>[]} seleciton Array of features
 	 */
 	createFeatureList: function(selection){
-		// maxSelectedFeatures = 10
-		var arrowVisibility = (selection.length > 10);
-
-		featureListHTML = featureListTemplate( { selection: selection, arrowVisibility: arrowVisibility });
+		featureListHTML = featureListTemplate( { selection: selection });
 		$('#leftDiv').html( featureListHTML );
 	},
 
@@ -550,7 +554,7 @@ return {
 	generateFeatureMetadata: function( layer, feature )
 	{
 		return featureDescriptionTemplate( {
-			dictionary: layer.dictionary,
+			dictionary: layer.hasOwnProperty('dictionary') ? layer.dictionary : createDictionary(layer, feature.properties),
 			services : false,
 			properties: buildProperties(feature.properties, layer.displayProperties),
 			descriptionTableTemplate: descriptionTableTemplate

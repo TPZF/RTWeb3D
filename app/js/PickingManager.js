@@ -29,7 +29,11 @@ var self;
 
 var selection = [];
 var stackSelectionIndex = -1;
-var selectedStyle = new FeatureStyle( { strokeColor: [1., 1., 0., 1.], fillColor: [1., 1., 0., 1.] } );
+var selectedStyle = new FeatureStyle( {
+	strokeColor: [1., 1., 0., 1.],
+	fillColor: [1., 1., 0., 1.],
+	zIndex: 1
+} );
 var pickableLayers = [];
 var selectedTile = null;
 
@@ -122,7 +126,7 @@ function activate()
 
 	// Hide popup and blur selection when pan/zoom or animation
 	navigation.subscribe("modified", function() { 
-		blurSelection();
+		clearSelection();
 		FeaturePopup.hide();
 	});
 }
@@ -139,7 +143,7 @@ function deactivate()
 	
 	// Hide popup and blur selection when pan/zoom or animation
 	navigation.unsubscribe("modified", function() { 
-		blurSelection();
+		clearSelection();
 		FeaturePopup.hide();
 	});
 }
@@ -166,6 +170,8 @@ function blurSelection()
 			default:
 				break;
 		}
+		style.zIndex = selectedData.layer.style.zIndex;
+
 		if ( selectedData.layer.globe )
 		{
 			// Layer is still attached to globe
@@ -206,6 +212,7 @@ function focusSelection(newSelection)
 			default:
 				break;
 		}
+		style.zIndex = selectedStyle.zIndex;
 		selectedData.layer.modifyFeatureStyle( selectedData.feature, style );
 	}
 }
@@ -333,14 +340,14 @@ function computePickSelection( pickPoint )
 								var point = feature['geometry']['coordinates'];
 								if ( feature.cluster )
 								{
-									if ( Utils.pointInSphere( pickPoint, point, pickableLayer.clusterBucket.textureHeight ) )
+									if ( Utils.pointInSphere( pickPoint, point, feature['geometry']._bucket.textureHeight ) )
 									{
 										newSelection.push( { feature: feature, layer: pickableLayer } );
 									}
 								}
 								else
 								{
-									if ( Utils.pointInSphere( pickPoint, point, pickableLayer.pointBucket.textureHeight ) )
+									if ( Utils.pointInSphere( pickPoint, point, feature['geometry']._bucket.textureHeight ) )
 									{
 										newSelection.push( { feature: feature, layer: pickableLayer } );
 									}
@@ -379,7 +386,7 @@ function computePickSelection( pickPoint )
 							}
 							break;
 						case "Point":
-							if ( Utils.pointInSphere( pickPoint, feature['geometry']['coordinates'], 10 ) )
+							if ( Utils.pointInSphere( pickPoint, feature['geometry']['coordinates'], feature['geometry']._bucket.textureHeight ) )
 							{
 								newSelection.push( { feature: feature, layer: pickableLayer } );
 							}
@@ -459,6 +466,7 @@ return {
 				default:
 					break;
 			}
+			style.zIndex = selectedData.layer.style.zIndex;
 			selectedData.layer.modifyFeatureStyle( selectedData.feature, style );
 		}
 	},
@@ -490,6 +498,7 @@ return {
 				default:
 					break;
 			}
+			style.zIndex = selectedStyle.zIndex;
 			selectedData.layer.modifyFeatureStyle( selectedData.feature, style );
 		}
 	},

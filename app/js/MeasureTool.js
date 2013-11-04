@@ -114,9 +114,9 @@ var MeasureTool = function(options)
 
 	// TODO : change UI
 	document.addEventListener("keydown", function(event){
-		if ( event.keyCode == 77 )
+		if ( event.ctrlKey == true && event.keyCode == 77 )
 		{
-			// M
+			// Ctrl+M
 			self.toggle();
 		}
 	});	
@@ -264,7 +264,11 @@ MeasureTool.prototype.updateMeasure = function()
 			coordinates: geoCenter
 		},
 		properties: {
-			style: new FeatureStyle({ label: this.geoDistance, fillColor: [1.,1.,1.,1.] })
+			style: new FeatureStyle({
+				label: CoordinateSystem.fromDegreesToDMS(this.geoDistance),
+				fillColor: [1.,1.,1.,1.],
+				zIndex: 2
+			})
 		}
 	};
 	

@@ -52,8 +52,6 @@ var MocLayer = function(options)
 		this.style = new FeatureStyle();
 	}
 
-	this.polygonRenderer = null;
-	this.polygonBucket = null;
 	this.featuresSet = null;
 }
 
@@ -71,9 +69,6 @@ Utils.inherits( BaseLayer, MocLayer );
 MocLayer.prototype._attach = function( g )
 {
 	BaseLayer.prototype._attach.call( this, g );
-	
-	this.polygonRenderer = this.globe.vectorRendererManager.getRenderer("ConvexPolygon"); 
-	this.polygonBucket = this.polygonRenderer.getOrCreateBucket( this, this.style );
 
 	var self = this;
 	$.ajax({
@@ -84,7 +79,6 @@ MocLayer.prototype._attach = function( g )
 				self.handleDistribution(response);
 		},
 		error: function (xhr, ajaxOptions, thrownError) {
-			// TODO publish event ?
 			$('#addLayer_'+self.id).find('label').css("color","red");
 			console.error( xhr.responseText );
 		}
@@ -106,7 +100,7 @@ MocLayer.prototype.generate = function(tile)
 		var geometries = this.featuresSet[tile.pixelIndex];
 		for ( var i=0; i<geometries.length; i++ )
 		{
-			this.polygonRenderer.addGeometryToTile( this.polygonBucket, geometries[i], tile );
+			this.globe.vectorRendererManager.addGeometryToTile( this, geometries[i], this.style, tile );
 		}
 	}
 }
@@ -133,12 +127,10 @@ MocLayer.prototype._detach = function()
 		var tile = this.globe.tileManager.level0Tiles[tileIndex];
 		for ( var i=0; i<this.featuresSet[tileIndex].length; i++ )
 		{
-			this.polygonRenderer.removeGeometryFromTile(this.featuresSet[tileIndex][i], tile);
+			this.globe.vectorRendererManager.removeGeometryFromTile(this.featuresSet[tileIndex][i], tile);
 		}
 	}
 	this.featuresSet = null;
-	this.polygonRenderer = null;
-	this.polygonBucket = null;
 	this.globe.tileManager.removePostRenderer(this);
 
 	BaseLayer.prototype._detach.call(this);
@@ -249,11 +241,11 @@ MocLayer.prototype.handleDistribution = function(response)
 					if ( u == 0 )
 					{
 						// Invert to clockwise sense
-						geometry.coordinates[0][2*u*size +(size-1)-v] = geo;
+						geometry.coordinates[0][2*u*size +(size-1)-v] = [ geo[0], geo[1] ];
 					}
 					else
 					{
-						geometry.coordinates[0][2*u*size +v] = geo;
+						geometry.coordinates[0][2*u*size +v] = [ geo[0], geo[1] ];
 					}
 				}
 			}
@@ -266,11 +258,11 @@ MocLayer.prototype.handleDistribution = function(response)
 					if ( v==1 )
 					{
 						// Invert to clockwise sense
-						geometry.coordinates[0][size + 2*v*size +(size-1)-u] = geo;
+						geometry.coordinates[0][size + 2*v*size +(size-1)-u] = [ geo[0], geo[1] ];
 					}
 					else
 					{
-						geometry.coordinates[0][size + 2*v*size +u] = geo;
+						geometry.coordinates[0][size + 2*v*size +u] = [ geo[0], geo[1] ];
 					}	
 				}
 			}
@@ -283,8 +275,7 @@ MocLayer.prototype.handleDistribution = function(response)
 			}
 
 			this.featuresSet[parentIndex].push(geometry);
-
-			this.polygonRenderer.addGeometryToTile( this.polygonBucket, geometry, parentTile );
+			this.globe.vectorRendererManager.addGeometryToTile( this, geometry, this.style, parentTile );
 		}
 	}
 }

@@ -97,7 +97,15 @@ function setData(selectedData)
     
     feature = selectedData.feature;
 	layer = selectedData.layer;
-    cutOutElement.setUrl(selectedData.feature.services.download.url);
+
+	if ( selectedData.feature.services )
+	{
+    	cutOutElement.setUrl(selectedData.feature.services.download.url);
+    }
+	else
+	{
+		// TODO : disable cutOutElement if feature's url isn't defined
+	}
 
     var image = selectedData.feature.properties.style.uniformValues;
 	if ( !image )
@@ -214,7 +222,11 @@ return {
 	setImage: function(image)
 	{
 		histogramElement.setImage(image);
-		cutOutElement.setUrl(image.url);
+		if ( image.url )
+		{
+			cutOutElement.setUrl(image.url);
+		}
+		
 		$dialog.find('.histogramContent').children('p').fadeOut(function(){
 			$(this).siblings('div').fadeIn();
 		});

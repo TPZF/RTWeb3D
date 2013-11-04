@@ -153,6 +153,19 @@ return {
 								coords[j][0] -= 360;
 						}
 					}
+					
+					if ( currentFeature.properties._imageCoordinates )
+					{
+						// Set _imageCoordinates as geometry's property (may be modified later)
+						for ( var r=0; r<currentFeature.properties._imageCoordinates[0].length; r++ )
+						{
+							// Convert to geographic representation
+							if ( currentFeature.properties._imageCoordinates[0][r][0] > 180 )
+								currentFeature.properties._imageCoordinates[0][r][0] -= 360;
+							
+						}
+						currentFeature.geometry._imageCoordinates = currentFeature.properties._imageCoordinates;
+					}
 
 					break;
 				default:
