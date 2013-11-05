@@ -431,7 +431,7 @@
 			"serviceUrl": "/sitools/solar",
 			"minOrder": 7,
 			"availableServices": [ "Moc", "XMatch" ]
-		}
+		},
 		/**
 		 *	OpenSearch ConeSearch exoplanet layer
 		 *

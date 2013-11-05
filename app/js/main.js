@@ -243,7 +243,7 @@ $(function()
 			}
 			catch (e) {
 				ErrorDialog.open("Configuration parsing error<br/> For more details see http://jsonlint.com/.");
-				console.error(data);
+				console.error(e.message);
 				return false;
 			}
 
