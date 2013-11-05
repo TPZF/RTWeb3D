@@ -34,73 +34,92 @@ var iframe =
 		</div>\
 		<iframe src=""><p>Your browser does not support iframes.</p></iframe>\
 	</div>';
-var $iframeDiv = $(iframe).appendTo('body');
+	
+/**
+ * Private variables for the module
+ */
+var $iframeDiv;
+var history;
 
-var history = {
-	pile : [],
-	index: 0,
-	clicked: false,
-	clean: function()
-	{
-		this.pile.length = 0;
-		this.index = 0;
-		this.clicked = false;
-	}
+/**
+ * Init the module
+ */
+function _init() {
+	// Create the frame div and append it to the page
+	$iframeDiv = $(iframe).appendTo('body');
+
+	// Create the object to manage history
+	history = {
+		pile : [],
+		index: 0,
+		clicked: false,
+		clean: function()
+		{
+			this.pile.length = 0;
+			this.index = 0;
+			this.clicked = false;
+		}
+	};
+
+	$( "#previous" ).button({
+		width: 20,
+		height: 20,
+		text: false,
+		icons: {
+			primary: "ui-icon-circle-triangle-w"
+		}
+	}).click(function(event){
+		event.preventDefault();
+		//console.log('prev : '+history.index);
+		if ( history.index > 1 )
+		{
+			history.index--;
+			history.clicked = true;
+			$iframeDiv.find('iframe')[0].contentWindow.history.back();
+		}
+	});
+
+	$( "#next" ).button({
+		width: 20,
+		height: 20,
+		text: false,
+		icons: {
+			secondary: "ui-icon-circle-triangle-e"
+		}
+	}).click(function(event){
+		event.preventDefault();
+		//console.log('next : '+history.index);
+		if ( history.index != history.pile.length )
+		{
+			history.index++;
+			history.clicked = true;
+			$iframeDiv.find('iframe')[0].contentWindow.history.forward();
+		}
+	});
+
+	$iframeDiv.find('iframe').on('load', function(){
+		//console.log('onLoad : clicked: '+history.clicked+'index : '+history.index);
+		if ( history.clicked )
+		{
+			history.clicked = false;
+			return false;
+		}
+		
+		// Update history
+		history.pile.splice(history.index);
+		history.pile.push($iframeDiv.find('iframe')[0].attributes.src.nodeValue);
+		history.index++;
+	});
 };
 
-$( "#previous" ).button({
-	width: 20,
-	height: 20,
-	text: false,
-	icons: {
-    	primary: "ui-icon-circle-triangle-w"
-	}
-}).click(function(event){
-	event.preventDefault();
-	console.log('prev : '+history.index);
-	if ( history.index > 1 )
-	{
-		history.index--;
-		history.clicked = true;
-		$iframeDiv.find('iframe')[0].contentWindow.history.back();
-	}
-});
-
-$( "#next" ).button({
-	width: 20,
-	height: 20,
-	text: false,
-	icons: {
-		secondary: "ui-icon-circle-triangle-e"
-	}
-}).click(function(event){
-	event.preventDefault();
-	console.log('next : '+history.index);
-	if ( history.index != history.pile.length )
-	{
-		history.index++;
-		history.clicked = true;
-		$iframeDiv.find('iframe')[0].contentWindow.history.forward();
-	}
-});
-
-$iframeDiv.find('iframe').on('load', function(){
-	console.log('onLoad : clicked: '+history.clicked+'index : '+history.index);
-	if ( history.clicked )
-	{
-		history.clicked = false;
-		return false;
-	}
-	
-	// Update history
-	history.pile.splice(history.index);
-	history.pile.push($iframeDiv.find('iframe')[0].attributes.src.nodeValue);
-	history.index++;
-});
-
 return {
-	hide: function(){
-		$iframeDiv.animate({top: -1000}, 800);
+	/**
+	 *	Hide iframe
+	 */
+	hide: function() {
+		if ($iframeDiv) {
+			$iframeDiv.animate({top: -1000}, 800);
+		}
 	},
 
 	/**
@@ -109,6 +128,11 @@ return {
 	 *	@param html External link url
 	 */
 	show: function( html ){
+	
+		if (!$iframeDiv) {
+			_init();
+		}
+		
 		history.clean();
 		historyClick = false;
 		var canvasWidth = parseInt( $('#GlobWebCanvas').css("width") );
