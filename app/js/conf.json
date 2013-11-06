@@ -32,6 +32,9 @@
 	"solarObjects": {
 		"baseUrl": "/sitools/mizar/plugin/solarObjects/"
 	},
+	"votable2geojson": {
+		"baseUrl": "/sitools/mizar/plugin/votable2geojson/"
+	},
 	"cutOut": {
 		"baseUrl": "/sitools/cutout"
 	},
@@ -108,15 +111,6 @@
 			"color": "red",
 			"latFormat": "Deg",
 			"longFormat": "Deg"
-		},
-		/**
-		 *	Healpix grid
-		 */
-		{
-			"category": "Other",
-			"type": "healpixGrid",
-			"name": "Healpix grid",
-			"outline": true
 		},
 		/**
 		 *	Alasky healpix sources
@@ -244,6 +238,15 @@
 			"dataType": "jpg",
 			"fitsSupported": true,
 			"coordSystem": "GAL"
+		},
+		/**
+		 *	Healpix grid
+		 */
+		{
+			"category": "Other",
+			"type": "healpixGrid",
+			"name": "Healpix grid",
+			"outline": true
 		},
 		/**
 		 *	IAS PLWSAG Healpix imagery

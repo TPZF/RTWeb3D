@@ -20,8 +20,8 @@
 /**
  * Samp module : performing communication between applications using SAMP protocol
  */
-define(["jquery.ui", "underscore-min", "gw/CoordinateSystem", "gw/FeatureStyle", "gw/VectorLayer", "Utils", "samp"],
-	function($, _, CoordinateSystem, FeatureStyle, VectorLayer, Utils) {
+define(["jquery.ui", "underscore-min", "gw/CoordinateSystem", "gw/FeatureStyle", "gw/VectorLayer", "Utils", "JsonProcessor", "samp"],
+	function($, _, CoordinateSystem, FeatureStyle, VectorLayer, Utils, JsonProcessor) {
 
 var globe;
 var navigation;
@@ -38,6 +38,7 @@ var highlightedData;
 var connector;	// SAMP connector
 var sampLayer;	// SAMP vector layer containing all incoming fits images
 var pointAtReceived = false; // Parameter avoiding looping while receiving coord.pointAt.sky SAMP event
+var votable2geojsonBaseUrl;
 
 /**************************************************************************************************************/
 
@@ -136,31 +137,33 @@ function createClientTracker()
 		var params = message["samp.params"];
 		var origUrl = params["url"];
 		var proxyUrl = clientTracker.connection.translateUrl(origUrl);
-		var xhr = samp.XmlRpcClient.createXHR();
-		var e;
-		xhr.open("GET", proxyUrl);
-		xhr.onload = function() {
-			var xml = xhr.responseXML;
-			if (xml) {
-				try {
-					console.log(xml);
-					// TODO: send url of xml to SiTools2 to convert it to GeoJSON
-					// cf WCS astrojs plugin
+
+		if ( votable2geojsonBaseUrl )
+		{
+			$.ajax({
+				type: "GET",
+				url: votable2geojsonBaseUrl,
+				data: {
+					url: proxyUrl,
+					coordSystem: "EQUATORIAL"
+				},
+				success: function(response)
+				{
+					// Add feature collection
+					JsonProcessor.handleFeatureCollection( sampLayer, response );
+					sampLayer.addFeatureCollection( response );
+					additionalLayersView.showView(sampLayer);
+				},
+				error: function(thrownError)
+				{
+					console.error(thrownError);
 				}
-				catch (e) {
-					console.log("Error displaying table:\n" +
-						e.toString());
-				}
-			}
-			else {
-				console.log("No XML response");
-			}
-		};
-		xhr.onerror = function(err) {
-			console.log("Error getting table " + origUrl + "\n" +
-							"(" + err + ")");
-		};
-		xhr.send(null);
+			});
+		}
+		else
+		{
+			ErrorDialog.open('votable2geojson plugin base url isn\'t defined');
+		}
 	};
 
 	callHandler["table.highlight.row"] = function(senderId, message, isCall) {
@@ -226,7 +229,6 @@ function createClientTracker()
 		});
 
 		additionalLayersView.showView(sampLayer);
-		// Show image viewer
 		imageViewer.show();
 	};
 
@@ -316,13 +318,18 @@ function initSamp()
 /**
  *	Init SAMP module
  */
-function init(gl, nav, alv, im, iv)
+function init(gl, nav, alv, im, iv, configuration)
 {
 	globe = gl;
 	navigation = nav;
 	additionalLayersView = alv;
 	imageViewer = iv;
 	imageManager = im;
+
+	if ( configuration.votable2geojson )
+	{
+		votable2geojsonBaseUrl = configuration.votable2geojson.baseUrl;
+	}
 
 	initUI();
 	initSamp();

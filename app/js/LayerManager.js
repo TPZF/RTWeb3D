@@ -31,10 +31,48 @@ var gwLayers = [];
 
 // GeoJSON data providers
 var dataProviders = {};
+var votable2geojsonBaseUrl;
+
 
 /**
  * Private functions
  */
+
+/**************************************************************************************************************/
+
+/**
+ *	Create custom vector layer for dropped data
+ */
+function createCustomLayer(name)
+{
+	// Generate random color
+	var rgb = Utils.generateColor();
+	var rgba = rgb.concat([1]);
+	
+	// Create style
+	var options = {
+		name: name,
+		style: new FeatureStyle({
+			iconUrl: "css/images/star.png",
+			fillColor: rgba,
+			strokeColor: rgba,
+			visible: true
+		})
+	};
+
+	// Create vector layer
+	var gwLayer = new VectorLayer( options );
+	// Add the type GeoJSON to be able to zoom on the layer ! (cf HTML generation of additional layer)
+	gwLayer.type = "GeoJSON";
+	gwLayer.deletable = true;
+	gwLayer.pickable = true;
+	globe.addLayer(gwLayer);
+
+	AdditionalLayersView.addView( gwLayer );
+	gwLayers.push(gwLayer);
+
+	return gwLayer;
+}
 
 /**************************************************************************************************************/
 
@@ -221,23 +259,8 @@ function handleDrop(evt) {
 				var arrayBuffer = this.result;
 				var fits = FitsLoader.parseFits(arrayBuffer);
 
-				// Create vector layer
-				var rgb = Utils.generateColor();
-				var rgba = rgb.concat([1]);
-
-				var options = {
-					name: name,
-					style: new FeatureStyle({
-						fillColor: rgba,
-						strokeColor: rgba
-					})
-				};
-				var gwLayer = new VectorLayer( options );
-				gwLayer.type = "GeoJSON";
+				var gwLayer = createCustomLayer(name);
 				gwLayer.dataType = "line";
-				gwLayer.deletable = true;
-				gwLayer.pickable = true;
-				globe.addLayer(gwLayer);
 
 				// Create feature
 				var coords = Utils.getPolygonCoordinatesFromFits(fits);
@@ -265,8 +288,8 @@ function handleDrop(evt) {
 				ImageManager.handleFits( fitsData, featureData );
 				ImageViewer.show();
 
-				AdditionalLayersView.addView( gwLayer );
-				gwLayers.push(gwLayer);
+				// AdditionalLayersView.addView( gwLayer );
+				// gwLayers.push(gwLayer);
 				$('#loading').hide();
 			};
 			reader.readAsArrayBuffer(f);
@@ -274,45 +297,50 @@ function handleDrop(evt) {
 		else
 		{
 			reader.onloadend = function(e) {
-				// Handle json if possible
-				try {
-					var response = $.parseJSON(this.result);
-				} catch (e) {
-					ErrorDialog.open("JSON parsing error : " + e.type + "<br/> For more details see http://jsonlint.com/.");
+
+				if ( this.result.search('<?xml') > 0 )
+				{
+					$.ajax({
+						type: "GET",
+						url: votable2geojsonBaseUrl,
+						data: {
+							url: proxyUrl,
+							coordSystem: "EQUATORIAL"
+						},
+						success: function(response)
+						{
+							// Add feature collection
+							var gwLayer = createCustomLayer(name);
+
+							// Add feature collection
+							JsonProcessor.handleFeatureCollection( gwLayer, response );
+							gwLayer.addFeatureCollection( response );
+							$('#loading').hide();
+						},
+						error: function(thrownError)
+						{
+							console.error(thrownError);
+						}
+					});
+				}
+				else
+				{
+					// Handle as json if possible
+					try {
+						var response = $.parseJSON(this.result);
+					} catch (e) {
+						ErrorDialog.open("JSON parsing error : " + e.type + "<br/> For more details see http://jsonlint.com/.");
+						$('#loading').hide();
+						return false;
+					}
+					var gwLayer = createCustomLayer(name);
+
+					// Add feature collection
+					JsonProcessor.handleFeatureCollection( gwLayer, response );
+					gwLayer.addFeatureCollection( response );
 					$('#loading').hide();
-					return false;
 				}
 				
-				// Generate random color
-				var rgb = Utils.generateColor();
-				var rgba = rgb.concat([1]);
-				
-				// Create style
-				var options = {
-					name: name,
-					style: new FeatureStyle({
-						iconUrl: "css/images/star.png",
-						fillColor: rgba,
-						strokeColor: rgba,
-						visible: true
-					})
-				};
-
-				// Create vector layer
-				var gwLayer = new VectorLayer( options );
-				// Add the type GeoJSON to be able to zoom on the layer ! (cf HTML generation of additional layer)
-				gwLayer.type = "GeoJSON";
-				gwLayer.deletable = true;
-				gwLayer.pickable = true;
-				globe.addLayer(gwLayer);
-
-				// Add feature collection
-				JsonProcessor.handleFeatureCollection( gwLayer, response );
-				gwLayer.addFeatureCollection( response );
-				
-				AdditionalLayersView.addView( gwLayer );
-				gwLayers.push(gwLayer);
-				$('#loading').hide();
 			};
 			reader.readAsText(f);
 		}
@@ -416,6 +444,11 @@ return {
 		initLayers(configuration.layers);
 
 		LayerServiceView.init(gl, nav, this, configuration);
+
+		if ( configuration.votable2geojson )
+		{
+			votable2geojsonBaseUrl = configuration.votable2geojson.baseUrl;
+		}
 	},
 	
 	/**

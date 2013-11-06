@@ -319,7 +319,7 @@ $(function()
 			Share.init({navigation : navigation, configuration: data});
 
 			// Initialize SAMP component
-			Samp.init(globe, navigation, AdditionalLayersView, ImageManager, ImageViewer);
+			Samp.init(globe, navigation, AdditionalLayersView, ImageManager, ImageViewer, data);
 
 			// Eye position tracker initialization
 			PositionTracker.init({ element: "posTracker", globe: globe, navigation : navigation });
