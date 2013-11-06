@@ -61,10 +61,6 @@ require.config({
 		'jquery.nicescroll.min': {
 			deps: ['jquery'],
 			exports: ''
-		},
-		'gzip' : {
-			deps: ['deflate-js', 'inflate-js', 'crc32'],
-			exports: 'gZip'
 		}
 	},
 	waitSeconds: 0

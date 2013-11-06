@@ -1,8 +1,5 @@
-var gZip = (function(){
-
-	var crc32 = require('crc32'),
-		inflate = require('inflate-js'),
-		deflate = require('deflate-js'),
+define(['crc32', 'inflate-js', 'deflate-js'], function(crc32, inflate, deflate){
+			
 		// magic numbers marking this file as GZIP
 		ID1 = 0x1F,
 		ID2 = 0x8B,
@@ -277,4 +274,4 @@ var gZip = (function(){
 			return DEFAULT_LEVEL;
 		}
 	};
-})();
+});

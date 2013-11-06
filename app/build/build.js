@@ -20,16 +20,20 @@
 
     // Optimizing alredy minified files :( .. TODO exclude
     paths: {
-		"jquery": "../externals/jquery-1.8.2.min",
-		"jquery.ui": "../externals/jquery-ui-1.9.2.custom.min",
-		"jquery.ui.selectmenu": "../externals/jquery.ui.selectmenu",
-		"underscore-min": "../externals/underscore-min",
-		"jquery.nicescroll.min": "../externals/jquery.nicescroll.min",
+        "jquery": "../externals/jquery-1.8.2.min",
+        "jquery.ui": "../externals/jquery-ui-1.9.2.custom.min",
+        "jquery.ui.selectmenu": "../externals/jquery.ui.selectmenu",
+        "underscore-min": "../externals/underscore-min",
+        "jquery.nicescroll.min": "../externals/jquery.nicescroll.min",
         "fits": "../externals/fits",
         "samp": "../externals/samp",
+        "gzip": "../externals/gzip",
+        "crc32": "../externals/crc32",
+        "deflate-js": "../externals/deflate",
+        "inflate-js": "../externals/inflate",
         "wcs": "../externals/wcs",
         "jquery.ui.timepicker": "../externals/jquery.ui.timepicker",
-		"gw": "../externals/GlobWeb/src"
+        "gw": "../externals/GlobWeb/src/"
     },
     shim: {
         'jquery': {
@@ -55,6 +59,10 @@
         'jquery.nicescroll.min': {
             deps: ['jquery'],
             exports: ''
+        },
+        'gzip' : {
+            deps: ['deflate-js', 'inflate-js', 'crc32'],
+            exports: 'gZip'
         }
     },
 
