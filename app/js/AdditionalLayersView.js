@@ -374,7 +374,18 @@ function buildVisibleTilesUrl(layer)
 			pixelIndices+=",";
 		}
 	}
-	return window.location.origin + layer.serviceUrl+"/search?order="+maxOrder+"&healpix="+pixelIndices+"&coordSystem=EQUATORIAL";
+
+	var coordSystem;
+	if ( globe.tileManager.imageryProvider.tiling.coordSystem == "EQ" )
+	{
+		coordSystem = "EQUATORIAL";
+	}
+	else
+	{
+		coordSystem = "GALACTIC";
+	}
+
+	return window.location.origin + layer.serviceUrl+"/search?order="+maxOrder+"&healpix="+pixelIndices+"&coordSystem="+coordSystem;
 }
 
 /**************************************************************************************************************/
