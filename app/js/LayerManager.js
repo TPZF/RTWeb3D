@@ -116,6 +116,7 @@ function createLayerFromConf(layer) {
 			options.baseUrl = layer.baseUrl;
 			options.coordSystem = layer.coordSystem || "EQ";
 			options.dataType = layer.dataType || "jpg";
+			options.numberOfLevels = layer.numberOfLevels;
 			if ( layer.fitsSupported )
 			{
 				options.onready = function( fitsLayer ) {

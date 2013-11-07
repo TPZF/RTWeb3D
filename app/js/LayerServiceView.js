@@ -72,6 +72,30 @@ var serviceMapping = {
 
 var currentLayer;
 
+/**
+ *	Get service object from configuration
+ *	(could be string or object)
+ */
+function getServiceFromConf(service)
+{
+	if ( typeof service === "string" )
+	{
+		return serviceMapping[service];
+	}
+	else
+	{
+		if ( service.name )
+		{
+			return serviceMapping[service.name];
+		}
+		else
+		{
+			console.error("Service must have name property in configuration");
+			return null;
+		}
+	}
+}
+
 return {
 	init: function(gl, nav, lm, configuration)
 	{
@@ -89,19 +113,19 @@ return {
 		{
 			for ( var i=0; i<currentLayer.availableServices.length; i++)
 			{
-				service = serviceMapping[currentLayer.availableServices[i]];
+				service = getServiceFromConf(currentLayer.availableServices[i])
 				if ( service.removeLayer )
 					service.removeLayer(currentLayer);
-				service.removeService(tabs);
+				service.removeService(tabs, currentLayer.availableServices[i]);
 			}
 		}
 
 		for ( var i=0; i<layer.availableServices.length; i++ )
 		{
-			service = serviceMapping[layer.availableServices[i]];
+			service = getServiceFromConf( layer.availableServices[i] );
 			if ( service )
 			{
-				service.addService(tabs);
+				service.addService(tabs, layer.availableServices[i]);
 				if ( service.addLayer )
 					service.addLayer(layer);
 			}

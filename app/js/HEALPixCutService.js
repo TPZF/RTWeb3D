@@ -39,7 +39,7 @@ return {
 		navigation = nav;
 	},
 
-	addService: function(tabs)
+	addService: function(tabs, context)
 	{
 		// Append headers
 		$('<li style="display: none;"><a href="#HEALPixCut">HEALPixCut</a></li>')
@@ -123,9 +123,9 @@ return {
 		    // Get choosen layer
 		    var healpixLayer = globe.tileManager.imageryProvider;
 
-		    if ( !healpixLayer.healpixCutFileName )
+		    if ( !context.fileName )
 		    {
-		    	ErrorDialog.open("healpixCutFileName isn't defined for current layer<br/>");
+		    	ErrorDialog.open("FITS fileName isn't defined for HealpixCut service<br/>");
 		    }
 
 		    if ( isNaN(cdelt1) || isNaN(cdelt2) )
@@ -152,7 +152,7 @@ return {
 				coordSystem: "EQUATORIAL",
 				cdelt1: cdelt1,
 				cdelt2: cdelt2,
-				filename: healpixLayer.healpixCutFileName,
+				filename: context.fileName,
 				PHASE: "RUN"
 			}
 

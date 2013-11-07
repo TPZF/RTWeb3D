@@ -126,7 +126,8 @@
 			"icon": "css/images/star_icon.png",
 			"visible": false,
 			"background": true,
-			"coordSystem": "GAL"
+			"coordSystem": "GAL",
+			"numberOfLevels": 2
 		},
 		{ 
 			"type": "healpix",
@@ -136,7 +137,7 @@
 			"attribution": "Deep CFHTLS backbround from <img width='48' height='32' src=\"css/images/cds.svg\" />",
 			"visible": false,
 			"background": true,
-			"numberOfLevels": 12
+			"numberOfLevels": 11
 		},
 		{ 
 			"type": "healpix",
@@ -145,7 +146,8 @@
 			"description": "CFHTLS-W-Colored (UGI)",
             "attribution": "TERAPIX - Healpixed by CDS",
 			"visible": false,
-			"background": true
+			"background": true,
+			"numberOfLevels": 10
 		},
 		{ 
 			"type": "healpix",
@@ -154,7 +156,8 @@
 			"description": "Infrared 2MASS colored survey from NASA, healpixed by CDS",
 			"attribution": "2MASS backbround from <img width='48' height='32' src=\"css/images/cds.svg\" />",
 			"visible": false,
-			"background": true
+			"background": true,
+			"numberOfLevels": 8
 		},
 		{ 
 			"type": "healpix",
@@ -163,7 +166,8 @@
 			"description": "RASS-ROSAT X-Ray All-Sky Survey",
 			"attribution": "Distributed by MPE - Healpixed by CDS",
 			"visible": false,
-			"background": true
+			"background": true,
+			"numberOfLevels": 3
 		},
 		{ 
 			"type": "healpix",
@@ -171,7 +175,8 @@
 			"baseUrl": "/sitools/Alasky/NVSS/intensity",
 			"description": "NVSS intensity maps (1.4GHz)",
 			"visible": false,
-			"background": true
+			"background": true,
+			"numberOfLevels": 4
 		},
 		{
 			"category": "Image",
@@ -191,7 +196,8 @@
 			"description": "Digital Sky Survey from CDS",
 			"attribution": "DSS backbround from <img width='48' height='32' src=\"css/images/cds.svg\" />",
 			"visible": true,
-			"background": true
+			"background": true,
+			"numberOfLevels": 8
 		},
 		/**
 		 *	Plack FITS supported surveys
@@ -208,8 +214,8 @@
 			"dataType": "jpg",
 			"fitsSupported": true,
 			"coordSystem": "GAL",
-			"availableServices": [ "HEALPixCut" ],
-			"healpixCutFileName" : "HFI_SkyMap_857_2048_R1.10_nominal.fits"
+			"availableServices": [ { "name": "HEALPixCut", "fileName": "HFI_SkyMap_857_2048_R1.10_nominal.fits"	} ],
+			"numberOfLevels": 2
 		},
         {
 			"type": "healpix",
@@ -222,8 +228,8 @@
 			"coordSystem": "GAL",
 			"fitsSupported": true,
 			"dataType": "jpg",
-			"availableServices": [ "HEALPixCut" ],
-			"healpixCutFileName": "HFI_SkyMap_857_2048_R1.10_nominal.fits"
+			"availableServices": [ { "name": "HEALPixCut", "fileName": "HFI_SkyMap_857_2048_R1.10_nominal.fits"	} ],
+			"numberOfLevels": 2
         },
 		// Overlay
 		{
@@ -310,7 +316,7 @@
 			"name": "Herschel (OpenSearch)",
 			"serviceUrl": "/sitools/oherschel",
 			"visible": false,
-			"minOrder": 2,
+			"minOrder": 4,
 			"availableServices": [ "OpenSearch", "Moc", "XMatch" ]
 		},
 		/**
@@ -327,7 +333,7 @@
 			"name": "Fuse (OpenSearch)",
 			"serviceUrl": "/sitools/ofuse",
 			"visible": false,
-			"minOrder": 2,
+			"minOrder": 4,
 			"accuracyOrder" : 10,
 			"color": "#FFCC11",
 			"displayProperties": [ "ra", "dec", "src_type", "dateobs", "imageSize" ],
@@ -348,7 +354,7 @@
 			"serviceUrl": "/sitools/eso/siap",
 			"visible": false,
             "attribution":"Science Archive Facility of ESO",
-			"minOrder": 2,
+			"minOrder": 4,
 			"invertY": true
 		},
 		/**
@@ -364,7 +370,7 @@
 			"name": "HST",
 			"serviceUrl": "/sitools/sia",
 			"visible": false,
-			"minOrder": 2
+			"minOrder": 4
 		},
 		/**
 		 *	OpenSearch Sia ISO layer
@@ -379,7 +385,7 @@
 			"name": "Iso",
 			"serviceUrl": "/sitools/iso",
 			"visible": false,
-			"minOrder": 2,
+			"minOrder": 4,
 			"availableServices": [ "Moc", "XMatch" ]
 		},
 		/**
