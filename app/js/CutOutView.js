@@ -71,12 +71,27 @@ var CutOutView = function(element, selectionTool, pickingManager)
 	});
 
 	this.$content.on('click', '.deleteResult', function(event){
-		var jobId = $(this).parent().data('jobid');
-		UWSManager.delete( 'healpixcut', jobId, {
+		var $job = $(this).parent();
+		var jobId = $job.data('jobId');
+
+		UWSManager.delete( 'cutout', jobId, {
 			successCallback: function()
 			{
-				$(this).fadeOut(function(){
-					$(this).remove();
+				// Remove all job-related results
+				$job.parent().find('li[data-jobid='+$job.data('jobid')+']').each(function(){
+					$(this).fadeOut(function(){
+						$(this).remove();
+					});
+				});
+			},
+			failCallback: function(thrownError)
+			{
+				console.error(thrownError);
+				// Fade out anyway
+				$job.parent().find('li[data-jobid='+$job.data('jobid')+']').each(function(){
+					$(this).fadeOut(function(){
+						$(this).remove();
+					});
 				});
 			}
 		} );

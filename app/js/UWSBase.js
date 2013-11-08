@@ -160,6 +160,7 @@ UWSBase.prototype.delete = function(jobId, options)
 	}
 	else
 	{
+		var self = this;
 		$.ajax({
 			type: "DELETE",
 			url: this.baseUrl + "/" + jobId,

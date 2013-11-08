@@ -68,11 +68,20 @@ return {
 		});
 
 		$('#HEALPixCut').on('click', '.deleteResult', function(event){
-			var jobId = $(this).parent().data('jobid');
+			var $job = $(this).parent();
+			var jobId = $job.data('jobId');
 			UWSManager.delete( 'healpixcut', jobId, {
 				successCallback: function()
 				{
-					$(this).fadeOut(function(){
+					$job.fadeOut(function(){
+						$(this).remove();
+					});
+				},
+				failCallback: function(thrownError)
+				{
+					console.error(thrownError);
+					// Fade out anyway
+					$job.fadeOut(function(){
 						$(this).remove();
 					})
 				}
