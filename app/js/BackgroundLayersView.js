@@ -226,7 +226,7 @@ return {
 				PickingManager.getSelection().length = 0;
 
 				// Change visibility's of previous layer(maybe GlobWeb should do it ?)
-				globe.tileManager.imageryProvider.visible(false);
+				// globe.tileManager.imageryProvider.visible(false);
 				globe.setBaseImagery( layer );
 				layer.visible(true);
 

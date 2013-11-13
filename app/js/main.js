@@ -69,16 +69,16 @@ require.config({
 /**
  * Main module
  */
-require( ["jquery.ui", "gw/EquatorialCoordinateSystem", "gw/Globe", "gw/Stats", "gw/AstroNavigation", "gw/AttributionHandler", "gw/VectorLayer",
+require( ["jquery.ui", "gw/EquatorialCoordinateSystem", "gw/Sky", "gw/Stats", "gw/AstroNavigation", "gw/AttributionHandler", "gw/VectorLayer",
 	"LayerManager", "NameResolver", "ReverseNameResolver", "Utils", "PickingManager", "FeaturePopup", "IFrame", "Compass", "MollweideViewer", "ErrorDialog", "AboutDialog", "Share", "Samp", "AdditionalLayersView", "ImageManager", "ImageViewer", "UWSManager", "PositionTracker", "MeasureTool", "StarProvider", "ConstellationProvider", "JsonProvider", "OpenSearchProvider",
 	"gw/ConvexPolygonRenderer", "gw/PointSpriteRenderer", "gw/PointRenderer"],
-	function($, CoordinateSystem, Globe, Stats, AstroNavigation, AttributionHandler, VectorLayer, LayerManager, NameResolver, ReverseNameResolver, Utils, PickingManager, FeaturePopup, IFrame, Compass, MollweideViewer, ErrorDialog, AboutDialog, Share, Samp, AdditionalLayersView, ImageManager, ImageViewer, UWSManager, PositionTracker, MeasureTool) {
+	function($, CoordinateSystem, Sky, Stats, AstroNavigation, AttributionHandler, VectorLayer, LayerManager, NameResolver, ReverseNameResolver, Utils, PickingManager, FeaturePopup, IFrame, Compass, MollweideViewer, ErrorDialog, AboutDialog, Share, Samp, AdditionalLayersView, ImageManager, ImageViewer, UWSManager, PositionTracker, MeasureTool) {
 
 // Console fix	
 window.console||(console={log:function(){}});
 	
 // Private variable
-var globe = null;
+var sky = null;
 var navigation = null;
 var mollweideViewer = null;
 var aboutShowed = false;
@@ -182,10 +182,10 @@ $(function()
 			canvas.height = window.innerHeight;
 	});
 	
-	// Initialize globe
+	// Initialize sky
 	try
 	{
-		globe = new Globe( { 
+		sky = new Sky( { 
 			canvas: canvas, 
 			tileErrorTreshold: 1.5,
 			continuousRendering: true
@@ -199,10 +199,10 @@ $(function()
 	}
 	
 	// When base layer is ready, hide loading
-	globe.subscribe("baseLayersReady", hideLoading);
+	sky.subscribe("baseLayersReady", hideLoading);
 
 	// When base layer failed to load, open error dialog
-	globe.subscribe("baseLayersError", function(layer){
+	sky.subscribe("baseLayersError", function(layer){
 		var layerType = layer.id == 0 ? " background layer " : " additional layer ";
 		ErrorDialog.open("<p>The"+ layerType + "<span style='color: orange'>"+layer.name+"</span> can not be displayed.</p>\
 		 <p>First check if data source related to this layer is still accessible. Otherwise, check your Sitools2 configuration.</p>");
@@ -275,7 +275,7 @@ $(function()
 
 			// Add stats
 			if ( data.stats.visible ) {
-				new Stats( globe.renderContext, { element: "fps", verbose: data.stats.verbose });
+				new Stats( sky.renderContext, { element: "fps", verbose: data.stats.verbose });
 			} else  {
 				$("#fps").hide();
 			}
@@ -290,45 +290,45 @@ $(function()
 			};
 
 			// Initialize navigation
-			navigation = new AstroNavigation(globe, data.navigation);
+			navigation = new AstroNavigation(sky, data.navigation);
 
 			// Add attribution handler
-			new AttributionHandler( globe, {element: 'attributions'});
+			new AttributionHandler( sky, {element: 'attributions'});
 
-			new MeasureTool({ globe: globe, navigation: navigation } );
+			new MeasureTool({ globe: sky, navigation: navigation } );
 			
 			// Initialize the name resolver
-			NameResolver.init(globe, navigation, data);
+			NameResolver.init(sky, navigation, data);
 		
 			// Initialize the reverse name resolver
-			ReverseNameResolver.init(globe, navigation, data);
+			ReverseNameResolver.init(sky, navigation, data);
 
 			// Create layers from configuration file
-			LayerManager.init(globe, navigation, data);
+			LayerManager.init(sky, navigation, data);
 
 			// Create data manager
-			PickingManager.init(globe, navigation, data);
+			PickingManager.init(sky, navigation, data);
 
 			// Compass component
-			new Compass({ element : "objectCompass", globe : globe, navigation : navigation, coordSystem : data.coordSystem });
+			new Compass({ element : "objectCompass", globe : sky, navigation : navigation, coordSystem : data.coordSystem });
 
 			// Mollweide viewer
-			mollweideViewer = new MollweideViewer({ globe : globe, navigation : navigation });
+			mollweideViewer = new MollweideViewer({ globe : sky, navigation : navigation });
 
 			// Share configuration module init
 			Share.init({navigation : navigation, configuration: data});
 
 			// Initialize SAMP component
-			Samp.init(globe, navigation, AdditionalLayersView, ImageManager, ImageViewer, data);
+			Samp.init(sky, navigation, AdditionalLayersView, ImageManager, ImageViewer, data);
 
 			// Eye position tracker initialization
-			PositionTracker.init({ element: "posTracker", globe: globe, navigation : navigation });
+			PositionTracker.init({ element: "posTracker", globe: sky, navigation : navigation });
 
 			// UWS services initialization
 			UWSManager.init(data);
 
 			// Initialization of tools useful for different modules
-			Utils.init(globe);
+			Utils.init(sky);
 
 			// Update fov when moving
 			navigation.subscribe("modified", updateFov);
