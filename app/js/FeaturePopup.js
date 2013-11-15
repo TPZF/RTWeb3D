@@ -97,7 +97,8 @@ function buildProperties(properties, displayProperties)
 		handledProperties = {}
 
 		handledProperties.identifier = properties.identifier;
-		handledProperties.title = properties.title;
+		handledProperties.title = properties.title ? properties.title : "";
+		handledProperties.style = properties.style;
 
 		// Fill handledProperties in order
 		for(var j=0; j<displayProperties.length; j++)

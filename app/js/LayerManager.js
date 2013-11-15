@@ -190,9 +190,7 @@ function createLayerFromConf(layer) {
 			// Add necessary option			
 			options.serviceUrl = layer.serviceUrl;
 			options.minOrder = layer.minOrder;
-			if (layer.displayProperties)
-				options.displayProperties = layer.displayProperties;
-			if (layer.invertY)
+			if (layer.hasOwnProperty('invertY'))
 				options.invertY = layer.invertY;
 
 			options.style = defaultVectorStyle;
@@ -212,6 +210,8 @@ function createLayerFromConf(layer) {
 				gwLayer = new OpenSearchLayer( options );
 			}
 
+			if (layer.displayProperties)
+				gwLayer.displayProperties = layer.displayProperties;
 			gwLayer.dataType = layer.dataType;
 			gwLayer.pickable = layer.hasOwnProperty('pickable') ? layer.pickable : true;
 			gwLayer.availableServices = layer.availableServices;

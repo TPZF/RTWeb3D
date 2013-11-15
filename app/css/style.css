@@ -203,6 +203,10 @@ body
 	font-size: 0.8em;
 }
 
+.ui-accordion-content {
+	border-radius: 0px;
+}
+
 /*** Stylized scrollbar (only for webkit : chrome and safari) ***/
 ::-webkit-scrollbar {
 	width: 10px;

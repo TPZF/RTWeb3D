@@ -47,8 +47,14 @@
 
 /*** Additionnal layers ***/
 
+#accordion > div
+{
+	border-radius: 5px;
+}
+
 /* Layer container by category */
-#accordion > div > div {
+#accordion > div > div
+{
 	max-height: 450px;
 }
 
