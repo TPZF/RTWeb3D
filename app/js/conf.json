@@ -33,7 +33,7 @@
 		"baseUrl": "/sitools/mizar/plugin/solarObjects/"
 	},
 	"votable2geojson": {
-		"baseUrl": "/sitools/mizar/plugin/votable2geojson/"
+		"baseUrl": "/sitools/mizar/plugin/votable2geojson"
 	},
 	"cutOut": {
 		"baseUrl": "/sitools/cutout"
@@ -317,6 +317,7 @@
 			"serviceUrl": "/sitools/oherschel",
 			"visible": false,
 			"minOrder": 4,
+			"coordSystemRequired": false,
 			"availableServices": [ "OpenSearch", "Moc", "XMatch" ]
 		},
 		/**
@@ -330,6 +331,7 @@
 		{
 			"type": "DynamicOpenSearch",
 			"dataType": "point",
+			"coordSystemRequired": false,
 			"name": "Fuse (OpenSearch)",
 			"serviceUrl": "/sitools/ofuse",
 			"visible": false,
@@ -370,6 +372,7 @@
 			"name": "HST",
 			"serviceUrl": "/sitools/sia",
 			"visible": false,
+			"displayProperties": [ "identifier","Instrument" ],
 			"minOrder": 4
 		},
 		/**

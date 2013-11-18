@@ -44,6 +44,7 @@ var ClusterOpenSearchLayer = function(options){
 	this.treshold = options.treshold || 5;
 	this.maxClusterOrder = options.maxClusterOrder || 8;
 	this.accuracyOrder = options.accuracyOrder || 10;
+	this.coordSystemRequired = options.hasOwnProperty('coordSystemRequired') ? options.coordSystemRequired : true;
 
 	// Handle distributions
 	this.distributions = null;
@@ -287,11 +288,6 @@ ClusterOpenSearchLayer.prototype.launchRequest = function(tile, url)
 						self.addFeature( response.features[i], tile );
 					}
 				}
-				else
-				{
-					// HACK to avoid multiple rendering of parent features
-					tile.extension.pointSprite  = new RendererTileData();
-				}
 			}
 			else if ( xhr.status >= 400 )
 			{
@@ -363,8 +359,6 @@ ClusterOpenSearchLayer.prototype.buildUrl = function( tile )
 			{
 				// Empty tile
 				tile.extension[this.extId].complete = true;
-				// HACK to avoid multiple rendering of parent features
-				tile.extension.pointSprite = new RendererTileData();
 			}
 			tile.extension[this.extId].state = OpenSearchLayer.TileState.LOADED;
 			return null;
