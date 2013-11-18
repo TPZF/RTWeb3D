@@ -271,12 +271,6 @@ ClusterOpenSearchLayer.prototype.launchRequest = function(tile, url)
 				if ( !tileData.containsCluster )
 				{
 					tileData.complete = (response.totalResults == response.features.length);
-					
-					// Update children state
-					if ( tileData.complete )
-					{
-						self.updateChildrenState(tile);
-					}
 				}
 
 				self.updateFeatures(response.features);
@@ -373,22 +367,6 @@ ClusterOpenSearchLayer.prototype.buildUrl = function( tile )
 /**************************************************************************************************************/
 
 /**
- *	Add geometry to tile
- */
-ClusterOpenSearchLayer.prototype.addFeatureToRenderer = function( feature, tile )
-{
-	if (!this.pointRenderer) 
-	{
-		this.pointRenderer = this.globe.vectorRendererManager.getRenderer("PointSprite");
-		this.pointBucket = this.pointRenderer.getOrCreateBucket( this, this.style );
-		this.clusterBucket = this.pointRenderer.getOrCreateBucket( this, this.clusterStyle );	
-	}
-	this.pointRenderer.addGeometryToTile( ( feature.cluster == true ) ? this.clusterBucket : this.pointBucket, feature.geometry, tile );
-}
-
-/**************************************************************************************************************/
-
-/**
  * 	Set new request properties
  */
 ClusterOpenSearchLayer.prototype.setRequestProperties = function(properties)
@@ -397,26 +375,6 @@ ClusterOpenSearchLayer.prototype.setRequestProperties = function(properties)
 	// Reset distributions
 	this.distributions = null;
 	this.updateDistributions(this);
-}
-
-/**************************************************************************************************************/
-
-/**
- * 	Update features
- */
-ClusterOpenSearchLayer.prototype.updateFeatures = function(features)
-{
-	OpenSearchLayer.prototype.updateFeatures.call( this, features );
-}
-
-/**************************************************************************************************************/
-
-/**
- * 	Generate features
- */
-ClusterOpenSearchLayer.prototype.generate = function(tile)
-{
-	OpenSearchLayer.prototype.generate.call( this, tile );
 }
 
 return ClusterOpenSearchLayer;

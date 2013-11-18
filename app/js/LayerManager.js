@@ -194,7 +194,11 @@ function createLayerFromConf(layer) {
 				options.invertY = layer.invertY;
 
 			options.style = defaultVectorStyle;
-			if ( layer.useCluster == true )
+			if ( layer.hasOwnProperty('coordSystemRequired') ) 
+			{
+				options.coordSystemRequired = layer.coordSystemRequired;
+			}
+			if ( layer.useCluster )
 			{
 				if( layer.maxClusterOrder )
 					options.maxClusterOrder = layer.maxClusterOrder;
