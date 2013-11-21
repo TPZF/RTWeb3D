@@ -36,6 +36,7 @@ var HEALPixFITSLayer = function(options)
 	this.type = "ImageryRaster";
 	this.baseUrl = options['baseUrl'];
 	this.dataType = options.dataType || "fits";
+	this.coordSystem = options.coordSystem || "EQ";
 	this._ready = false;
 	
 	// allsky
