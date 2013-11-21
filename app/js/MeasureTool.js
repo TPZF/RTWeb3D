@@ -249,7 +249,13 @@ MeasureTool.prototype.updateMeasure = function()
 		"geometry": {
 			"gid": "measureShape",
 			"coordinates": [coordinates],
-			"type": "Polygon"
+			"type": "Polygon",
+		},
+		"properties": {
+			"style": new FeatureStyle({
+				zIndex: 2,
+				fillColor: [1.,0.,0.,1.]
+			})
 		},
 		"type": "Feature"
 	};
