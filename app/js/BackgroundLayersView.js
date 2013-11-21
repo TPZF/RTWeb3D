@@ -225,8 +225,8 @@ return {
 				// Clear selection
 				PickingManager.getSelection().length = 0;
 
-				// Change visibility's of previous layer(maybe GlobWeb should do it ?)
-				// globe.tileManager.imageryProvider.visible(false);
+				// Change visibility's of previous layer, because visibility is used to know the active background layer in the layers list (layers can be shared)
+				globe.baseImagery.visible(false);
 				globe.setBaseImagery( layer );
 				layer.visible(true);
 
