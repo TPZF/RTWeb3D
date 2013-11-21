@@ -237,6 +237,9 @@ return {
 		imageManager = im;
 		globe = gl;
 		var self = this;
+
+		// Make rightDiv always visible depending on viewport
+		$('#rightDiv').css('max-width',$('#'+globe.renderContext.canvas.id).width()/4 );
 		
 		// Initialize image processing popup
 		ImageProcessing.init({
