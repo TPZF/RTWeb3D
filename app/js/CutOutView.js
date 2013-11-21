@@ -17,7 +17,7 @@
 * along with SITools2. If not, see <http://www.gnu.org/licenses/>. 
 ******************************************************************************/ 
 
-define( [ "jquery.ui", "SelectionTool", "UWSManager", "Samp", "gw/CoordinateSystem", "AnimatedButton", "ErrorDialog", "underscore-min", "text!../templates/cutOut.html", "text!../templates/cutResultItem.html" ],
+define( [ "jquery.ui", "./SelectionTool", "./UWSManager", "./Samp", "gw/CoordinateSystem", "./AnimatedButton", "./ErrorDialog", "underscore-min", "text!../templates/cutOut.html", "text!../templates/cutResultItem.html" ],
 		function($, SelectionTool, UWSManager, Samp, CoordinateSystem, AnimatedButton, ErrorDialog, _, cutOutHTMLTemplate, cutResultHTMLTemplate) {
 
 // Template generating UWS services div
@@ -72,7 +72,7 @@ var CutOutView = function(element, selectionTool, pickingManager)
 
 	this.$content.on('click', '.deleteResult', function(event){
 		var $job = $(this).parent();
-		var jobId = $job.data('jobId');
+		var jobId = $job.data('jobid');
 
 		UWSManager.delete( 'cutout', jobId, {
 			successCallback: function()

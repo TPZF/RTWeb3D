@@ -69,7 +69,7 @@ return {
 
 		$('#HEALPixCut').on('click', '.deleteResult', function(event){
 			var $job = $(this).parent();
-			var jobId = $job.data('jobId');
+			var jobId = $job.data('jobid');
 			UWSManager.delete( 'healpixcut', jobId, {
 				successCallback: function()
 				{
