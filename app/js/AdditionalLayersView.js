@@ -182,6 +182,10 @@ function createHtmlForAdditionalLayer( gwLayer, categoryId )
 		toolsDiv.slideToggle(updateScroll.bind(this, categoryId));
 	});
 
+	if ( gwLayer.visible() )
+	{
+		toolsDiv.slideDown();
+	}
 	// Layer visibility management
 	$('.canvas').on('click', '#visible_'+currentIndex, function(){
 		// Manage 'custom' checkbox
@@ -209,6 +213,14 @@ function createHtmlForAdditionalLayer( gwLayer, categoryId )
 		}
 
 		$layerDiv.find('.slider').slider( isOn ? "enable" : "disable" );
+		if ( isOn )
+		{
+			toolsDiv.slideDown();
+		}
+		else
+		{
+			toolsDiv.slideUp();	
+		}
 		
 		// Change button's state
 		$('#visible_'+currentIndex).toggleClass('ui-state-active')
@@ -249,7 +261,7 @@ function createHtmlForAdditionalLayer( gwLayer, categoryId )
 		icons: {
 			primary: "ui-icon-arrowthickstop-1-s"
 		}
-	})
+	});
 
 	if ( gwLayer instanceof HEALPixFITSLayer )
 	{
@@ -339,14 +351,6 @@ function addView ( gwLayer, category )
 
 	// Add HTML
 	createHtmlForAdditionalLayer( gwLayer, categoryId );
-
-	// Spinner event
-	globe.subscribe("startLoad", function(layer){
-		$('#addLayer_'+layer.id).find('.spinner').stop(true,true).fadeIn('fast');
-	});
-	globe.subscribe("endLoad", function(layer){
-		$('#addLayer_'+layer.id).find('.spinner').fadeOut(500);
-	});
 
 	if ( gwLayer.pickable )
 		PickingManager.addPickableLayer(gwLayer);
@@ -505,6 +509,14 @@ return {
 	{
 		globe = gl;
 		navigation = nav;
+
+		// Spinner event
+		globe.subscribe("startLoad", function(layer){
+			$('#addLayer_'+layer.id).find('.spinner').stop(true,true).fadeIn('fast');
+		});
+		globe.subscribe("endLoad", function(layer){
+			$('#addLayer_'+layer.id).find('.spinner').fadeOut(500);
+		});
 	},
 	addView : addView,
 	updateUI : initToolbarEvents,
