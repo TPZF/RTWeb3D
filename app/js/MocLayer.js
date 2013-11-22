@@ -98,9 +98,12 @@ MocLayer.prototype.generate = function(tile)
 	if ( this.featuresSet && tile.order == this.startOrder )
 	{
 		var geometries = this.featuresSet[tile.pixelIndex];
-		for ( var i=0; i<geometries.length; i++ )
+		if ( geometries )
 		{
-			this.globe.vectorRendererManager.addGeometryToTile( this, geometries[i], this.style, tile );
+			for ( var i=0; i<geometries.length; i++ )
+			{
+				this.globe.vectorRendererManager.addGeometryToTile( this, geometries[i], this.style, tile );
+			}
 		}
 	}
 }
