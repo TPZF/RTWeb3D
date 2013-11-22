@@ -176,6 +176,36 @@ return {
 
 	/**************************************************************************************************************/
 
+	addLayer: function(layer)
+	{
+		// Check the layer to xMatch
+		if ( layer.coverage != "Not available" )
+		{
+			$('#xMatchService #mocCheck_'+layer.id)
+				.attr('checked', 'checked')
+				.button("option", {
+					icons: {
+						primary: "ui-icon-check"
+					},
+				}).button('refresh');
+		}
+
+		// Replace its div on top
+		$('#xMatchService #mocLayer_'+layer.id).append('<br/>').prependTo('#xMatchService .mocLayers');
+
+
+	},
+
+	/**************************************************************************************************************/
+
+	removeLayer: function(layer)
+	{
+		// Uncheck the given layer
+		$('#xMatchService #mocCheck_'+layer.id).removeAttr('checked');
+	},
+
+	/**************************************************************************************************************/
+
 	/**
 	 *	Add service to jQueryUI tabs
 	 *
@@ -209,6 +239,12 @@ return {
 				}, function(layer){
 					$("#xMatchService #mocLayer_"+layer.id).find('.mocCoverage').html("Sky coverage: Not available").end()
 										.find('.mocStatus').html('(Not found)');
+					$("#xMatchService #mocLayer_"+layer.id).find('input[type="checkbox"]').removeAttr('checked').button("option", {
+						icons: {
+							primary: "ui-icon-empty"
+						}
+					}).button("refresh");
+
 				});
 			}
 
