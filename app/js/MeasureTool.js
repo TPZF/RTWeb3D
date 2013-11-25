@@ -112,14 +112,13 @@ var MeasureTool = function(options)
 		dragging = false;
 	});
 
-	// TODO : change UI
-	document.addEventListener("keydown", function(event){
-		if ( event.ctrlKey == true && event.keyCode == 77 )
-		{
-			// Ctrl+M
-			self.toggle();
-		}
-	});	
+	$('#measureInvoker').on('click', function(){
+		self.toggle();
+	}).hover(function(){
+		$(this).animate({left: '-10px'}, 100);
+	}, function() {
+		$(this).animate({left: '-20px'}, 100);
+	});
 }
 
 MeasureTool.prototype.computeIntersection = function(points)
@@ -292,11 +291,13 @@ MeasureTool.prototype.toggle = function()
 	this.activated = !this.activated;
 	if ( this.activated )
 	{
+		$('#measureInvoker').css('background-image', 'url(css/images/measure_on.png)');
 		// TODO : Find more sexy image for cursor
 		$(this.renderContext.canvas).css('cursor', 'url(css/images/selectionCursor.png)');
 	}
 	else
 	{
+		$('#measureInvoker').css('background-image', 'url(css/images/measure_off.png)');
 		$(this.renderContext.canvas).css('cursor', 'default');
 	}
 }

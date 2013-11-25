@@ -193,6 +193,26 @@ body
 	right: 0;
 }
 
+/*** Measure tool ***/
+#measureInvoker
+{
+	width: 32px;
+	height: 32px;
+	border: 0px solid black;
+	overflow: hidden;
+	outline: none;
+	display: inline-block;
+	background: url(../css/images/measure_off.png) no-repeat;
+	position: relative;
+	left: -20px;
+	pointer-events: auto;
+}
+
+#measureInvoker:hover
+{
+	cursor: pointer;
+}
+
 /*** Small modifications on jQuery UI ***/
 .ui-widget
 {
