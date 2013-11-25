@@ -17,7 +17,7 @@
 * along with SITools2. If not, see <http://www.gnu.org/licenses/>. 
 ******************************************************************************/ 
 
-define(['gw/Utils', 'gw/HEALPixTiling', 'gw/RasterLayer', 'gw/DynamicImage', 'FitsLoader', 'gzip', 'gw/ImageRequest', './FitsRequest'], 
+define(['gw/Utils', 'gw/HEALPixTiling', 'gw/RasterLayer', 'gw/DynamicImage', './FitsLoader', 'gzip', 'gw/ImageRequest', './FitsRequest'], 
 	function(Utils, HEALPixTiling, RasterLayer, DynamicImage, FitsLoader, gZip, ImageRequest) {
 
 /**************************************************************************************************************/
@@ -41,8 +41,6 @@ var HEALPixFITSLayer = function(options)
 	
 	// allsky
 	this.levelZeroImage = null;
-
-	// Customization parameters for fits rendering
 
 	// TODO use DynamicImage shaders by unifying shader programs between TileManager and ConvexPolygonRenderer
 	//		* inverse Y coordinates, some var names refactor..
@@ -211,7 +209,7 @@ HEALPixFITSLayer.prototype._attach = function( g )
 /**
  *	Detach the HEALPixFits layer from the globe
  */
-HEALPixFITSLayer.prototype._detach = function( g )
+HEALPixFITSLayer.prototype._detach = function()
 {
 	// Abort image request if in progress
 	if ( !this._ready )
@@ -458,6 +456,25 @@ HEALPixFITSLayer.prototype.disposeResources = function()
 	
 	this.levelZeroImage = null;
 	this.levelZeroTexture = null;
+}
+
+/**************************************************************************************************************/
+
+/**
+ *	Set datatype
+ */
+HEALPixFITSLayer.prototype.setDatatype = function(isFits)
+{
+	// Abort image request if in progress
+	if ( !this._ready )
+	{
+		this.imageRequest.abort();
+	}
+	this._ready = false;
+	//this.disposeResources();
+
+	this.dataType = (isFits) ? 'fits' : 'jpg';
+	//this.requestLevelZeroImage();
 }
 
 /**************************************************************************************************************/

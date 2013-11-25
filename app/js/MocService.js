@@ -20,7 +20,7 @@
 /**
  * Moc display & Moc xMatch services
  */
-define( [ "jquery.ui", "MocLayer", "MocBase", "underscore-min", "text!../templates/mocServiceItem.html" ],
+define( [ "jquery.ui", "./MocLayer", "./MocBase", "underscore-min", "text!../templates/mocServiceItem.html" ],
 		function($, MocLayer, MocBase, _, mocServiceHTMLTemplate) {
 
 // Template generating the services html

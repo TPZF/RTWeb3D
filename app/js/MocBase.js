@@ -20,7 +20,7 @@
 /**
  *	Moc base module
  */
-define( [ "jquery.ui", "MocLayer", "Utils" ],
+define( [ "jquery.ui", "./MocLayer", "./Utils" ],
 		function($, MocLayer, Utils) {
 
 /**************************************************************************************************************/

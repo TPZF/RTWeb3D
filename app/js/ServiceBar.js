@@ -22,7 +22,7 @@
  * (currently specified only for OpenSearchLayer)
  *
  */
-define( [ "jquery.ui", "OpenSearchService", "MocService", "UWSService" ], function($, OpenSearchService, MocService, UWSService) {
+define( [ "jquery.ui", "./OpenSearchService", "./MocService", "./UWSService" ], function($, OpenSearchService, MocService, UWSService) {
 
 // Create service bar div
 

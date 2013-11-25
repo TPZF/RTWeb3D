@@ -20,7 +20,7 @@
 /**
  * BackgroundLayersView module
  */
-define(["jquery.ui", "DynamicImageView", "PickingManager", "HEALPixFITSLayer", "LayerServiceView", "Samp", "ErrorDialog"],
+define(["jquery.ui", "./DynamicImageView", "./PickingManager", "./HEALPixFITSLayer", "./LayerServiceView", "./Samp", "./ErrorDialog"],
 		function($, DynamicImageView, PickingManager, HEALPixFITSLayer, LayerServiceView, Samp, ErrorDialog){
 
 // Necessary for selectmenu initialization

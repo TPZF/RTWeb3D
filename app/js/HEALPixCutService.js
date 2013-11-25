@@ -20,7 +20,7 @@
 /**
  * Moc display & Moc xMatch services
  */
-define( [ "jquery.ui", "gw/CoordinateSystem", "gw/Numeric", "UWSManager", "Samp", "ErrorDialog", "Utils", "underscore-min", "text!../templates/healpixCutService.html", "text!../templates/cutResultItem.html"  ],
+define( [ "jquery.ui", "gw/CoordinateSystem", "gw/Numeric", "./UWSManager", "./Samp", "./ErrorDialog", "./Utils", "underscore-min", "text!../templates/healpixCutService.html", "text!../templates/cutResultItem.html"  ],
 		function($, CoordinateSystem, Numeric, UWSManager, Samp, ErrorDialog, Utils, _, healpixCutServiceHTMLTemplate, healpixCutServiceItemHTMLTemplate ) {
 
 var globe;

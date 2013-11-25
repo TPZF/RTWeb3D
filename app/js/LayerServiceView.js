@@ -21,7 +21,7 @@
  *	Layer service view
  *	The view representing the services for each layer
  */
-define( [ "jquery.ui", "OpenSearchService", "MocService", "XMatchService", "HEALPixCutService" ],
+define( [ "jquery.ui", "./OpenSearchService", "./MocService", "./XMatchService", "./HEALPixCutService" ],
 			function($, OpenSearchService, MocService, XMatchService, HEALPixCutService ) {
 
 var layerServiceView = '<div id="layerServiceView" title="Available services">\
@@ -139,6 +139,7 @@ return {
 		currentLayer = layer;
 
 		tabs.tabs('refresh');
+		tabs.tabs("option", "active", 0);
 
 		$layerServiceView
 			.dialog( "open" );

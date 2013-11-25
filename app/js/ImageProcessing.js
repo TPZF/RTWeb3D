@@ -20,7 +20,7 @@
 /**
  *	ImageProcessing module
  */
-define( [ "jquery.ui", "SelectionTool", "CutOutViewFactory", "DynamicImageView", "gw/FeatureStyle" ],
+define( [ "jquery.ui", "./SelectionTool", "./CutOutViewFactory", "./DynamicImageView", "gw/FeatureStyle" ],
 		function($, SelectionTool, CutOutViewFactory, DynamicImageView, FeatureStyle) {
 
 /**************************************************************************************************************/

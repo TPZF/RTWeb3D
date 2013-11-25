@@ -33,7 +33,7 @@ ImageRequest.prototype.send = function(url)
 		var xhr = new XMLHttpRequest();
 		xhr.onreadystatechange = function(e)
 		{
-			if ( xhr.readyState == 4 )
+			if ( xhr && xhr.readyState == 4 )
 			{
 				if ( xhr.status == 200 )
 				{
@@ -84,7 +84,7 @@ ImageRequest.prototype.send = function(url)
 		this.image.dataType = "byte";
 		this.image.onload = function(){
 			var isComplete = self.image.naturalWidth != 0 && self.image.complete;
-			if ( isComplete )
+			if ( isComplete && !this.aborted )
 			{
 				self.successCallback.call(self);
 			}

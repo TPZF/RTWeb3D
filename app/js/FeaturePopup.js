@@ -20,7 +20,7 @@
 /**
  * FeaturePopup module
  */
-define( [ "jquery.ui", "IFrame", "JsonProcessor", "Utils", "ImageProcessing", "gw/FeatureStyle", "gw/VectorLayer", "Samp", "underscore-min", "text!../templates/featureList.html", "text!../templates/featureDescription.html", "text!../templates/descriptionTable.html", "jquery.nicescroll.min" ],
+define( [ "jquery.ui", "./IFrame", "./JsonProcessor", "./Utils", "./ImageProcessing", "gw/FeatureStyle", "gw/VectorLayer", "./Samp", "underscore-min", "text!../templates/featureList.html", "text!../templates/featureDescription.html", "text!../templates/descriptionTable.html", "jquery.nicescroll.min" ],
 	function($, IFrame, JsonProcessor, Utils, ImageProcessing, FeatureStyle, VectorLayer, Samp, _, featureListHTMLTemplate, featureDescriptionHTMLTemplate, descriptionTableHTMLTemplate) {
 
 var featureListHTML = '';
@@ -237,9 +237,6 @@ return {
 		imageManager = im;
 		globe = gl;
 		var self = this;
-
-		// Make rightDiv always visible depending on viewport
-		$('#rightDiv').css('max-width',$('#'+globe.renderContext.canvas.id).width()/4 );
 		
 		// Initialize image processing popup
 		ImageProcessing.init({
@@ -471,6 +468,11 @@ return {
 		$selectedFeatureDiv.on("click", '.propertiesTable a', function(event){
 			event.preventDefault();
 			IFrame.show(event.target.innerHTML);
+		});
+
+		// Make rightDiv always visible depending on viewport
+		$(window).on('resize', function(){
+			$('#rightDiv').css('max-width',$('#'+globe.renderContext.canvas.id).width()/4 );
 		});
 
 	},

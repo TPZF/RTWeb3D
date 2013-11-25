@@ -20,7 +20,7 @@
 /**
  * Image manager
  */
-define( [ "jquery.ui", "gw/FeatureStyle", "gw/DynamicImage", "SimpleProgressBar", "FitsLoader", "ImageViewer", "Utils", "ImageProcessing", "fits" ],
+define( [ "jquery.ui", "gw/FeatureStyle", "gw/DynamicImage", "./SimpleProgressBar", "./FitsLoader", "./ImageViewer", "./Utils", "./ImageProcessing", "fits" ],
 			function($, FeatureStyle, DynamicImage, SimpleProgressBar, FitsLoader, ImageViewer, Utils, ImageProcessing) {
 
 var globe = null;

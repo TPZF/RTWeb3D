@@ -21,7 +21,7 @@
  * UWS Manager
  */
 
-define( [ "jquery.ui", "UWSBase" ],
+define( [ "jquery.ui", "./UWSBase" ],
 	function($, UWSBase) {
 
 var cutOutService;

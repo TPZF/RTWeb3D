@@ -20,7 +20,7 @@
 /**
  * Name resolver module : search object name and zoom to them
  */
-define(["jquery.ui", "gw/CoordinateSystem", "gw/Numeric", "IFrame", "Utils", "ErrorDialog", "underscore-min", "text!../templates/featureDescription.html", "text!../templates/descriptionTable.html"],
+define(["jquery.ui", "gw/CoordinateSystem", "gw/Numeric", "./IFrame", "./Utils", "./ErrorDialog", "underscore-min", "text!../templates/featureDescription.html", "text!../templates/descriptionTable.html"],
 	function($, CoordinateSystem, Numeric, IFrame, Utils, ErrorDialog, _, featureDescriptionHTMLTemplate, descriptionTableHTMLTemplate) {
 
 var globe;

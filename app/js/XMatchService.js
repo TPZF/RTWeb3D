@@ -20,7 +20,7 @@
 /**
  *	Moc xMatch service
  */
-define( [ "jquery.ui", "gw/FeatureStyle", "MocLayer", "MocBase", "gw/OpenSearchLayer", "ErrorDialog", "underscore-min", "text!../templates/mocServiceItem.html" ],
+define( [ "jquery.ui", "gw/FeatureStyle", "./MocLayer", "./MocBase", "gw/OpenSearchLayer", "./ErrorDialog", "underscore-min", "text!../templates/mocServiceItem.html" ],
 		function($, FeatureStyle, MocLayer, MocBase, OpenSearchLayer, ErrorDialog, _, mocServiceHTMLTemplate) {
 
 // Template generating the services html
