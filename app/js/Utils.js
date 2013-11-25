@@ -136,7 +136,7 @@ return {
 	 */
 	formatId : function(id)
 	{
-		return id.replace(/\s{1,}|\.{1,}|\[{1,}|\]{1,}|\~{1,}/g, "");
+		return id.replace(/\s{1,}|\.{1,}|\[{1,}|\]{1,}|\({1,}|\){1,}|\~{1,}/g, "");
 	},
 	
 	/**

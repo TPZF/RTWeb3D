@@ -20,7 +20,7 @@
 /**
  * AdditionalLayersView module
  */
-define(["jquery.ui", "gw/CoordinateSystem", "gw/FeatureStyle", "gw/OpenSearchLayer", "HEALPixFITSLayer", "MocLayer", "gw/VectorLayer", "PickingManager", "DynamicImageView", "LayerServiceView", "Samp", "ImageViewer", "ErrorDialog", "Utils", "underscore-min", "text!../templates/additionalLayer.html", "jquery.nicescroll.min"],
+define(["jquery.ui", "gw/CoordinateSystem", "gw/FeatureStyle", "gw/OpenSearchLayer", "./HEALPixFITSLayer", "./MocLayer", "gw/VectorLayer", "./PickingManager", "./DynamicImageView", "./LayerServiceView", "./Samp", "./ImageViewer", "./ErrorDialog", "./Utils", "underscore-min", "text!../templates/additionalLayer.html", "jquery.nicescroll.min"],
 		function($, CoordinateSystem, FeatureStyle, OpenSearchLayer, HEALPixFITSLayer, MocLayer, VectorLayer, PickingManager, DynamicImageView, LayerServiceView, Samp, ImageViewer, ErrorDialog, Utils, _, additionalLayerHTMLTemplate){
 
 var globe;
@@ -124,8 +124,15 @@ function updateScroll(categoryId)
 function createHtmlForAdditionalLayer( gwLayer, categoryId )
 {
 	var currentIndex = gwLayer.id;
+	var shortName = Utils.formatId( gwLayer.name );
+	var layerDiv = additionalLayerTemplate( {
+		layer: gwLayer,
+		currentIndex: currentIndex,
+		OpenSearchLayer: OpenSearchLayer,
+		HEALPixFITSLayer: HEALPixFITSLayer,
+		shortName : shortName
+	} );
 
-	var layerDiv = additionalLayerTemplate( { layer: gwLayer, currentIndex: currentIndex, OpenSearchLayer: OpenSearchLayer, HEALPixFITSLayer: HEALPixFITSLayer } );
 	var $layerDiv = $(layerDiv)
 		.appendTo('#'+categoryId)
 		.data("layer", gwLayer);
@@ -154,7 +161,7 @@ function createHtmlForAdditionalLayer( gwLayer, categoryId )
 	}
 			
 	// Slider initialisation
-	$('#slider_'+currentIndex).slider({
+	$('#slider_'+shortName).slider({
 		value: gwLayer.opacity()*100,
 		min: 20,
 		max: 100,
@@ -174,11 +181,11 @@ function createHtmlForAdditionalLayer( gwLayer, categoryId )
 	}).slider( "option", "disabled", !gwLayer.visible() );
 	
 	// Init percent input of slider
-	$( "#percentInput_"+currentIndex ).val( $( "#slider_"+currentIndex ).slider( "value" ) + "%" );
+	$( "#percentInput_"+shortName ).val( $( "#slider_"+shortName ).slider( "value" ) + "%" );
 		
 	// Open tools div when the user clicks on the layer label
-	var toolsDiv = $('#addLayer_'+currentIndex+' .layerTools');
-	$('#'+categoryId).on("click", '#addLayer_'+currentIndex+' > label', function() {
+	var toolsDiv = $('#addLayer_'+shortName+' .layerTools');
+	$('#'+categoryId).on("click", '#addLayer_'+shortName+' > label', function() {
 		toolsDiv.slideToggle(updateScroll.bind(this, categoryId));
 	});
 
@@ -187,11 +194,11 @@ function createHtmlForAdditionalLayer( gwLayer, categoryId )
 		toolsDiv.slideDown();
 	}
 	// Layer visibility management
-	$('.canvas').on('click', '#visible_'+currentIndex, function(){
+	$('.canvas').on('click', '#visible_'+shortName, function(){
 		// Manage 'custom' checkbox
 		// jQuery UI button is not sexy enough :)
 		// Toggle some classes when the user clicks on the visibility checkbox
-		var isOn = !$('#visible_'+currentIndex).hasClass('ui-state-active');
+		var isOn = !$('#visible_'+shortName).hasClass('ui-state-active');
 		gwLayer.visible( isOn );
 
 		if ( gwLayer.subLayers )
@@ -215,6 +222,7 @@ function createHtmlForAdditionalLayer( gwLayer, categoryId )
 		$layerDiv.find('.slider').slider( isOn ? "enable" : "disable" );
 		if ( isOn )
 		{
+			$('.layerTools').slideUp();
 			toolsDiv.slideDown();
 		}
 		else
@@ -223,7 +231,7 @@ function createHtmlForAdditionalLayer( gwLayer, categoryId )
 		}
 		
 		// Change button's state
-		$('#visible_'+currentIndex).toggleClass('ui-state-active')
+		$('#visible_'+shortName).toggleClass('ui-state-active')
 			   .toggleClass('ui-state-default')
 			   .find('span')
 			   	  .toggleClass('ui-icon-check')
@@ -491,8 +499,12 @@ function initToolbarEvents ()
 		// TODO: make reset function ?
 		// layer.setDatatype( dataType );
 
+		var prevId = layer.id;
 		globe.removeLayer(layer);
 		globe.addLayer(layer);
+
+		// HACK : Layer id will be changed by remove/add so we need to change the html id
+		$('#addLayer_'+prevId).attr('id','addLayer_'+layer.id);
 	});
 	
 	// Initialize nice scroll for categories
@@ -512,10 +524,12 @@ return {
 
 		// Spinner event
 		globe.subscribe("startLoad", function(layer){
-			$('#addLayer_'+layer.id).find('.spinner').stop(true,true).fadeIn('fast');
+			var shortName = Utils.formatId( layer.name );
+			$('#addLayer_'+shortName).find('.spinner').stop(true,true).fadeIn('fast');
 		});
 		globe.subscribe("endLoad", function(layer){
-			$('#addLayer_'+layer.id).find('.spinner').fadeOut(500);
+			var shortName = Utils.formatId( layer.name );
+			$('#addLayer_'+shortName).find('.spinner').fadeOut(500);
 		});
 	},
 	addView : addView,

@@ -1,12 +1,12 @@
-<div class="ui-widget addLayer" id="addLayer_<%= currentIndex %>" >
+<div class="ui-widget addLayer" id="addLayer_<%= shortName %>" >
 
-	<span id="visible_<%= currentIndex %>" class="<% if (layer.visible()) print('ui-state-active'); else print('ui-state-default'); %> ui-corner-all ui-button">
+	<span id="visible_<%= shortName %>" class="<% if (layer.visible()) print('ui-state-active'); else print('ui-state-default'); %> ui-corner-all ui-button">
 		<span class="ui-icon <% if (layer.visible()) print('ui-icon-check'); else print('ui-icon-empty'); %>"></span>
 	</span>
 
 	<canvas width="20" height="10" class="legend"></canvas>
 
-	<label title="<%= layer.description %>" for="addLayerInput_<%= currentIndex %>"><%= layer.name %></label>
+	<label title="<%= layer.description %>" for="addLayerInput_<%= shortName %>"><%= layer.name %></label>
 
 	<img style="display: none;" class="spinner" src="css/images/loading.gif">
 
@@ -49,18 +49,18 @@
 		<% if ( layer instanceof HEALPixFITSLayer )
 		{
 		%>
-			<input type="checkbox" class="isFits" id="isFits_<%= currentIndex %>" /><label for="isFits_<%= currentIndex %>">Fits</label>
-			<input type="checkbox" class="addFitsView" id="addFitsView_<%= layer.name %>" disabled="disabled" /><label for="addFitsView_<%= layer.name %>"></label>
+			<input type="checkbox" class="isFits" id="isFits_<%= shortName %>" /><label for="isFits_<%= shortName %>">Fits</label>
+			<input type="checkbox" class="addFitsView" id="addFitsView_<%= shortName %>" disabled="disabled" /><label for="addFitsView_<%= shortName %>"></label>
 		<%
 		}
 		%>
 
-		<div id="opacity_<%= currentIndex %>">
+		<div id="opacity_<%= shortName %>">
 			<div>
-				<label for="percentInput_<%= currentIndex %>">Opacity: </label>
-				<input class="percentInput" type="text" id="percentInput_<%= currentIndex %>" />
+				<label for="percentInput_<%= shortName %>">Opacity: </label>
+				<input class="percentInput" type="text" id="percentInput_<%= shortName %>" />
 			</div>
-			<div class="slider" id="slider_<%= currentIndex %>"></div>
+			<div class="slider" id="slider_<%= shortName %>"></div>
 		</div>
 	</div>
 
