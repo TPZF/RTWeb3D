@@ -77,10 +77,11 @@ function createLayerView(layer)
 	$('#layerVisibility_'+layer.id).click(function(){
 
 		var isChecked = ($layerVisibility.button('option', 'icons').primary == "ui-icon-check");
-		if ( $('#visible_'+layer.id ).hasClass('ui-state-active') == isChecked )
+		var shortName = Utils.formatId( layer.name );
+		if ( $('#visible_'+shortName ).hasClass('ui-state-active') == isChecked )
 		{
 			// Trigger event on LayerManager visibility button
-			$('#visible_'+layer.id).trigger("click");
+			$('#visible_'+shortName).trigger("click");
 		}
 		else
 		{
