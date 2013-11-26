@@ -20,7 +20,7 @@
 /**
  * Samp module : performing communication between applications using SAMP protocol
  */
-define(["jquery.ui", "underscore-min", "gw/CoordinateSystem", "gw/FeatureStyle", "gw/VectorLayer", "Utils", "JsonProcessor", "samp"],
+define(["jquery.ui", "underscore-min", "gw/CoordinateSystem", "gw/FeatureStyle", "gw/VectorLayer", "./Utils", "./JsonProcessor", "samp"],
 	function($, _, CoordinateSystem, FeatureStyle, VectorLayer, Utils, JsonProcessor) {
 
 var globe;
@@ -134,31 +134,54 @@ function createClientTracker()
 	}
 
 	callHandler["table.load.votable"] = function(senderId, message, isCall) {
-		var params = message["samp.params"];
-		var origUrl = params["url"];
-		var proxyUrl = clientTracker.connection.translateUrl(origUrl);
 
 		if ( votable2geojsonBaseUrl )
 		{
-			$.ajax({
-				type: "GET",
-				url: votable2geojsonBaseUrl,
-				data: {
-					url: proxyUrl,
-					coordSystem: "EQUATORIAL"
-				},
-				success: function(response)
-				{
-					// Add feature collection
-					JsonProcessor.handleFeatureCollection( sampLayer, response );
-					sampLayer.addFeatureCollection( response );
-					additionalLayersView.showView(sampLayer);
-				},
-				error: function(thrownError)
-				{
-					console.error(thrownError);
-				}
-			});
+			var params = message["samp.params"];
+	        var origUrl = params["url"];
+	        var proxyUrl = clientTracker.connection.translateUrl(origUrl);
+	        var xhr = samp.XmlRpcClient.createXHR();
+	        var e;
+	        xhr.open("GET", proxyUrl);
+	        xhr.onload = function() {
+	            var xml = xhr.responseXML;
+	            if (xml) {
+	            	try {
+	                    // Send response of xml to SiTools2 to convert it to GeoJSON
+	                    $.ajax({
+	                    	type: "POST",
+	                    	url: votable2geojsonBaseUrl,
+	                    	data: {
+	                    		votable: xhr.responseText,
+								coordSystem: "EQUATORIAL"
+	                    	},
+	                    	success: function(response)
+	                    	{
+	                 			// Add feature collection
+								JsonProcessor.handleFeatureCollection( sampLayer, response );
+								sampLayer.addFeatureCollection( response );
+								additionalLayersView.showView(sampLayer);
+	                    	},
+	                    	error: function(thrownError)
+	                    	{
+	                    		console.error(thrownError);
+	                    	}
+	                    });
+	                }
+	                catch (e) {
+	                    console.log("Error displaying table:\n" +
+	                    e.toString());
+	                }
+	            }
+	            else {
+	                console.log("No XML response");
+	            }
+	        };
+	        xhr.onerror = function(err) {
+	            console.log("Error getting table " + origUrl + "\n" +
+	                            "(" + err + ")");
+	        };
+	        xhr.send(null);
 		}
 		else
 		{
@@ -166,31 +189,31 @@ function createClientTracker()
 		}
 	};
 
-	callHandler["table.highlight.row"] = function(senderId, message, isCall) {
-		var params = message["samp.params"];
-		var url = params['url'];
-		var row = params['row'];
+	// callHandler["table.highlight.row"] = function(senderId, message, isCall) {
+	// 	var params = message["samp.params"];
+	// 	var url = params['url'];
+	// 	var row = params['row'];
 
-		if ( highlightedData )
-		{
-			highlightedData.layer.modifyFeatureStyle( highlightedData.feature, highlightedData.layer.style );
-		}
+	// 	if ( highlightedData )
+	// 	{
+	// 		highlightedData.layer.modifyFeatureStyle( highlightedData.feature, highlightedData.layer.style );
+	// 	}
 
-		if ( tables[url] )
-		{
-			var layer = tables[url].layer;
-			var feature = tables[url].features[parseInt(row)];
+	// 	if ( tables[url] )
+	// 	{
+	// 		var layer = tables[url].layer;
+	// 		var feature = tables[url].features[parseInt(row)];
 
-			layer.modifyFeatureStyle( feature, highlightStyle );
-			highlightedData = {
-				layer: layer,
-				feature: feature
-			}
+	// 		layer.modifyFeatureStyle( feature, highlightStyle );
+	// 		highlightedData = {
+	// 			layer: layer,
+	// 			feature: feature
+	// 		}
 
-			var barycenter = Utils.computeGeometryBarycenter( feature.geometry );
-			navigation.zoomTo( barycenter, (navigation.renderContext.fov < 1. ? navigation.renderContext.fov : 1.), 300. );
-		}
-	};
+	// 		var barycenter = Utils.computeGeometryBarycenter( feature.geometry );
+	// 		navigation.zoomTo( barycenter, (navigation.renderContext.fov < 1. ? navigation.renderContext.fov : 1.), 300. );
+	// 	}
+	// };
 
 	callHandler["image.load.fits"] = function(senderId, message, isCall) {
 		var params = message["samp.params"];
@@ -417,34 +440,38 @@ return {
 	{
 		if (this.isConnected())
 		{
-			$.ajax({
-				type: "GET",
-				url: url,
-				success: function(response) {
+			// Send message
+			var msg = new samp.Message("table.load.votable", {url: url+"&media=votable"});
+			connector.connection.notifyAll([msg]);
+			
+			// Part used to highlighting
+			// $.ajax({
+			// 	type: "GET",
+			// 	url: url,
+			// 	success: function(response) {
 
-					if ( response.totalResults > 0 )
-					{
-						// Store table to be able to highlight features later
-						tables[ url+'&media=votable' ] = {
-							layer: layer,
-							features: []
-						};
-						for ( var i=0; i<response.features.length; i++ )
-						{
-							var feature = response.features[i];
-							tables[url+'&media=votable'].features.push(feature);
-						}
-					}
-					// Send message
-					var msg = new samp.Message("table.load.votable", {url: url+"&media=votable"});
-					connector.connection.notifyAll([msg]);
-					console.log('VOTable has been sent');
-				},
-				error: function(thrownError)
-				{
-					console.error(thrownError);
-				}
-			});
+			// 		if ( response.totalResults > 0 )
+			// 		{
+			// 			// Store table to be able to highlight features later
+			// 			tables[ url+'&media=votable' ] = {
+			// 				layer: layer,
+			// 				features: []
+			// 			};
+			// 			for ( var i=0; i<response.features.length; i++ )
+			// 			{
+			// 				var feature = response.features[i];
+			// 				tables[url+'&media=votable'].features.push(feature);
+			// 			}
+			// 		}
+			// 		// Send message
+			// 		var msg = new samp.Message("table.load.votable", {url: url+"&media=votable"});
+			// 		connector.connection.notifyAll([msg]);
+			// 	},
+			// 	error: function(thrownError)
+			// 	{
+			// 		console.error(thrownError);
+			// 	}
+			// });
 			return "VOTable has been sent";
 		}
 		else
@@ -453,28 +480,26 @@ return {
 		}
 	},
 
+	// Commented part is used for highlighting feature which wasn't implemented due to
+	// difficulty of SAMP protocol (client doesn't know the feature from row)
 	highlightFeature: function(layer, feature)
 	{
 		if ( this.isConnected() )
 		{
-			for ( var url in tables )
-			{
-				var table = tables[url];
-				if ( layer == table.layer )
-				{
-					var featureToHighlight = _.filter( table.features, function(x){ return(feature.properties.identifier == x.properties.identifier) } );
-					if ( featureToHighlight.length )
-					{
-						var featureRow = table.features.indexOf(featureToHighlight[0]);
-						var msg = new samp.Message("table.highlight.row", {url: url, row: featureRow.toString()});
-						connector.connection.notifyAll([msg]);
-					}
-				}
-			}
-		}
-		else
-		{
-			return "Connect to SAMP Hub first";
+			// for ( var url in tables )
+			// {
+			// 	var table = tables[url];
+			// 	if ( layer == table.layer )
+			// 	{
+			// 		var featureToHighlight = _.filter( table.features, function(x){ return(feature.properties.identifier == x.properties.identifier) } );
+			// 		if ( featureToHighlight.length )
+			// 		{
+						// var featureRow = table.features.indexOf(featureToHighlight[0]);
+						// var msg = new samp.Message("table.highlight.row", {url: url, row: featureRow.toString()});
+						// connector.connection.notifyAll([msg]);
+			// 		}
+			// 	}
+			// }
 		}
 	},
 
