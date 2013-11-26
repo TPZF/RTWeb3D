@@ -202,6 +202,8 @@ return {
 			{
 				$('#fitsView').button('disable');
 			}
+
+			globe.setBaseImagery( null );
 			globe.setBaseImagery( layer );
 			$('#loading').show();
 		});
