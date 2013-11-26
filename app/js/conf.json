@@ -118,6 +118,69 @@
 		 *	Plugin: Proxy Healpix Image cache
 		 *	urlClient: http://alasky.u-strasbg.fr or http://healpix.ias.u-psud.fr/
 		 */
+		/**
+		 *	Plack FITS supported surveys
+		 */
+		// Background
+		{
+			"type": "healpix",
+			"name": "Planck-CMB",
+			"baseUrl": "/sitools/Alasky/PLANCK/CMB",
+			"description": "PLANCK CMB from CDS",
+			"attribution": "Planck CMB background from <object width='48' height='32' data=\"css/images/cds.svg\" type=\"image/svg+xml\"></object>",
+			"visible": false,
+			"background": true,
+			"coordSystem": "GAL",
+			"fitsSupported": true,
+			"dataType": "jpg",
+			"availableServices": [ { "name": "HEALPixCut", "fileName": "HFI_SkyMap_857_2048_R1.10_nominal.fits"	} ],
+			"numberOfLevels": 1
+		},
+        {
+			"type": "healpix",
+			"name": "Planck-HFI-545",
+			"baseUrl": "/sitools/Alasky/PLANCK/HFI545",
+			"description": "PLANCK HFI 545 from CDS",
+			"attribution": "Planck HFI-545 background from <object width='48' height='32' data=\"css/images/cds.svg\" type=\"image/svg+xml\"></object>",
+			"visible": false,
+			"background": true,
+			"coordSystem": "GAL",
+			"fitsSupported": true,
+			"dataType": "jpg",
+			"availableServices": [ { "name": "HEALPixCut", "fileName": "HFI_SkyMap_857_2048_R1.10_nominal.fits"	} ],
+			"numberOfLevels": 1
+        },
+        {
+			"type": "healpix",
+			"name": "Planck-HFI-857",
+			"baseUrl": "/sitools/Alasky/PLANCK/HFI857",
+			"description": "PLANCK HFI 857 from CDS",
+			"attribution": "Planck HFI-857 background from <object width='48' height='32' data=\"css/images/cds.svg\" type=\"image/svg+xml\"></object>",
+			"visible": false,
+			"background": true,
+			"coordSystem": "GAL",
+			"fitsSupported": true,
+			"dataType": "jpg",
+			"availableServices": [ { "name": "HEALPixCut", "fileName": "HFI_SkyMap_857_2048_R1.10_nominal.fits"	} ],
+			"numberOfLevels": 1
+		},
+		// Overlay
+		{
+			"category": "Image",
+			"type": "healpix",
+			"name": "Planck-CMB-overlay",
+			"baseUrl" : "/sitools/Alasky/PLANCK/CMB",
+			"description": "Planck CMB from CDS",
+			"attribution": "Planck background from <img width='48' height='32' src=\"css/images/cds.svg\" />",
+			"visible": false,
+			"background": false,
+			"dataType": "jpg",
+			"fitsSupported": true,
+			"coordSystem": "GAL"
+		},
+		/**
+		 *	No fits supported surveys
+		 */
 		{
 			"type": "healpix",
 			"name": "IRIS",
@@ -127,7 +190,7 @@
 			"visible": false,
 			"background": true,
 			"coordSystem": "GAL",
-			"numberOfLevels": 2
+			"numberOfLevels": 1
 		},
 		{ 
 			"type": "healpix",
@@ -137,7 +200,7 @@
 			"attribution": "Deep CFHTLS backbround from <img width='48' height='32' src=\"css/images/cds.svg\" />",
 			"visible": false,
 			"background": true,
-			"numberOfLevels": 11
+			"numberOfLevels": 10
 		},
 		{ 
 			"type": "healpix",
@@ -147,7 +210,7 @@
             "attribution": "TERAPIX - Healpixed by CDS",
 			"visible": false,
 			"background": true,
-			"numberOfLevels": 10
+			"numberOfLevels": 9
 		},
 		{ 
 			"type": "healpix",
@@ -157,7 +220,7 @@
 			"attribution": "2MASS backbround from <img width='48' height='32' src=\"css/images/cds.svg\" />",
 			"visible": false,
 			"background": true,
-			"numberOfLevels": 8
+			"numberOfLevels": 7
 		},
 		{ 
 			"type": "healpix",
@@ -167,7 +230,7 @@
 			"attribution": "Distributed by MPE - Healpixed by CDS",
 			"visible": false,
 			"background": true,
-			"numberOfLevels": 3
+			"numberOfLevels": 2
 		},
 		{ 
 			"type": "healpix",
@@ -176,7 +239,7 @@
 			"description": "NVSS intensity maps (1.4GHz)",
 			"visible": false,
 			"background": true,
-			"numberOfLevels": 4
+			"numberOfLevels": 3
 		},
 		{
 			"category": "Image",
@@ -197,53 +260,7 @@
 			"attribution": "DSS backbround from <img width='48' height='32' src=\"css/images/cds.svg\" />",
 			"visible": true,
 			"background": true,
-			"numberOfLevels": 8
-		},
-		/**
-		 *	Plack FITS supported surveys
-		 */
-		// Background
-		{
-			"type": "healpix",
-			"name": "PlanckFITS",
-			"baseUrl" : "/sitools/Alasky/PLANCK/CMB",
-			"description": "Planck survey from CDS",
-			"attribution": "Planck backbround from <img width='48' height='32' src=\"css/images/cds.svg\" />",
-			"visible": false,
-			"background": true,
-			"dataType": "jpg",
-			"fitsSupported": true,
-			"coordSystem": "GAL",
-			"availableServices": [ { "name": "HEALPixCut", "fileName": "HFI_SkyMap_857_2048_R1.10_nominal.fits"	} ],
-			"numberOfLevels": 2
-		},
-        {
-			"type": "healpix",
-			"name": "Planck-HFI-857",
-			"baseUrl": "/sitools/Alasky/PLANCK/HFI857",
-			"description": "PLANCK HFI 857 from CDS",
-			"attribution": "Planck HFI-857 background from <object width='48' height='32' data=\"css/images/cds.svg\" type=\"image/svg+xml\"></object>",
-			"visible": false,
-			"background": true,
-			"coordSystem": "GAL",
-			"fitsSupported": true,
-			"dataType": "jpg",
-			"availableServices": [ { "name": "HEALPixCut", "fileName": "HFI_SkyMap_857_2048_R1.10_nominal.fits"	} ],
-			"numberOfLevels": 2
-        },
-		// Overlay
-		{
-			"category": "Image",
-			"type": "healpix",
-			"name": "PlanckFITS",
-			"baseUrl" : "/sitools/Alasky/PLANCK/CMB",
-			"description": "Planck survey from CDS",
-			"attribution": "Planck backbround from <img width='48' height='32' src=\"css/images/cds.svg\" />",
-			"visible": false,
-			"background": false,
-			"dataType": "jpg",
-			"fitsSupported": true,
-			"coordSystem": "GAL"
+			"numberOfLevels": 7
 		},
 		/**
 		 *	Healpix grid
@@ -269,7 +286,7 @@
 			"attribution": "IAS",
 			"visible": false,
 			"background": false,
-            "numberOfLevels": 5,
+            "numberOfLevels": 4,
             "fitsSupported": true
 		},
 		/**
@@ -299,8 +316,7 @@
 			"visible": false,
 			"background": false,
 			"dataType": "png",
-			"fitsSupported": true,
-			"numberOfLevels": 9
+			"numberOfLevels": 8
 		},
 		/**
 		 *	OpenSearch SOLR Herschel layer
@@ -349,7 +365,7 @@
 		 *	siaSearchUrl: http://archive.eso.org/apps/siaserver/EsoProxySiap?
 		 */
 		{
-			"category": "Catalog",
+			"category": "Image",
 			"type": "DynamicOpenSearch",
 			"dataType": "line",
 			"name": "ESO",
@@ -366,7 +382,7 @@
 		 *	siaSearchUrl: http://archives.esac.esa.int/hst/hst-vo/hla_sia?REQUEST=queryData&
 		 */
 		{
-			"category": "Catalog",
+			"category": "Image",
 			"type": "DynamicOpenSearch",
 			"dataType": "line",
 			"name": "HST",
@@ -382,7 +398,7 @@
 		 *	siaSearchUrl: http://archives.esac.esa.int/ida/aio/jsp/siap.jsp?imageType=image&
 		 */
 		{
-			"category": "Catalog",
+			"category": "Image",
 			"type": "DynamicOpenSearch",
 			"dataType": "line",
 			"name": "Iso",
@@ -427,6 +443,41 @@
 			"visible": false,
 			"minOrder": 9,
 			"availableServices": [ "Moc", "XMatch" ]
+		},
+		{
+			"category": "Catalog",
+			"type": "DynamicOpenSearch",
+			"dataType": "point",
+			"name": "Hipparcos",
+			"description":"The Hipparcos Input Catalogue was constructed as the observing program for ESA  Hipparcos astrometry mission. This has resulted in a catalogue of stellar data including up-to-date information on positions, proper motions, magnitudes, colors, and when available, spectral types, radial velocities, multiplicity and variability information. The catalogue is complete to well-defined magnitude limits, and includes a substantial sampling of the most important stellar categories present in the solar neighbourhood beyond these limits. The magnitude limits vary from 7.3 to 9 magnitudes as a function of galactic latitude and spectral type, and there are no stars fainter than about V = 13 mag. 118000 stars are included in the Hipparcos Input Catalogue, about half of them have been selected within well-defined limits in V magnitude, spectral type and galactic latitude (the survey), half of them within proposed observing programs. The mean accuracies achieved, as demonstrated by comparison with the Hipparcos results (Turon et al. 1995A&A...304...82T) are 0.3 arcsec for the positions and 0.25 mag for     the Hp magnitude, with accuracies of 0.02 mag or better for more than a third of the catalogue. The data set consists of the main catalogue, and the first supplement which contains more detailed information for multiple system components. Other supplements with identification charts can be found in the published version.",
+			"serviceUrl": "/sitools/I_196",
+			"visible": false,
+			"minOrder": 4,
+			"availableServices": [  "Moc", "XMatch" ]
+		},
+		{
+			"category": "Catalog",
+			"type": "DynamicOpenSearch",
+			"dataType": "point",
+			"name": "CFHTLS Wide",
+			"description":" The CFHTLS Wide Survey (fields W1–W4: 35,651,677 sources) (35651677 rows)",
+			"attribution": "CFHTLS Survey",
+			"serviceUrl": "/sitools/cfhtls/wide",
+			"visible": false,
+			"minOrder": 9,
+			"availableServices": [  "Moc", "XMatch" ]
+		},
+		{
+			"category": "Catalog",
+			"type": "DynamicOpenSearch",
+			"dataType": "point",
+			"name": "CFHTLS Deep",
+			"description":"The CFHTLS Deep Survey (fields D1–D4: 2,293,851 sources) (2293851 rows)",
+			"attribution": "CFHTLS Survey",
+			"serviceUrl": "/sitools/cfhtls/deep",
+			"visible": false,
+			"minOrder": 11,
+			"availableServices": [  "Moc", "XMatch" ]
 		},
 		/**
 		 *	OpenSearch ConeSearch IMCCE layer
