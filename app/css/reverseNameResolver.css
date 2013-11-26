@@ -3,11 +3,17 @@
 	padding: 10px;
 }
 
+#reverseSearchResult
+{
+	padding-bottom: 15px;
+}
+
 .credit
 {
 	position: absolute;
-	right: 20px;
-	bottom: 10px;
+	right: 10;
+	bottom: 7;
+	font-size: 0.9em;
 }
 
 .title
