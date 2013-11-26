@@ -223,6 +223,9 @@ $(function()
 			var newCoordSystem = $(this).children('option:selected').val();				
 			CoordinateSystem.type = newCoordSystem;
 			mollweideViewer.setCoordSystem( newCoordSystem );
+
+			// Publish modified event to update compass north
+			navigation.publish('modified');
 		}
 	});
 
