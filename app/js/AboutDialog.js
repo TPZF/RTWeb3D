@@ -37,7 +37,7 @@ var aboutContent =
 			<input id="showAbout" type="checkbox" />\n\
 			<label style="font-size: 0.8em;top: -3px;position: relative;" for="showAbout">Don\'t show this message again</label>\
 		</div>\
-		<span style="font-size: 0.8em;bottom: 5px;right: 5px;position: absolute;">v0.1 - 23.10.2013 - nightly build</span>\
+		<span style="font-size: 0.8em;bottom: 5px;right: 5px;position: absolute;">v1.0 - 26.11.2013 - nightly build</span>\
 	</div>';
 
 // Create dialog
