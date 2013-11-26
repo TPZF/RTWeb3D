@@ -63,7 +63,7 @@ li.poi:hover
 		// - baseUrl: Url to background images provider in HEALPix format
 		//		Note: must pass by proxy due to Cross-domain resource sharing issue
 		//			  For more details see: https://developer.mozilla.org/en-US/docs/HTTP_access_control
-		var cdsLayer = new AstroWeb.HEALPixLayer( { baseUrl: "/Alasky/DssColor/"} );
+		var cdsLayer = new AstroWeb.HEALPixLayer( { baseUrl: "/sitools/Alasky/DssColor/"} );
 		globe.setBaseImagery( cdsLayer );
 
 		// Define rendering options for OpenSearch layer
@@ -83,7 +83,8 @@ li.poi:hover
 			serviceUrl: "/sitools/ofuse",
 			minOrder: 3,
 			visible: false,
-			style: layerStyle
+			style: layerStyle,
+			coordSystemRequired: false
 		};
 
 		// Create OpenSearch layer with choosen options
