@@ -374,30 +374,20 @@ function buildVisibleTilesUrl(layer)
 	// Find max visible order & visible pixel indices
 	var maxOrder = 3;
 	var pixelIndices = "";
-	for ( var i=0; i<globe.tileManager.tilesToRender.length; i++ )
+	for ( var i=0; i<globe.tileManager.visibleTiles.length; i++ )
 	{
-		var tile = globe.tileManager.tilesToRender[i];
+		var tile = globe.tileManager.visibleTiles[i];
 		if ( maxOrder < tile.order )
 			maxOrder = tile.order;
 
 		pixelIndices+=tile.pixelIndex;
-		if ( i < globe.tileManager.tilesToRender.length - 1 )
+		if ( i < globe.tileManager.visibleTiles.length - 1 )
 		{
 			pixelIndices+=",";
 		}
 	}
 
-	var coordSystem;
-	if ( globe.tileManager.imageryProvider.tiling.coordSystem == "EQ" )
-	{
-		coordSystem = "EQUATORIAL";
-	}
-	else
-	{
-		coordSystem = "GALACTIC";
-	}
-
-	return window.location.origin + layer.serviceUrl+"/search?order="+maxOrder+"&healpix="+pixelIndices+"&coordSystem="+coordSystem;
+	return window.location.origin + layer.serviceUrl+"/search?order="+maxOrder+"&healpix="+pixelIndices+"&coordSystem=EQUATORIAL";
 }
 
 /**************************************************************************************************************/
