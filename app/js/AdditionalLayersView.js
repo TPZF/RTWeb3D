@@ -274,7 +274,7 @@ function createHtmlForAdditionalLayer( gwLayer, categoryId )
 	if ( gwLayer instanceof HEALPixFITSLayer )
 	{
 		// Supports fits, so create dynamic image view in dialog
-		var dialogId = "addFitsViewDialog_"+gwLayer.name;
+		var dialogId = "addFitsViewDialog_"+shortName;
 		var $dialog = $('<div id="'+dialogId+'"></div>').appendTo('body').dialog({
 			title: 'Image processing',
 			autoOpen: false,
@@ -292,13 +292,13 @@ function createHtmlForAdditionalLayer( gwLayer, categoryId )
 			minHeight: 'auto',
 			close: function(event, ui)
 			{
-				$('#addFitsView_'+gwLayer.name).removeAttr("checked").button("refresh");
+				$('#addFitsView_'+shortName).removeAttr("checked").button("refresh");
 				$(this).dialog("close");
 			}
 		});
 
 		// Dialog activator
-		$('#addFitsView_'+gwLayer.name).on('click', function(){
+		$('#addFitsView_'+shortName).on('click', function(){
 
 			if ( $dialog.dialog( "isOpen" ) )
 			{
@@ -312,7 +312,7 @@ function createHtmlForAdditionalLayer( gwLayer, categoryId )
 
 		// Add dynamic image view content to dialog
 		gwLayer.div = new DynamicImageView( dialogId, {
-			id : gwLayer.name,
+			id : shortName,
 			changeShaderCallback: function(contrast)
 			{
 				if ( contrast == "raw" )

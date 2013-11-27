@@ -127,7 +127,8 @@ function createLayerFromConf(layer) {
 							// Additional layer
 							// Using name as identifier, because we must know it before attachment to globe
 							// .. but identfier is assigned after layer creation.
-							$('#addFitsView_'+fitsLayer.name).button("enable");
+							var shortName = Utils.formatId( fitsLayer.name );
+							$('#addFitsView_'+shortName).button("enable");
 							fitsLayer.div.setImage(fitsLayer.levelZeroImage);
 						}
 						else
