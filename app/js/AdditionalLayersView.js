@@ -25,6 +25,7 @@ define(["jquery.ui", "gw/CoordinateSystem", "gw/FeatureStyle", "gw/OpenSearchLay
 
 var globe;
 var navigation;
+var layerManager;
 var categories = {
 	"Other": 'otherLayers',
 	"Coordinate systems": 'coordinateSystems'
@@ -194,7 +195,7 @@ function createHtmlForAdditionalLayer( gwLayer, categoryId )
 		toolsDiv.slideDown();
 	}
 	// Layer visibility management
-	$('.canvas').on('click', '#visible_'+shortName, function(){
+	$('#visible_'+shortName).click(function(){
 		// Manage 'custom' checkbox
 		// jQuery UI button is not sexy enough :)
 		// Toggle some classes when the user clicks on the visibility checkbox
@@ -420,9 +421,13 @@ function initToolbarEvents ()
 		});
 
 		var layer = $(this).parent().parent().data("layer");
+		var gwLayers = layerManager.getLayers();
+		var index = gwLayers.indexOf(layer);
+		gwLayers.splice(index, 1);
 		PickingManager.removePickableLayer( layer );
 		ImageViewer.removeLayer( layer );
 		globe.removeLayer(layer);
+
 		updateScroll('otherLayers');
 	});
 
@@ -507,10 +512,11 @@ function initToolbarEvents ()
 /**************************************************************************************************************/
 
 return {
-	init : function(gl, nav)
+	init : function(gl, nav, lm)
 	{
 		globe = gl;
 		navigation = nav;
+		layerManager = lm;
 
 		// Spinner event
 		globe.subscribe("startLoad", function(layer){
