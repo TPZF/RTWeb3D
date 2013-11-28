@@ -1,0 +1,133 @@
+{
+    "features": [
+        {
+            "geometry": {
+                "_imageCoordinates": [
+                    [
+                        [
+                            199.89383333333333,
+                            -12.718786111111111
+                        ],
+                        [
+                            199.84404166666667,
+                            -12.718722222222222
+                        ],
+                        [
+                            199.844,
+                            -12.767319444444444
+                        ],
+                        [
+                            199.893875,
+                            -12.767327777777778
+                        ],
+                        [
+                            199.89383333333333,
+                            -12.718786111111111
+                        ]
+                    ]
+                ],
+                "coordinates": [
+                    [
+                        [
+                            199.89342,
+                            -12.724113
+                        ],
+                        [
+                            199.87132,
+                            -12.720892
+                        ],
+                        [
+                            199.8695,
+                            -12.732003
+                        ],
+                        [
+                            199.86073,
+                            -12.73067
+                        ],
+                        [
+                            199.85936,
+                            -12.73867
+                        ],
+                        [
+                            199.84808,
+                            -12.737002
+                        ],
+                        [
+                            199.84444,
+                            -12.758669
+                        ],
+                        [
+                            199.88693,
+                            -12.765003
+                        ],
+                        [
+                            199.89342,
+                            -12.724113
+                        ]
+                    ]
+                ],
+                "type": "Polygon"
+            },
+            "properties": {
+                "crs": {
+                    "type": "name",
+                    "properties": {
+                        "name": "equatorial.ICRS"
+                    }
+                },
+                "AccessRef": "http://archives.esac.esa.int/hst/proxy?file_id=HST_07909_CS_WFPC2_F606W_WF_DRZ",
+                "Type": "OBJECT,WFPC2,1,A2D7,F814W,,CAL/WFPC2,1,A2D7,F336W,,CAL",
+                "ProposalID": "8333",
+                "AssocID": "HST_08333_01_WFPC2_TOTAL_WF",
+                "TimeCalibration": "CALIBRATED",
+                "CreatorVersion": "2.5.5 (Aug 27, 2009)",
+                "DisplayRef": "NONE",
+                "TimeStart": 51618.7147554,
+                "TimeExtent": 6800,
+                "date-obs": "2000/03/15T19:05:14",
+                "DispersiveElement": "F336W/F814W",
+                "SpectralResolution": 153.94,
+                "SpatialCalibration": "CALIBRATED",
+                "Ncombine": 4,
+                "ProcessingType": "highly_processed",
+                "Dec": -11.6150706488,
+                "SpectralStart": 314.22,
+                "Score": 0,
+                "PosAngle": 0,
+                "TimeStop": 51618.8758665,
+                "TargetName": "POX186",
+                "Collection": "HST",
+                "CoordRefFrame": "ICRS",
+                "Creator": "Space Telescope - European Coordinating Facility",
+                "Mode": "IMAGE,BROADBANDFILTER",
+                "SpectralResPower": 5.87035608291626,
+                "FluxCalibration": "CALIBRATED",
+                "Publisher": "Space Telescope - European Coordinating Facility",
+                "Naxes": 2,
+                "SpectralLocation": 590.835,
+                "SpectralExtent": 553.23,
+                "Category": "SCIENCE",
+                "CoordProjection": "TAN",
+                "PIName": "CORBIN MICHAEL",
+                "TargetDescription": "GALAXY;PROTOGALAXY",
+                "FovRef": "hla_sia_WFPC2_200_136516932235",
+                "CreatorDID": "HST_08333_01_WFPC2_TOTAL_WF",
+                "SpectralStop": 867.45,
+                "ProposalTitle": "Pox 186: A Nearby Protogalaxy?",
+                "Instrument": "WFPC2",
+                "identifier": "HST_07909_CS_WFPC2_F606W_WF_DRZ",
+                "TimeLocation": 51618.795310949994,
+                "TelescopeName": "HST/HLA",
+                "Ra": 201.462089698
+            },
+            "services": {
+                "download": {
+                    "mimetype": "image/fits",
+                    "url": "http://archives.esac.esa.int/hst/proxy?file_id=HST_07909_CS_WFPC2_F606W_WF_DRZ"
+                }
+            }
+        }
+    ],
+    "totalResults": 1,
+    "type": "FeatureCollection"
+}
