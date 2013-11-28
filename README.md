@@ -68,7 +68,7 @@ Build
 ---
 Pour générer une version minifiée, il est nécessaire d'avoir installé [NodeJS](http://nodejs.org/download/).
 
-Une fois installé, lancez `app/build/build.bat` pour les utilisateurs de Windows ou `app/build/node r.js -o build.js` pour les utilisateurs d'OS de type Unix.
+Une fois installé, lancez `app/build/build.bat` pour les utilisateurs de Windows ou `cd app/build` suivi de `node r.js -o build.js` pour les utilisateurs d'OS de type Unix.
 Le script va générer les fichiers minifiés dans le répertoire "generated".
 Les fichiers intéressants à récupérer sont:
   * css
