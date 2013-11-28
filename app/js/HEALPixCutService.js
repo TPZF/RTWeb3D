@@ -173,12 +173,13 @@ return {
 					var result = {
 						name: name,
 						url: response.results.result[0]['@xlink:href'],
-						downloadName: name.replace('"','&quot;' ) + '.fits'
+						downloadName: name.replace('"','&quot;' ) + '.fits',
+						jobId: jobId
 					};
-					results.push( response.result );
+					results.push( result );
 
 					$('#HEALPixCut').find('.status').hide();
-					var healpixCutItem = healpixCutServiceItemTemplate({result: result, jobId: jobId});
+					var healpixCutItem = healpixCutServiceItemTemplate({result: result});
 					$(healpixCutItem)
 						.appendTo( $('#HEALPixCut').find('.HEALPixCutResults ul') ).fadeIn();
 				},

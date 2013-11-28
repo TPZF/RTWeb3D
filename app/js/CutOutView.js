@@ -146,12 +146,13 @@ CutOutView.prototype.runJob = function()
 					}
 					self.runButton.stopAnimation();
 
-					var result = {
+					result = {
 						name: shortName,
-						url: url
+						url: url,
+						jobId: jobId
 					};
 
-					var cutOutResult = cutResultTemplate({result: result, jobId: jobId});
+					var cutOutResult = cutResultTemplate({result: result});
 					$(cutOutResult)
 						.appendTo(self.$content.find('.cutoutResults').find('ul'))
 						.fadeIn(400);
