@@ -22,6 +22,8 @@ body
 	padding: 0px;
 	margin: 0px;
 	overflow: hidden;
+	height: 100%;
+	width: 100%;
 }
 
 /************************/
@@ -36,8 +38,6 @@ body
 
 #webGLNotAvailable, #webGLContextLost
 {
-	width: 1024;
-	height: 768; 
 	padding-top: 300px;
 	text-align: center;
 	display: none;
@@ -129,8 +129,6 @@ body
 
 #externalIFrame Iframe
 {
-	min-width: 500px;
-	min-height: 500px;
 	border: none;
 }
 
@@ -167,6 +165,7 @@ body
 	pointer-events: none;
 	overflow: hidden;
 	width: 275px;
+	max-height: 95%;
 }
 
 /*** Left bottom components(share, mollweide, stats) ***/

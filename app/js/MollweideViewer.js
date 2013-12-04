@@ -249,7 +249,7 @@ var MollweideViewer = function(options) {
     /**********************************************************************************************/
 
     // Show/hide mollweide projection
-	$('#slideArrow').on('click', function(){
+	$('#slideArrow').click(function(){
 
         if ( parseFloat($(this).parent().css('left')) < 0 )
         {

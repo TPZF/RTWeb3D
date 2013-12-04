@@ -20,4 +20,6 @@
 	margin: 5px;
 	width: 250px;
 	background: rgba(76, 109, 131, 0);
+	max-height: 95%;
+	overflow: hidden;
 }

@@ -41,6 +41,8 @@ var mouseXStart;
 var mouseYStart;
 var timeStart;
 
+var isMobile;
+
 /**************************************************************************************************************/
 
 /**
@@ -48,6 +50,12 @@ var timeStart;
  */
 function _handleMouseDown(event)
 {
+	if ( isMobile && event.type.search("touch") >= 0 )
+	{
+		event.clientX = event.changedTouches[0].clientX;
+		event.clientY = event.changedTouches[0].clientY;
+	}
+
 	timeStart = new Date();
 	mouseXStart = event.clientX;
 	mouseYStart = event.clientY;
@@ -64,6 +72,12 @@ function _handleMouseUp(event)
 	var timeEnd = new Date();
 	var epsilon = 5;
 	var diff = timeEnd - timeStart;
+
+	if ( isMobile && event.type.search("touch") >= 0 )
+	{
+		event.clientX = event.changedTouches[0].clientX;
+		event.clientY = event.changedTouches[0].clientY;
+	}
 
 	// If not pan and not reverse name resolver call
 	if ( diff < 500 && Math.abs(mouseXStart - event.clientX) < epsilon && Math.abs(mouseYStart - event.clientY) < epsilon )
@@ -124,6 +138,12 @@ function activate()
 	globe.renderContext.canvas.addEventListener("mousedown", _handleMouseDown);
 	globe.renderContext.canvas.addEventListener("mouseup", _handleMouseUp);
 
+	if ( isMobile )
+	{
+		globe.renderContext.canvas.addEventListener("touchstart", _handleMouseDown);
+		globe.renderContext.canvas.addEventListener("touchend", _handleMouseUp);
+	}
+
 	// Hide popup and blur selection when pan/zoom or animation
 	navigation.subscribe("modified", function() { 
 		clearSelection();
@@ -140,6 +160,12 @@ function deactivate()
 {
 	globe.renderContext.canvas.removeEventListener("mousedown", _handleMouseDown);
 	globe.renderContext.canvas.removeEventListener("mouseup", _handleMouseUp);
+
+	if ( isMobile )
+	{
+		globe.renderContext.canvas.removeEventListener("touchstart", _handleMouseDown);
+		globe.renderContext.canvas.removeEventListener("touchend", _handleMouseUp);
+	}
 	
 	// Hide popup and blur selection when pan/zoom or animation
 	navigation.unsubscribe("modified", function() { 
@@ -411,6 +437,7 @@ return {
 		globe = gl;
 		navigation = nav;
 		self = this;
+		isMobile = configuration.isMobile;
 
 		activate();
 	

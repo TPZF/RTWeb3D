@@ -137,12 +137,13 @@
 	outline: none;
 	display: inline-block;
 	padding-right: 10px;
-	width: 100%;
+	width: 95%;
+	height: 70%;
 }
 
 .propertiesTable {
 	table-layout: fixed;
-	width: 300px;
+	width: 295px;
 }
 
 .propertiesTable td {
