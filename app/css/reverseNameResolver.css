@@ -3,9 +3,15 @@
 	padding: 10px;
 }
 
+#reverseSearchField
+{
+	overflow: auto;
+}
+
 #reverseSearchResult
 {
 	padding-bottom: 15px;
+	overflow: auto;
 }
 
 .credit

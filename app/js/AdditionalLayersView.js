@@ -30,6 +30,7 @@ var categories = {
 	"Other": 'otherLayers',
 	"Coordinate systems": 'coordinateSystems'
 };
+var isMobile = false;
 
 // Template generating the additional layer div in sidemenu
 var additionalLayerTemplate = _.template(additionalLayerHTMLTemplate);
@@ -131,7 +132,8 @@ function createHtmlForAdditionalLayer( gwLayer, categoryId )
 		currentIndex: currentIndex,
 		OpenSearchLayer: OpenSearchLayer,
 		HEALPixFITSLayer: HEALPixFITSLayer,
-		shortName : shortName
+		shortName : shortName,
+		isMobile: isMobile
 	} );
 
 	var $layerDiv = $(layerDiv)
@@ -185,8 +187,8 @@ function createHtmlForAdditionalLayer( gwLayer, categoryId )
 	$( "#percentInput_"+shortName ).val( $( "#slider_"+shortName ).slider( "value" ) + "%" );
 		
 	// Open tools div when the user clicks on the layer label
-	var toolsDiv = $('#addLayer_'+shortName+' .layerTools');
-	$('#'+categoryId).on("click", '#addLayer_'+shortName+' > label', function() {
+	var toolsDiv = $layerDiv.find('.layerTools');
+	$layerDiv.children('label').click(function() {
 		toolsDiv.slideToggle(updateScroll.bind(this, categoryId));
 	});
 
@@ -244,35 +246,32 @@ function createHtmlForAdditionalLayer( gwLayer, categoryId )
 	});
 
 	// Init buttons of tool bar
-	$('.deleteLayer').button({
-		text: false,
-		icons: {
-			primary: "ui-icon-trash"
-		}
-	});
+	$layerDiv.find('.deleteLayer').button({
+			text: false,
+			icons: {
+				primary: "ui-icon-trash"
+			}
+		}).end()
+		.find('.zoomTo').button({
+			text: false,
+			icons: {
+				primary: "ui-icon-zoomin"
+			}
+		}).end()
+		.find('.exportLayer').button({
+			text: false,
+			icons: {
+				primary: "ui-icon-extlink"
+			}
+		}).end()
+		.find('.downloadAsVO').button({
+			text: false,
+			icons: {
+				primary: "ui-icon-arrowthickstop-1-s"
+			}
+		});
 
-	$('.zoomTo').button({
-		text: false,
-		icons: {
-			primary: "ui-icon-zoomin"
-		}
-	});
-
-	$('.exportLayer').button({
-		text: false,
-		icons: {
-			primary: "ui-icon-extlink"
-		}
-	});
-
-	$('.downloadAsVO').button({
-		text: false,
-		icons: {
-			primary: "ui-icon-arrowthickstop-1-s"
-		}
-	});
-
-	if ( gwLayer instanceof HEALPixFITSLayer )
+	if ( gwLayer instanceof HEALPixFITSLayer && !isMobile )
 	{
 		// Supports fits, so create dynamic image view in dialog
 		var dialogId = "addFitsViewDialog_"+shortName;
@@ -299,7 +298,7 @@ function createHtmlForAdditionalLayer( gwLayer, categoryId )
 		});
 
 		// Dialog activator
-		$('#addFitsView_'+shortName).on('click', function(){
+		$('#addFitsView_'+shortName).click(function(){
 
 			if ( $dialog.dialog( "isOpen" ) )
 			{
@@ -512,11 +511,12 @@ function initToolbarEvents ()
 /**************************************************************************************************************/
 
 return {
-	init : function(gl, nav, lm)
+	init : function(gl, nav, lm, conf)
 	{
 		globe = gl;
 		navigation = nav;
 		layerManager = lm;
+		isMobile = conf.isMobile;
 
 		// Spinner event
 		globe.subscribe("startLoad", function(layer){

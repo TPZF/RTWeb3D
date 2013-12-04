@@ -69,10 +69,11 @@ require.config({
 /**
  * Main module
  */
-require( ["jquery.ui", "gw/EquatorialCoordinateSystem", "gw/Sky", "gw/Stats", "gw/AstroNavigation", "gw/AttributionHandler", "gw/VectorLayer",
+require( ["jquery.ui", "gw/EquatorialCoordinateSystem", "gw/Sky", "gw/Stats", "gw/AstroNavigation", "gw/AttributionHandler", "gw/VectorLayer", "gw/TouchNavigationHandler", "gw/MouseNavigationHandler", "gw/KeyboardNavigationHandler",
 	"./LayerManager", "./NameResolver", "./ReverseNameResolver", "./Utils", "./PickingManager", "./FeaturePopup", "./IFrame", "./Compass", "./MollweideViewer", "./ErrorDialog", "./AboutDialog", "./Share", "./Samp", "./AdditionalLayersView", "./ImageManager", "./ImageViewer", "./UWSManager", "./PositionTracker", "./MeasureTool", "./StarProvider", "./ConstellationProvider", "./JsonProvider", "./OpenSearchProvider",
 	"gw/ConvexPolygonRenderer", "gw/PointSpriteRenderer", "gw/PointRenderer"],
-	function($, CoordinateSystem, Sky, Stats, AstroNavigation, AttributionHandler, VectorLayer, LayerManager, NameResolver, ReverseNameResolver, Utils, PickingManager, FeaturePopup, IFrame, Compass, MollweideViewer, ErrorDialog, AboutDialog, Share, Samp, AdditionalLayersView, ImageManager, ImageViewer, UWSManager, PositionTracker, MeasureTool) {
+	function($, CoordinateSystem, Sky, Stats, AstroNavigation, AttributionHandler, VectorLayer, TouchNavigationHandler, MouseNavigationHandler, KeyboardNavigationHandler,
+			LayerManager, NameResolver, ReverseNameResolver, Utils, PickingManager, FeaturePopup, IFrame, Compass, MollweideViewer, ErrorDialog, AboutDialog, Share, Samp, AdditionalLayersView, ImageManager, ImageViewer, UWSManager, PositionTracker, MeasureTool) {
 
 // Console fix	
 window.console||(console={log:function(){}});
@@ -287,10 +288,26 @@ $(function()
 			if ( data.coordSystem )
 				CoordinateSystem.type = data.coordSystem;
 
-			// Add zoom double click
-			data.navigation.mouse = {
-				zoomOnDblClick: true
-			};
+			// Initialize navigation handlers
+		    data.navigation.handlers = [
+				new MouseNavigationHandler({
+					zoomOnDblClick: true
+				}),
+				new KeyboardNavigationHandler()
+			];
+
+			// Detect if client supports touch events
+			data.isMobile = (('ontouchstart' in window) || window.DocumentTouch && document instanceof DocumentTouch);
+			if(data.isMobile) {
+			    // Mobile
+				data.navigation.handlers = [new TouchNavigationHandler({ inversed: true, zoomOnDblClick: true }) ];
+				window.addEventListener("orientationchange", function() {
+    				sky.renderContext.requestFrame();
+				}, false);
+
+				// Set to false due to performance
+				sky.renderContext.continuousRendering = false;
+			}
 
 			// Initialize navigation
 			navigation = new AstroNavigation(sky, data.navigation);
@@ -298,7 +315,7 @@ $(function()
 			// Add attribution handler
 			new AttributionHandler( sky, {element: 'attributions'});
 
-			new MeasureTool({ globe: sky, navigation: navigation } );
+			new MeasureTool({ globe: sky, navigation: navigation, isMobile: data.isMobile } );
 			
 			// Initialize the name resolver
 			NameResolver.init(sky, navigation, data);
@@ -313,7 +330,13 @@ $(function()
 			PickingManager.init(sky, navigation, data);
 
 			// Compass component
-			new Compass({ element : "objectCompass", globe : sky, navigation : navigation, coordSystem : data.coordSystem });
+			new Compass({
+				element : "objectCompass",
+				globe : sky,
+				navigation : navigation,
+				coordSystem : data.coordSystem,
+				isMobile : data.isMobile
+			});
 
 			// Mollweide viewer
 			mollweideViewer = new MollweideViewer({ globe : sky, navigation : navigation });
@@ -325,7 +348,7 @@ $(function()
 			Samp.init(sky, navigation, AdditionalLayersView, ImageManager, ImageViewer, data);
 
 			// Eye position tracker initialization
-			PositionTracker.init({ element: "posTracker", globe: sky, navigation : navigation });
+			PositionTracker.init({ element: "posTracker", globe: sky, navigation : navigation, isMobile: data.isMobile });
 
 			// UWS services initialization
 			UWSManager.init(data);

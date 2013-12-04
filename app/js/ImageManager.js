@@ -158,12 +158,6 @@ return {
 
 		// Enable float texture extension to have higher luminance range
 		var ext = globe.renderContext.gl.getExtension("OES_texture_float");
-		if (!ext) {
-			// TODO 
-			alert("no OES_texture_float");
-			return;
-		}
-
 		ImageViewer.init(g, nav, pm, this);
 	},
 

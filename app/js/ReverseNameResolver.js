@@ -27,12 +27,17 @@ var globe;
 var configuration = {};
 var geoPick = [];
 var navigation = null;
+var isMobile = false;
 
 // Template generating the detailed description of choosen feature
 var featureDescriptionTemplate = _.template(featureDescriptionHTMLTemplate);
 
 // Template generating the table of properties of choosen feature
 var descriptionTableTemplate = _.template(descriptionTableHTMLTemplate);
+
+var timeStart;
+var mouseXStart;
+var mouseYStart;
 
 var reverseNameResolverHTML =
 	'<div id="reverseNameResolver" class="contentBox ui-widget-content" style="display: none;">\
@@ -107,54 +112,80 @@ $( "#reverseNameResolver input[type=submit]")
 		});
 	});
 
-function setBehavior()
+function _handleMouseDown(event)
 {
-	var timeStart;
-	var timeEnd;
-	var mouseXStart;
-	var mouseYStart;
+	$reverseNameResolver.fadeOut();
+	timeStart = new Date();
+
+	if ( event.type.search("touch") >= 0 )
+	{
+		event.clientX = event.changedTouches[0].clientX;
+		event.clientY = event.changedTouches[0].clientY;
+	}
+
+	mouseXStart = event.clientX;
+	mouseYStart = event.clientY;
+}
+
+function _handleMouseUp(event)
+{
 	var epsilon = 5;
 
-	$('canvas').on("mousedown",function(event){
-		timeStart = new Date();
-		mouseXStart = event.clientX;
-		mouseYStart = event.clientY;
-	});
+	var timeEnd = new Date();
+	var diff = timeEnd - timeStart;
+	var padding = 15;
 
-	$('canvas').mouseup(function(event){
-		timeEnd = new Date();
-		diff = timeEnd - timeStart;
+	if ( event.type.search("touch") >= 0 )
+	{
+		event.clientX = event.changedTouches[0].clientX;
+		event.clientY = event.changedTouches[0].clientY;
+	}
 
-		// More than 0.5 second and the mouse position is approximatively the same
-		if ( diff > 500 && Math.abs(mouseXStart - event.clientX) < epsilon && Math.abs(mouseYStart - event.clientY) < epsilon )
-		{
-			$('#reverseSearchResult').css("display","none");
+	var mHeight = window.innerHeight - event.clientY - padding*2;
+	$('#reverseSearchField').css('max-height', mHeight);
+	$('#reverseSearchResult').css('max-height', mHeight);
 
-			var equatorial = [];
-			geoPick = globe.getLonLatFromPixel(event.clientX, event.clientY);
-			var astro = Utils.formatCoordinates([ geoPick[0], geoPick[1] ]);
+	// More than 0.5 second and the mouse position is approximatively the same
+	if ( diff > 500 && Math.abs(mouseXStart - event.clientX) < epsilon && Math.abs(mouseYStart - event.clientY) < epsilon )
+	{
+		$('#reverseSearchResult').css("display","none");
 
-			if ( CoordinateSystem.type == "EQ" ) {
-				$("#coordinatesInfo").html("<em>Right ascension:</em><br/>&nbsp;&nbsp;&nbsp;&nbsp;" + astro[0] +
-											"<br/><em>Declination :</em><br/>&nbsp;&nbsp;&nbsp;&nbsp;" + astro[1]);
-			} else if ( CoordinateSystem.type == "GAL" ) {
-				$("#coordinatesInfo").html("<em>Longitude:</em><br/>&nbsp;&nbsp;&nbsp;&nbsp;" + astro[0] +
-											"<br/><em>Latitude:</em><br/>&nbsp;&nbsp;&nbsp;&nbsp;" + astro[1]);
-			}
+		var equatorial = [];
+		geoPick = globe.getLonLatFromPixel(event.clientX, event.clientY);
+		var astro = Utils.formatCoordinates([ geoPick[0], geoPick[1] ]);
 
-			var selectedTile = globe.tileManager.getVisibleTile(geoPick[0], geoPick[1]);
-			if ( configuration.debug )
-				$('#reverseSearchField #healpixInfo').html('<em>Healpix index/order: </em>&nbsp;&nbsp;&nbsp;&nbsp;'+selectedTile.pixelIndex + '/' + selectedTile.order);
-
-
-			$('#reverseSearchField').css("display","block");
-			$reverseNameResolver.css({
-					position: 'absolute',
-					left: event.clientX + 'px',
-					top: event.clientY + 'px'
-			}).fadeIn(100);
+		if ( CoordinateSystem.type == "EQ" ) {
+			$("#coordinatesInfo").html("<em>Right ascension:</em><br/>&nbsp;&nbsp;&nbsp;&nbsp;" + astro[0] +
+										"<br/><em>Declination :</em><br/>&nbsp;&nbsp;&nbsp;&nbsp;" + astro[1]);
+		} else if ( CoordinateSystem.type == "GAL" ) {
+			$("#coordinatesInfo").html("<em>Longitude:</em><br/>&nbsp;&nbsp;&nbsp;&nbsp;" + astro[0] +
+										"<br/><em>Latitude:</em><br/>&nbsp;&nbsp;&nbsp;&nbsp;" + astro[1]);
 		}
-	});
+
+		var selectedTile = globe.tileManager.getVisibleTile(geoPick[0], geoPick[1]);
+		if ( configuration.debug )
+			$('#reverseSearchField #healpixInfo').html('<em>Healpix index/order: </em>&nbsp;&nbsp;&nbsp;&nbsp;'+selectedTile.pixelIndex + '/' + selectedTile.order);
+
+
+		$('#reverseSearchField').css("display","block");
+		$reverseNameResolver.css({
+				position: 'absolute',
+				left: event.clientX + 'px',
+				top: event.clientY + 'px'
+		}).fadeIn(100);
+	}
+}
+
+function setBehavior()
+{
+	globe.renderContext.canvas.addEventListener("mousedown", _handleMouseDown);
+	globe.renderContext.canvas.addEventListener("mouseup", _handleMouseUp);
+
+	if ( isMobile )
+	{
+		globe.renderContext.canvas.addEventListener("touchstart", _handleMouseDown);
+		globe.renderContext.canvas.addEventListener("touchend", _handleMouseUp);
+	}
 
 	// External link event
 	$reverseNameResolver.on("click", '.propertiesTable a', function(event){
@@ -194,6 +225,8 @@ return {
 			configuration[x] = conf.reverseNameResolver[x];
 		}
 		configuration.debug = conf.debug;
+		isMobile = conf.isMobile;
+
 
 		setBehavior();
 	}

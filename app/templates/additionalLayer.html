@@ -46,7 +46,7 @@
 		}
 		%>
 
-		<% if ( layer instanceof HEALPixFITSLayer )
+		<% if ( layer instanceof HEALPixFITSLayer && !isMobile )
 		{
 		%>
 			<input type="checkbox" class="isFits" id="isFits_<%= shortName %>" /><label for="isFits_<%= shortName %>">Fits</label>
