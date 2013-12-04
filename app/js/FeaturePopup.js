@@ -515,14 +515,20 @@ return {
 	 *	@param callback Callback 
 	 */
 	hide: function(callback){
-		$selectedFeatureDiv.find('.featureProperties').getNiceScroll().hide();
-		// if ( $selectedFeatureDiv.css('display') != 'none') { 
+		if ( $selectedFeatureDiv.css('display') != 'none') {
+			var niceScroll = $selectedFeatureDiv.find('.featureProperties').getNiceScroll();
+			niceScroll.hide();
+			 
 			$selectedFeatureDiv.fadeOut(300, function(){
-				$selectedFeatureDiv.find('.featureProperties').getNiceScroll().remove();
+				niceScroll.remove();
 				if ( callback )
 					callback();
 			});
-		// }
+		}
+		else if ( callback )
+		{
+			callback();
+		}
 	},
 
 	/**********************************************************************************************/
@@ -538,16 +544,15 @@ return {
 		computeDivPosition(x,y);
 		$selectedFeatureDiv.fadeIn(500, function() {
 			$selectedFeatureDiv.find('.featureProperties').getNiceScroll().resize();
-
-			var maxHeight = computeHeight();
-			var popupMaxHeight = maxHeight - 60;
-			$('#featureListDiv').css('max-height', popupMaxHeight);
-			if ( $leftDiv.find('#featureList').height() > popupMaxHeight )
-			{
-				$leftDiv.find('.scroll-arrow-up, .scroll-arrow-down').css('display', 'block');
-			}
 			if (callback) callback();
 		});
+		var maxHeight = computeHeight();
+		var popupMaxHeight = maxHeight - 60;
+		$('#featureListDiv').css('max-height', popupMaxHeight);
+		if ( $leftDiv.find('#featureList').height() > popupMaxHeight )
+		{
+			$leftDiv.find('.scroll-arrow-up, .scroll-arrow-down').css('display', 'block');
+		}
 	},
 
 	/**********************************************************************************************/
