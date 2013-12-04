@@ -20,7 +20,7 @@
 /**
  * Mollweider viewer module : Sky representation in mollweide coordinate system
  */
-define(["gw/CoordinateSystem", "gw/glMatrix"], function(CoordinateSystem) {
+define(["gw/CoordinateSystem", "./Utils", "gw/glMatrix"], function(CoordinateSystem, Utils) {
 
 /**
  *  Newton-Raphson method to find auxiliary theta needed for mollweide x/y computation
@@ -206,6 +206,14 @@ var MollweideViewer = function(options) {
 
         // Draw on canvas 2d
         context.fillRect(mPos[0] - center3d.size/2, mPos[1]-center3d.size/2, center3d.size, center3d.size);
+
+        // Update fov degrees
+        var fov = navigation.getFov();
+        var fovx = Utils.roundNumber( fov[0], 2 ) ;
+        fovx = CoordinateSystem.fromDegreesToDMS( fovx );
+        var fovy = Utils.roundNumber( fov[1], 2 ) ;
+        fovy = CoordinateSystem.fromDegreesToDMS( fovy );
+        $('#fov').html( "Fov : " + fovx + " x " + fovy );
     }
 
     /**********************************************************************************************/

@@ -96,16 +96,6 @@ function hideLoading()
 	$('#loading').hide(300);
 }
 
-function updateFov()
-{
-	var fov = navigation.getFov();
-	var fovx = Utils.roundNumber( fov[0], 2 ) ;
-	fovx = CoordinateSystem.fromDegreesToDMS( fovx );
-	var fovy = Utils.roundNumber( fov[1], 2 ) ;
-	fovy = CoordinateSystem.fromDegreesToDMS( fovy );
-	$('#fov').html( "Fov : " + fovx + " x " + fovy );
-}
-
 /**
  *	Remove "C"-like comment lines from string
  */
@@ -356,9 +346,6 @@ $(function()
 			// Initialization of tools useful for different modules
 			Utils.init(sky);
 
-			// Update fov when moving
-			navigation.subscribe("modified", updateFov);
-			updateFov();
 		},
 		error: function(xhr){
 			ErrorDialog.open("Couldn't open : "+confURL);
