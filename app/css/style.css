@@ -60,6 +60,11 @@ body
 	color: white;
 }
 
+#attributions a
+{
+	pointer-events: auto;
+}
+
 /****************************/
 /*		Statistics box		*/
 /****************************/

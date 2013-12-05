@@ -82,6 +82,12 @@ function createCustomLayer(name)
 function createLayerFromConf(layer) {
 	var gwLayer;
 
+	// Insure that the link will be open in new tab
+	if ( layer.attribution && layer.attribution.search('<a') >= 0 && layer.attribution.search('target=') < 0 )
+	{
+		layer.attribution = layer.attribution.replace(' ', ' target=_blank ');
+	}
+
 	// default options
 	var options = {
 		name: layer.name,
