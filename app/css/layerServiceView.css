@@ -121,8 +121,6 @@
 {
 	border-width: 1px;
 	border-color: #F58400;
-	#border-bottom-left-radius: 0px;
-	#border-bottom-right-radius: 0px;
 	box-shadow: 0 0 10px #F58400, inset 0 1px 2px rgba(0, 0, 0, 0.08);
 }
 

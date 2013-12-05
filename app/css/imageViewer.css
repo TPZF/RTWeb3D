@@ -36,7 +36,7 @@
 	display: inline-block;
 	width: 240px;
 	max-height: 285px;
-	padding: 5;
+	padding: 5px;
 	border: orange 1px solid;
 	border-color: rgba(255, 143, 0, 0.8);
 	overflow-y: auto;
@@ -63,7 +63,7 @@
 {
 	font-size: 0.7em;
 	margin: 0px;
-	padding: 10 10 0 10;
+	padding: 10px 10px 0px 10px;
 }
 
 #loadedImages .layer > label:hover
