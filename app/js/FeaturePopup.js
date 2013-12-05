@@ -234,11 +234,8 @@ function createHTMLSelectedFeatureDiv( layer, feature )
 	$rightDiv.find('.featureProperties').css('max-height', computeHeight());
 
 	$selectedFeatureDiv.find('.featureProperties').niceScroll({
-		railpadding: {
-			top: 15,
-			bottom: 0,
-			left: 15,
-			right: 0
+		railoffset: {
+			left: 15
 		},
 		autohidemode: false
 	}).hide();
