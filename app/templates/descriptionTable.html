@@ -5,9 +5,9 @@
 		var stringKey = key.toString(); %>
 	<tr height="30%">
 		<% // Test if section
+		var title = dictionary[stringKey];
 		if (typeof (properties[key]) === "object" )
 		{	
-			var title = dictionary[stringKey];
 			if ( key == 'crs' )
 			{%>
 				<td id="<%=stringKey%>" title="<%= title%>" class="selectProperty"><em><%= stringKey %>:</em></td>
