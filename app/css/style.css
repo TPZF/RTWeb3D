@@ -22,8 +22,6 @@ body
 	padding: 0px;
 	margin: 0px;
 	overflow: hidden;
-	height: 100%;
-	width: 100%;
 }
 
 /************************/
@@ -141,11 +139,10 @@ body
 	display: inline;
 }
 
-/*** Fullscreen canvas ***/
-.canvas
+#GlobWebCanvas
 {
-	width:100%;
-	height:100%;
+	z-index: -1;
+	position : absolute;
 }
 
 /*** Loading animation gif ***/
@@ -184,20 +181,10 @@ body
 	pointer-events: none;
 }
 
-/*** Stylized fade on hover effect ***/
-.defaultImg
-{
-	position: absolute;
-	z-index: 1;
-	top: 0px;
-	right: 0px;
-}
-
-.hoverImg
-{
-	position: absolute;
-	top: 0px;
-	right: 0px;
+.leftBottomButton {
+	position: relative;
+	height: 40px;
+	left: 5px;
 }
 
 /*** Measure tool ***/
@@ -218,6 +205,31 @@ body
 #measureInvoker:hover
 {
 	cursor: pointer;
+}
+
+/*** Position tracker on bottom ***/
+#posTracker
+{
+	position: absolute;
+	left: 45%;
+	bottom: 2px;
+	color: white;
+}
+
+/*** Stylized fade on hover effect ***/
+.defaultImg
+{
+	position: absolute;
+	z-index: 1;
+	top: 0px;
+	right: 0px;
+}
+
+.hoverImg
+{
+	position: absolute;
+	top: 0px;
+	right: 0px;
 }
 
 /*** Small modifications on jQuery UI ***/

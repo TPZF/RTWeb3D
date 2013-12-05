@@ -62,7 +62,7 @@
 					<h3>Coordinate systems</h3>
 					<div id="coordinateSystems">
 						<em>Default coordinate system:</em>
-						<select id="defaultCoordSystem" style="width:100; height:200;">
+						<select id="defaultCoordSystem">
 							<option value="EQ">Equatorial</option>
 							<option value="GAL">Galactic</option>
 						</select>
@@ -121,29 +121,24 @@
 					<span id="slideArrow"></span>
 				</div>
 			</div>
-			<div style="position: relative; height: 40px; left: 5px; pointer-events: auto;">
+			<div class="leftBottomButton">
 				<input type="button" id="share" />
-				<div id="shareResult">
+				<div id="shareResult" style="pointer-events : auto;">
 					<input type="text" id="shareInput" />
 					<input type="button" id="shareClear" />
 				</div>
 			</div>
-			<div style="position: relative; height: 40px; left: 5px; pointer-events: auto;">
+			<div class="leftBottomButton">
 				<input type="button" id="sampInvoker" />
-				<!-- <div id="shareResult">
-					<input type="text" id="shareInput" />
-					<input type="button" id="shareClear" />
-				</div> -->
 			</div>
-			<div style="position: relative; height: 40px; left: 5px; pointer-events: auto;">
+			<div class="leftBottomButton">
 				<input type="button" id="measureInvoker" />
 			</div>
 			<div id="fps" class="statBox ui-widget">FPS : 0</div>	
 		</div>
 		
-		<div class="noSelect" id="attributions"></div>
-		
-		<div id="posTracker" class="noSelect" style="position: absolute; left: 45%; bottom: 2px; color: white;"></div>
+		<div class="noSelect" id="attributions"></div>	
+		<div id="posTracker" class="noSelect"></div>
 
 		<canvas class="noSelect" id="GlobWebCanvas" style="border: none; margin: 0; padding: 0;" width="0" height="0">
 		</canvas>

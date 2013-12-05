@@ -1,10 +1,5 @@
 @import url('layerManager.css');
 
-#accordion > div, #accordion h3
-{
-	box-shadow: 0.3em 0.3em 0.9em black;
-}
-
 #accordion > div
 {
 	position: relative;

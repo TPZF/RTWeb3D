@@ -217,7 +217,8 @@ $(function()
 
 			// Publish modified event to update compass north
 			navigation.publish('modified');
-		}
+		},
+		width: 100
 	});
 
 	// Retrieve configuration
