@@ -168,6 +168,14 @@ body
 	max-height: 95%;
 }
 
+#compassDiv
+{
+	pointer-events: auto;
+	overflow: hidden;
+	margin-top: 10px;
+	margin-left: 160px;
+}
+
 /*** Left bottom components(share, mollweide, stats) ***/
 #leftBottomDiv {
 	position: absolute;

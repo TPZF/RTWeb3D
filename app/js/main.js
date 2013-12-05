@@ -138,7 +138,6 @@ function setSharedParameters(data, sharedParameters)
 $(function()
 {
 	var confURL = 'js/conf.json'; // default
-
 	var documentURI =  window.document.documentURI;
 
 	// If configuration is defined by SiTools2
@@ -173,13 +172,14 @@ $(function()
 			canvas.height = window.innerHeight;
 	});
 	
+	var isMobile = (('ontouchstart' in window) || window.DocumentTouch && document instanceof DocumentTouch);
 	// Initialize sky
 	try
 	{
 		sky = new Sky( { 
 			canvas: canvas, 
 			tileErrorTreshold: 1.5,
-			continuousRendering: true
+			continuousRendering: isMobile ? false : true
 		} );
 	}
 	catch (err)
@@ -286,17 +286,15 @@ $(function()
 				new KeyboardNavigationHandler()
 			];
 
-			// Detect if client supports touch events
-			data.isMobile = (('ontouchstart' in window) || window.DocumentTouch && document instanceof DocumentTouch);
-			if(data.isMobile) {
+			// Add touch navigation handler if client supports touch events
+			if( isMobile ) {
 			    // Mobile
 				data.navigation.handlers = [new TouchNavigationHandler({ inversed: true, zoomOnDblClick: true }) ];
 				window.addEventListener("orientationchange", function() {
     				sky.renderContext.requestFrame();
 				}, false);
 
-				// Set to false due to performance
-				sky.renderContext.continuousRendering = false;
+				data.isMobile = isMobile;
 			}
 
 			// Initialize navigation
@@ -305,6 +303,7 @@ $(function()
 			// Add attribution handler
 			new AttributionHandler( sky, {element: 'attributions'});
 
+			// Add distance measure tool
 			new MeasureTool({ globe: sky, navigation: navigation, isMobile: data.isMobile } );
 			
 			// Initialize the name resolver
@@ -319,14 +318,20 @@ $(function()
 			// Create data manager
 			PickingManager.init(sky, navigation, data);
 
-			// Compass component
-			new Compass({
-				element : "objectCompass",
-				globe : sky,
-				navigation : navigation,
-				coordSystem : data.coordSystem,
-				isMobile : data.isMobile
-			});
+			// Compass component(only for desktop due to performance issue on mobile)
+			if ( !isMobile )
+			{
+				document.getElementById('objectCompass').addEventListener('load', function(){
+					new Compass({
+						element : "objectCompass",
+						globe : sky,
+						navigation : navigation,
+						coordSystem : data.coordSystem,
+						isMobile : data.isMobile
+					});
+				});
+				$('#compassDiv').css("display","block");
+			}
 
 			// Mollweide viewer
 			mollweideViewer = new MollweideViewer({ globe : sky, navigation : navigation });
