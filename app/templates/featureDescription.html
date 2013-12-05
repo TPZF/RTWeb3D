@@ -24,10 +24,13 @@
 				if ( services.download )
 				{
 					if ( services.download.mimetype == "image/fits" )
-					{ 
-						var fitsQuicklookOn = properties.style.fill && !properties.style.fillTextureUrl;
-						%>
-						<img title="Fits quicklook" id='quicklookFits' src="css/images/quicklook_fits.png" class=<%= (fitsQuicklookOn ? 'selected' : '' ) %> />
+					{
+						if ( !isMobile ) 
+						{
+							var fitsQuicklookOn = properties.style.fill && !properties.style.fillTextureUrl;
+							%>
+							<img title="Fits quicklook" id='quicklookFits' src="css/images/quicklook_fits.png" class=<%= (fitsQuicklookOn ? 'selected' : '' ) %> />
+						<% } %>
 						<span style="display: inline-block; position: relative;">
 							<img title="Solar object service" id="solarObjects" src="css/images/solarObjectsService.png" class=<%= (services.solarObjects && services.solarObjects.layer.visible() ? 'selected' : '' ) %> />
 							<img style="display: none" id="solarObjectsSpinner" src="css/images/loading.gif" />

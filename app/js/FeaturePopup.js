@@ -28,6 +28,8 @@ var pickingManager = null;
 var imageManager = null;
 var globe = null;
 
+var isMobile;
+
 // Create selected feature div
 var selectedFeatureDiv = '<div id="selectedFeatureDiv" class="contentBox ui-widget-content" style="display: none">\
 				<div id="leftDiv"></div>\
@@ -222,7 +224,8 @@ function createHTMLSelectedFeatureDiv( layer, feature )
 		dictionary: layer.dictionary,
 		services: feature.services,
 		properties: buildProperties(feature.properties, layer.displayProperties),
-		descriptionTableTemplate: descriptionTableTemplate
+		descriptionTableTemplate: descriptionTableTemplate,
+		isMobile: isMobile
 	} );
 	
 	$rightDiv.html( output );
@@ -255,8 +258,8 @@ return {
 		pickingManager = pm;
 		imageManager = im;
 		globe = gl;
-		var self = this;
-		
+		isMobile = configuration.isMobile;
+
 		// Initialize image processing popup
 		ImageProcessing.init({
 			disable: function(){
@@ -475,6 +478,7 @@ return {
 		});
 
 		// Choose feature by clicking on its title
+		var self = this;
 		$selectedFeatureDiv.on("click", '.featureTitle', function(){
 			pickingManager.blurSelectedFeature();
 			$('#featureList div.selected').removeClass('selected');
