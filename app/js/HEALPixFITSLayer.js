@@ -38,6 +38,7 @@ var HEALPixFITSLayer = function(options)
 	this.dataType = options.dataType || "fits";
 	this.coordSystem = options.coordSystem || "EQ";
 	this._ready = false;
+	this.fitsSupported = true;
 	
 	// allsky
 	this.levelZeroImage = null;
@@ -45,7 +46,7 @@ var HEALPixFITSLayer = function(options)
 	// TODO use DynamicImage shaders by unifying shader programs between TileManager and ConvexPolygonRenderer
 	//		* inverse Y coordinates, some var names refactor..
 	this.rawFragShader = "\
-		precision highp float; \n\
+		precision lowp float; \n\
 		varying vec2 texCoord;\n\
 		uniform sampler2D colorTexture; \n\
 		uniform float opacity; \n\
@@ -65,7 +66,7 @@ var HEALPixFITSLayer = function(options)
 		";
 
 	this.colormapFragShader = "\
-		precision highp float; \n\
+		precision lowp float; \n\
 		varying vec2 texCoord;\n\
 		uniform sampler2D colorTexture; \n\
 		uniform sampler2D colormap; \n\
@@ -194,14 +195,16 @@ HEALPixFITSLayer.prototype._attach = function( g )
 
 	// Enable float texture extension to have higher luminance range
 	var gl = this.globe.renderContext.gl;
-	var ext = gl.getExtension("OES_texture_float");
-	if (!ext) {
-		// TODO 
-		alert("no OES_texture_float");
-		return;
-	}
 
 	this.requestLevelZeroImage();
+	var ext = gl.getExtension("OES_texture_float");
+
+	if (!ext) {
+		// TODO 
+		console.error("no OES_texture_float");
+		this.fitsSupported = false;
+		//return;
+	}
 }
 
 /**************************************************************************************************************/
@@ -426,6 +429,12 @@ HEALPixFITSLayer.prototype.handleImage = function(imgRequest)
  */
 HEALPixFITSLayer.prototype.requestLevelZeroImage = function()
 {
+	// Set dataType always to jpg if fits isn't supported by graphic card
+	if ( !this.fitsSupported )
+	{
+		this.dataType = 'jpg';
+	}
+
 	// Revert to raw rendering
 	this.customShader.fragmentCode = this.rawFragShader;
 	if ( this.dataType == "fits" )

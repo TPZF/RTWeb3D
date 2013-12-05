@@ -3,16 +3,22 @@
 	padding: 10px;
 }
 
+#reverseSearchField
+{
+	overflow: auto;
+}
+
 #reverseSearchResult
 {
 	padding-bottom: 15px;
+	overflow: auto;
 }
 
 .credit
 {
 	position: absolute;
-	right: 10;
-	bottom: 7;
+	right: 10px;
+	bottom: 7px;
 	font-size: 0.9em;
 }
 

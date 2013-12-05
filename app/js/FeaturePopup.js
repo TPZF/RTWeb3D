@@ -28,6 +28,8 @@ var pickingManager = null;
 var imageManager = null;
 var globe = null;
 
+var isMobile;
+
 // Create selected feature div
 var selectedFeatureDiv = '<div id="selectedFeatureDiv" class="contentBox ui-widget-content" style="display: none">\
 				<div id="leftDiv"></div>\
@@ -40,6 +42,8 @@ var selectedFeatureDiv = '<div id="selectedFeatureDiv" class="contentBox ui-widg
 			</div>';
 
 var $selectedFeatureDiv = $(selectedFeatureDiv).appendTo('body');
+var $leftDiv = $('#leftDiv');
+var $rightDiv = $('#rightDiv');
 
 // Template generating the list of selected features
 var featureListTemplate = _.template(featureListHTMLTemplate);
@@ -78,6 +82,14 @@ function computeDivPosition(clientX, clientY)
 			top: mousey + 'px'
 		}
 	);
+}
+
+/**
+ *	Compute optimal height of current viewport
+ */
+function computeHeight()
+{
+	return 2*$('#'+globe.renderContext.canvas.id).height()/5;
 }
 
 /**********************************************************************************************/
@@ -212,14 +224,21 @@ function createHTMLSelectedFeatureDiv( layer, feature )
 		dictionary: layer.dictionary,
 		services: feature.services,
 		properties: buildProperties(feature.properties, layer.displayProperties),
-		descriptionTableTemplate: descriptionTableTemplate
+		descriptionTableTemplate: descriptionTableTemplate,
+		isMobile: isMobile
 	} );
 	
-	$('#rightDiv').html( output );
+	$rightDiv.html( output );
+	
+	// Stay in canvas
+	$rightDiv.find('.featureProperties').css('max-height', computeHeight());
+
 	$selectedFeatureDiv.find('.featureProperties').niceScroll({
+		railoffset: {
+			left: 15
+		},
 		autohidemode: false
-	});
-	$selectedFeatureDiv.find('.featureProperties').getNiceScroll().hide();
+	}).hide();
 }
 
 /**********************************************************************************************/
@@ -236,8 +255,8 @@ return {
 		pickingManager = pm;
 		imageManager = im;
 		globe = gl;
-		var self = this;
-		
+		isMobile = configuration.isMobile;
+
 		// Initialize image processing popup
 		ImageProcessing.init({
 			disable: function(){
@@ -298,7 +317,7 @@ return {
 			ImageProcessing.setData(selectedData);
 		});
 
-		// Show/hide Dynamic image service
+		// Send image by Samp
 		$selectedFeatureDiv.on("click", '#sendImage', function(event){
 			var selectedData = pickingManager.getSelectedData();
 			var message = Samp.sendImage(selectedData.feature.services.download.url);
@@ -410,33 +429,39 @@ return {
 		// Arrow scroll events
 		$selectedFeatureDiv.on("mousedown", '#scroll-arrow-down.clickable', function(event){
 			$('#selectedFeatureDiv #scroll-arrow-up').css("border-bottom-color", "orange").addClass("clickable");
-			var topValue = parseInt($('#featureList').css("top"), 10) - 150;
-			var height = $('#featureList').height();
+			var $featureList = $('#featureList');
+			var animationStep = parseInt($('#featureListDiv').css('max-height'))/2;
+			var topValue = parseInt($featureList.css("top"), 10) - animationStep;
+			var height = $featureList.height();
 			var maxHeight = parseInt( $('#featureListDiv').css("max-height") );
 			if (topValue <= -(height - maxHeight))
 			{
 				topValue = -(height - maxHeight);
 				$(this).css("border-top-color", "gray").removeClass("clickable");
 			}
-			$('#featureList').stop().animate({top: topValue +"px"}, 300);
+			$featureList.stop().animate({top: topValue +"px"}, 300);
 		}).disableSelection();
 		
 		$selectedFeatureDiv.on("mousedown", '#scroll-arrow-up.clickable', function(event){
 			$('#selectedFeatureDiv #scroll-arrow-down').css("border-top-color", "orange").addClass("clickable");
-			
-			var topValue = parseInt($('#featureList').css("top"), 10) + 150;
+			var $featureList = $('#featureList');
+			var animationStep = parseInt($('#featureListDiv').css('max-height'))/2;
+			var topValue = parseInt($featureList.css("top"), 10) + animationStep;
 			if (topValue >= 0)
 			{
 				topValue = 0;
 				$(this).css("border-bottom-color", "gray").removeClass("clickable");
 			}
-			$('#featureList').stop().animate({top: topValue +"px"}, 300);
+			$featureList.stop().animate({top: topValue +"px"}, 300);
 		}).disableSelection();
 
 		// Show/hide subsection properties
 		$selectedFeatureDiv.on("click", '.section', function(event){
+
+			$selectedFeatureDiv.find('.featureProperties').getNiceScroll().hide();
 			// TODO slideToggle works with div -> add div to the tab generation
 			$(this).siblings('table').fadeToggle("slow", "linear", function(){
+				$selectedFeatureDiv.find('.featureProperties').getNiceScroll().show();
 				$selectedFeatureDiv.find('.featureProperties').getNiceScroll().resize();
 			});/*slideToggle(300)*/;
 			if ( $(this).siblings('#arrow').is('.arrow-right') )
@@ -450,6 +475,7 @@ return {
 		});
 
 		// Choose feature by clicking on its title
+		var self = this;
 		$selectedFeatureDiv.on("click", '.featureTitle', function(){
 			pickingManager.blurSelectedFeature();
 			$('#featureList div.selected').removeClass('selected');
@@ -461,7 +487,10 @@ return {
 			$('#featureList div:eq('+featureIndexToFocus+')').addClass('selected');
 			self.showFeatureInformation( selectedData.layer, selectedData.feature );
 
-			Samp.highlightFeature(selectedData.layer, selectedData.feature);
+			globe.renderContext.requestFrame();
+
+			// TODO highlight is not fully implemented
+			// Samp.highlightFeature(selectedData.layer, selectedData.feature);
 		});
 
 		// Show/hide external resource
@@ -470,9 +499,11 @@ return {
 			IFrame.show(event.target.innerHTML);
 		});
 
+		$rightDiv.css('max-width', $('#'+globe.renderContext.canvas.id).width()/4 );
 		// Make rightDiv always visible depending on viewport
 		$(window).on('resize', function(){
-			$('#rightDiv').css('max-width',$('#'+globe.renderContext.canvas.id).width()/4 );
+			$rightDiv.find('.featureProperties').css('max-height', computeHeight());
+			$rightDiv.css('max-width',$('#'+globe.renderContext.canvas.id).width()/4 );
 		});
 
 	},
@@ -485,10 +516,20 @@ return {
 	 *	@param callback Callback 
 	 */
 	hide: function(callback){
-		$selectedFeatureDiv.find('.featureProperties').getNiceScroll().remove();
-		// if ( $selectedFeatureDiv.css('display') != 'none') { 
-			$selectedFeatureDiv.fadeOut(300, callback );
-		// }
+		if ( $selectedFeatureDiv.css('display') != 'none') {
+			var niceScroll = $selectedFeatureDiv.find('.featureProperties').getNiceScroll();
+			niceScroll.hide();
+			 
+			$selectedFeatureDiv.fadeOut(300, function(){
+				niceScroll.remove();
+				if ( callback )
+					callback();
+			});
+		}
+		else if ( callback )
+		{
+			callback();
+		}
 	},
 
 	/**********************************************************************************************/
@@ -504,15 +545,15 @@ return {
 		computeDivPosition(x,y);
 		$selectedFeatureDiv.fadeIn(500, function() {
 			$selectedFeatureDiv.find('.featureProperties').getNiceScroll().resize();
-
-			var $leftDiv = $('#leftDiv');
-			var popupMaxHeight = 300;
-			if ( $leftDiv.find('#featureList').height() > popupMaxHeight )
-			{
-				$leftDiv.find('.scroll-arrow-up, .scroll-arrow-down').css('display', 'block');
-			}
 			if (callback) callback();
 		});
+		var maxHeight = computeHeight();
+		var popupMaxHeight = maxHeight - 60;
+		$('#featureListDiv').css('max-height', popupMaxHeight);
+		if ( $leftDiv.find('#featureList').height() > popupMaxHeight )
+		{
+			$leftDiv.find('.scroll-arrow-up, .scroll-arrow-down').css('display', 'block');
+		}
 	},
 
 	/**********************************************************************************************/
@@ -524,7 +565,7 @@ return {
 	 */
 	createFeatureList: function(selection){
 		featureListHTML = featureListTemplate( { selection: selection });
-		$('#leftDiv').html( featureListHTML );
+		$leftDiv.html( featureListHTML );
 	},
 
 	/**********************************************************************************************/
@@ -533,7 +574,7 @@ return {
 	 * 	Insert HTML code of help to iterate on each feature
 	 */
 	createHelp: function(){
-		$('#rightDiv').html( pileStashHelp );
+		$rightDiv.html( pileStashHelp );
 	},
 
 	/**********************************************************************************************/
@@ -542,14 +583,15 @@ return {
 	 * 	Show feature information
 	 */
 	showFeatureInformation: function(layer, feature){
-		$selectedFeatureDiv.find('.featureProperties').getNiceScroll().remove();
-		$('#rightDiv').fadeOut(300, function(){
+		$rightDiv.find('.featureProperties').getNiceScroll().hide();
+		$rightDiv.fadeOut(300, function(){
+			$rightDiv.find('.featureProperties').getNiceScroll().remove();
 			createHTMLSelectedFeatureDiv( layer, feature );
 			$(this).fadeIn(300, function(){
 				$selectedFeatureDiv.find('.featureProperties').getNiceScroll().resize();
 				$selectedFeatureDiv.find('.featureProperties').getNiceScroll().show();
-			});
-		});
+		 	});
+		 });
 	},
 
 	/**********************************************************************************************/

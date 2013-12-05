@@ -69,10 +69,11 @@ require.config({
 /**
  * Main module
  */
-require( ["jquery.ui", "gw/EquatorialCoordinateSystem", "gw/Sky", "gw/Stats", "gw/AstroNavigation", "gw/AttributionHandler", "gw/VectorLayer",
+require( ["jquery.ui", "gw/EquatorialCoordinateSystem", "gw/Sky", "gw/Stats", "gw/AstroNavigation", "gw/AttributionHandler", "gw/VectorLayer", "gw/TouchNavigationHandler", "gw/MouseNavigationHandler", "gw/KeyboardNavigationHandler",
 	"./LayerManager", "./NameResolver", "./ReverseNameResolver", "./Utils", "./PickingManager", "./FeaturePopup", "./IFrame", "./Compass", "./MollweideViewer", "./ErrorDialog", "./AboutDialog", "./Share", "./Samp", "./AdditionalLayersView", "./ImageManager", "./ImageViewer", "./UWSManager", "./PositionTracker", "./MeasureTool", "./StarProvider", "./ConstellationProvider", "./JsonProvider", "./OpenSearchProvider",
 	"gw/ConvexPolygonRenderer", "gw/PointSpriteRenderer", "gw/PointRenderer"],
-	function($, CoordinateSystem, Sky, Stats, AstroNavigation, AttributionHandler, VectorLayer, LayerManager, NameResolver, ReverseNameResolver, Utils, PickingManager, FeaturePopup, IFrame, Compass, MollweideViewer, ErrorDialog, AboutDialog, Share, Samp, AdditionalLayersView, ImageManager, ImageViewer, UWSManager, PositionTracker, MeasureTool) {
+	function($, CoordinateSystem, Sky, Stats, AstroNavigation, AttributionHandler, VectorLayer, TouchNavigationHandler, MouseNavigationHandler, KeyboardNavigationHandler,
+			LayerManager, NameResolver, ReverseNameResolver, Utils, PickingManager, FeaturePopup, IFrame, Compass, MollweideViewer, ErrorDialog, AboutDialog, Share, Samp, AdditionalLayersView, ImageManager, ImageViewer, UWSManager, PositionTracker, MeasureTool) {
 
 // Console fix	
 window.console||(console={log:function(){}});
@@ -93,16 +94,6 @@ function hideLoading()
 	}
 
 	$('#loading').hide(300);
-}
-
-function updateFov()
-{
-	var fov = navigation.getFov();
-	var fovx = Utils.roundNumber( fov[0], 2 ) ;
-	fovx = CoordinateSystem.fromDegreesToDMS( fovx );
-	var fovy = Utils.roundNumber( fov[1], 2 ) ;
-	fovy = CoordinateSystem.fromDegreesToDMS( fovy );
-	$('#fov').html( "Fov : " + fovx + " x " + fovy );
 }
 
 /**
@@ -147,7 +138,6 @@ function setSharedParameters(data, sharedParameters)
 $(function()
 {
 	var confURL = 'js/conf.json'; // default
-
 	var documentURI =  window.document.documentURI;
 
 	// If configuration is defined by SiTools2
@@ -182,13 +172,14 @@ $(function()
 			canvas.height = window.innerHeight;
 	});
 	
+	var isMobile = (('ontouchstart' in window) || window.DocumentTouch && document instanceof DocumentTouch);
 	// Initialize sky
 	try
 	{
 		sky = new Sky( { 
 			canvas: canvas, 
 			tileErrorTreshold: 1.5,
-			continuousRendering: true
+			continuousRendering: isMobile ? false : true
 		} );
 	}
 	catch (err)
@@ -226,7 +217,8 @@ $(function()
 
 			// Publish modified event to update compass north
 			navigation.publish('modified');
-		}
+		},
+		width: 100
 	});
 
 	// Retrieve configuration
@@ -287,10 +279,24 @@ $(function()
 			if ( data.coordSystem )
 				CoordinateSystem.type = data.coordSystem;
 
-			// Add zoom double click
-			data.navigation.mouse = {
-				zoomOnDblClick: true
-			};
+			// Initialize navigation handlers
+		    data.navigation.handlers = [
+				new MouseNavigationHandler({
+					zoomOnDblClick: true
+				}),
+				new KeyboardNavigationHandler()
+			];
+
+			// Add touch navigation handler if client supports touch events
+			if( isMobile ) {
+			    // Mobile
+				data.navigation.handlers = [new TouchNavigationHandler({ inversed: true, zoomOnDblClick: true }) ];
+				window.addEventListener("orientationchange", function() {
+    				sky.renderContext.requestFrame();
+				}, false);
+
+				data.isMobile = isMobile;
+			}
 
 			// Initialize navigation
 			navigation = new AstroNavigation(sky, data.navigation);
@@ -298,7 +304,8 @@ $(function()
 			// Add attribution handler
 			new AttributionHandler( sky, {element: 'attributions'});
 
-			new MeasureTool({ globe: sky, navigation: navigation } );
+			// Add distance measure tool
+			new MeasureTool({ globe: sky, navigation: navigation, isMobile: data.isMobile } );
 			
 			// Initialize the name resolver
 			NameResolver.init(sky, navigation, data);
@@ -312,8 +319,20 @@ $(function()
 			// Create data manager
 			PickingManager.init(sky, navigation, data);
 
-			// Compass component
-			new Compass({ element : "objectCompass", globe : sky, navigation : navigation, coordSystem : data.coordSystem });
+			// Compass component(only for desktop due to performance issue on mobile)
+			if ( !isMobile )
+			{
+				document.getElementById('objectCompass').addEventListener('load', function(){
+					new Compass({
+						element : "objectCompass",
+						globe : sky,
+						navigation : navigation,
+						coordSystem : data.coordSystem,
+						isMobile : data.isMobile
+					});
+				});
+				$('#compassDiv').css("display","block");
+			}
 
 			// Mollweide viewer
 			mollweideViewer = new MollweideViewer({ globe : sky, navigation : navigation });
@@ -325,7 +344,7 @@ $(function()
 			Samp.init(sky, navigation, AdditionalLayersView, ImageManager, ImageViewer, data);
 
 			// Eye position tracker initialization
-			PositionTracker.init({ element: "posTracker", globe: sky, navigation : navigation });
+			PositionTracker.init({ element: "posTracker", globe: sky, navigation : navigation, isMobile: data.isMobile });
 
 			// UWS services initialization
 			UWSManager.init(data);
@@ -333,9 +352,6 @@ $(function()
 			// Initialization of tools useful for different modules
 			Utils.init(sky);
 
-			// Update fov when moving
-			navigation.subscribe("modified", updateFov);
-			updateFov();
 		},
 		error: function(xhr){
 			ErrorDialog.open("Couldn't open : "+confURL);

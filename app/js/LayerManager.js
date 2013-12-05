@@ -443,8 +443,8 @@ return {
 	init: function(gl, nav, configuration) {
 		// Store the globe in the global module variable
 		globe = gl;
-		AdditionalLayersView.init(gl, nav, this);
-		BackgroundLayersView.init(gl, this);
+		AdditionalLayersView.init(gl, nav, this, configuration);
+		BackgroundLayersView.init(gl, this, configuration);
 
 		// Call init layers
 		initLayers(configuration.layers);

@@ -130,7 +130,7 @@ return {
 		imageManager = im;
 		var self = this;
 		// Show/hide image viewer
-		$('#imageViewInvoker').on('click', function(){
+		$('#imageViewInvoker').click(function(){
 
 			if ( parseFloat($(this).parent().css('right')) < 0 )
 			{
@@ -189,7 +189,7 @@ return {
 					icons: {
 						primary: "ui-icon-zoomin"
 					}
-				}).on('click', function(){
+				}).click(function(){
 
 					var barycenter = Utils.computeGeometryBarycenter( feature.geometry );
 					navigation.zoomTo([barycenter[0], barycenter[1]], 0.1, 2000, function(){
@@ -198,7 +198,7 @@ return {
 					});
 
 				}).end()
-				// Visibility
+				// Image visibility
 				.find('input').button({
 					text: false,
 					icons: {
@@ -211,7 +211,6 @@ return {
 							primary: $(this)[0].checked ? "ui-icon-check" : ""
 						}
 					});
-
 					if ( $(this).is(':checked') )
 					{
 						imageManager.showImage(selectedData);
@@ -220,6 +219,7 @@ return {
 					{
 						imageManager.hideImage(selectedData);
 					}
+					globe.renderContext.requestFrame();
 				}).end()
 				// Delete fits
 				.find('.delete').button({
@@ -227,11 +227,12 @@ return {
 					icons: {
 						primary: "ui-icon-trash"
 					}
-				}).on('click', function(){
+				}).click(function(){
 					// Remove image
 					imageManager.removeImage(selectedData, isFits);
 					if ( isFits )
 						ImageProcessing.removeData(selectedData);
+					globe.renderContext.requestFrame();
 				}).end()
 				// Image processing
 				.find('.imageProcessing').button({
@@ -239,7 +240,7 @@ return {
 					icons: {
 						primary: "ui-icon-image"
 					}
-				}).on('click', function(){
+				}).click(function(){
 					ImageProcessing.setData(selectedData);
 				}).end()
 				.find('.metadata').button({
@@ -247,7 +248,7 @@ return {
 					icons: {
 						primary: "ui-icon-info"
 					}
-				}).on('click', function(){
+				}).click(function(){
 
 					// Create metadata dialog if doesn't exist
 					if ( !$metadataDialog )
@@ -297,12 +298,12 @@ return {
 					icons: {
 						primary: "ui-icon-extlink"
 					}
-				}).on('click', function(){
+				}).click(function(){
 					Samp.sendImage(feature.services.download.url);
 				}).end()
 				.fadeIn();
 			
-			$li.on('click', 'label.imageName', function(){
+			$li.find('label.imageName').click(function(){
 				$(this).siblings('.options').slideToggle();
 			});
 

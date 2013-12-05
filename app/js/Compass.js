@@ -98,20 +98,34 @@ var Compass = function(options){
 	    northText.setAttribute("transform", "rotate(" + degNorth + " 40 40)");
 	};
 
-    outerCircle.addEventListener('mousedown', function(event){
-    	if ( event.button == 0 )
-		{	
-			 dragging = true;
-			_lastMouseX = event.clientX - _outerCircleRadius;
-			_lastMouseY = event.clientY - _outerCircleRadius;
-			_dx = 0;
-			_dy = 0;
+	var _handleMouseDown = function(event)
+	{
+		event.preventDefault();
+		if ( event.type.search("touch") >= 0 )
+		{
+			event.clientX = event.changedTouches[0].clientX;
+			event.clientY = event.changedTouches[0].clientY;
 		}
 
-    });
+		 dragging = true;
+		_lastMouseX = event.clientX - _outerCircleRadius;
+		_lastMouseY = event.clientY - _outerCircleRadius;
+		_dx = 0;
+		_dy = 0;
+	}
 
-    outerCircle.addEventListener('mousemove', function(event){
-    	
+    svgDoc.addEventListener('mousedown', _handleMouseDown);
+
+
+    var _handleMouseMove = function(event)
+    {
+    	event.preventDefault();
+    	if ( event.type.search("touch") >= 0 )
+		{
+			event.clientX = event.changedTouches[0].clientX;
+			event.clientY = event.changedTouches[0].clientY;
+		}
+
     	if (!dragging)
     		return;
 
@@ -122,12 +136,18 @@ var Compass = function(options){
 		_lastMouseY = event.clientY - _outerCircleRadius;
 
     	updateNorth();
-    });
+    }
 
-	svgDoc.addEventListener('mouseup', function(event){
+    svgDoc.addEventListener('mousemove', _handleMouseMove);
+
+    var _handleMouseUp = function(event)
+    {
+    	event.preventDefault();
     	dragging = false;
     	// TODO add inertia
-    });
+    }
+
+	svgDoc.addEventListener('mouseup', _handleMouseUp);
 
 	east.addEventListener("click", function(){
     	navigation.pan( panFactor, 0. );
@@ -149,7 +169,8 @@ var Compass = function(options){
     	updateNorth();
 	});
 
-	northText.addEventListener("click", function(){
+	var _alignWithNorth = function(event)
+	{
 		var up = [0,0,1];
 		
 		if ( CoordinateSystem.type != "EQ" )
@@ -160,7 +181,17 @@ var Compass = function(options){
 			CoordinateSystem.fromGeoTo3D(temp, up);
 		}
 		navigation.moveUpTo(up);
-	});
+	}
+
+	northText.addEventListener("click", _alignWithNorth);
+
+	if ( options.isMobile )
+	{
+		svgDoc.addEventListener('touchstart', _handleMouseDown);
+		svgDoc.addEventListener('touchup', _handleMouseUp);
+		svgDoc.addEventListener('touchmove', _handleMouseMove);
+		northText.addEventListener("touchstart", _alignWithNorth);
+	}
 
     // Update fov when moving
 	navigation.subscribe("modified", updateNorth);

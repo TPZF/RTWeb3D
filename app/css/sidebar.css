@@ -1,10 +1,5 @@
 @import url('layerManager.css');
 
-#accordion > div, #accordion h3
-{
-	box-shadow: 0.3em 0.3em 0.9em black;
-}
-
 #accordion > div
 {
 	position: relative;
@@ -20,4 +15,6 @@
 	margin: 5px;
 	width: 250px;
 	background: rgba(76, 109, 131, 0);
+	max-height: 95%;
+	overflow: hidden;
 }

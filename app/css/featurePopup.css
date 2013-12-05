@@ -15,8 +15,8 @@
 	border-bottom: 10px solid transparent; 
 	border-right:10px solid orange;
 	position: absolute;
-	left: -11;
-	top: 90;
+	left: -11px;
+	top: 90px;
 }
 
 /********************************/
@@ -137,12 +137,13 @@
 	outline: none;
 	display: inline-block;
 	padding-right: 10px;
-	width: 100%;
+	width: 95%;
+	height: 70%;
 }
 
 .propertiesTable {
 	table-layout: fixed;
-	width: 300px;
+	width: 295px;
 }
 
 .propertiesTable td {

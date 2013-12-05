@@ -62,7 +62,9 @@ var MeasureTool = function(options)
 	var self = this;
 	var dragging = false;
 	
-	this.renderContext.canvas.addEventListener("mousedown", function(event){
+	var _handleMouseDown = function(event)
+	{
+		event.preventDefault();
 		if ( !self.activated )
 			return;
 
@@ -71,31 +73,37 @@ var MeasureTool = function(options)
 		navigation.stop();
 
 		dragging = true;
-		self.pickPoint = [event.clientX, event.clientY];
-		self.geoPickPoint = globe.getLonLatFromPixel(event.clientX, event.clientY);
-	});
 
-	this.renderContext.canvas.addEventListener("mousemove", function(event){
-		if ( !self.activated || !dragging )
-			return;
+		if ( event.type.search("touch") >= 0 )
+		{
+			self.pickPoint = [ event.changedTouches[0].clientX, event.changedTouches[0].clientY ];
+		}
+		else
+		{
+			self.pickPoint = [ event.clientX, event.clientY ];
+		}
 
-		self.secondPickPoint = [ event.clientX, event.clientY ];
-		self.secondGeoPickPoint = globe.getLonLatFromPixel(event.clientX, event.clientY);
-		// Update radius
-		self.distance = Math.sqrt( Math.pow(event.clientX - self.pickPoint[0], 2) + Math.pow(event.clientY - self.pickPoint[1], 2) );
-		var dotProduct = vec3.dot( CoordinateSystem.fromGeoTo3D(self.secondGeoPickPoint), CoordinateSystem.fromGeoTo3D(self.geoPickPoint) );
-		var theta = Math.acos(dotProduct);
-		self.geoDistance = Numeric.toDegree(theta);
+		self.geoPickPoint = globe.getLonLatFromPixel(self.pickPoint[0], self.pickPoint[1]);
+	}
 
-		self.updateMeasure();
-	});
-
-	this.renderContext.canvas.addEventListener("mouseup", function(event){
+	var _handleMouseUp = function(event)
+	{
+		event.preventDefault();
 		if ( !self.activated )
 			return;
 
 		// Compute geo radius
-		var stopPickPoint = globe.getLonLatFromPixel(event.clientX, event.clientY);
+		var stopPickPoint;
+		if ( event.type.search("touch") >= 0 )
+		{
+			stopPickPoint = globe.getLonLatFromPixel( event.changedTouches[0].clientX, event.changedTouches[0].clientY );
+		}
+		else
+		{
+
+			var stopPickPoint = globe.getLonLatFromPixel(event.clientX, event.clientY);
+		}
+
 
 		// Find angle between start and stop vectors which is in fact the radius
 		var dotProduct = vec3.dot( CoordinateSystem.fromGeoTo3D(stopPickPoint), CoordinateSystem.fromGeoTo3D(self.geoPickPoint) );
@@ -110,8 +118,43 @@ var MeasureTool = function(options)
 		// Reactivate standard navigation events
 		navigation.start();
 		dragging = false;
-	});
+	}
 
+	var _handleMouseMove = function(event)
+	{
+		event.preventDefault();
+		if ( !self.activated || !dragging )
+			return;
+
+		if ( event.type.search("touch") >= 0 )
+		{
+			self.secondPickPoint = [ event.changedTouches[0].clientX, event.changedTouches[0].clientY ];
+		}
+		else
+		{
+			self.secondPickPoint = [ event.clientX, event.clientY ];
+		}
+
+		self.secondGeoPickPoint = globe.getLonLatFromPixel(self.secondPickPoint[0], self.secondPickPoint[1]);
+		// Update radius
+		self.distance = Math.sqrt( Math.pow(self.secondPickPoint[0] - self.pickPoint[0], 2) + Math.pow(self.secondPickPoint[1] - self.pickPoint[1], 2) );
+		var dotProduct = vec3.dot( CoordinateSystem.fromGeoTo3D(self.secondGeoPickPoint), CoordinateSystem.fromGeoTo3D(self.geoPickPoint) );
+		var theta = Math.acos(dotProduct);
+		self.geoDistance = Numeric.toDegree(theta);
+
+		self.updateMeasure();
+	}
+
+	this.renderContext.canvas.addEventListener("mousedown", $.proxy(_handleMouseDown, this));
+	this.renderContext.canvas.addEventListener("mousemove", $.proxy(_handleMouseMove, this));
+	this.renderContext.canvas.addEventListener("mouseup", $.proxy(_handleMouseUp, this));
+
+	if ( options.isMobile )
+	{
+		this.renderContext.canvas.addEventListener("touchend", $.proxy(_handleMouseUp, this));
+		this.renderContext.canvas.addEventListener("touchmove", $.proxy(_handleMouseMove, this));
+		this.renderContext.canvas.addEventListener("touchstart", $.proxy(_handleMouseDown, this));
+	}
 	$('#measureInvoker').on('click', function(){
 		self.toggle();
 	}).hover(function(){
@@ -120,6 +163,8 @@ var MeasureTool = function(options)
 		$(this).animate({left: '-20px'}, 100);
 	});
 }
+
+/**********************************************************************************************/
 
 MeasureTool.prototype.computeIntersection = function(points)
 {

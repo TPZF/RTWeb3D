@@ -20,8 +20,8 @@
 /**
  * Position tracker : show mouse position formated in default coordinate system
  */
-define(["jquery.ui", "gw/CoordinateSystem", "./Utils"],
-	function($, CoordinateSystem, Utils) {
+define(["gw/CoordinateSystem", "./Utils"],
+	function(CoordinateSystem, Utils) {
 
 var globe;
 var navigation;
@@ -29,9 +29,15 @@ var element;
 
 function updatePosition(event)
 {
+	if ( event.type.search("touch") >= 0 )
+	{
+		event.clientX = event.changedTouches[0].clientX;
+		event.clientY = event.changedTouches[0].clientY;
+	}
+
 	var geoPos = globe.getLonLatFromPixel( event.clientX, event.clientY );
 	var astro = Utils.formatCoordinates([ geoPos[0], geoPos[1] ]);
-    $('#'+element).html(astro[0] + " x " + astro[1]);
+	document.getElementById(element).innerHTML = astro[0] + " x " + astro[1];
 }
 
 return {
@@ -41,7 +47,11 @@ return {
 		navigation = options.navigation;
 		element = options.element;
 
-		$('.canvas').on('mousemove', updatePosition);
+		globe.renderContext.canvas.addEventListener('mousemove', updatePosition);
+		if ( options.isMobile )
+		{
+			globe.renderContext.canvas.addEventListener('touchmove', updatePosition);
+		}
 	}
 }
 
