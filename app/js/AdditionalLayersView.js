@@ -129,7 +129,6 @@ function createHtmlForAdditionalLayer( gwLayer, categoryId )
 	var shortName = Utils.formatId( gwLayer.name );
 	var layerDiv = additionalLayerTemplate( {
 		layer: gwLayer,
-		currentIndex: currentIndex,
 		OpenSearchLayer: OpenSearchLayer,
 		HEALPixFITSLayer: HEALPixFITSLayer,
 		shortName : shortName,
@@ -170,7 +169,7 @@ function createHtmlForAdditionalLayer( gwLayer, categoryId )
 		max: 100,
 		step: 20,
 		slide: function( event, ui ) {
-			$( "#percentInput_"+currentIndex ).val( ui.value + "%" );
+			$( "#percentInput_"+shortName ).val( ui.value + "%" );
 			gwLayer.opacity( ui.value/100. );
 
 			if ( gwLayer.subLayers )
