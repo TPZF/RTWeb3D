@@ -517,11 +517,11 @@ return {
 	 */
 	hide: function(callback){
 		if ( $selectedFeatureDiv.css('display') != 'none') {
-			var niceScroll = $selectedFeatureDiv.find('.featureProperties').getNiceScroll();
-			niceScroll.hide();
+			$selectedFeatureDiv.find('.featureProperties').getNiceScroll().hide();
 			 
 			$selectedFeatureDiv.fadeOut(300, function(){
-				niceScroll.remove();
+				$selectedFeatureDiv.find('.featureProperties').getNiceScroll().remove();
+
 				if ( callback )
 					callback();
 			});
