@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<title>Mizar</title>
+<meta http-equiv="content-type" content="text/html; charset=ISO-8859-1" />
+<meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, maximum-scale=1, user-scalable=no" />
+
+<link rel="stylesheet" href="css/style.css" />
+
+<!-- RequireJS -->
+<script type="text/javascript" data-main="js/main_mobile" src="js/require.min.js"></script>
+
+</head>
+
+<body>
+	<div style="background-color: #000;" id="indexPage" data-role="page">
+		<div id="webGLNotAvailable">
+			If you see this message, WebGL is not supported in your browser.<br/>
+			Please install a recent version of <a href="http://www.mozilla.com">Firefox</a> or <a href="http://www.google.com/chrome">Google Chrome</a>.<br/>
+			If you already have a recent version of Firefox or Google Chrome, your graphics driver are too old, please update it.<br/>
+			On Google Chrome, you can check why it is not working by entering "about:gpu" in the url bar.
+		</div>
+
+		<div id="webGLContextLost">
+			If you see this message, WebGL context was lost.<br/>
+			Please re-launch your browser. We are working on restoring without relaunching.
+		</div>
+
+		<div id="loading">
+			<img src="css/images/loading.gif" />
+		</div>
+
+		<div style="display: none;" data-position-fixed="true" data-position="right" data-theme="a" data-content-theme="a" data-display="overlay" data-role="panel" id="featurePopupPanel" data-swipe-close="false">
+			<div id="selectedFeatureDiv">
+				<div style="width: 100%;" id="leftDiv"></div>
+				<div style="width: 100%; font-size: 0.8em;" id="rightDiv"></div>
+			</div>
+		</div>
+
+		<div style="display: none;" data-position="left" data-position-fixed="true" data-theme="a" data-content-theme="a" data-display="overlay" data-role="panel" id="sidepanel" data-swipe-close="false">
+			<!-- <div> -->
+				<div data-role="collapsible-set" data-theme="a" data-content-theme="a" id="accordion">
+					
+					<div data-role="collapsible" data-inset="false" data-mini="true" data-theme="a" data-content-theme="a" id="backgroundLayers">
+						<h3>Background layer</h3>
+						<div style="display: inline-block; width: 200px;" data-role="fieldcontain">
+							<label style="display: none;" for="backgroundLayersSelect" class="backgroundLayersSelect"></label>
+							<select data-theme="a" data-content-theme="a" name="backgroundLayersSelect" id="backgroundLayersSelect">
+							</select>
+							<img style="display: none" id="backgroundSpinner" src="css/images/loading.gif" />
+						</div>
+
+						<br/>
+						<!-- <div id="backgroundOptions" data-role="fieldcontain">
+								<label for="fitsType"><input name="fitsType" class="custom" type="checkbox" id="fitsType" />Fits</label>
+								<input type="checkbox" id="fitsView" /><label for="fitsView">Image processing</label>
+								<button class="layerServices">Available services</button>
+								<button class="exportLayer">Send viewport by SAMP</button>
+						</div> -->
+					</div>
+				
+					<div class="category" data-role="collapsible" data-inset="false" data-mini="true" data-theme="a" data-content-theme="a">
+						<h3>Other</h3>
+						<div id="otherLayers">
+						</div>
+					</div>
+					
+
+					<div class="category" data-role="collapsible" data-inset="false" data-mini="true" data-theme="a" data-content-theme="a">
+						<h3>Coordinate systems</h3>
+						<div data-role="fieldcontain" id="coordinateSystems">
+							<span>
+								<em>Default coordinate system:</em>
+								<label style="display: none;" for="defaultCoordSystem"></label>
+								<select data-theme="a" data-content-theme="a" id="defaultCoordSystem" style="width:100; height:200;">
+									<option value="EQ">Equatorial</option>
+									<option value="GAL">Galactic</option>
+								</select>
+							</span>
+							<div style="margin-top: 10px" id="coordinateGrids">
+							</div>
+						</div>
+					</div>
+				</div>
+			<!-- </div> -->
+		</div><!-- /panel -->
+
+		<div style="display: none;" class="canvas">
+			<div style="display: inline-block; position: absolute;">
+				<a data-theme="a" data-content-theme="a" data-iconpos="notext" data-mini="true" data-icon="bars" data-role="button" data-inline="true" href="#sidepanel">Open panel</a>
+			</div>
+			
+			<div class="noSelect" id="navigationDiv">
+				<div id="searchDiv">
+				</div>
+
+	<!-- 			<div style="display: none;" id="compassDiv">
+					<object id="objectCompass" width='100px' height='100px' data="css/images/compass.svg" type="image/svg+xml"></object>
+				</div> -->
+
+	<!-- 			<div id="imageViewerDiv">
+					<div id="imageViewerContent">
+						<span id="imageViewInvoker"></span>
+						<div id="loadedImages">
+							<h3>Images</h3>
+							<div>
+								<p style="color: white; text-align: center;">No image was loaded</p>
+								<div class="imageLayers">
+								</div>
+							</div>
+						</div>
+					</div>
+					
+				</div> -->
+			</div>
+			
+			<!-- Left-Bottom-section -->
+			<div class="noSelect" id="leftBottomDiv">
+				<!-- Div for relative position 164 = define height of mollweideContent-->
+	<!--			<div style="position: relative; height: 164px; margin-bottom: 5px;">
+	 				<div id="mollweideDiv">
+						<span id="mollweideContent">
+							<canvas id="mollweideCanvas" class="noSelect" width="232px" height="116px"></canvas>
+							<div id="fov" class="ui-widget">Fov : 45 x 45</div>
+						</span>
+						
+						<span id="slideArrow"></span>
+					</div>
+				</div> -->
+	<!-- 			<div style="position: relative; height: 40px; left: 5px; pointer-events: auto;">
+					<a id="share" data-role="button" data-iconpos="notext">Share</a>
+					<div id="shareResult">
+						<input type="text" id="shareInput" />
+						<input type="button" id="shareClear" />
+					</div>
+				</div> -->
+				<!--<div style="position: relative; height: 40px; left: 5px; pointer-events: auto;">
+					
+					<a id="sampInvoker" data-role="button" data-iconpos="notext">SAMP</a>
+				</div>
+				<div style="position: relative; height: 40px; left: 5px; pointer-events: auto;">
+					<a id="measureInvoker" data-role="button" data-iconpos="notext">Measure tool</a>
+				</div> -->
+				<div id="fps" class="statBox ui-widget">FPS : 0</div>	
+			</div>
+			
+			<div class="noSelect" id="attributions"></div>
+			
+			<!-- <div id="posTracker" class="noSelect" style="position: absolute; left: 45%; bottom: 2px; color: white;"></div> -->
+
+			<canvas class="noSelect" id="GlobWebCanvas" style="display: block; border: none; margin: 0; padding: 0;" width="0" height="0">
+			</canvas>
+		</div>
+
+	</div>
+</body>
+
+</html>
+

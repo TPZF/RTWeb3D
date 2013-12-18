@@ -20,10 +20,13 @@
 /**
  * Name resolver module : search object name and zoom to them
  */
-define(["jquery.ui", "gw/FeatureStyle", "gw/VectorLayer", "gw/HEALPixBase", "gw/CoordinateSystem", "./Utils", "underscore-min", "text!../templates/nameResolverResult.html"],
-	function($, FeatureStyle, VectorLayer, HEALPixBase, CoordinateSystem, Utils, _, nameResolverResultHTMLTemplate) {
+define(["jquery.ui", "gw/FeatureStyle", "gw/VectorLayer", "gw/HEALPixBase", "gw/CoordinateSystem", "./Utils", "underscore-min", "text!../templates/nameResolver.html", "text!../templates/nameResolverResult.html"],
+	function($, FeatureStyle, VectorLayer, HEALPixBase, CoordinateSystem, Utils, _, nameResolverHTMLTemplate, nameResolverResultHTMLTemplate) {
 
-// Template generating the list of selected features
+// Template generating name resolver UI 
+var nameResolverTemplate = _.template(nameResolverHTMLTemplate);
+
+// Template generating the result of name resolving
 var nameResolverResultTemplate = _.template(nameResolverResultHTMLTemplate);
 
 var globe;
@@ -65,7 +68,7 @@ function setSearchBehavior()
 	}).bind('blur', function(event) {
 		$(this).animate({color: '#b4bdc4'}, animationDuration, function() {
 			if(input.val() === '') {
-				input.val(defaultText)
+				input.attr("placeholder",defaultText);
 			}
 		}).parent().animate({backgroundColor: '#e8edf1'}, animationDuration).removeClass('focus');
 	}).keyup(function() {
@@ -148,7 +151,7 @@ function setSearchBehavior()
 		{
 			// Name of the object which could be potentially found by name resolver
 			$("#searchSpinner").fadeIn(animationDuration);
-			$('#searchClear').fadeOut(animationDuration);
+			$('#searchClear, .ui-input-clear').fadeOut(animationDuration);
 
 			var url = configuration.baseUrl + "/" + objectName + "/EQUATORIAL";
 
@@ -189,15 +192,18 @@ function setSearchBehavior()
 				complete: function(xhr)
 				{
 					$("#searchSpinner").fadeOut(animationDuration);
-					$('#searchClear').fadeIn(animationDuration);
+					$('#searchClear, .ui-input-clear').fadeIn(animationDuration);
 				}
 			});
 		}
 	});
 	
 	// Clear search result field when pan
-	$('canvas').click(function(){
-		$('#resolverSearchResult').fadeOut(animationDuration);
+	astroNavigator.subscribe("modified", function(){
+		if ( $('#resolverSearchResult').css('display') == 'block' )
+		{
+			$('#resolverSearchResult').hide();	
+		}
 	});
 	
 	$('#resolverSearchResult').on("click",'.nameResolverResult',function(event){
@@ -272,6 +278,16 @@ return {
 		for( var x in conf.nameResolver )
 		{
 			configuration[x] = conf.nameResolver[x];
+		}
+
+		var content = nameResolverTemplate({ isMobile: conf.isMobile });
+		$('#searchDiv')
+			.append(content)
+
+		if( conf.isMobile )
+		{
+			$('#searchDiv')
+				.trigger('create');
 		}
 
 		setSearchBehavior();

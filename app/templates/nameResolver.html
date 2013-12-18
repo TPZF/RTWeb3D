@@ -1,0 +1,31 @@
+<% if ( !isMobile ) {
+%>
+	<form id="searchForm">
+		<fieldset>
+			<div class="input">
+				<input title="Enter an object name (e.g. m31) or coordinate (e.g 23h45m30.5s -45&#186;30'30&rdquo;)" type="text" name="searchInput" id="searchInput" value="Object name or coordinates" />
+			</div>
+			<input data-inline="true" type="submit" id="searchSubmit" value="" />
+			<div style="display: none" id="searchSpinner"></div>
+			<input data-inline="true" type="button" id="searchClear" value="" style="display: none;"/>
+		</fieldset>
+	</form>
+<%
+	}
+	else
+	{
+%>
+		<form data-ajax="false" id="searchForm">
+			<fieldset>
+				<!-- <a data-mini="true" data-inline="true" href="#" data-role="button" data-icon="search" data-iconpos="notext">Search</a> -->
+				<!-- <div class="input"> -->
+					<input type="search" title="Enter an object name (e.g. m31) or coordinate (e.g 23h45m30.5s -45&#186;30'30&rdquo;)" type="text" name="searchInput" id="searchInput" value="Object name or coordinates" />
+				<!-- </div> -->
+				<div style="display: none" id="searchSpinner"></div>
+				<!-- <a data-mini="true" data-inline="true" href="#" data-role="button" data-icon="delete" data-iconpos="notext">Delete</a> -->
+			</fieldset>
+		</form>
+<%
+	}
+%>
+<div style="display: none" id="resolverSearchResult"></div>

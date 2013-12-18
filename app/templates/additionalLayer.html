@@ -1,12 +1,26 @@
 <div class="ui-widget addLayer" id="addLayer_<%= shortName %>" >
 
-	<span id="visible_<%= shortName %>" class="<% if (layer.visible()) print('ui-state-active'); else print('ui-state-default'); %> ui-corner-all ui-button">
-		<span class="ui-icon <% if (layer.visible()) print('ui-icon-check'); else print('ui-icon-empty'); %>"></span>
-	</span>
+	<% if ( isMobile ) { %>
+		<label style="margin: 0; padding: 0; border: none;">
+			<input data-mini="true" style="display: none;" name="visible_<%= shortName %>" class="custom" type="checkbox" id="visible_<%= shortName %>" data-role="checkbox" data-inline="true" <% if (layer.visible()) print('checked="checked"'); %> />
+			<canvas width="20" height="10" class="legend"></canvas>
+			<span title="<%= layer.description %>" for="addLayerInput_<%= shortName %>"><%= layer.name %></span>
+		</label>
+	<%
+	}
+	else
+	{
+	%>
+		<span id="visible_<%= shortName %>" class="<% if (layer.visible()) print('ui-state-active'); else print('ui-state-default'); %> ui-corner-all ui-button">
+			<span class="ui-icon <% if (layer.visible()) print('ui-icon-check'); else print('ui-icon-empty'); %>"></span>
+		</span>
 
-	<canvas width="20" height="10" class="legend"></canvas>
+		<canvas width="20" height="10" class="legend"></canvas>
 
-	<label title="<%= layer.description %>" for="addLayerInput_<%= shortName %>"><%= layer.name %></label>
+		<label title="<%= layer.description %>" for="addLayerInput_<%= shortName %>"><%= layer.name %></label>
+	<%
+	}
+	%>
 
 	<img style="display: none;" class="spinner" src="css/images/loading.gif">
 
@@ -31,7 +45,7 @@
 		<%
 		}
 
-		if ( layer.availableServices )
+		if ( layer.availableServices && !isMobile )
 		{
 		%>
 			<button class="layerServices">Available services</button>
@@ -56,11 +70,24 @@
 		%>
 
 		<div id="opacity_<%= shortName %>">
-			<div>
-				<label for="percentInput_<%= shortName %>">Opacity: </label>
-				<input class="percentInput" type="text" id="percentInput_<%= shortName %>" />
-			</div>
-			<div class="slider" id="slider_<%= shortName %>"></div>
+
+			<% 
+			if ( isMobile )
+			{ %>
+				<label for="slider_<%= shortName %>">Opacity:</label>
+				<input style="pointer-events: none;" data-mini='true' class="percentInput" type="range" name="slider_<%= shortName %>" id="slider_<%= shortName %>" value="100" min="0" max="100" step="20" />
+			<%
+			}
+			else
+			{
+			%>
+				<div>
+					<label for="percentInput_<%= shortName %>">Opacity: </label>
+					<input class="percentInput" type="text" id="percentInput_<%= shortName %>" />
+				</div>
+				<div class="slider" id="slider_<%= shortName %>"></div>
+			<% } %>
+
 		</div>
 	</div>
 

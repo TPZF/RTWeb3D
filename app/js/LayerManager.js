@@ -20,8 +20,8 @@
 /**
  * LayerManager module
  */
-define( [ "jquery.ui", "gw/FeatureStyle", "gw/HEALPixLayer", "gw/VectorLayer", "gw/CoordinateGridLayer", "gw/TileWireframeLayer", "gw/OpenSearchLayer", "./ClusterOpenSearchLayer", "./MocLayer", "./HEALPixFITSLayer", "./Utils", "./ErrorDialog", "./JsonProcessor", "./LayerServiceView", "./BackgroundLayersView", "./AdditionalLayersView", "./FitsLoader", "./ImageManager", "./ImageViewer"], 
-	function($, FeatureStyle, HEALPixLayer, VectorLayer, CoordinateGridLayer, TileWireframeLayer, OpenSearchLayer, ClusterOpenSearchLayer, MocLayer, HEALPixFITSLayer, Utils, ErrorDialog, JsonProcessor, LayerServiceView, BackgroundLayersView, AdditionalLayersView, FitsLoader, ImageManager, ImageViewer) {
+define( [ "jquery.ui", "gw/FeatureStyle", "gw/HEALPixLayer", "gw/VectorLayer", "gw/CoordinateGridLayer", "gw/TileWireframeLayer", "gw/OpenSearchLayer", "./ClusterOpenSearchLayer", "./MocLayer", "./HEALPixFITSLayer", "./Utils", "./ErrorDialog", "./JsonProcessor", "./LayerServiceView", "./BackgroundLayersView", "./AdditionalLayersView", "./AdditionalLayersMobileView", "./FitsLoader", "./ImageManager", "./ImageViewer"], 
+	function($, FeatureStyle, HEALPixLayer, VectorLayer, CoordinateGridLayer, TileWireframeLayer, OpenSearchLayer, ClusterOpenSearchLayer, MocLayer, HEALPixFITSLayer, Utils, ErrorDialog, JsonProcessor, LayerServiceView, BackgroundLayersView, AdditionalLayersView, AdditionalLayersMobileView, FitsLoader, ImageManager, ImageViewer) {
 
 /**
  * Private variables
@@ -32,7 +32,7 @@ var gwLayers = [];
 // GeoJSON data providers
 var dataProviders = {};
 var votable2geojsonBaseUrl;
-
+var isMobile;
 
 /**
  * Private functions
@@ -68,7 +68,14 @@ function createCustomLayer(name)
 	gwLayer.pickable = true;
 	globe.addLayer(gwLayer);
 
-	AdditionalLayersView.addView( gwLayer );
+	if ( isMobile )
+	{
+		AdditionalLayersMobileView.addView( gwLayer );
+	}
+	else
+	{
+		AdditionalLayersView.addView( gwLayer );
+	}
 	gwLayers.push(gwLayer);
 
 	return gwLayer;
@@ -407,24 +414,45 @@ function initLayers(layers)
 			{
 				// Add to engine
 				globe.addLayer( gwLayer );
-				AdditionalLayersView.addView( gwLayer, layer.category );
+				if ( isMobile )
+				{
+					AdditionalLayersMobileView.addView( gwLayer, layer.category );
+				}
+				else
+				{
+					AdditionalLayersView.addView( gwLayer, layer.category );
+				}
 			}
 
 			gwLayers.push(gwLayer);
 		}
 	}
 
-	// Create accordeon
-	$( "#accordion" ).accordion( {
-		header: "> div > h3",
-		autoHeight: false,
-		active: 0,
-		collapsible: true,
-		heightStyle: "content"
-	} ).show();
-
+	// Create accordion
+	if ( !isMobile )
+	{
+		$( "#accordion" ).accordion( {
+			header: "> div > h3",
+			autoHeight: false,
+			active: 0,
+			collapsible: true,
+			heightStyle: "content"
+		} ).show();
+	}
+	else
+	{
+		$('#accordion').trigger('create');
+	}
+	
 	BackgroundLayersView.updateUI();
-	AdditionalLayersView.updateUI();
+	if ( isMobile )
+	{
+		AdditionalLayersMobileView.updateUI();
+	}
+	else
+	{
+		AdditionalLayersView.updateUI();
+	}
 	
 	// Setup the drag & drop listeners.
 	$('canvas').on('dragover', handleDragOver);
@@ -443,14 +471,22 @@ return {
 	init: function(gl, nav, configuration) {
 		// Store the globe in the global module variable
 		globe = gl;
-		AdditionalLayersView.init(gl, nav, this, configuration);
+		isMobile = configuration.isMobile;
+		if ( isMobile )
+		{
+			AdditionalLayersMobileView.init(gl, nav, this, configuration);
+		}
+		else
+		{
+			AdditionalLayersView.init(gl, nav, this, configuration);
+		}
 		BackgroundLayersView.init(gl, this, configuration);
 
 		// Call init layers
 		initLayers(configuration.layers);
 
 		LayerServiceView.init(gl, nav, this, configuration);
-
+		
 		if ( configuration.votable2geojson )
 		{
 			votable2geojsonBaseUrl = configuration.votable2geojson.baseUrl;

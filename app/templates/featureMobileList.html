@@ -1,0 +1,23 @@
+<div id="overlappedObjects">
+	<% if ( selection.length > 1 ) {%>
+		<u>Overlapped observations:</u><br/>
+	<% } else { %>
+		<u>Object:</u><br/>
+	<% } %>
+	<div id="featureListDiv">
+		<label style="display:none;" for="featureList">Observations</label>
+		<select style="position: absolute;" data-theme="a" data-content-theme="a" id="featureList">
+			<%
+			var title = "";
+			for ( var i=0; i<selection.length; i++ )
+			{ 
+				var properties = selection[i].feature.properties;
+				title = ( properties.title ) ? properties.title : properties.identifier;
+			%>
+				<option value="<%= i %>" title=<%= title %>> <%= title %> </option>
+			<%
+			}
+			%>
+		</select>
+	</div>
+</div>

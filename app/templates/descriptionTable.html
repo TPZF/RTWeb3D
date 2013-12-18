@@ -15,7 +15,7 @@
 			<% } else { %>
 				<td  id="<%=stringKey%>" title="<%= title%>" class="selectProperty" colspan="2">
 					<div id="arrow" class="arrow-right"></div><div class="section"><b><%= stringKey %></b></div>
-					<table class="propertiesTable" style="display: none; margin-left: 10px" rules="rows">
+					<table class="propertiesTable" style="<% (!isMobile) ? print('width: 295px;') : "" %> display: none; margin-left: 10px" rules="rows">
 						<tbody>
 							<% print( descriptionTableTemplate( { dictionary: dictionary, properties: properties[key], descriptionTableTemplate: descriptionTableTemplate }) );
 							 %>

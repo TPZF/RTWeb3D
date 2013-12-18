@@ -100,15 +100,6 @@ function initNiceScroll(categoryId)
 		autohidemode: false
 	});
 
-	// Hide scroll while accordion animation
-	$( "#accordion" ).on( "accordionbeforeactivate", function(event, ui) {
-		$('#'+categoryId).niceScroll().hide();
-	} );
-	// Show&resize scroll on the end of accordion animation
-	$( "#accordion" ).on( "accordionactivate", function( event, ui ) {
-		$('#'+categoryId).niceScroll().show();
-		updateScroll(categoryId);
-	} );
 	$('#'+categoryId).niceScroll().show();
 	updateScroll(categoryId);
 }
@@ -120,7 +111,28 @@ function initNiceScroll(categoryId)
  */
 function updateScroll(categoryId)
 {
-	$('#accordion').find('#'+categoryId).getNiceScroll().resize();
+	// TODO inverse
+	if ( isMobile )
+	{
+		$( "#accordion" ).trigger('create');
+	}
+	$('#accordion').find('#'+categoryId).niceScroll().resize();
+}
+
+/**************************************************************************************************************/
+
+function setOpacity( gwLayer, value )
+{
+	gwLayer.opacity( value/100. );
+
+	// Update sublayers opacity
+	if ( gwLayer.subLayers )
+	{
+		for ( var i=0; i<gwLayer.subLayers.length; i++ )
+		{
+			gwLayer.subLayers[i].opacity( value/100.);
+		}
+	}
 }
 
 /**************************************************************************************************************/
@@ -175,38 +187,58 @@ function createHtmlForAdditionalLayer( gwLayer, categoryId )
 		max: 100,
 		step: 20,
 		slide: function( event, ui ) {
-			$( "#percentInput_"+currentIndex ).val( ui.value + "%" );
-			gwLayer.opacity( ui.value/100. );
-
-			if ( gwLayer.subLayers )
-			{
-				for ( var i=0; i<gwLayer.subLayers.length; i++ )
-				{
-					gwLayer.subLayers[i].opacity( ui.value/100.);
-				}
-			}
+			var opacityValue = ui.value;
+			$( "#percentInput_"+shortName ).val( opacityValue + "%" );
+			setOpacity( gwLayer, opacityValue );
 		}
 	}).slider( "option", "disabled", !gwLayer.visible() );
+
+	// TODO inverse it
+	if ( isMobile )
+	{
+		$('#opacity_'+shortName).on('change', function(event){
+			var opacityValue = $(this).find('.percentInput').val();
+			setOpacity( gwLayer, opacityValue );
+		});
+	}
 	
+
 	// Init percent input of slider
-	$( "#percentInput_"+shortName ).val( $( "#slider_"+shortName ).slider( "value" ) + "%" );
+	// TODO inverse
+	if ( isMobile )
+	{
+		$( "#percentInput_"+shortName ).val( $( "#slider_"+shortName ).val() + "%" );
+	}
+	else
+	{
+		$( "#percentInput_"+shortName ).val( $( "#slider_"+shortName ).slider( "value" ) + "%" );
+	}
 		
 	// Open tools div when the user clicks on the layer label
 	var toolsDiv = $layerDiv.find('.layerTools');
-	$layerDiv.children('label').click(function() {
-		toolsDiv.slideToggle(updateScroll.bind(this, categoryId));
-	});
+	// $layerDiv.children('label').click(function() {
+	// 	toolsDiv.slideToggle(updateScroll.bind(this, categoryId));
+	// });
 
 	if ( gwLayer.visible() )
 	{
-		toolsDiv.slideDown();
+		toolsDiv.css('display', 'block');
 	}
 	// Layer visibility management
 	$('#visible_'+shortName).click(function(){
 		// Manage 'custom' checkbox
 		// jQuery UI button is not sexy enough :)
 		// Toggle some classes when the user clicks on the visibility checkbox
-		var isOn = !$('#visible_'+shortName).hasClass('ui-state-active');
+		// TODO inverse it
+		if ( isMobile )
+		{
+			var isOn = $(this).attr('checked') ? true : false;
+		}
+		else
+		{
+			var isOn = !$('#visible_'+shortName).hasClass('ui-state-active');
+			$layerDiv.find('.slider').slider( isOn ? "enable" : "disable" );
+		}
 		gwLayer.visible( isOn );
 
 		if ( gwLayer.subLayers )
@@ -227,15 +259,15 @@ function createHtmlForAdditionalLayer( gwLayer, categoryId )
 			}
 		}
 
-		$layerDiv.find('.slider').slider( isOn ? "enable" : "disable" );
 		if ( isOn )
 		{
-			$('.layerTools').not(toolsDiv).slideUp();
-			toolsDiv.slideDown();
+			//$('.layerTools').slideUp();
+			//$('.layerTools').not(toolsDiv).slideUp();
+			toolsDiv.css('display', 'block');
 		}
 		else
 		{
-			toolsDiv.slideUp();	
+			toolsDiv.css('display','none');
 		}
 		
 		// Change button's state
@@ -253,29 +285,30 @@ function createHtmlForAdditionalLayer( gwLayer, categoryId )
 	// Init buttons of tool bar
 	$layerDiv.find('.deleteLayer').button({
 			text: false,
-			icons: {
-				primary: "ui-icon-trash"
-			}
+			mini: true
 		}).end()
 		.find('.zoomTo').button({
 			text: false,
-			icons: {
-				primary: "ui-icon-zoomin"
-			}
+			inline: true,
+			icon: "zoomTo",
+			iconpos: "notext"
 		}).end()
 		.find('.exportLayer').button({
 			text: false,
-			icons: {
-				primary: "ui-icon-extlink"
-			}
+			inline: true,
+			mini: true,
+			icon: "ext-link",
+			iconpos: "notext"
 		}).end()
 		.find('.downloadAsVO').button({
 			text: false,
-			icons: {
-				primary: "ui-icon-arrowthickstop-1-s"
-			}
+			mini: true,
+			inline: true,
+			iconpos: "notext",
+			icon: 'download'
 		});
 
+	// TODO inverse isMobile
 	if ( gwLayer instanceof HEALPixFITSLayer && !isMobile )
 	{
 		// Supports fits, so create dynamic image view in dialog
@@ -351,9 +384,21 @@ function addView ( gwLayer, category )
 	if ( !categories[category] )
 	{
 		categoryId = Utils.formatId( category );
-		$('<div class="category"><h3>'+ category +'</h3>\
-			<div id="'+categoryId+'"></div></div>')
-				.insertBefore($('#otherLayers').parent());
+		// TODO inverse if
+		if ( !isMobile )
+		{
+			$('<div class="category"><h3>'+ category +'</h3>\
+				<div  id="'+categoryId+'"></div></div>')
+					.insertBefore($('#otherLayers').parent());
+		}
+		else
+		{
+			$('<div class="category" data-inset="false" data-mini="true" data-theme="a" data-content-theme="a" data-role="collapsible">\
+					<h3>'+ category +'</h3>\
+					<div id="'+categoryId+'"></div>\
+				</div>')
+					.insertBefore($('#otherLayers').parent().parent());	
+		}
 
 		categories[category] = categoryId;
 	}
@@ -402,60 +447,6 @@ function buildVisibleTilesUrl(layer)
  */
 function initToolbarEvents ()
 {
-
-	$('.isFits').button();
-	$('.addFitsView').button({
-		text: false,
-		icons: {
-			primary: "ui-icon-image"
-		}
-	});
-	$('.layerServices').button({
-		text: false,
-		icons: {
-			primary: "ui-icon-wrench"
-		}
-	});
-
-	// Delete layer event
-	$('.category').on("click",'.deleteLayer', function(){
-		
-		$(this).closest(".addLayer").fadeOut(300, function(){
-			$(this).remove();
-		});
-
-		var layer = $(this).closest(".addLayer").data('layer')
-		var gwLayers = layerManager.getLayers();
-		var index = gwLayers.indexOf(layer);
-		gwLayers.splice(index, 1);
-		PickingManager.removePickableLayer( layer );
-		ImageViewer.removeLayer( layer );
-		globe.removeLayer(layer);
-
-		updateScroll('otherLayers');
-	});
-
-	// Layer services
-	$('.category').on('click', ".layerServices", function(){
-		var layer = $(this).closest(".addLayer").data('layer')
-		LayerServiceView.show( layer );
-	});
-
-	$('.category').on('click', ".exportLayer", function(){
-
-		if ( Samp.isConnected() )
-		{
-			var layer = $(this).closest(".addLayer").data('layer')
-			
-			var url = buildVisibleTilesUrl(layer);
-			var message = Samp.sendVOTable(layer, url);
-		}
-		else
-		{
-			ErrorDialog.open("You must be connected to SAMP Hub");
-		}
-	});
-	
 	// Download features on visible tiles as VO table
 	$('.category').on('click', '.downloadAsVO', function(){
 		var layer = $(this).closest(".addLayer").data('layer')
@@ -485,32 +476,6 @@ function initToolbarEvents ()
 
 		navigation.zoomTo([sLon/nbGeometries, sLat/nbGeometries], 2., 2000);
 	});
-
-	$('.category').on('click', '.isFits', function(event){
-		var isFits = $(this).is(':checked');
-		var layer = $(this).closest(".addLayer").data('layer');
-		layer.dataType = isFits ? 'fits' : 'jpg';
-		if ( !isFits )
-		{
-			$(this).nextAll('.addFitsView').button('disable');
-		}
-
-		// TODO: make reset function ?
-		// layer.setDatatype( dataType );
-
-		var prevId = layer.id;
-		globe.removeLayer(layer);
-		globe.addLayer(layer);
-
-		// HACK : Layer id will be changed by remove/add so we need to change the html id
-		$('#addLayer_'+prevId).attr('id','addLayer_'+layer.id);
-	});
-	
-	// Initialize nice scroll for categories
-	for ( var x in categories )
-	{
-		initNiceScroll(categories[x]);
-	}
 }
 
 /**************************************************************************************************************/

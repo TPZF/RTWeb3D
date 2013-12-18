@@ -53,9 +53,10 @@
 }
 
 /* Layer container by category */
+/* Scroll bar is attached to accordion in mobile version */
 #accordion > div > div
 {
-	max-height: 450px;
+	#max-height: 450px;
 }
 
 .addLayer > label
@@ -75,7 +76,7 @@
 {
 	position: absolute;
 	right: -20px;
-	top: 0px;
+	top: 10px;
 	width: 16px;
 	height: 16px;
 }
@@ -93,6 +94,7 @@
 
 .addLayer
 {
+	width: 95%;
 	position: relative;
 	margin-bottom: 10px;
 }

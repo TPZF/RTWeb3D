@@ -32,28 +32,7 @@ var layerServiceView = '<div id="layerServiceView" title="Available services">\
 						</div>';
 
 // Create the div, use jQuery UI dialog
-var $layerServiceView = $(layerServiceView)
-					.appendTo('body')
-					.dialog({
-						autoOpen: false,
-						resizable: false,
-						width: '600px',
-						show: {
-							effect: "fade",
-							duration: 300
-						},
-						hide: {
-							effect: "fade",
-							duration: 300
-						},
-						minHeight: 'auto',
-						position:['middle',20],
-						open: function()
-						{
-							// Remove auto-focus
-							$(this).find('li:first-child').blur();
-						}
-					});
+var $layerServiceView;
 
 var tabs = $('#layerServices').tabs({
 	collapsible: true,
@@ -71,6 +50,8 @@ var serviceMapping = {
 };
 
 var currentLayer;
+
+var isMobile;
 
 /**
  *	Get service object from configuration
@@ -101,48 +82,79 @@ return {
 	{
 		MocService.init(gl, configuration);
 		XMatchService.init(gl, lm, configuration);
-		HEALPixCutService.init(gl, nav)
+		HEALPixCutService.init(gl, nav);
+		isMobile = configuration.isMobile;
+		// No layer services for mobile version for now...
+		if ( !isMobile )
+		{
+			$layerServiceView = $(layerServiceView)
+					.appendTo('body')
+					.dialog({
+						autoOpen: false,
+						resizable: false,
+						width: '600px',
+						show: {
+							effect: "fade",
+							duration: 300
+						},
+						hide: {
+							effect: "fade",
+							duration: 300
+						},
+						minHeight: 'auto',
+						position:['middle',20],
+						open: function()
+						{
+							// Remove auto-focus
+							$(this).find('li:first-child').blur();
+						}
+					})
+		}
 	},
 
 	show: function(layer)
 	{
-		var service;
-
-		// Remove previous services
-		if ( currentLayer )
+		// No layer services for mobile version for now...
+		if ( !isMobile )
 		{
-			for ( var i=0; i<currentLayer.availableServices.length; i++)
+			var service;
+
+			// Remove previous services
+			if ( currentLayer )
 			{
-				service = getServiceFromConf(currentLayer.availableServices[i])
-				if ( service.removeLayer )
-					service.removeLayer(currentLayer);
-				service.removeService(tabs, currentLayer.availableServices[i]);
+				for ( var i=0; i<currentLayer.availableServices.length; i++)
+				{
+					service = getServiceFromConf(currentLayer.availableServices[i])
+					if ( service.removeLayer )
+						service.removeLayer(currentLayer);
+					service.removeService(tabs, currentLayer.availableServices[i]);
+				}
 			}
+
+			for ( var i=0; i<layer.availableServices.length; i++ )
+			{
+				service = getServiceFromConf( layer.availableServices[i] );
+				if ( service )
+				{
+					service.addService(tabs, layer.availableServices[i]);
+					if ( service.addLayer )
+						service.addLayer(layer);
+				}
+				else
+				{
+					// Unrecognized service, remove it
+					console.error("Mapping doesn't exist, service must be = { OpenSearch, Moc, XMatch or HEALPixCut }");
+					layer.availableServices.splice(i,1);
+				}
+			}
+			currentLayer = layer;
+
+			tabs.tabs('refresh');
+			tabs.tabs("option", "active", 0);
+
+			$layerServiceView
+				.dialog( "open" );
 		}
-
-		for ( var i=0; i<layer.availableServices.length; i++ )
-		{
-			service = getServiceFromConf( layer.availableServices[i] );
-			if ( service )
-			{
-				service.addService(tabs, layer.availableServices[i]);
-				if ( service.addLayer )
-					service.addLayer(layer);
-			}
-			else
-			{
-				// Unrecognized service, remove it
-				console.error("Mapping doesn't exist, service must be = { OpenSearch, Moc, XMatch or HEALPixCut }");
-				layer.availableServices.splice(i,1);
-			}
-		}
-		currentLayer = layer;
-
-		tabs.tabs('refresh');
-		tabs.tabs("option", "active", 0);
-
-		$layerServiceView
-			.dialog( "open" );
 	}
 }
 

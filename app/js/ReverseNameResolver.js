@@ -42,7 +42,7 @@ var mouseYStart;
 var reverseNameResolverHTML =
 	'<div id="reverseNameResolver" class="contentBox ui-widget-content" style="display: none;">\
 		<div id="reverseSearchField">\
-			<input type="submit" value="Find Object Name" />\
+			<input data-role="button" data-theme="a" type="submit" value="Find Object Name" />\
 			<div id="coordinatesInfo"></div>\
 			<div id="healpixInfo"></div>\
 		</div>\
@@ -203,7 +203,7 @@ function setBehavior()
 
 function showFeature( feature )
 {
-	var output = featureDescriptionTemplate( { dictionary: {}, services: feature.services, properties: feature.properties, descriptionTableTemplate: descriptionTableTemplate } );
+	var output = featureDescriptionTemplate( { dictionary: {}, services: feature.services, properties: feature.properties, descriptionTableTemplate: descriptionTableTemplate, isMobile: isMobile } );
 	var title = ( feature.properties.title ) ? feature.properties.title : feature.properties.identifier;
 	output = '<div class="title">'+ title +'</div><div class="credit">Found in CDS database</div>' + output;
 	$('#reverseSearchResult')
@@ -227,8 +227,12 @@ return {
 		configuration.debug = conf.debug;
 		isMobile = conf.isMobile;
 
-
 		setBehavior();
+
+		if ( isMobile )
+		{
+			$('#reverseNameResolver').trigger('create');
+		}
 	}
 };
 

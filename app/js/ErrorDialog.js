@@ -24,9 +24,33 @@ define(["jquery.ui"], function($) {
 
 // The main div for error
 var errorDiv = '<div id="errorDiv" style="text-align: justify" title="Error"></div>';
+var mobileErrorDiv = '<div data-role="page" style="position: absolute;" id="errorDiv">\
+							<div data-role="header">\
+							<h2>Error</h2>\
+						</div>\
+						<div class="errorContent" data-role="content"></div>\
+					  </div>';
 
-// Create the div, use jQuery UI dialog
-var $errorDiv = $(errorDiv)
+var $errorDiv;
+var isMobile;
+
+return {
+	
+	/**
+	 *	Initialize error dialog
+	 */
+	init: function(options)
+	{
+		isMobile = options.hasOwnProperty('isMobile') ? options.isMobile : false;
+		if ( isMobile )
+		{
+			$errorDiv = $(mobileErrorDiv)
+							.appendTo('body');
+			$errorDiv.trigger("create");
+		}
+		else
+		{
+			$errorDiv = $(errorDiv)
 					.appendTo('body')
 					.dialog({
 						autoOpen: false,
@@ -36,17 +60,27 @@ var $errorDiv = $(errorDiv)
 						minHeight: 'auto',
 						dialogClass: 'errorBox'
 					});
-
-return {
+		}
+	},
 	/**
 	 *	Open dialog
 	 *
 	 *	@param html HTML text
 	 */
 	open: function( html ){
-		$errorDiv
-			.html(html)
-			.dialog( "open" );
+		if ( isMobile )
+		{
+			$errorDiv
+				.find('div[data-role="content"]')
+					.html(html);
+			$.mobile.changePage( "#errorDiv", { role: "dialog" } );
+		}
+		else
+		{
+			$errorDiv
+				.html(html)
+				.dialog( "open" );
+			}
 		}
 };
 

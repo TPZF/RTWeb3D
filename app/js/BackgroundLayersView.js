@@ -20,7 +20,7 @@
 /**
  * BackgroundLayersView module
  */
-define(["jquery.ui", "./DynamicImageView", "./PickingManager", "./HEALPixFITSLayer", "./LayerServiceView", "./Samp", "./ErrorDialog"],
+define(["jquery.ui.selectmenu", "./DynamicImageView", "./PickingManager", "./HEALPixFITSLayer", "./LayerServiceView", "./Samp", "./ErrorDialog"],
 		function($, DynamicImageView, PickingManager, HEALPixFITSLayer, LayerServiceView, Samp, ErrorDialog){
 
 // Necessary for selectmenu initialization
@@ -28,6 +28,7 @@ var backgroundLayersIcons = [];
 var nbBackgroundLayers = 0; // required because background id is always equal to 0
 var globe;
 var layerManager;
+var isMobile;
 
 var backgroundDiv;
 
@@ -40,27 +41,35 @@ function updateBackgroundOptions(layer)
 {		
 	if ( layer instanceof HEALPixFITSLayer )
 	{
-		$("#fitsType").removeAttr('disabled').removeAttr('checked').button("refresh");
+		$("#fitsType").removeAttr('disabled').removeAttr('checked');
 		// Dynamic image view button visibility
 		if ( layer.dataType == 'jpeg' )
 		{
-			$('#fitsView').button("disable");
+			$('#fitsView').attr('disabled','disabled');
 		}
 	}
 	else
 	{
-		$("#fitsType").attr('disabled','disabled').button("refresh");
-		$('#fitsView').button("disable");
+		$("#fitsType").attr('disabled','disabled');
+		$('#fitsView').attr('disabled','disabled');
 	}
 
 	var $layerServices = $('#backgroundLayers').find('.layerServices');
 	if ( !layer.availableServices )
 	{
-		$layerServices.attr('disabled','disabled').button('refresh');
+		$layerServices.attr('disabled','disabled');
 	}
 	else
 	{
-		$layerServices.removeAttr('disabled').button('refresh');
+		$layerServices.removeAttr('disabled');
+	}
+
+	$layerServices.button("refresh");
+	
+	if ( !isMobile )
+	{
+		$('#fitsView').button("refresh");
+		$('#fitsType').button("refresh");
 	}
 }
 
@@ -72,21 +81,24 @@ function updateBackgroundOptions(layer)
 function createHtmlForBackgroundLayer( gwLayer )
 {
 	// Add HTML
-	var $layerDiv = $('<option>'+ gwLayer.name + '</option>')
+	var $layerDiv = $('<option value="'+nbBackgroundLayers+'">'+ gwLayer.name + '</option>')
 			.appendTo('#backgroundLayersSelect')
 			.data("layer", gwLayer);
 	
-	if ( gwLayer.icon )
-	{		
-		backgroundLayersIcons.push( {find: ".backgroundLayer_" + nbBackgroundLayers} );
-		$layerDiv.addClass('backgroundLayer_'+ nbBackgroundLayers)
-				.data("bgImage", "url("+gwLayer.icon+")" );
-	}
-	else
+	if ( !isMobile )
 	{
-		// Use default style
-		backgroundLayersIcons.push( {find: ".unknown"} );
-		$layerDiv.addClass('unknown');
+		if ( gwLayer.icon )
+		{		
+			backgroundLayersIcons.push( {find: ".backgroundLayer_" + nbBackgroundLayers} );
+			$layerDiv.addClass('backgroundLayer_'+ nbBackgroundLayers)
+					.data("bgImage", "url("+gwLayer.icon+")" );
+		}
+		else
+		{
+			// Use default style
+			backgroundLayersIcons.push( {find: ".unknown"} );
+			$layerDiv.addClass('unknown');
+		}
 	}
 
 	if ( gwLayer.visible() )
@@ -104,18 +116,11 @@ function createHtmlForBackgroundLayer( gwLayer )
 /**************************************************************************************************************/
 
 return {
-	init : function(gl, lm)
+	init : function(gl, lm, configuration)
 	{
 		globe = gl;
 		layerManager = lm;
-
-		// Create Dynamic image view activator for background layers
-		$('#fitsView').button({
-			text: false,
-			icons: {
-				primary: "ui-icon-image"
-			}
-		});
+		isMobile = configuration.isMobile;
 
 		$('#backgroundLayers').find('.layerServices').button({
 			text: false,
@@ -148,64 +153,80 @@ return {
 			{
 				ErrorDialog.open('You must be connected to SAMP Hub');
 			}
-		});		
-
-		var dialogId = backgroundDiv;
-		var $dialog = $('<div id="'+dialogId+'"></div>').appendTo('body').dialog({
-			title: 'Image processing',
-			autoOpen: false,
-			show: {
-				effect: "fade",
-		    	duration: 300
-			},
-			hide: {
-				effect: "fade",
-				duration: 300
-			},
-			width: 400,
-			resizable: false,
-			width: 'auto',
-			minHeight: 'auto',
-			close: function(event, ui)
-			{
-				$('#fitsView').removeAttr("checked").button("refresh");
-				$(this).dialog("close");
-			}
 		});
 
-		// Show/hide Dynamic image service
-		$('#fitsView').on("click", function(event){
+		if ( !isMobile )
+		{
+			// Create Dynamic image view activator for background layers
+			$('#fitsView').button({
+				text: false,
+				icons: {
+					primary: "ui-icon-image"
+				}
+			});
+			$('#fitsType').button();
+			
+			var dialogId = "backgroundDiv";
+			var $dialog = $('<div id="'+dialogId+'"></div>').appendTo('body').dialog({
+				title: 'Image processing',
+				autoOpen: false,
+				show: {
+					effect: "fade",
+					duration: 300
+				},
+				hide: {
+					effect: "fade",
+					duration: 300
+				},
+				width: 400,
+				resizable: false,
+				width: 'auto',
+				minHeight: 'auto',
+				close: function(event, ui)
+				{
+					$('#fitsView').removeAttr("checked").button("refresh");
+					$(this).dialog("close");
+				}
+			});
+			backgroundDiv = new DynamicImageView(dialogId, {
+				id : 'backgroundFitsView',
+			});
+			$('#fitsType').on('click', function(){
+				var index = $('#backgroundLayersSelect').data('selectmenu').index();
+				var layer = $('#backgroundLayersSelect').children().eq(index).data("layer");
 
-			if ( $dialog.dialog( "isOpen" ) )
-			{
-				$dialog.dialog("close");
-			}
-			else
-			{
-				$dialog.dialog("open");
-			}
+				isFits = $(this).is(':checked');
+
+				layer.dataType = isFits ? 'fits' : 'jpg';
+				if ( !isFits )
+				{
+					$('#fitsView').button('disable');
+				}
+
+				globe.setBaseImagery( null );
+				globe.setBaseImagery( layer );
+				$('#loading').show();
+			});
+
+			// Show/hide Dynamic image service
+			$('#fitsView').on("click", function(event){
+				if ( $dialog.dialog( "isOpen" ) )
+				{
+					$dialog.dialog("close");
+				}
+				else
+				{
+					$dialog.dialog("open");
+				}
+			});
+		}
+
+		// Background spinner events
+		globe.subscribe("startBackgroundLoad", function(layer){
+			$('#backgroundSpinner').fadeIn('fast');
 		});
-
-		backgroundDiv = new DynamicImageView(dialogId, {
-			id : 'backgroundFitsView',
-		});
-
-		$('#fitsType').button();
-		$('#fitsType').on('click', function(){
-			var index = $('#backgroundLayersSelect').data('selectmenu').index();
-			var layer = $('#backgroundLayersSelect').children().eq(index).data("layer");
-
-			isFits = $(this).is(':checked');
-
-			layer.dataType = isFits ? 'fits' : 'jpg';
-			if ( !isFits )
-			{
-				$('#fitsView').button('disable');
-			}
-
-			globe.setBaseImagery( null );
-			globe.setBaseImagery( layer );
-			$('#loading').show();
+		globe.subscribe("endBackgroundLoad", function(layer){
+			$('#backgroundSpinner').fadeOut('fast');
 		});
 	},
 	addView : createHtmlForBackgroundLayer,
@@ -218,44 +239,54 @@ return {
 			icons: backgroundLayersIcons,
 			bgImage: function() {
 				return this.data('bgImage');
-			},
-			select: function(e)
+			}
+		});
+
+		if ( isMobile )
+		{
+			$('#backgroundLayersSelect').selectmenu("refresh");
+		}
+
+		$('#backgroundLayersSelect').change(function(){
+
+			//var index = $(this).data('selectmenu').index();
+			var index = parseInt( $(this).val() );
+			var layer = $(this).children().eq(index).data("layer");
+
+			// Clear selection
+			PickingManager.getSelection().length = 0;
+
+			// Change visibility's of previous layer, because visibility is used to know the active background layer in the layers list (layers can be shared)
+			globe.baseImagery.visible(false);
+			globe.setBaseImagery( layer );
+			layer.visible(true);
+
+			// Show background loading spinner
+			$('#loading').show(300);
+
+			// Remove solar object sublayers
+			var gwLayers = layerManager.getLayers();
+			for ( var i=0; i<gwLayers.length; i++ )
 			{
-				var index = $(this).data('selectmenu').index();
-				var layer = $(this).children().eq(index).data("layer");
-
-				// Clear selection
-				PickingManager.getSelection().length = 0;
-
-				// Change visibility's of previous layer, because visibility is used to know the active background layer in the layers list (layers can be shared)
-				globe.baseImagery.visible(false);
-				globe.setBaseImagery( layer );
-				layer.visible(true);
-
-				// Show background loading spinner
-				$('#loading').show(300);
-
-				// Remove solar object sublayers
-				var gwLayers = layerManager.getLayers();
-				for ( var i=0; i<gwLayers.length; i++ )
+				var currentLayer = gwLayers[i];
+				if ( currentLayer.subLayers )
 				{
-					var currentLayer = gwLayers[i];
-					if ( currentLayer.subLayers )
+					var len = currentLayer.subLayers.length;
+					for ( var j=0; j<len; j++ )
 					{
-						var len = currentLayer.subLayers.length;
-						for ( var j=0; j<len; j++ )
+						var subLayer = currentLayer.subLayers[j];
+						if (subLayer.name == "SolarObjectsSublayer" )
 						{
-							var subLayer = currentLayer.subLayers[j];
-							if (subLayer.name == "SolarObjectsSublayer" )
-							{
-								PickingManager.removePickableLayer( subLayer );
-								globe.removeLayer( subLayer );
-								currentLayer.subLayers.splice(j,1);
-							}
+							PickingManager.removePickableLayer( subLayer );
+							globe.removeLayer( subLayer );
+							currentLayer.subLayers.splice(j,1);
 						}
 					}
 				}
+			}
 
+			if ( backgroundDiv )
+			{
 				// Set shader callback for choosen layer
 				backgroundDiv.changeShaderCallback = function(contrast){
 					if ( contrast == "raw" )
@@ -265,18 +296,10 @@ return {
 						layer.customShader.fragmentCode = layer.colormapFragShader;
 					}
 				};
-
-				// Change dynamic image view button
-				updateBackgroundOptions(layer);
 			}
-		});
 
-		// Background spinner events
-		globe.subscribe("startBackgroundLoad", function(layer){
-			$('#backgroundSpinner').fadeIn('fast');
-		});
-		globe.subscribe("endBackgroundLoad", function(layer){
-			$('#backgroundSpinner').fadeOut('fast');
+			// Change dynamic image view button
+			updateBackgroundOptions(layer);
 		});
 	},
 	getDiv : function() {

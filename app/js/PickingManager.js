@@ -20,8 +20,8 @@
 /**
  * PickingManager module
  */
-define( [ "jquery.ui", "gw/FeatureStyle", "gw/CoordinateSystem", "gw/OpenSearchLayer", "./FeaturePopup", "./ImageManager", "./CutOutViewFactory", "./Utils" ],
-		function($, FeatureStyle, CoordinateSystem, OpenSearchLayer, FeaturePopup, ImageManager, CutOutViewFactory, Utils) {
+define( [ "jquery.ui", "gw/FeatureStyle", "gw/CoordinateSystem", "gw/OpenSearchLayer", "./FeaturePopup", "./FeatureMobilePopup", "./ImageManager", "./CutOutViewFactory", "./Utils" ],
+		function($, FeatureStyle, CoordinateSystem, OpenSearchLayer, FeaturePopup, FeatureMobilePopup, ImageManager, CutOutViewFactory, Utils) {
 
 var globe;
 var navigation;
@@ -42,6 +42,7 @@ var mouseYStart;
 var timeStart;
 
 var isMobile;
+var fp;
 
 /**************************************************************************************************************/
 
@@ -92,7 +93,7 @@ function _handleMouseUp(event)
 		if ( newSelection.length > 0 )
 		{
 			// Hide previous popup if any
-			FeaturePopup.hide( function() {
+			fp.hide( function() {
 				// View on center
 				if ( navigation.inertia )
 				{
@@ -104,11 +105,11 @@ function _handleMouseUp(event)
 					// Add selected style for new selection
 					focusSelection(selection);
 					selection.selectedTile = selectedTile;
-					FeaturePopup.createFeatureList( selection );
+					fp.createFeatureList( selection );
 					if ( selection.length > 1 )
 					{
 						// Create dialogue for the first selection call
-						FeaturePopup.createHelp();
+						fp.createHelp();
 						stackSelectionIndex = -1;
 					}
 					else
@@ -116,14 +117,14 @@ function _handleMouseUp(event)
 						// only one layer, no pile needed, create feature dialogue
 						self.focusFeatureByIndex( 0 );
 						$('#featureList div:eq(0)').addClass('selected');
-						FeaturePopup.showFeatureInformation( selection[stackSelectionIndex].layer, selection[stackSelectionIndex].feature )
+						fp.showFeatureInformation( selection[stackSelectionIndex].layer, selection[stackSelectionIndex].feature )
 					}
-					FeaturePopup.show(globe.renderContext.canvas.width/2, globe.renderContext.canvas.height/2);
+					fp.show(globe.renderContext.canvas.width/2, globe.renderContext.canvas.height/2);
 					}
 				);
 			});
 		} else {
-			FeaturePopup.hide();
+			fp.hide();
 		}
 	}
 }
@@ -147,7 +148,7 @@ function activate()
 	// Hide popup and blur selection when pan/zoom or animation
 	navigation.subscribe("modified", function() { 
 		clearSelection();
-		FeaturePopup.hide();
+		fp.hide();
 	});
 }
 
@@ -170,7 +171,7 @@ function deactivate()
 	// Hide popup and blur selection when pan/zoom or animation
 	navigation.unsubscribe("modified", function() { 
 		clearSelection();
-		FeaturePopup.hide();
+		fp.hide();
 	});
 }
 
@@ -449,7 +450,17 @@ return {
 			// CutOutView factory ... TODO : move it/refactor it/do something with it...
 			CutOutViewFactory.init(globe, navigation, this, configuration.cutOut);
 		}
-		FeaturePopup.init(this, ImageManager, gl, configuration);
+
+		if ( !isMobile )
+		{
+			FeaturePopup.init(this, ImageManager, gl, configuration);
+			fp = FeaturePopup;
+		}
+		else
+		{
+			FeatureMobilePopup.init(this, ImageManager, gl, configuration);
+			fp = FeatureMobilePopup;
+		}
 	},
 
 	/**************************************************************************************************************/
