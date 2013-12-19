@@ -272,6 +272,22 @@
 			"outline": true
 		},
 		/**
+		 *	Built-in planets provider
+		 */
+		{
+			"category": "Solar systems",
+			"type": "GeoJSON",
+			"name": "Planets",
+			"icon": "css/images/star_icon.png",
+			"description": "Planets",
+			"data": {
+				"type": "planets"
+			},
+			"visible": true,
+			"opacity": 100,
+			"pickable" : false
+		},
+		/**
 		 *	IAS PLWSAG Healpix imagery
 		 *
 		 *	Plugin: Proxy Healpix Image cache
