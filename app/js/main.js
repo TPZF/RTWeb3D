@@ -330,6 +330,8 @@ $(function()
 						coordSystem : data.coordSystem,
 						isMobile : data.isMobile
 					});
+					// Publish modified event to update compass north
+					navigation.publish('modified');
 				});
 				$('#compassDiv').css("display","block");
 			}
