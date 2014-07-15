@@ -295,7 +295,7 @@ MeasureTool.prototype.updateMeasure = function()
 			"coordinates": [coordinates],
 			"type": "Polygon",
 		},
-		"properties": {
+		"properties": {
 			"style": new FeatureStyle({
 				zIndex: 2,
 				fillColor: [1.,0.,0.,1.]

@@ -228,7 +228,7 @@ function createClientTracker()
 			"properties": {
 				"identifier": params['name']
 			},
-			"services": {
+			"services": {
 				"download": {
 					"mimetype": "image/fits",
 					"url": params['image-id']
