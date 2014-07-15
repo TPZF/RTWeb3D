@@ -41,9 +41,9 @@ var selectedFeatureDiv = '<div id="selectedFeatureDiv" class="contentBox ui-widg
 				<div class="arrow-left"></div>\
 			</div>';
 
-var $selectedFeatureDiv = $(selectedFeatureDiv).appendTo('body');
-var $leftDiv = $('#leftDiv');
-var $rightDiv = $('#rightDiv');
+var $selectedFeatureDiv;
+var $leftDiv;
+var $rightDiv;
 
 // Template generating the list of selected features
 var featureListTemplate = _.template(featureListHTMLTemplate);
@@ -256,6 +256,10 @@ return {
 		imageManager = im;
 		globe = gl;
 		isMobile = configuration.isMobile;
+
+		$selectedFeatureDiv = $(selectedFeatureDiv).appendTo('body');
+		$leftDiv = $('#leftDiv');
+		$rightDiv = $('#rightDiv');
 
 		// Initialize image processing popup
 		ImageProcessing.init({

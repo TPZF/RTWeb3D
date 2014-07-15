@@ -1,0 +1,129 @@
+<div id="webGLNotAvailable">
+	If you see this message, WebGL is not supported in your browser.<br/>
+	Please install a recent version of <a href="http://www.mozilla.com">Firefox</a> or <a href="http://www.google.com/chrome">Google Chrome</a>.<br/>
+	If you already have a recent version of Firefox or Google Chrome, your graphics driver are too old, please update it.<br/>
+	On Google Chrome, you can check why it is not working by entering "about:gpu" in the url bar.
+</div>
+
+<div id="webGLContextLost">
+	If you see this message, WebGL context was lost.<br/>
+	Please re-launch your browser. We are working on restoring without relaunching.
+</div>
+
+<div id="loading">
+	<img src="css/images/loading.gif" />
+</div>
+
+<div class="canvas">
+
+	<div class="sidebar">
+		<div id="accordion" style="display: none;">
+			<div>
+				<h3>Background layer</h3>
+				<div id="backgroundLayers">
+					<fieldset>
+						<select style="display: none;" id="backgroundLayersSelect">
+						</select>
+					</fieldset>
+					<img style="display: none" id="backgroundSpinner" src="css/images/loading.gif" />
+					<br/>
+					<div id="backgroundOptions">
+						<input type="checkbox" id="fitsType" /><label for="fitsType">Fits</label>
+						<input type="checkbox" id="fitsView" /><label for="fitsView">Image processing</label>
+						<button class="layerServices">Available services</button>
+						<button class="exportLayer">Send viewport by SAMP</button>
+					</div>
+				</div>
+			</div>
+
+			<div class="category">
+				<h3>Other</h3>
+				<div id="otherLayers"></div>
+			</div>
+
+			<div class="category">
+				<h3>Coordinate systems</h3>
+				<div id="coordinateSystems">
+					<em>Default coordinate system:</em>
+					<select id="defaultCoordSystem">
+						<option value="EQ">Equatorial</option>
+						<option value="GAL">Galactic</option>
+					</select>
+					<div style="margin-top: 10px" id="coordinateGrids">
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	
+	<div class="noSelect" id="navigationDiv">
+		<div id="searchDiv">
+			<form id="searchForm">
+				<fieldset>
+					<div class="input">
+						<input title="Enter an object name (e.g. m31) or coordinate (e.g 23h45m30.5s -45&#186;30'30&rdquo;)" type="text" name="searchInput" id="searchInput" value="Object name or coordinates" />
+					</div>
+					<input type="submit" id="searchSubmit" value="" />
+					<div style="display: none" id="searchSpinner"></div>
+					<input type="button" id="searchClear" value="" style="display: none;"/>
+				</fieldset>
+			</form>
+			<div style="display: none" id="resolverSearchResult"></div>
+		</div>
+
+		<div style="display: none;" id="compassDiv">
+			<object id="objectCompass" width='100px' height='100px' data="css/images/compass.svg" type="image/svg+xml"></object>
+		</div>
+
+		<div id="imageViewerDiv">
+			<div id="imageViewerContent">
+				<span id="imageViewInvoker"></span>
+				<div id="loadedImages">
+					<h3>Images</h3>
+					<div>
+						<p style="color: white; text-align: center;">No image was loaded</p>
+						<div class="imageLayers">
+						</div>
+					</div>
+				</div>
+			</div>
+			
+		</div>
+	</div>
+	
+	<!-- Left-Bottom-section -->
+	<div class="noSelect" id="leftBottomDiv">
+		<!-- Div for relative position 164 = define height of mollweideContent-->
+		<div style="position: relative; height: 164px; margin-bottom: 5px;">
+			<div id="mollweideDiv">
+				<span id="mollweideContent">
+					<canvas id="mollweideCanvas" class="noSelect" width="232px" height="116px"></canvas>
+					<div id="fov" class="ui-widget">Fov : 45 x 45</div>
+				</span>
+				
+				<span id="slideArrow"></span>
+			</div>
+		</div>
+		<div class="leftBottomButton">
+			<input type="button" id="share" />
+			<div id="shareResult" style="pointer-events : auto;">
+				<input type="text" id="shareInput" />
+				<input type="button" id="shareClear" />
+			</div>
+		</div>
+		<div class="leftBottomButton">
+			<input type="button" id="sampInvoker" />
+		</div>
+		<div class="leftBottomButton">
+			<input type="button" id="measureInvoker" />
+		</div>
+		<div id="fps" class="statBox ui-widget">FPS : 0</div>	
+	</div>
+	
+	<div class="noSelect" id="attributions"></div>	
+	<div id="posTracker" class="noSelect"></div>
+
+	<canvas class="noSelect" id="GlobWebCanvas" style="border: none; margin: 0; padding: 0;" width="0" height="0">
+	</canvas>
+
+</div>

@@ -40,9 +40,17 @@ var aboutContent =
 		<span style="font-size: 0.8em;bottom: 5px;right: 5px;position: absolute;">v1.0 - 26.11.2013 - nightly build</span>\
 	</div>';
 
-// Create dialog
-var $about = $(aboutContent)
-					.appendTo('body')
+var $about = null;
+
+return {
+	/**
+	 *	Show about dialog
+	 */
+	show: function(){
+		if ( !$about ) {
+			// Create dialog
+			$about = $(aboutContent)
+				.appendTo('body')
 					.dialog({
 						autoOpen: false,
 						resizable: false,
@@ -72,12 +80,7 @@ var $about = $(aboutContent)
 							$(this).remove();
 						}
 					});
-
-return {
-	/**
-	 *	Show about dialog
-	 */
-	show: function(){
+		}
 		$about.dialog( "open" );
 	}
 };

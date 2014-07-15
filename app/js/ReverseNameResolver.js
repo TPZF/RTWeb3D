@@ -53,64 +53,7 @@ var reverseNameResolverHTML =
 		</div>\
 	</div>';
 
-var $reverseNameResolver = $(reverseNameResolverHTML).appendTo('body');
-
-$( "#reverseNameResolver input[type=submit]")
-	.button()
-	.click(function( event ) {
-		event.preventDefault();
-
-		$('#reverseSearchField input[type="submit"]').attr('disabled', 'disabled');
-
-		var equatorialCoordinates = [];
-		CoordinateSystem.fromGeoToEquatorial( geoPick, equatorialCoordinates );
-
-		// Format to equatorial coordinates
-		equatorialCoordinates[0] = equatorialCoordinates[0].replace("h ",":");
-		equatorialCoordinates[0] = equatorialCoordinates[0].replace("m ",":");
-		equatorialCoordinates[0] = equatorialCoordinates[0].replace("s","");
-		
-		equatorialCoordinates[1] = equatorialCoordinates[1].replace("° ",":");
-		equatorialCoordinates[1] = equatorialCoordinates[1].replace("' ",":");
-		equatorialCoordinates[1] = equatorialCoordinates[1].replace("\"","");
-
-		// Find max order
-		var maxOrder = 3;
-		globe.tileManager.visitTiles( function( tile ){ if ( maxOrder < tile.order ) maxOrder = tile.order} );
-
-		var requestUrl = configuration.baseUrl + 'EQUATORIAL/' + equatorialCoordinates[0] + " " + equatorialCoordinates[1] + ";" + maxOrder;
-
-		$.ajax({
-			type: "GET",
-			url: requestUrl,
-			success: function(response){
-				// Only one feature for the moment
-				showFeature( response.features[0] );
-			},
-			error: function (xhr, ajaxOptions, thrownError) {
-				switch (xhr.status)
-				{
-					case 503: 
-						ErrorDialog.open("Please wait at least 6 seconds between each request to reverse name resolver");
-						break;
-					case 500:
-						ErrorDialog.open("Internal server error");
-						break;
-					case 404:
-						ErrorDialog.open("Object not found");
-						break;
-					case 400:
-						ErrorDialog.open("Bad input");
-					default:
-						break;
-				}
-			},
-			complete: function(xhr)
-			{
-				$('#reverseSearchField input[type="submit"]').removeAttr('disabled');
-			}
-		});
-	});
+var $reverseNameResolver;
 
 function _handleMouseDown(event)
 {
@@ -219,6 +162,64 @@ return {
 
 		globe = gl;
 		navigation = nav;
+		$reverseNameResolver = $(reverseNameResolverHTML).appendTo('body');
+
+		$( "#reverseNameResolver input[type=submit]")
+		.button()
+		.click(function( event ) {
+			event.preventDefault();
+
+			$('#reverseSearchField input[type="submit"]').attr('disabled', 'disabled');
+
+			var equatorialCoordinates = [];
+			CoordinateSystem.fromGeoToEquatorial( geoPick, equatorialCoordinates );
+
+			// Format to equatorial coordinates
+			equatorialCoordinates[0] = equatorialCoordinates[0].replace("h ",":");
+			equatorialCoordinates[0] = equatorialCoordinates[0].replace("m ",":");
+			equatorialCoordinates[0] = equatorialCoordinates[0].replace("s","");
+			
+			equatorialCoordinates[1] = equatorialCoordinates[1].replace("° ",":");
+			equatorialCoordinates[1] = equatorialCoordinates[1].replace("' ",":");
+			equatorialCoordinates[1] = equatorialCoordinates[1].replace("\"","");
+
+			// Find max order
+			var maxOrder = 3;
+			globe.tileManager.visitTiles( function( tile ){ if ( maxOrder < tile.order ) maxOrder = tile.order} );
+
+			var requestUrl = configuration.baseUrl + 'EQUATORIAL/' + equatorialCoordinates[0] + " " + equatorialCoordinates[1] + ";" + maxOrder;
+
+			$.ajax({
+				type: "GET",
+				url: requestUrl,
+				success: function(response){
+					// Only one feature for the moment
+					showFeature( response.features[0] );
+				},
+				error: function (xhr, ajaxOptions, thrownError) {
+					switch (xhr.status)
+					{
+						case 503: 
+							ErrorDialog.open("Please wait at least 6 seconds between each request to reverse name resolver");
+							break;
+						case 500:
+							ErrorDialog.open("Internal server error");
+							break;
+						case 404:
+							ErrorDialog.open("Object not found");
+							break;
+						case 400:
+							ErrorDialog.open("Bad input");
+						default:
+							break;
+					}
+				},
+				complete: function(xhr)
+				{
+					$('#reverseSearchField input[type="submit"]').removeAttr('disabled');
+				}
+			});
+		});
 
 		for( var x in conf.reverseNameResolver )
 		{
