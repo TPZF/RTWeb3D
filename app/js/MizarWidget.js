@@ -20,9 +20,9 @@
 /**
  * Mizar widget
  */
-define( ["jquery.ui", "underscore-min", "gw/EquatorialCoordinateSystem", "gw/Sky", "gw/Stats", "gw/AstroNavigation", "gw/AttributionHandler", "gw/VectorLayer", "gw/TouchNavigationHandler", "gw/MouseNavigationHandler", "gw/KeyboardNavigationHandler", "text!../templates/mizarCore.html",
+define( [ "jquery", "underscore-min", "gw/EquatorialCoordinateSystem", "gw/Sky", "gw/Stats", "gw/AstroNavigation", "gw/AttributionHandler", "gw/VectorLayer", "gw/TouchNavigationHandler", "gw/MouseNavigationHandler", "gw/KeyboardNavigationHandler", "text!../templates/mizarCore.html",
 	"./LayerManager", "./NameResolver", "./ReverseNameResolver", "./Utils", "./PickingManager", "./FeaturePopup", "./IFrame", "./Compass", "./MollweideViewer", "./ErrorDialog", "./AboutDialog", "./Share", "./Samp", "./AdditionalLayersView", "./ImageManager", "./ImageViewer", "./UWSManager", "./PositionTracker", "./MeasureTool", "./StarProvider", "./ConstellationProvider", "./JsonProvider", "./OpenSearchProvider", "./PlanetProvider",
-	"gw/ConvexPolygonRenderer", "gw/PointSpriteRenderer", "gw/PointRenderer"],
+	"gw/ConvexPolygonRenderer", "gw/PointSpriteRenderer", "gw/PointRenderer", "jquery.ui"],
 	function($, _, CoordinateSystem, Sky, Stats, AstroNavigation, AttributionHandler, VectorLayer, TouchNavigationHandler, MouseNavigationHandler, KeyboardNavigationHandler, mizarCoreHTML,
 			LayerManager, NameResolver, ReverseNameResolver, Utils, PickingManager, FeaturePopup, IFrame, Compass, MollweideViewer, ErrorDialog, AboutDialog, Share, Samp, AdditionalLayersView, ImageManager, ImageViewer, UWSManager, PositionTracker, MeasureTool) {
 
@@ -33,7 +33,7 @@ define( ["jquery.ui", "underscore-min", "gw/EquatorialCoordinateSystem", "gw/Sky
 	var parentElement;
 
 	/**
-	 *	Retrueve SiTools2 configuration from URI
+	 *	Retrieve SiTools2 configuration from URI
 	 *	(to be removed ?)
 	 */
 	var _retrieveConfiguration = function() {
@@ -63,9 +63,9 @@ define( ["jquery.ui", "underscore-min", "gw/EquatorialCoordinateSystem", "gw/Sky
 	/**************************************************************************************************************/
 
 	/**
-	 *	Hide loading and show about first connection
+	 *	Hide loading and show about on first connection
 	 */
-	var _hideLoading = function()
+	var _showAbout = function()
 	{
 		// Show about information only at the end of first loading
 		if ( localStorage.showAbout == undefined && !aboutShowed )
@@ -194,10 +194,13 @@ define( ["jquery.ui", "underscore-min", "gw/EquatorialCoordinateSystem", "gw/Sky
 		}
 
 		// When base layer is ready, hide loading
-		sky.subscribe("baseLayersReady", _hideLoading);
+		sky.subscribe("baseLayersReady", _showAbout);
 
 		// When base layer failed to load, open error dialog
 		sky.subscribe("baseLayersError", function(layer){
+
+			$(parentElement).find('#loading').hide();
+			// TODO : handle multiple errors !
 			var layerType = layer.id == 0 ? " background layer " : " additional layer ";
 			ErrorDialog.open("<p>The"+ layerType + "<span style='color: orange'>"+layer.name+"</span> can not be displayed.</p>\
 			 <p>First check if data source related to this layer is still accessible. Otherwise, check your Sitools2 configuration.</p>");
@@ -356,6 +359,34 @@ define( ["jquery.ui", "underscore-min", "gw/EquatorialCoordinateSystem", "gw/Sky
 			}
 		});
 		
+		// Get background surveys only
+		// TODO: this ajax request must replace the conf.json's one..
+		$.ajax({
+			type: "GET",
+			url: "backgroundSurveys.json",
+			dataType: "text",
+			success: function(response) {
+				response = _removeComments(response);
+				try
+				{
+					var layers = $.parseJSON(response);
+				}
+				catch (e) {
+					ErrorDialog.open("Background surveys parsing error<br/> For more details see http://jsonlint.com/.");
+					console.error(e.message);
+					return false;
+				}
+
+				// Add surveys
+				for( var i=0; i<layers.length; i++ ) {
+					self.addLayer( layers[i] );
+				}
+			},
+			error: function(thrownError) {
+				console.error(thrownError);
+			}
+		});
+		
 		// Fullscreen mode
 		document.addEventListener("keydown", function(event){
 			// Ctrl + Space
@@ -420,7 +451,7 @@ define( ["jquery.ui", "underscore-min", "gw/EquatorialCoordinateSystem", "gw/Sky
 	 *	Add additional layer(OpenSearch, GeoJSON, HIPS, background, grid coordinates)
 	 */
 	MizarWidget.prototype.addLayer = function(layer) {
-		// TODO
+		LayerManager.addLayer(layer);
 	}
 
 	/**************************************************************************************************************/

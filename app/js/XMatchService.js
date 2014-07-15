@@ -20,7 +20,7 @@
 /**
  *	Moc xMatch service
  */
-define( [ "jquery.ui", "gw/FeatureStyle", "./MocLayer", "./MocBase", "gw/OpenSearchLayer", "./ErrorDialog", "underscore-min", "text!../templates/mocServiceItem.html" ],
+define( [ "jquery", "gw/FeatureStyle", "./MocLayer", "./MocBase", "gw/OpenSearchLayer", "./ErrorDialog", "underscore-min", "text!../templates/mocServiceItem.html", "jquery.ui" ],
 		function($, FeatureStyle, MocLayer, MocBase, OpenSearchLayer, ErrorDialog, _, mocServiceHTMLTemplate) {
 
 // Template generating the services html
@@ -287,9 +287,11 @@ return {
 	 */
 	removeService: function(tabs)
 	{
-		tabs.find( '.ui-tabs-nav li[aria-controls="xMatchService"]').css("opacity", 0.);
-		var index = $(this).index();
-		tabs.tabs("remove",index);
+		// var index = $(this).index();
+		// tabs.tabs("disable",index);
+		tabs.find( '.ui-tabs-nav li[aria-controls="xMatchService"]').remove();
+		$( "#xMatchService" ).remove();
+		tabs.tabs( "refresh" );
 
 		var allLayers = layerManager.getLayers();
 		var allOSLayers = _.filter(allLayers, function(layer){ return (layer instanceof OpenSearchLayer) });

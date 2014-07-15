@@ -24,7 +24,7 @@
  * @see http://vizier.cfa.harvard.edu/viz-bin/ftp-index?VI/49
  *
  */
-define( [ "jquery.ui", "./LayerManager", "gw/CoordinateSystem", "gw/FeatureStyle" ], function($, LayerManager, CoordinateSystem, FeatureStyle) {
+define( [ "jquery", "./LayerManager", "gw/CoordinateSystem", "gw/FeatureStyle" ], function($, LayerManager, CoordinateSystem, FeatureStyle) {
 
 /**************************************************************************************************************/
 

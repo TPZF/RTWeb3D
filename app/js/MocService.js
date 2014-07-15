@@ -20,7 +20,7 @@
 /**
  * Moc display & Moc xMatch services
  */
-define( [ "jquery.ui", "./MocLayer", "./MocBase", "underscore-min", "text!../templates/mocServiceItem.html" ],
+define( [ "jquery", "./MocLayer", "./MocBase", "underscore-min", "text!../templates/mocServiceItem.html" ],
 		function($, MocLayer, MocBase, _, mocServiceHTMLTemplate) {
 
 // Template generating the services html
@@ -176,8 +176,10 @@ return {
 	 */
 	removeService: function(tabs)
 	{
-		var index = $(this).index();
-		tabs.tabs("remove",index);
+		// Remove MocService tab(content&header)
+		$('li[aria-controls="MocService"]').remove();
+		$( "#MocService" ).remove();
+		tabs.tabs( "refresh" );
 	}
 }
 

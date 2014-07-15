@@ -20,7 +20,7 @@
 /**
  * Name resolver module : search object name and zoom to them
  */
-define(["jquery.ui", "gw/FeatureStyle", "gw/VectorLayer", "gw/HEALPixBase", "gw/CoordinateSystem", "./Utils", "underscore-min", "text!../templates/nameResolverResult.html"],
+define(["jquery", "gw/FeatureStyle", "gw/VectorLayer", "gw/HEALPixBase", "gw/CoordinateSystem", "./Utils", "underscore-min", "text!../templates/nameResolverResult.html", "jquery.ui"],
 	function($, FeatureStyle, VectorLayer, HEALPixBase, CoordinateSystem, Utils, _, nameResolverResultHTMLTemplate) {
 
 // Template generating the list of selected features

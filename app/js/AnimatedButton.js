@@ -20,7 +20,7 @@
 /**
  * Animated button
  */
-define( [ "jquery.ui"], function($) {
+define( [ "jquery", "jquery.ui"], function($) {
 
 var AnimatedButton = function(element, options)
 {

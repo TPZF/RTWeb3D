@@ -17,7 +17,7 @@
 * along with SITools2. If not, see <http://www.gnu.org/licenses/>. 
 ******************************************************************************/ 
 
-define( [ "jquery.ui", "./SelectionTool", "./UWSManager", "./Samp", "gw/CoordinateSystem", "./AnimatedButton", "./ErrorDialog", "underscore-min", "text!../templates/cutOut.html", "text!../templates/cutResultItem.html" ],
+define( [ "jquery", "./SelectionTool", "./UWSManager", "./Samp", "gw/CoordinateSystem", "./AnimatedButton", "./ErrorDialog", "underscore-min", "text!../templates/cutOut.html", "text!../templates/cutResultItem.html", "jquery.ui" ],
 		function($, SelectionTool, UWSManager, Samp, CoordinateSystem, AnimatedButton, ErrorDialog, _, cutOutHTMLTemplate, cutResultHTMLTemplate) {
 
 // Template generating UWS services div

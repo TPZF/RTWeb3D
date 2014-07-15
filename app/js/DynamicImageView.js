@@ -17,7 +17,7 @@
 * along with SITools2. If not, see <http://www.gnu.org/licenses/>. 
 ******************************************************************************/ 
 
-define(['jquery.ui', 'underscore-min', "gw/FeatureStyle", "./Histogram", "./UWSManager", "./AnimatedButton", "./ErrorDialog", "text!../templates/dynamicImageView.html", "jquery.ui.selectmenu"],
+define(['jquery', 'underscore-min', "gw/FeatureStyle", "./Histogram", "./UWSManager", "./AnimatedButton", "./ErrorDialog", "text!../templates/dynamicImageView.html", /*"jquery.ui.selectmenu"*/ "jquery.ui"],
 	function($,_, FeatureStyle, Histogram, UWSManager, AnimatedButton, ErrorDialog, dynamicImageViewHTML) {
  
 /**************************************************************************************************************/

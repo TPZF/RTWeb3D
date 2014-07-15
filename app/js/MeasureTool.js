@@ -21,7 +21,7 @@
  * Tool designed to measure the distance between two points
  */
 
-define( [ "jquery.ui", "gw/VectorLayer", "gw/Numeric", "gw/CoordinateSystem", "gw/FeatureStyle", "gw/glMatrix" ],
+define( [ "jquery", "gw/VectorLayer", "gw/Numeric", "gw/CoordinateSystem", "gw/FeatureStyle", "gw/glMatrix", "jquery.ui" ],
 		function($, VectorLayer, Numeric, CoordinateSystem, FeatureStyle){
 
 /**

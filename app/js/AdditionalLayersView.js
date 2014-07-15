@@ -20,7 +20,7 @@
 /**
  * AdditionalLayersView module
  */
-define(["jquery.ui", "gw/CoordinateSystem", "gw/FeatureStyle", "gw/OpenSearchLayer", "./HEALPixFITSLayer", "./MocLayer", "gw/VectorLayer", "./PickingManager", "./DynamicImageView", "./LayerServiceView", "./Samp", "./ImageViewer", "./ErrorDialog", "./Utils", "underscore-min", "text!../templates/additionalLayer.html", "jquery.nicescroll.min"],
+define(["jquery", "gw/CoordinateSystem", "gw/FeatureStyle", "gw/OpenSearchLayer", "./HEALPixFITSLayer", "./MocLayer", "gw/VectorLayer", "./PickingManager", "./DynamicImageView", "./LayerServiceView", "./Samp", "./ImageViewer", "./ErrorDialog", "./Utils", "underscore-min", "text!../templates/additionalLayer.html", "jquery.nicescroll.min", , "jquery.ui"],
 		function($, CoordinateSystem, FeatureStyle, OpenSearchLayer, HEALPixFITSLayer, MocLayer, VectorLayer, PickingManager, DynamicImageView, LayerServiceView, Samp, ImageViewer, ErrorDialog, Utils, _, additionalLayerHTMLTemplate){
 
 var globe;
@@ -245,7 +245,8 @@ function createHtmlForAdditionalLayer( gwLayer, categoryId )
 	});
 
 	// Init buttons of tool bar
-	$layerDiv.find('.deleteLayer').button({
+	$layerDiv
+		.find('.deleteLayer').button({
 			text: false,
 			icons: {
 				primary: "ui-icon-trash"
@@ -267,6 +268,19 @@ function createHtmlForAdditionalLayer( gwLayer, categoryId )
 			text: false,
 			icons: {
 				primary: "ui-icon-arrowthickstop-1-s"
+			}
+		}).end()
+		.find('.isFits').button().end()
+		.find('.addFitsView').button({
+			text: false,
+			icons: {
+				primary: "ui-icon-image"
+			}
+		}).end()
+		.find('.layerServices').button({
+			text: false,
+			icons: {
+				primary: "ui-icon-wrench"
 			}
 		});
 
@@ -397,22 +411,8 @@ function buildVisibleTilesUrl(layer)
 function initToolbarEvents ()
 {
 
-	$('.isFits').button();
-	$('.addFitsView').button({
-		text: false,
-		icons: {
-			primary: "ui-icon-image"
-		}
-	});
-	$('.layerServices').button({
-		text: false,
-		icons: {
-			primary: "ui-icon-wrench"
-		}
-	});
-
 	// Delete layer event
-	$('.category').on("click",'.deleteLayer', function(){
+	$('#accordion').on("click",'.category .deleteLayer', function(){
 		
 		$(this).parent().parent().fadeOut(300, function(){
 			$(this).remove();
@@ -430,12 +430,12 @@ function initToolbarEvents ()
 	});
 
 	// Layer services
-	$('.category').on('click', ".layerServices", function(){
+	$('#accordion').on('click', ".category .layerServices", function(){
 		var layer = $(this).parent().parent().data("layer");
 		LayerServiceView.show( layer );
 	});
 
-	$('.category').on('click', ".exportLayer", function(){
+	$('#accordion').on('click', ".category .exportLayer", function(){
 
 		if ( Samp.isConnected() )
 		{
@@ -451,7 +451,7 @@ function initToolbarEvents ()
 	});
 	
 	// Download features on visible tiles as VO table
-	$('.category').on('click', '.downloadAsVO', function(){
+	$('#accordion').on('click', '.category .downloadAsVO', function(){
 		var layer = $(this).parent().parent().parent().data("layer");
 		var url = buildVisibleTilesUrl(layer);
 		url+="&media=votable";
@@ -462,7 +462,7 @@ function initToolbarEvents ()
 	});
 
 	// ZoomTo event (available for GlobWeb.VectorLayers only)
-	$('.category').on("click", ".zoomTo", function(){
+	$('#accordion').on("click", ".category .zoomTo", function(){
 
 		var layer = $(this).parent().parent().data("layer");
 		var sLon = 0;
@@ -480,7 +480,7 @@ function initToolbarEvents ()
 		navigation.zoomTo([sLon/nbGeometries, sLat/nbGeometries], 2., 2000);
 	});
 
-	$('.category').on('click', '.isFits', function(event){
+	$('#accordion').on('click', '.category .isFits', function(event){
 		var isFits = $(this).is(':checked');
 		var layer = $(this).parent().parent().data("layer");
 		layer.dataType = isFits ? 'fits' : 'jpg';

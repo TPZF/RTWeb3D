@@ -26,7 +26,7 @@
  *	Providing planet positions based on ephemeris computations
  * 	@see https://github.com/slowe/VirtualSky/blob/master/virtualsky.js
  */
-define( [ "jquery.ui", "gw/FeatureStyle", "./LayerManager" ],
+define( [ "jquery", "gw/FeatureStyle", "./LayerManager" ],
 	function($, FeatureStyle, LayerManager) {
 
 /**************************************************************************************************************/

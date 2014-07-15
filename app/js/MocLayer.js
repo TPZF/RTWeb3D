@@ -20,7 +20,7 @@
 /**
  * Moc renderer/layer module
  */
-define( [ "jquery.ui", "gw/BaseLayer", 'gw/FeatureStyle', "gw/Utils", "gw/HEALPixBase", "gw/CoordinateSystem" ],
+define( [ "jquery", "gw/BaseLayer", 'gw/FeatureStyle', "gw/Utils", "gw/HEALPixBase", "gw/CoordinateSystem" ],
 		function($, BaseLayer, FeatureStyle, Utils, HEALPixBase, CoordinateSystem) {
 
 /**

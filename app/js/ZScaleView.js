@@ -21,7 +21,7 @@
  * UWS ZScale View
  * TODO unify all UWS services
  */
-define( [ "jquery.ui", "./ZScale", "./AnimatedButton" ],
+define( [ "jquery", "./ZScale", "./AnimatedButton" ],
 		function($, ZScale, AnimatedButton) {
 
 var runButton;

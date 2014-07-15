@@ -20,7 +20,7 @@
 /**
  * About dialog
  */
-define(["jquery.ui"], function($) {
+define(["jquery", "jquery.ui"], function($) {
 
 var aboutContent =
 	'<div id="about" title="About">\

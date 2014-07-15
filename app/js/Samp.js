@@ -20,7 +20,7 @@
 /**
  * Samp module : performing communication between applications using SAMP protocol
  */
-define(["jquery.ui", "underscore-min", "gw/CoordinateSystem", "gw/FeatureStyle", "gw/VectorLayer", "./Utils", "./JsonProcessor", "samp"],
+define(["jquery", "underscore-min", "gw/CoordinateSystem", "gw/FeatureStyle", "gw/VectorLayer", "./Utils", "./JsonProcessor", "samp", "jquery.ui"],
 	function($, _, CoordinateSystem, FeatureStyle, VectorLayer, Utils, JsonProcessor) {
 
 var globe;

@@ -17,8 +17,8 @@
 * along with SITools2. If not, see <http://www.gnu.org/licenses/>. 
 ******************************************************************************/ 
 
-define( [ "jquery.ui", "gw/FeatureStyle", "gw/Utils", "gw/OpenSearchLayer", "gw/HEALPixBase", "gw/CoordinateSystem", "gw/RendererTileData" ],
-		function($, FeatureStyle, Utils, OpenSearchLayer, HEALPixBase, CoordinateSystem, RendererTileData) {
+define( [ "gw/FeatureStyle", "gw/Utils", "gw/OpenSearchLayer", "gw/HEALPixBase", "gw/CoordinateSystem", "gw/RendererTileData" ],
+		function(FeatureStyle, Utils, OpenSearchLayer, HEALPixBase, CoordinateSystem, RendererTileData) {
 
 /**************************************************************************************************************/
 

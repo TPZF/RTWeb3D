@@ -1,5 +1,7 @@
-@import url('jquery-ui-1.9.2.custom.css');
-@import url('jquery.ui.selectmenu.css');
+@import url('jquery-ui.min.css');
+@import url('jquery-ui.structure.min.css');
+@import url('jquery-ui.theme.min.css');
+
 @import url('nameResolver.css');
 @import url('reverseNameResolver.css');
 @import url('featurePopup.css');
@@ -286,5 +288,10 @@ input::-moz-placeholder
 #about a
 {
 	color: rgb(255, 173, 0);
+}
+
+/* Override jQuery UI 1.11 default styling for select menu */
+.ui-menu .ui-state-focus, .ui-menu .ui-state-active {
+	margin-top: 0px;
 }
 

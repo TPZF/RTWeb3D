@@ -17,7 +17,7 @@
 * along with SITools2. If not, see <http://www.gnu.org/licenses/>. 
 ******************************************************************************/ 
 
-define(["require", "jquery.ui", "gw/FeatureStyle", "./ImageProcessing", "./Utils", "./Samp", "underscore-min", "text!../templates/imageViewerLayerItem.html", "text!../templates/imageViewerImageItem.html"],
+define(["require", "jquery", "gw/FeatureStyle", "./ImageProcessing", "./Utils", "./Samp", "underscore-min", "text!../templates/imageViewerLayerItem.html", "text!../templates/imageViewerImageItem.html", "jquery.ui"],
 	function(require, $, FeatureStyle, ImageProcessing, Utils, Samp, _, imageViewerLayerItemHTMLTemplate, imageViewerImageItemHTMLTemplate){
 
 var navigation;
@@ -142,7 +142,7 @@ return {
 			}
 		});
 		// Create accordion
-		$( "#loadedImages" ).accordion( { autoHeight: false, active: 0, collapsible: true } ).show();
+		$( "#loadedImages" ).accordion( { heightStyle: "content", active: 0, collapsible: true } ).show();
 	},
 
 	/**

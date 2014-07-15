@@ -20,7 +20,7 @@
 /**
  * LayerManager module
  */
-define( [ "jquery.ui", "gw/FeatureStyle", "gw/HEALPixLayer", "gw/VectorLayer", "gw/CoordinateGridLayer", "gw/TileWireframeLayer", "gw/OpenSearchLayer", "./ClusterOpenSearchLayer", "./MocLayer", "./HEALPixFITSLayer", "./Utils", "./ErrorDialog", "./JsonProcessor", "./LayerServiceView", "./BackgroundLayersView", "./AdditionalLayersView", "./FitsLoader", "./ImageManager", "./ImageViewer"], 
+define( [ "jquery", "gw/FeatureStyle", "gw/HEALPixLayer", "gw/VectorLayer", "gw/CoordinateGridLayer", "gw/TileWireframeLayer", "gw/OpenSearchLayer", "./ClusterOpenSearchLayer", "./MocLayer", "./HEALPixFITSLayer", "./Utils", "./ErrorDialog", "./JsonProcessor", "./LayerServiceView", "./BackgroundLayersView", "./AdditionalLayersView", "./FitsLoader", "./ImageManager", "./ImageViewer", "jquery.ui"], 
 	function($, FeatureStyle, HEALPixLayer, VectorLayer, CoordinateGridLayer, TileWireframeLayer, OpenSearchLayer, ClusterOpenSearchLayer, MocLayer, HEALPixFITSLayer, Utils, ErrorDialog, JsonProcessor, LayerServiceView, BackgroundLayersView, AdditionalLayersView, FitsLoader, ImageManager, ImageViewer) {
 
 /**
@@ -374,14 +374,27 @@ function handleDragOver(evt)
 
 /**************************************************************************************************************/
 
+function updateUI() {
+	// Create accordeon
+	$( "#accordion" ).accordion( {
+		header: "> div > h3",
+		autoHeight: false,
+		active: 0,
+		collapsible: true,
+		heightStyle: "content"
+	} ).show();
+
+	BackgroundLayersView.updateUI();
+	AdditionalLayersView.updateUI();
+}
+
+/**************************************************************************************************************/
+
 /**
  *	Fill the LayerManager table
  */
 function initLayers(layers) 
 {
-	// Necessary to drag&drop option while using jQuery
-	$.event.props.push('dataTransfer');
-	
 	for (var i=0; i<layers.length; i++) {
 		var layer = layers[i];
 		
@@ -420,21 +433,7 @@ function initLayers(layers)
 		}
 	}
 
-	// Create accordeon
-	$( "#accordion" ).accordion( {
-		header: "> div > h3",
-		autoHeight: false,
-		active: 0,
-		collapsible: true,
-		heightStyle: "content"
-	} ).show();
-
-	BackgroundLayersView.updateUI();
-	AdditionalLayersView.updateUI();
-	
-	// Setup the drag & drop listeners.
-	$('canvas').on('dragover', handleDragOver);
-	$('canvas').on('drop', handleDrop);
+	updateUI();
 }
 
 /**************************************************************************************************************/
@@ -452,8 +451,16 @@ return {
 		AdditionalLayersView.init(gl, nav, this, configuration);
 		BackgroundLayersView.init(gl, this, configuration);
 
+		// Necessary to drag&drop option while using jQuery
+		$.event.props.push('dataTransfer');
+
 		// Call init layers
-		initLayers(configuration.layers);
+		//initLayers(configuration.layers);
+		updateUI();
+
+		// Setup the drag & drop listeners.
+		$('canvas').on('dragover', handleDragOver);
+		$('canvas').on('drop', handleDrop);
 
 		LayerServiceView.init(gl, nav, this, configuration);
 
@@ -480,6 +487,43 @@ return {
 	 getLayers: function()
 	 {
 	 	return gwLayers;
+	 },
+
+	 addLayer: function(layer) {
+	 	// Define default optionnal parameters
+		if(!layer.opacity)
+			layer.opacity = 100.;
+		if (!layer.visible)
+			layer.visible = false;
+	
+		var gwLayer = createLayerFromConf(layer);
+		if ( gwLayer )
+		{
+			if( layer.background )
+			{
+				// Add to engine
+				if ( gwLayer.visible() ) {
+					// Change visibility's of previous layer(maybe GlobWeb should do it ?)
+					if ( globe.tileManager.imageryProvider )
+					{
+						globe.tileManager.imageryProvider.visible(false);
+					}
+
+					globe.setBaseImagery( gwLayer );
+					gwLayer.visible(true);
+				}
+				BackgroundLayersView.addView( gwLayer );
+			}
+			else
+			{
+				// Add to engine
+				globe.addLayer( gwLayer );
+				AdditionalLayersView.addView( gwLayer, layer.category );
+			}
+			$( "#accordion" ).accordion("refresh");
+
+			gwLayers.push(gwLayer);
+		}
 	 }
 	
 };

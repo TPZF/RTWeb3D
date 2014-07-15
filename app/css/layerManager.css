@@ -2,7 +2,7 @@
 
 #backgroundLayersSelect
 {
-	width: 150px;
+	width: 155px;
 	height: 200px;
 }
 
@@ -19,7 +19,7 @@
 }
 
 #backgroundLayers fieldset select {
-	min-width: 150px;
+	min-width: 120px;
 	margin-right: inherit;
 	margin-top: 10px;
 	margin-bottom: 20px;
@@ -41,8 +41,18 @@
 	margin-top: 20px;
 }
 
-.unknown .ui-selectmenu-item-icon {
-	background: url(../css/images/unknown.png) 0 0 no-repeat;
+.ui-selectmenu-menu .ui-menu.customicons .ui-menu-item .ui-icon {
+	top: 0.1em;
+	margin: 2px 5px;
+}
+
+/* Avoid "shaking" effect on hover */
+.ui-menu.customicons .ui-state-focus, .ui-menu.customicons .ui-state-active {
+	margin: 0px;
+}
+
+.unknown {
+	background: url(../css/images/unknown.png) 0 0 no-repeat !important;
 }
 
 /*** Additionnal layers ***/

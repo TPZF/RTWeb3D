@@ -20,7 +20,7 @@
 /**
  * FeaturePopup module
  */
-define( [ "jquery.ui", "./IFrame", "./JsonProcessor", "./Utils", "./ImageProcessing", "gw/FeatureStyle", "gw/VectorLayer", "./Samp", "underscore-min", "text!../templates/featureList.html", "text!../templates/featureDescription.html", "text!../templates/descriptionTable.html", "jquery.nicescroll.min" ],
+define( [ "jquery", "./IFrame", "./JsonProcessor", "./Utils", "./ImageProcessing", "gw/FeatureStyle", "gw/VectorLayer", "./Samp", "underscore-min", "text!../templates/featureList.html", "text!../templates/featureDescription.html", "text!../templates/descriptionTable.html", "jquery.nicescroll.min", "jquery.ui" ],
 	function($, IFrame, JsonProcessor, Utils, ImageProcessing, FeatureStyle, VectorLayer, Samp, _, featureListHTMLTemplate, featureDescriptionHTMLTemplate, descriptionTableHTMLTemplate) {
 
 var featureListHTML = '';

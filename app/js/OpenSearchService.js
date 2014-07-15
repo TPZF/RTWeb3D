@@ -20,7 +20,7 @@
 /**
  * OpenSearch service
  */
-define( [ "jquery.ui", "underscore-min", "text!../templates/openSearchService.html", "text!../templates/openSearchForm.html", "jquery.ui.timepicker" ], function($,_,openSearchServiceHTMLTemplate, openSearchFormHTMLTemplate) {
+define( [ "jquery", "underscore-min", "text!../templates/openSearchService.html", "text!../templates/openSearchForm.html", "jquery.ui.timepicker", "jquery.ui" ], function($,_,openSearchServiceHTMLTemplate, openSearchFormHTMLTemplate) {
 
 // Template generating the open search service div
 var openSearchServiceTemplate = _.template(openSearchServiceHTMLTemplate);

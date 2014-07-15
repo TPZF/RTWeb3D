@@ -20,7 +20,8 @@
 /**
  * Share url module : creating url with current navigation properties
  */
-define(["jquery.ui", "gw/CoordinateSystem", "./LayerManager", "./ErrorDialog"], function($, CoordinateSystem, LayerManager, ErrorDialog) {
+define(["jquery", "gw/CoordinateSystem", "./LayerManager", "./ErrorDialog", "jquery.ui"],
+	function($, CoordinateSystem, LayerManager, ErrorDialog) {
 
 var navigation;
 var baseUrl;

@@ -21,7 +21,7 @@
  * Tool designed to select areas on globe
  */
 
-define( [ "jquery.ui", "gw/VectorLayer", "gw/FeatureStyle", "gw/Numeric", "gw/CoordinateSystem", "./Utils", "gw/glMatrix" ],
+define( [ "jquery", "gw/VectorLayer", "gw/FeatureStyle", "gw/Numeric", "gw/CoordinateSystem", "./Utils", "gw/glMatrix" ],
 	function($, VectorLayer, FeatureStyle, Numeric, CoordinateSystem, Utils){
 
 

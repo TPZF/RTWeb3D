@@ -20,7 +20,7 @@
 /**
  * Error dialog module
  */
-define(["jquery.ui"], function($) {
+define(["jquery", "jquery.ui"], function($) {
 
 // The main div for error
 var errorDiv = '<div id="errorDiv" style="text-align: justify" title="Error"></div>';

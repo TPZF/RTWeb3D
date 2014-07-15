@@ -20,16 +20,15 @@
 /**
  * BackgroundLayersView module
  */
-define(["jquery.ui", "./DynamicImageView", "./PickingManager", "./HEALPixFITSLayer", "./LayerServiceView", "./Samp", "./ErrorDialog"],
+define(["jquery", "./DynamicImageView", "./PickingManager", "./HEALPixFITSLayer", "./LayerServiceView", "./Samp", "./ErrorDialog", "jquery.ui"],
 		function($, DynamicImageView, PickingManager, HEALPixFITSLayer, LayerServiceView, Samp, ErrorDialog){
 
-// Necessary for selectmenu initialization
-var backgroundLayersIcons = []; 
 var nbBackgroundLayers = 0; // required because background id is always equal to 0
 var globe;
 var layerManager;
 
 var backgroundDiv;
+var selectedLayer;
 
 /**************************************************************************************************************/
 
@@ -72,32 +71,30 @@ function updateBackgroundOptions(layer)
 function createHtmlForBackgroundLayer( gwLayer )
 {
 	// Add HTML
-	var $layerDiv = $('<option>'+ gwLayer.name + '</option>')
+	var $layerDiv = $('<option '+ (gwLayer.visible() ? "selected" : "") +'>'+ gwLayer.name + '</option>')
 			.appendTo('#backgroundLayersSelect')
 			.data("layer", gwLayer);
 	
 	if ( gwLayer.icon )
-	{		
-		backgroundLayersIcons.push( {find: ".backgroundLayer_" + nbBackgroundLayers} );
+	{	
 		$layerDiv.addClass('backgroundLayer_'+ nbBackgroundLayers)
-				.data("bgImage", "url("+gwLayer.icon+")" );
+					.attr("data-style", "background-image: url("+gwLayer.icon+")" );
 	}
 	else
 	{
-		// Use default style
-		backgroundLayersIcons.push( {find: ".unknown"} );
-		$layerDiv.addClass('unknown');
+		// Use default style for icon
+		$layerDiv.addClass('backgroundLayer_'+ nbBackgroundLayers)
+					.attr("data-class", "unknown" );
 	}
 
 	if ( gwLayer.visible() )
 	{
-		// Set visible layer on top of selector
-		$('#backgroundLayersSelect').val( $layerDiv.val() );
 		// Update background options layout
 		updateBackgroundOptions(gwLayer);
+		selectedLayer = gwLayer;
 	}
-	
-	
+
+	$('#backgroundLayersSelect').iconselectmenu("refresh");	
 	nbBackgroundLayers++;
 }
 
@@ -106,6 +103,24 @@ function createHtmlForBackgroundLayer( gwLayer )
 return {
 	init : function(gl, lm)
 	{
+		// Add custion icon select menu
+		$.widget( "custom.iconselectmenu", $.ui.selectmenu, {
+			_renderItem: function( ul, item ) {
+				var li = $( "<li>", { text: item.label } );
+
+				if ( item.disabled ) {
+					li.addClass( "ui-state-disabled" );
+				}
+
+				$( "<span>", {
+					style: item.element.attr( "data-style" ),
+					"class": "ui-icon " + item.element.attr( "data-class" )
+				}).appendTo( li );
+
+				return li.appendTo( ul );
+			}
+		});
+
 		globe = gl;
 		layerManager = lm;
 
@@ -123,9 +138,7 @@ return {
 				primary: "ui-icon-wrench"
 			}
 		}).click(function(event){
-			var index = $('#backgroundLayersSelect').data('selectmenu').index();
-			var layer = $('#backgroundLayersSelect').children().eq(index).data("layer");
-			LayerServiceView.show( layer );
+			LayerServiceView.show( selectedLayer );
 		});
 
 		$('#backgroundLayers').find('.exportLayer').button({
@@ -164,7 +177,6 @@ return {
 			},
 			width: 400,
 			resizable: false,
-			width: 'auto',
 			minHeight: 'auto',
 			close: function(event, ui)
 			{
@@ -192,19 +204,17 @@ return {
 
 		$('#fitsType').button();
 		$('#fitsType').on('click', function(){
-			var index = $('#backgroundLayersSelect').data('selectmenu').index();
-			var layer = $('#backgroundLayersSelect').children().eq(index).data("layer");
 
 			isFits = $(this).is(':checked');
 
-			layer.dataType = isFits ? 'fits' : 'jpg';
+			selectedLayer.dataType = isFits ? 'fits' : 'jpg';
 			if ( !isFits )
 			{
 				$('#fitsView').button('disable');
 			}
 
 			globe.setBaseImagery( null );
-			globe.setBaseImagery( layer );
+			globe.setBaseImagery( selectedLayer );
 			$('#loading').show();
 		});
 	},
@@ -214,62 +224,63 @@ return {
 	 *	Creates select menu
 	 */
 	updateUI : function() {
-		$('#backgroundLayersSelect').selectmenu({
-			icons: backgroundLayersIcons,
-			bgImage: function() {
-				return this.data('bgImage');
-			},
-			select: function(e)
+
+		$('#backgroundLayersSelect').iconselectmenu({
+			select: function(event, ui)
 			{
-				var index = $(this).data('selectmenu').index();
+				var index = ui.item.index;
 				var layer = $(this).children().eq(index).data("layer");
+				selectedLayer = layer;
 
-				// Clear selection
-				PickingManager.getSelection().length = 0;
+				if ( layer != globe.baseImagery ) {
+					// Clear selection
+					PickingManager.getSelection().length = 0;
 
-				// Change visibility's of previous layer, because visibility is used to know the active background layer in the layers list (layers can be shared)
-				globe.baseImagery.visible(false);
-				globe.setBaseImagery( layer );
-				layer.visible(true);
+					// Change visibility's of previous layer, because visibility is used to know the active background layer in the layers list (layers can be shared)
+					globe.baseImagery.visible(false);
+					globe.setBaseImagery( layer );
+					layer.visible(true);
 
-				// Show background loading spinner
-				$('#loading').show(300);
+					// Show background loading spinner
+					$('#loading').show(300);
 
-				// Remove solar object sublayers
-				var gwLayers = layerManager.getLayers();
-				for ( var i=0; i<gwLayers.length; i++ )
-				{
-					var currentLayer = gwLayers[i];
-					if ( currentLayer.subLayers )
+					// Remove solar object sublayers
+					var gwLayers = layerManager.getLayers();
+					for ( var i=0; i<gwLayers.length; i++ )
 					{
-						var len = currentLayer.subLayers.length;
-						for ( var j=0; j<len; j++ )
+						var currentLayer = gwLayers[i];
+						if ( currentLayer.subLayers )
 						{
-							var subLayer = currentLayer.subLayers[j];
-							if (subLayer.name == "SolarObjectsSublayer" )
+							var len = currentLayer.subLayers.length;
+							for ( var j=0; j<len; j++ )
 							{
-								PickingManager.removePickableLayer( subLayer );
-								globe.removeLayer( subLayer );
-								currentLayer.subLayers.splice(j,1);
+								var subLayer = currentLayer.subLayers[j];
+								if (subLayer.name == "SolarObjectsSublayer" )
+								{
+									PickingManager.removePickableLayer( subLayer );
+									globe.removeLayer( subLayer );
+									currentLayer.subLayers.splice(j,1);
+								}
 							}
 						}
 					}
+
+					// Set shader callback for choosen layer
+					backgroundDiv.changeShaderCallback = function(contrast){
+						if ( contrast == "raw" )
+						{
+							layer.customShader.fragmentCode = layer.rawFragShader;
+						} else {
+							layer.customShader.fragmentCode = layer.colormapFragShader;
+						}
+					};
+
+					// Change dynamic image view button
+					updateBackgroundOptions(layer);
 				}
-
-				// Set shader callback for choosen layer
-				backgroundDiv.changeShaderCallback = function(contrast){
-					if ( contrast == "raw" )
-					{
-						layer.customShader.fragmentCode = layer.rawFragShader;
-					} else {
-						layer.customShader.fragmentCode = layer.colormapFragShader;
-					}
-				};
-
-				// Change dynamic image view button
-				updateBackgroundOptions(layer);
 			}
-		});
+		}).iconselectmenu( "menuWidget" )
+				.addClass( "ui-menu-icons customicons" );
 
 		// Background spinner events
 		globe.subscribe("startBackgroundLoad", function(layer){
