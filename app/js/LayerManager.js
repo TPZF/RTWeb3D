@@ -494,45 +494,68 @@ return {
 	 },
 
 	 /**
-	  *	Add layer
+	  *	Create layer from layer description and add it to corresponding LayersView
+	  *
 	  *	@param layer
-	  *		Layer configuration description
+	  *		Layer description
+	  *	@return
+	  *		Created layer if doesn't already exist, existing layer otherwise
 	  */
-	 addLayer: function(layer) {
-	 	// Define default optionnal parameters
-		if(!layer.opacity)
-			layer.opacity = 100.;
-		if (!layer.visible)
-			layer.visible = false;
-	
-		var gwLayer = createLayerFromConf(layer);
-		if ( gwLayer )
-		{
-			if( layer.background )
+	 addLayer: function(layerDesc) {
+
+		var gwLayer = _.findWhere(gwLayers, {name: layerDesc.name});
+		if ( !gwLayer ) {
+			// If layer hasn't been already added
+		 	// Define default optionnal parameters
+			if(!layerDesc.opacity)
+				layerDesc.opacity = 100.;
+			if (!layerDesc.visible)
+				layerDesc.visible = false;
+		
+			gwLayer = createLayerFromConf(layerDesc);
+			if ( gwLayer )
 			{
-				// Add to engine
-				if ( gwLayer.visible() ) {
-					// Change visibility's of previous layer(maybe GlobWeb should do it ?)
-					if ( sky.tileManager.imageryProvider )
-					{
-						sky.tileManager.imageryProvider.visible(false);
+				if( layerDesc.background )
+				{
+					// Add to engine
+					if ( gwLayer.visible() ) {
+						// Change visibility's of previous layer(maybe GlobWeb should do it ?)
+						if ( sky.tileManager.imageryProvider )
+						{
+							sky.tileManager.imageryProvider.visible(false);
+						}
+
+						sky.setBaseImagery( gwLayer );
+						gwLayer.visible(true);
 					}
-
-					sky.setBaseImagery( gwLayer );
-					gwLayer.visible(true);
+					BackgroundLayersView.addView( gwLayer );
 				}
-				BackgroundLayersView.addView( gwLayer );
-			}
-			else
-			{
-				// Add to engine
-				sky.addLayer( gwLayer );
-				AdditionalLayersView.addView( gwLayer, layer.category );
-			}
-			$( "#accordion" ).accordion("refresh");
+				else
+				{
+					// Add to engine
+					sky.addLayer( gwLayer );
+					AdditionalLayersView.addView( gwLayer, layerDesc.category );
+				}
+				$( "#accordion" ).accordion("refresh");
 
-			gwLayers.push(gwLayer);
+				gwLayers.push(gwLayer);
+			}
 		}
+		return gwLayer;
+	 },
+
+	 /**
+	  *	Remove the given layer
+	  *	@param gwLayer
+	  *		GlobWeb layer
+	  */
+	 removeLayer: function(gwLayer) {
+	 	AdditionalLayersView.removeView( gwLayer );
+
+	 	var index = gwLayers.indexOf(gwLayer);
+	 	gwLayers.splice( index, 1 );
+
+	 	sky.removeLayer(gwLayer);
 	 },
 
 	 /**

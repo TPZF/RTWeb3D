@@ -461,26 +461,37 @@ define( [ "jquery", "underscore-min", "gw/EquatorialCoordinateSystem", "gw/Sky",
 	/**
 	 *	Set a custom background survey
 	 */
-	MizarWidget.prototype.setCustomBackgroundSurvey = function(options) {
-		//TODO
-	}
-
-	/**************************************************************************************************************/
-
-	/**
-	 *	Add additional layer(OpenSearch, GeoJSON, HIPS, background, grid coordinates)
-	 */
-	MizarWidget.prototype.addLayer = function(layer) {
-		LayerManager.addLayer(layer);
-	}
-
-	/**************************************************************************************************************/
-
-	/**
-	 *	Remove layer with the given id
-	 */
-	MizarWidget.prototype.removeLayer = function(layerId) {
+	MizarWidget.prototype.setCustomBackgroundSurvey = function(layerDesc) {
 		// TODO
+		// Never tested..
+		var layer = LayerManager.addLayer(layerDesc);
+		layerDesc.background = true; // Ensure that background option is set to true
+		LayerManager.setBackgroundSurvey(layerDesc.name);	
+		return layer;
+	}
+
+	/**************************************************************************************************************/
+
+	/**
+	 *	Add additional layer(OpenSearch, GeoJSON, HIPS, grid coordinates)
+	 *	@param layerDesc
+	 *		Layer description
+	 *	@return
+	 *		The created layer
+	 */
+	MizarWidget.prototype.addLayer = function(layerDesc) {
+		return LayerManager.addLayer(layerDesc);
+	}
+
+	/**************************************************************************************************************/
+
+	/**
+	 *	Remove the given layer
+	 *	@param layer
+	 *		Layer returned by addLayer()
+	 */
+	MizarWidget.prototype.removeLayer = function(layer) {
+		LayerManager.removeLayer(layer);
 	}
 
 	/**************************************************************************************************************/
@@ -513,24 +524,6 @@ define( [ "jquery", "underscore-min", "gw/EquatorialCoordinateSystem", "gw/Sky",
 	 *	Set zoom(in other words fov)
 	 */
 	MizarWidget.prototype.setZoom = function(fovInDegrees) {
-		// TODO
-	}
-
-	/**************************************************************************************************************/
-
-	/**
-	 *	Set visibility of the given layer
-	 */
-	MizarWidget.prototype.setVisibility = function(layer, visibility) {
-		// TODO
-	}
-
-	/**************************************************************************************************************/
-
-	/**
-	 *	Get visibility of the given layer
-	 */
-	MizarWidget.prototype.getVisibility = function(layer) {
 		// TODO
 	}
 

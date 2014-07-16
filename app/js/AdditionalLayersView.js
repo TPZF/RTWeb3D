@@ -380,6 +380,23 @@ function addView ( gwLayer, category )
 /**************************************************************************************************************/
 
 /**
+ *	Remove HTML view of the given layer
+ *	Remove the category if the given layer is the last layer of category
+ */
+function removeView ( gwLayer ) {
+	var shortName = Utils.formatId( gwLayer.name );
+	var addLayerDiv = $('#accordion').find('#addLayer_'+shortName);
+	if ( addLayerDiv.parent().children().length == 1 ) {
+		// Last child to remove -> remove the category
+		addLayerDiv.closest('.category').remove();
+	} else {
+		addLayerDiv.remove();
+	}
+}
+
+/**************************************************************************************************************/
+
+/**
  *	Build visible tiles url
  */
 function buildVisibleTilesUrl(layer)
@@ -528,6 +545,7 @@ return {
 		});
 	},
 	addView : addView,
+	removeView: removeView,
 	updateUI : initToolbarEvents,
 	hideView: function(layer)
 	{
