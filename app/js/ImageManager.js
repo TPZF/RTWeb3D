@@ -224,13 +224,13 @@ return {
 		ImageViewer.addView(featureData, isFits);
 		if ( isFits )
 		{
-			var url = sitoolsBaseUrl+"/sitools/proxy?external_url=" + encodeURIComponent(featureData.feature.services.download.url);
+			var url = sitoolsBaseUrl+"/proxy?external_url=" + encodeURIComponent(featureData.feature.services.download.url);
 			computeFits(featureData, url);
 			$('#quicklookFits').addClass('selected');
 		}
 		else
 		{
-			style.fillTextureUrl = sitoolsBaseUrl + "/sitools/proxy?external_url=" + featureData.feature.properties.quicklook + "&rewrite_redirection=true";
+			style.fillTextureUrl = sitoolsBaseUrl + "/proxy?external_url=" + featureData.feature.properties.quicklook + "&rewrite_redirection=true";
 			// For DEBUG : 'upload/ADP_WFI_30DOR_RGB_V1.0_degraded.jpg';
 			$('#quicklook').addClass('selected');
 		}

@@ -34,6 +34,42 @@ define( [ "jquery", "underscore-min", "gw/EquatorialCoordinateSystem", "gw/Sky",
 	var isMobile;
 
 	/**
+	 *	Apply shared parameters to options if exist
+	 */
+	var _applySharedParameters = function(options) {
+		var documentURI =  window.document.documentURI;
+		// Retrieve shared parameters
+		var sharedParametersIndex = documentURI.indexOf( "sharedParameters=" );
+		if ( sharedParametersIndex != -1 )
+		{
+			var startIndex = sharedParametersIndex + "sharedParameters=".length;
+			var sharedString = documentURI.substr(startIndex);
+			if ( options.shortener )
+			{
+				$.ajax({
+					type: "GET",
+					url: options.shortener.baseUrl +'/'+ sharedString,
+					async: false, // TODO: create callback
+					success: function(sharedConf)
+					{
+						_setSharedParameters(options, sharedConf);
+					},
+					error: function(thrownError)
+					{
+						console.error(thrownError);
+					}
+				});
+			}
+			else
+			{
+				console.log("Shortener plugin isn't defined, try to extract as a string");
+				var sharedParameters = JSON.parse( unescape(sharedString) );
+				_setSharedParameters(options, sharedParameters);
+			}
+		}
+	}
+
+	/**
 	 *	Retrieve SiTools2 configuration from URI
 	 *	(to be removed ?)
 	 */
@@ -130,7 +166,39 @@ define( [ "jquery", "underscore-min", "gw/EquatorialCoordinateSystem", "gw/Sky",
 	 */
 	var MizarWidget = function(div, userOptions) {
 		parentElement = div;
+		var sitoolsBaseUrl = userOptions.sitoolsBaseUrl ? userOptions.sitoolsBaseUrl : "http://demonstrator.telespazio.com/sitools";
 		var options = {
+			"sitoolsBaseUrl" : sitoolsBaseUrl,
+			"coordSystem" : "EQ",
+			"debug" : false,
+			"nameResolver" : {
+				"baseUrl" : sitoolsBaseUrl + '/project/mizar/plugin/nameResolver',
+				"zoomFov": 15
+			},
+			"reverseNameResolver" : {
+				"baseUrl" : sitoolsBaseUrl + '/project/mizar/plugin/reverseNameResolver',
+			},
+			"coverageService": {
+				"baseUrl": sitoolsBaseUrl + "/project/mizar/plugin/coverage?moc="
+			},
+			"solarObjects": {
+				"baseUrl": sitoolsBaseUrl + "/project/mizar/plugin/solarObjects/"
+			},
+			"votable2geojson": {
+				"baseUrl": sitoolsBaseUrl + "/project/mizar/plugin/votable2geojson"
+			},
+			"cutOut": {
+				"baseUrl": sitoolsBaseUrl + "/cutout"
+			},
+			"zScale": {
+				"baseUrl": sitoolsBaseUrl + "/zscale"
+			},
+			"healpixcut": {
+				"baseUrl": sitoolsBaseUrl + "/healpixcut"
+			},
+			"shortener": {
+			 	"baseUrl": sitoolsBaseUrl + "/shortener"
+			},
 			"navigation" : {
 				"initTarget": [85.2500, -2.4608],
 				"initFov": 20,
@@ -143,11 +211,20 @@ define( [ "jquery", "underscore-min", "gw/EquatorialCoordinateSystem", "gw/Sky",
 					}),
 					new KeyboardNavigationHandler()
 				]
-			}
+			},
+			"stats": {
+				"verbose": false,
+				"visible": false
+			},
+			"isMobile" : (('ontouchstart' in window && window.ontouchstart != null) || window.DocumentTouch && document instanceof DocumentTouch)
 		};
 
-		// Merge default navigation options with user ones
-		$.extend(options.navigation, userOptions.navigation);
+		var extendableOptions = [ "coordSystem", "navigation", "nameResolver", "stats" ];
+		// Merge default options with user ones
+		for ( var i=0; i<extendableOptions.length; i++ ) {
+			var option = extendableOptions[i];
+			$.extend(options[option], userOptions[option]);
+		}
 
 		// Create mizar core HTML
 		// TODO: generate only core parts
@@ -156,7 +233,6 @@ define( [ "jquery", "underscore-min", "gw/EquatorialCoordinateSystem", "gw/Sky",
 
 		this.sky = null;
 		this.navigation = null;
-		var mollweideViewer = null;
 
 		var confURL = _retrieveConfiguration();
 
@@ -216,6 +292,8 @@ define( [ "jquery", "underscore-min", "gw/EquatorialCoordinateSystem", "gw/Sky",
 		}, false);
 		
 		// Select default coordinate system event
+		var self = this;
+		var mollweideViewer = null;
 		$('#defaultCoordSystem').selectmenu({
 			select: function(e)
 			{
@@ -228,132 +306,77 @@ define( [ "jquery", "underscore-min", "gw/EquatorialCoordinateSystem", "gw/Sky",
 			},
 			width: 100
 		});
-		var self = this;
-		// Retrieve configuration
-		$.ajax({
-			type: "GET",
-			url: confURL,
-			dataType: "text",
-			success: function(response) {
-				response = _removeComments(response);
-				try
-				{
-					var data = $.parseJSON(response);
-				}
-				catch (e) {
-					ErrorDialog.open("Configuration parsing error<br/> For more details see http://jsonlint.com/.");
-					console.error(e.message);
-					return false;
-				}
 				
-				var documentURI =  window.document.documentURI;
-				// Retrieve shared parameters
-				var sharedParametersIndex = documentURI.indexOf( "sharedParameters=" );
-				if ( sharedParametersIndex != -1 )
-				{
-					var startIndex = sharedParametersIndex + "sharedParameters=".length;
-					var sharedString = documentURI.substr(startIndex);
-					if ( data.shortener )
-					{
-						$.ajax({
-							type: "GET",
-							url: data.shortener.baseUrl +'/'+ sharedString,
-							async: false, // TODO: create callback
-							success: function(sharedConf)
-							{
-								_setSharedParameters(options, sharedConf);
-							},
-							error: function(thrownError)
-							{
-								console.error(thrownError);
-							}
-						});
-					}
-					else
-					{
-						console.log("Shortener plugin isn't defined, try to extract as a string");
-						var sharedParameters = JSON.parse( unescape(sharedString) );
-						_setSharedParameters(options, sharedParameters);
-					}
-				}
+		_applySharedParameters(options);
 
-				// Add stats
-				if ( data.stats.visible ) {
-					new Stats( self.sky.renderContext, { element: "fps", verbose: data.stats.verbose });
-				} else  {
-					$("#fps").hide();
-				}
+		// Add stats
+		if ( options.stats.visible ) {
+			new Stats( self.sky.renderContext, { element: "fps", verbose: options.stats.verbose });
+			$("#fps").show();
+		}
 
-				// Set default coordinate system
-				if ( data.coordSystem )
-					CoordinateSystem.type = data.coordSystem;
+		CoordinateSystem.type = options.coordSystem;
 
-				// Add touch navigation handler if client supports touch events
-				if( isMobile ) {
-				    // Mobile
-					options.navigation.handlers = [ new TouchNavigationHandler({ inversed: true, zoomOnDblClick: true }) ];
-					window.addEventListener("orientationchange", function() {
-						self.sky.renderContext.requestFrame();
-					}, false);
-					data.isMobile = isMobile;
-				}
+		// Add touch navigation handler if client supports touch events
+		if( isMobile ) {
+		    // Mobile
+			options.navigation.handlers = [ new TouchNavigationHandler({ inversed: true, zoomOnDblClick: true }) ];
+			window.addEventListener("orientationchange", function() {
+				self.sky.renderContext.requestFrame();
+			}, false);
+		}
 
-				// Initialize navigation
-				self.navigation = new AstroNavigation(self.sky, options.navigation);
+		// Initialize navigation
+		this.navigation = new AstroNavigation(self.sky, options.navigation);
 
-				// Add attribution handler
-				new AttributionHandler( self.sky, {element: 'attributions'});
+		// Add attribution handler
+		new AttributionHandler( this.sky, {element: 'attributions'});
 
-				// Add distance measure tool
-				new MeasureTool({ globe: self.sky, navigation: self.navigation, isMobile: data.isMobile } );
-				
-				// Initialize the name resolver
-				NameResolver.init(self.sky, self.navigation, data);
-			
-				// Initialize the reverse name resolver
-				ReverseNameResolver.init(self.sky, self.navigation, data);
+		// Add distance measure tool
+		new MeasureTool({ globe: this.sky, navigation: this.navigation, isMobile: isMobile } );
+		
+		// Initialize the name resolver
+		NameResolver.init(this.sky, this.navigation, options);
+	
+		// Initialize the reverse name resolver
+		ReverseNameResolver.init(this.sky, this.navigation, options);
 
-				// Create layers from configuration file
-				LayerManager.init(self.sky, self.navigation, data);
+		// Create layers from configuration file
+		LayerManager.init(this.sky, this.navigation, options);
 
-				// Create data manager
-				PickingManager.init(self.sky, self.navigation, data);
+		// Create data manager
+		PickingManager.init(this.sky, this.navigation, options);
 
-				// Compass component(only for desktop due to performance issue on mobile)
-				if ( !isMobile )
-				{
-					self.setCompassGui(true);
-				}
+		// Compass component(only for desktop due to performance issue on mobile)
+		if ( !isMobile )
+		{
+			self.setCompassGui(true);
+		}
 
-				// Mollweide viewer
-				mollweideViewer = new MollweideViewer({ globe : self.sky, navigation : self.navigation });
+		// Mollweide viewer
+		mollweideViewer = new MollweideViewer({ globe : this.sky, navigation : this.navigation });
 
-				// Share configuration module init
-				Share.init({navigation : self.navigation, configuration: data});
+		// Share configuration module init
+		Share.init({navigation : this.navigation, configuration: options});
 
-				// Initialize SAMP component
-				Samp.init(self.sky, self.navigation, AdditionalLayersView, ImageManager, ImageViewer, data);
+		// Initialize SAMP component
+		Samp.init(this.sky, this.navigation, AdditionalLayersView, ImageManager, ImageViewer, options);
 
-				// Eye position tracker initialization
-				PositionTracker.init({ element: "posTracker", globe: self.sky, navigation : self.navigation, isMobile: data.isMobile });
+		// Eye position tracker initialization
+		PositionTracker.init({ element: "posTracker", globe: this.sky, navigation : this.navigation, isMobile: isMobile });
 
-				// UWS services initialization
-				UWSManager.init(data);
+		// UWS services initialization
+		UWSManager.init(options);
 
-				// Initialization of tools useful for different modules
-				Utils.init(self.sky);
-
-			},
-			error: function(xhr){
-				ErrorDialog.open("Couldn't open : "+confURL);
-			}
-		});
+		// Initialization of tools useful for different modules
+		Utils.init(this.sky);
 		
 		// Get background surveys only
-		// TODO: this ajax request must replace the conf.json's one..
+		// Currently in background surveys there are not only background layers but also catalog ones
+		// TODO : Refactor it !
 		$.ajax({
 			type: "GET",
-			url: "backgroundSurveys.json",
+			url: "data/backgroundSurveys.json",
 			dataType: "text",
 			success: function(response) {
 				response = _removeComments(response);

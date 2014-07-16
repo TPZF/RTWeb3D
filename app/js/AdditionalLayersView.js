@@ -400,7 +400,7 @@ function buildVisibleTilesUrl(layer)
 		}
 	}
 
-	return window.location.origin + layer.serviceUrl+"/search?order="+maxOrder+"&healpix="+pixelIndices+"&coordSystem=EQUATORIAL";
+	return layer.serviceUrl+"/search?order="+maxOrder+"&healpix="+pixelIndices+"&coordSystem=EQUATORIAL";
 }
 
 /**************************************************************************************************************/
