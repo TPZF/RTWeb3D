@@ -295,13 +295,14 @@ define( [ "jquery", "underscore-min", "gw/EquatorialCoordinateSystem", "gw/Sky",
 		
 		// Select default coordinate system event
 		var self = this;
-		var mollweideViewer = null;
 		$('#defaultCoordSystem').selectmenu({
 			select: function(e)
 			{
 				var newCoordSystem = $(this).children('option:selected').val();				
 				CoordinateSystem.type = newCoordSystem;
-				mollweideViewer.setCoordSystem( newCoordSystem );
+
+				if (self.mollweideViewer)
+					self.mollweideViewer.setCoordSystem( newCoordSystem );
 
 				// Publish modified event to update compass north
 				self.navigation.publish('modified');
@@ -333,9 +334,6 @@ define( [ "jquery", "underscore-min", "gw/EquatorialCoordinateSystem", "gw/Sky",
 
 		// Add attribution handler
 		new AttributionHandler( this.sky, {element: 'attributions'});
-
-		// Add distance measure tool
-		new MeasureTool({ globe: this.sky, navigation: this.navigation, isMobile: isMobile } );
 		
 		// Initialize the name resolver
 		NameResolver.init(this.sky, this.navigation, options);
@@ -355,13 +353,12 @@ define( [ "jquery", "underscore-min", "gw/EquatorialCoordinateSystem", "gw/Sky",
 			self.setCompassGui(true);
 		}
 
-		// Mollweide viewer
-		mollweideViewer = new MollweideViewer({ globe : this.sky, navigation : this.navigation });
-
 		// Share configuration module init
 		Share.init({navigation : this.navigation, configuration: options});
 
 		// Initialize SAMP component
+		// TODO : Bear in mind that a website may already implement specific SAMP logics, so check that
+		// current samp component doesn't break existing SAMP functionality
 		Samp.init(this.sky, this.navigation, AdditionalLayersView, ImageManager, ImageViewer, options);
 
 		// Eye position tracker initialization
@@ -530,7 +527,7 @@ define( [ "jquery", "underscore-min", "gw/EquatorialCoordinateSystem", "gw/Sky",
 	/**************************************************************************************************************/
 
 	/**
-	 *	Add/remove compass GUI component
+	 *	Add/remove compass GUI
 	 */
 	MizarWidget.prototype.setCompassGui = function(visible) {
 		if ( visible ) {
@@ -544,6 +541,65 @@ define( [ "jquery", "underscore-min", "gw/EquatorialCoordinateSystem", "gw/Sky",
 		} else {
 			this.compass.remove();
 		}
+	}
+
+	/**************************************************************************************************************/
+
+	/**
+	 *	Add/remove angle distance GUI
+	 */
+	MizarWidget.prototype.setAngleDistanceGui = function(visible) {
+	 	if ( visible ) {
+	 		// Distance measure tool lazy initialization
+	 		if ( !this.measureTool )
+				this.measureTool = new MeasureTool({ globe: this.sky, navigation: this.navigation, isMobile: isMobile } );
+			$(parentElement).find("#measureContainer").show();
+	 	} else {
+	 		$(parentElement).find("#measureContainer").hide();
+	 	}
+	}
+
+	 /**************************************************************************************************************/
+
+	/**
+	 *	Add/remove samp GUI
+	 */
+	MizarWidget.prototype.setSampGui = function(visible) {
+	 	if ( visible ) {
+			$(parentElement).find("#sampContainer").show();
+	 	} else {
+	 		$(parentElement).find("#sampContainer").hide();
+	 	}
+	}
+
+	 /**************************************************************************************************************/
+	 
+	/**
+	 *	Add/remove shortener GUI
+	 */
+	MizarWidget.prototype.setShortenerUrlGui = function(visible) {
+	 	if ( visible ) {
+			$(parentElement).find("#shareContainer").show();
+	 	} else {
+	 		$(parentElement).find("#shareContainer").hide();
+	 	}
+	}
+
+	/**************************************************************************************************************/
+
+	/**
+	 *	Add/remove 2d map GUI
+	 */
+	MizarWidget.prototype.set2dMapGui = function(visible) {
+	 	if ( visible ) {
+	 		// Mollweide viewer lazy initialization
+	 		if ( !this.mollweideViewer )
+				this.mollweideViewer = new MollweideViewer({ globe : this.sky, navigation : this.navigation });
+
+			$(parentElement).find("#2dMapContainer").show();
+	 	} else {
+	 		$(parentElement).find("#2dMapContainer").hide();
+	 	}
 	}
 
 	return MizarWidget;

@@ -94,7 +94,7 @@ function generateURL()
 			},
 			error: function(thrownError)
 			{
-				ErrorDialog.open("Shortener service: "+thrownError);
+				ErrorDialog.open("Shortener service: "+thrownError.statusText);
 				console.error(thrownError);
 			}
 		});

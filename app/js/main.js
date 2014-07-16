@@ -84,6 +84,12 @@ require(["./MizarWidget"], function(MizarWidget) {
 	mizarWidget.subscribe("backgroundSurveysReady", function() {
 		mizarWidget.setBackgroundSurvey("IRIS");
 	});
+	
+	// Set different GUIs
+	mizarWidget.setAngleDistanceGui(true);
+	mizarWidget.setSampGui(true);
+	mizarWidget.setShortenerUrlGui(true);
+	mizarWidget.set2dMapGui(true);
 
 	// Define callback in case of error on survey loading
 	mizarWidget.subscribe("backgroundSurveyError", function(thrownError) {
