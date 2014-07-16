@@ -20,13 +20,13 @@
 /**
  * LayerManager module
  */
-define( [ "jquery", "gw/FeatureStyle", "gw/HEALPixLayer", "gw/VectorLayer", "gw/CoordinateGridLayer", "gw/TileWireframeLayer", "gw/OpenSearchLayer", "./ClusterOpenSearchLayer", "./MocLayer", "./HEALPixFITSLayer", "./Utils", "./ErrorDialog", "./JsonProcessor", "./LayerServiceView", "./BackgroundLayersView", "./AdditionalLayersView", "./FitsLoader", "./ImageManager", "./ImageViewer", "jquery.ui"], 
-	function($, FeatureStyle, HEALPixLayer, VectorLayer, CoordinateGridLayer, TileWireframeLayer, OpenSearchLayer, ClusterOpenSearchLayer, MocLayer, HEALPixFITSLayer, Utils, ErrorDialog, JsonProcessor, LayerServiceView, BackgroundLayersView, AdditionalLayersView, FitsLoader, ImageManager, ImageViewer) {
+define( [ "jquery", "underscore-min", "gw/FeatureStyle", "gw/HEALPixLayer", "gw/VectorLayer", "gw/CoordinateGridLayer", "gw/TileWireframeLayer", "gw/OpenSearchLayer", "./ClusterOpenSearchLayer", "./MocLayer", "./HEALPixFITSLayer", "./Utils", "./ErrorDialog", "./JsonProcessor", "./LayerServiceView", "./BackgroundLayersView", "./AdditionalLayersView", "./FitsLoader", "./ImageManager", "./ImageViewer", "jquery.ui"], 
+	function($, _, FeatureStyle, HEALPixLayer, VectorLayer, CoordinateGridLayer, TileWireframeLayer, OpenSearchLayer, ClusterOpenSearchLayer, MocLayer, HEALPixFITSLayer, Utils, ErrorDialog, JsonProcessor, LayerServiceView, BackgroundLayersView, AdditionalLayersView, FitsLoader, ImageManager, ImageViewer) {
 
 /**
  * Private variables
  */
-var globe;
+var sky;
 var gwLayers = [];
 
 // GeoJSON data providers
@@ -66,7 +66,7 @@ function createCustomLayer(name)
 	gwLayer.type = "GeoJSON";
 	gwLayer.deletable = true;
 	gwLayer.pickable = true;
-	globe.addLayer(gwLayer);
+	sky.addLayer(gwLayer);
 
 	AdditionalLayersView.addView( gwLayer );
 	gwLayers.push(gwLayer);
@@ -412,12 +412,12 @@ function initLayers(layers)
 				// Add to engine
 				if ( gwLayer.visible() ) {
 					// Change visibility's of previous layer(maybe GlobWeb should do it ?)
-					if ( globe.tileManager.imageryProvider )
+					if ( sky.tileManager.imageryProvider )
 					{
-						globe.tileManager.imageryProvider.visible(false);
+						sky.tileManager.imageryProvider.visible(false);
 					}
 
-					globe.setBaseImagery( gwLayer );
+					sky.setBaseImagery( gwLayer );
 					gwLayer.visible(true);
 				}
 				BackgroundLayersView.addView( gwLayer );
@@ -425,7 +425,7 @@ function initLayers(layers)
 			else
 			{
 				// Add to engine
-				globe.addLayer( gwLayer );
+				sky.addLayer( gwLayer );
 				AdditionalLayersView.addView( gwLayer, layer.category );
 			}
 
@@ -442,14 +442,18 @@ return {
 	/**
 	 *	Init
 	 *
-	 *	@param gl Globe
-	 *	@param configuration Layers configuration 
+	 *	@param miz
+	 *		Mizar API object
+	 *	@param configuration
+	 *		Mizar configuration 
  	 */
-	init: function(gl, nav, configuration) {
-		// Store the globe in the global module variable
-		globe = gl;
-		AdditionalLayersView.init(gl, nav, this, configuration);
-		BackgroundLayersView.init(gl, this);
+	init: function(mizar, configuration) {
+		this.mizar = mizar;
+		
+		// Store the sky in the global module variable
+		sky = mizar.sky;
+		AdditionalLayersView.init(sky, mizar.navigation, this, configuration);
+		BackgroundLayersView.init(sky, this);
 
 		// Necessary to drag&drop option while using jQuery
 		$.event.props.push('dataTransfer');
@@ -462,7 +466,7 @@ return {
 		$('canvas').on('dragover', handleDragOver);
 		$('canvas').on('drop', handleDrop);
 
-		LayerServiceView.init(gl, nav, this, configuration);
+		LayerServiceView.init(sky, mizar.navigation, this, configuration);
 
 		if ( configuration.votable2geojson )
 		{
@@ -489,6 +493,11 @@ return {
 	 	return gwLayers;
 	 },
 
+	 /**
+	  *	Add layer
+	  *	@param layer
+	  *		Layer configuration description
+	  */
 	 addLayer: function(layer) {
 	 	// Define default optionnal parameters
 		if(!layer.opacity)
@@ -504,12 +513,12 @@ return {
 				// Add to engine
 				if ( gwLayer.visible() ) {
 					// Change visibility's of previous layer(maybe GlobWeb should do it ?)
-					if ( globe.tileManager.imageryProvider )
+					if ( sky.tileManager.imageryProvider )
 					{
-						globe.tileManager.imageryProvider.visible(false);
+						sky.tileManager.imageryProvider.visible(false);
 					}
 
-					globe.setBaseImagery( gwLayer );
+					sky.setBaseImagery( gwLayer );
 					gwLayer.visible(true);
 				}
 				BackgroundLayersView.addView( gwLayer );
@@ -517,15 +526,28 @@ return {
 			else
 			{
 				// Add to engine
-				globe.addLayer( gwLayer );
+				sky.addLayer( gwLayer );
 				AdditionalLayersView.addView( gwLayer, layer.category );
 			}
 			$( "#accordion" ).accordion("refresh");
 
 			gwLayers.push(gwLayer);
 		}
+	 },
+
+	 /**
+	  *	Set background survey from its name
+	  *	@param survey
+	  *		Survey name
+	  */
+	 setBackgroundSurvey: function(survey) {
+	 	var surveyToSet = _.findWhere(gwLayers, {name: survey});
+	 	if ( surveyToSet ) {
+	 		BackgroundLayersView.selectLayer(surveyToSet);
+	 	} else {
+	 		this.mizar.publish("backgroundSurveyError", "Survey " + survey + " hasn't been found");
+	 	}
 	 }
-	
 };
 
 });

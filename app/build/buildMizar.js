@@ -15,10 +15,9 @@
 	},
 	optimize: "uglify",
 	paths: {
-		"jquery": "../externals/jquery-1.8.2.min",
-		"jquery.ui": "../externals/jquery-ui-1.9.2.custom.min",
-		"jquery.ui.selectmenu": "../externals/jquery.ui.selectmenu",
-		"underscore-min": "../externals/underscore-min",
+		"jquery": "../externals/jquery-1.11.1.min",
+		"jquery.ui": "../externals/jquery-ui-1.11.0.min",
+		"underscore-min": "../externals/underscore-1.6.0.min",
 		"jquery.nicescroll.min": "../externals/jquery.nicescroll.min",
 		"fits": "../externals/fits",
 		"samp": "../externals/samp",

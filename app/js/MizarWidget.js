@@ -20,10 +20,10 @@
 /**
  * Mizar widget
  */
-define( [ "jquery", "underscore-min", "gw/EquatorialCoordinateSystem", "gw/Sky", "gw/Stats", "gw/AstroNavigation", "gw/AttributionHandler", "gw/VectorLayer", "gw/TouchNavigationHandler", "gw/MouseNavigationHandler", "gw/KeyboardNavigationHandler", "text!../templates/mizarCore.html",
+define( [ "jquery", "underscore-min", "gw/EquatorialCoordinateSystem", "gw/Sky", "gw/Stats", "gw/AstroNavigation", "gw/AttributionHandler", "gw/VectorLayer", "gw/TouchNavigationHandler", "gw/MouseNavigationHandler", "gw/KeyboardNavigationHandler", "gw/Event", "text!../templates/mizarCore.html",
 	"./LayerManager", "./NameResolver", "./ReverseNameResolver", "./Utils", "./PickingManager", "./FeaturePopup", "./IFrame", "./Compass", "./MollweideViewer", "./ErrorDialog", "./AboutDialog", "./Share", "./Samp", "./AdditionalLayersView", "./ImageManager", "./ImageViewer", "./UWSManager", "./PositionTracker", "./MeasureTool", "./StarProvider", "./ConstellationProvider", "./JsonProvider", "./OpenSearchProvider", "./PlanetProvider",
 	"gw/ConvexPolygonRenderer", "gw/PointSpriteRenderer", "gw/PointRenderer", "jquery.ui"],
-	function($, _, CoordinateSystem, Sky, Stats, AstroNavigation, AttributionHandler, VectorLayer, TouchNavigationHandler, MouseNavigationHandler, KeyboardNavigationHandler, mizarCoreHTML,
+	function($, _, CoordinateSystem, Sky, Stats, AstroNavigation, AttributionHandler, VectorLayer, TouchNavigationHandler, MouseNavigationHandler, KeyboardNavigationHandler, Event, mizarCoreHTML,
 			LayerManager, NameResolver, ReverseNameResolver, Utils, PickingManager, FeaturePopup, IFrame, Compass, MollweideViewer, ErrorDialog, AboutDialog, Share, Samp, AdditionalLayersView, ImageManager, ImageViewer, UWSManager, PositionTracker, MeasureTool) {
 
 	/**
@@ -165,6 +165,8 @@ define( [ "jquery", "underscore-min", "gw/EquatorialCoordinateSystem", "gw/Sky",
 	 *	Mizar widget constructor
 	 */
 	var MizarWidget = function(div, userOptions) {
+		Event.prototype.constructor.call( this );
+
 		parentElement = div;
 		var sitoolsBaseUrl = userOptions.sitoolsBaseUrl ? userOptions.sitoolsBaseUrl : "http://demonstrator.telespazio.com/sitools";
 		var options = {
@@ -219,7 +221,7 @@ define( [ "jquery", "underscore-min", "gw/EquatorialCoordinateSystem", "gw/Sky",
 			"isMobile" : (('ontouchstart' in window && window.ontouchstart != null) || window.DocumentTouch && document instanceof DocumentTouch)
 		};
 
-		var extendableOptions = [ "coordSystem", "navigation", "nameResolver", "stats" ];
+		var extendableOptions = [ "coordSystem", "navigation", "nameResolver", "stats", "debug" ];
 		// Merge default options with user ones
 		for ( var i=0; i<extendableOptions.length; i++ ) {
 			var option = extendableOptions[i];
@@ -342,7 +344,7 @@ define( [ "jquery", "underscore-min", "gw/EquatorialCoordinateSystem", "gw/Sky",
 		ReverseNameResolver.init(this.sky, this.navigation, options);
 
 		// Create layers from configuration file
-		LayerManager.init(this.sky, this.navigation, options);
+		LayerManager.init(this, options);
 
 		// Create data manager
 		PickingManager.init(this.sky, this.navigation, options);
@@ -394,6 +396,7 @@ define( [ "jquery", "underscore-min", "gw/EquatorialCoordinateSystem", "gw/Sky",
 				for( var i=0; i<layers.length; i++ ) {
 					self.addLayer( layers[i] );
 				}
+				self.publish("backgroundSurveysReady");
 			},
 			error: function(thrownError) {
 				console.error(thrownError);
@@ -442,11 +445,15 @@ define( [ "jquery", "underscore-min", "gw/EquatorialCoordinateSystem", "gw/Sky",
 
 	/**************************************************************************************************************/
 
+	Utils.inherits( Event, MizarWidget );
+
+	/**************************************************************************************************************/
+
 	/**
 	 *	Set a predefined background survey
 	 */
 	MizarWidget.prototype.setBackgroundSurvey = function(survey) {
-		//TODO
+		LayerManager.setBackgroundSurvey(survey);
 	}
 
 	/**************************************************************************************************************/
@@ -454,7 +461,7 @@ define( [ "jquery", "underscore-min", "gw/EquatorialCoordinateSystem", "gw/Sky",
 	/**
 	 *	Set a custom background survey
 	 */
-	MizarWidget.prototype.setCustomBackgroundSurvey = function(id, url, coordinateSystem, options) {
+	MizarWidget.prototype.setCustomBackgroundSurvey = function(options) {
 		//TODO
 	}
 
@@ -473,24 +480,6 @@ define( [ "jquery", "underscore-min", "gw/EquatorialCoordinateSystem", "gw/Sky",
 	 *	Remove layer with the given id
 	 */
 	MizarWidget.prototype.removeLayer = function(layerId) {
-		// TODO
-	}
-
-	/**************************************************************************************************************/
-
-	/**
-	 *	Set opacity for the given layer
-	 */
-	MizarWidget.prototype.setOpacity = function(layerId, opacity) {
-		// TODO
-	}
-
-	/**************************************************************************************************************/
-
-	/**
-	 *	Get opacity of the given layer
-	 */
-	MizarWidget.prototype.getOpacity = function(layerId) {
 		// TODO
 	}
 

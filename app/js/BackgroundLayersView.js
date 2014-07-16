@@ -221,63 +221,80 @@ return {
 	addView : createHtmlForBackgroundLayer,
 
 	/**
-	 *	Creates select menu
+	 *	Select the given layer
+	 */
+	selectLayer: function(layer) {
+
+		// Update selectmenu ui by choosen layer(if called programmatically)
+		$('#backgroundLayersSelect').children().removeAttr("selected");
+		var option = _.find($('#backgroundLayersSelect').children(), function(item) {
+			return item.text == layer.name;
+		});
+		$(option).attr("selected","selected");
+
+		selectedLayer = layer;
+		if ( layer != globe.baseImagery ) {
+			// Clear selection
+			PickingManager.getSelection().length = 0;
+
+			// Change visibility's of previous layer, because visibility is used to know the active background layer in the layers list (layers can be shared)
+			globe.baseImagery.visible(false);
+			globe.setBaseImagery( layer );
+			layer.visible(true);
+
+			// Show background loading spinner
+			$('#loading').show(300);
+
+			// Remove solar object sublayers
+			var gwLayers = layerManager.getLayers();
+			for ( var i=0; i<gwLayers.length; i++ )
+			{
+				var currentLayer = gwLayers[i];
+				if ( currentLayer.subLayers )
+				{
+					var len = currentLayer.subLayers.length;
+					for ( var j=0; j<len; j++ )
+					{
+						var subLayer = currentLayer.subLayers[j];
+						if (subLayer.name == "SolarObjectsSublayer" )
+						{
+							PickingManager.removePickableLayer( subLayer );
+							globe.removeLayer( subLayer );
+							currentLayer.subLayers.splice(j,1);
+						}
+					}
+				}
+			}
+
+			// Set shader callback for choosen layer
+			backgroundDiv.changeShaderCallback = function(contrast){
+				if ( contrast == "raw" )
+				{
+					layer.customShader.fragmentCode = layer.rawFragShader;
+				} else {
+					layer.customShader.fragmentCode = layer.colormapFragShader;
+				}
+			};
+
+			// Change dynamic image view button
+			updateBackgroundOptions(layer);
+
+			$('#backgroundLayersSelect').iconselectmenu("refresh");	
+		}
+	},
+
+	/**
+	 *	Create select menu
+	 *	Synchonize background spinner with background survey events
 	 */
 	updateUI : function() {
-
+		var self = this;
 		$('#backgroundLayersSelect').iconselectmenu({
 			select: function(event, ui)
 			{
 				var index = ui.item.index;
 				var layer = $(this).children().eq(index).data("layer");
-				selectedLayer = layer;
-
-				if ( layer != globe.baseImagery ) {
-					// Clear selection
-					PickingManager.getSelection().length = 0;
-
-					// Change visibility's of previous layer, because visibility is used to know the active background layer in the layers list (layers can be shared)
-					globe.baseImagery.visible(false);
-					globe.setBaseImagery( layer );
-					layer.visible(true);
-
-					// Show background loading spinner
-					$('#loading').show(300);
-
-					// Remove solar object sublayers
-					var gwLayers = layerManager.getLayers();
-					for ( var i=0; i<gwLayers.length; i++ )
-					{
-						var currentLayer = gwLayers[i];
-						if ( currentLayer.subLayers )
-						{
-							var len = currentLayer.subLayers.length;
-							for ( var j=0; j<len; j++ )
-							{
-								var subLayer = currentLayer.subLayers[j];
-								if (subLayer.name == "SolarObjectsSublayer" )
-								{
-									PickingManager.removePickableLayer( subLayer );
-									globe.removeLayer( subLayer );
-									currentLayer.subLayers.splice(j,1);
-								}
-							}
-						}
-					}
-
-					// Set shader callback for choosen layer
-					backgroundDiv.changeShaderCallback = function(contrast){
-						if ( contrast == "raw" )
-						{
-							layer.customShader.fragmentCode = layer.rawFragShader;
-						} else {
-							layer.customShader.fragmentCode = layer.colormapFragShader;
-						}
-					};
-
-					// Change dynamic image view button
-					updateBackgroundOptions(layer);
-				}
+				self.selectLayer(layer);
 			}
 		}).iconselectmenu( "menuWidget" )
 				.addClass( "ui-menu-icons customicons" );

@@ -24,7 +24,7 @@ require.config({
 	paths: {
 		"jquery": "../externals/jquery-1.11.1.min",
 		"jquery.ui": "../externals/jquery-ui-1.11.0.min",
-		"underscore-min": "../externals/underscore-min",
+		"underscore-min": "../externals/underscore-1.6.0.min",
 		"jquery.nicescroll.min": "../externals/jquery.nicescroll.min",
 		"fits": "../externals/fits",
 		"samp": "../externals/samp",
@@ -71,12 +71,22 @@ require.config({
 require(["./MizarWidget"], function(MizarWidget) {
 	
 	var mizarWidget = new MizarWidget('#mizarWidget-div', {
-		debug: "true",
+		debug: true,
 		navigation: {
 			"initTarget": [0,0]
 		},
 		nameResolver: {
 			"zoomFov": 2
 		}
+	});
+
+	// Set IRIS survey on load
+	mizarWidget.subscribe("backgroundSurveysReady", function() {
+		mizarWidget.setBackgroundSurvey("IRIS");
+	});
+
+	// Define callback in case of error on survey loading
+	mizarWidget.subscribe("backgroundSurveyError", function(thrownError) {
+		console.error(thrownError);
 	});
 });
