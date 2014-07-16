@@ -449,7 +449,7 @@ return {
 		// Store the globe in the global module variable
 		globe = gl;
 		AdditionalLayersView.init(gl, nav, this, configuration);
-		BackgroundLayersView.init(gl, this, configuration);
+		BackgroundLayersView.init(gl, this);
 
 		// Necessary to drag&drop option while using jQuery
 		$.event.props.push('dataTransfer');

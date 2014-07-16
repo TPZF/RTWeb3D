@@ -74,6 +74,9 @@ require(["./MizarWidget"], function(MizarWidget) {
 		debug: "true",
 		navigation: {
 			"initTarget": [0,0]
+		},
+		nameResolver: {
+			"zoomFov": 2
 		}
 	});
 });

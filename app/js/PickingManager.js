@@ -447,7 +447,7 @@ return {
 		if ( configuration.cutOut )
 		{
 			// CutOutView factory ... TODO : move it/refactor it/do something with it...
-			CutOutViewFactory.init(globe, navigation, this, configuration.cutOut);
+			CutOutViewFactory.init(globe, navigation, this);
 		}
 		FeaturePopup.init(this, ImageManager, gl, configuration);
 	},

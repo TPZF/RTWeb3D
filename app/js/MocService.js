@@ -26,7 +26,6 @@ define( [ "jquery", "./MocLayer", "./MocBase", "underscore-min", "text!../templa
 // Template generating the services html
 var mocServiceTemplate = _.template(mocServiceHTMLTemplate);
 
-var coverageServiceUrl;
 var globe = null;
 var layers = [];
 
@@ -82,13 +81,9 @@ function addHTMLMocLayer(layer)
 
 return {
 
-	init: function(gl, configuration)
+	init: function(gl)
 	{
 		globe = gl;
-		if ( configuration.coverageService )
-		{
-			coverageServiceUrl = configuration.coverageService.baseUrl;
-		}
 	},
 
 	/**************************************************************************************************************/

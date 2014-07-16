@@ -130,8 +130,11 @@ var HEALPixFITSLayer = function(options)
 						console.error(err);
 						this.failCallback();
 						return;
+					} else {
+						// Image isn't g-zipped, handle image as fits
+						console.log("not gzipped");
+						data = null;
 					}
-					// Image isn't g-zipped, handle image as fits
 				}
 
 				self.handleImage(self.imageRequest);

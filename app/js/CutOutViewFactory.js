@@ -31,7 +31,7 @@ var views = [];
 /**************************************************************************************************************/
 
 return {
-	init: function(gl, nav, pm, conf)
+	init: function(gl, nav, pm)
 	{
 		pickingManager = pm;
 
