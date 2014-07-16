@@ -22,180 +22,213 @@
  */
 define(["gw/CoordinateSystem", "gw/glMatrix"], function(CoordinateSystem) {
 
+/**
+ *	Private variables
+ */
+var parentElement = null;
+var navigation = null;
+
+/**
+ *	Function updating the north position on compass
+ */
+var updateNorth = function() {
+
+	var geo = [];
+	CoordinateSystem.from3DToGeo(navigation.center3d, geo);
+
+	if ( CoordinateSystem.type != "EQ" )
+	{
+		geo = CoordinateSystem.convert(geo, 'EQ', 'GAL');
+	}
+
+	var LHV = [];
+	CoordinateSystem.getLHVTransform(geo, LHV);
+
+	var temp = [];
+	var north = [LHV[4],LHV[5],LHV[6]];
+	var vertical = [LHV[8], LHV[9], LHV[10]];
+
+	if ( CoordinateSystem.type != "EQ" )
+	{
+		north = CoordinateSystem.transformVec( [LHV[4],LHV[5],LHV[6]] );
+		CoordinateSystem.from3DToGeo(north, temp);
+		temp = CoordinateSystem.convert(temp, 'EQ', 'GAL');
+		CoordinateSystem.fromGeoTo3D(temp, north);
+
+		vertical = CoordinateSystem.transformVec( [LHV[8],LHV[9],LHV[10]] );
+		CoordinateSystem.from3DToGeo(vertical, temp);
+		temp = CoordinateSystem.convert(temp, 'EQ', 'GAL');
+		CoordinateSystem.fromGeoTo3D(temp, vertical);
+	}
+
+	// Find angle between up and north
+	var cosNorth = vec3.dot(navigation.up, north);
+	var radNorth = Math.acos(cosNorth);
+	if ( isNaN(radNorth) )
+		return;
+	var degNorth = radNorth * 180/Math.PI;
+	
+	// Find sign between up and north
+	var sign;
+	vec3.cross( navigation.up, north, temp );
+	sign = vec3.dot( temp, [vertical[0], vertical[1], vertical[2]] );
+    if ( sign < 0 )
+    {
+    	degNorth *= -1;
+    }
+
+    var northText = document.getElementById("objectCompass").contentDocument.getElementById("NorthText");
+    northText.setAttribute("transform", "rotate(" + degNorth + " 40 40)");
+};
+
 var Compass = function(options){
 
+	parentElement = options.element;
 	var globe = options.globe;
-	var navigation = options.navigation;
+	navigation = options.navigation;
 
-	/* Svg interactive elements */
-	var compass = document.getElementById(options.element);
-	var svgDoc = compass.contentDocument; //get the inner DOM of compass.svg
-    var east = svgDoc.getElementById("East"); //get the inner element by id
-    var west = svgDoc.getElementById("West"); //get the inner element by id
-    var south = svgDoc.getElementById("South"); //get the inner element by id
-    var north = svgDoc.getElementById("North"); //get the inner element by id
-    var northText = svgDoc.getElementById("NorthText");
-    var outerCircle = svgDoc.getElementById("OuterCircle");
+	// Add compass object to parent element
+	document.getElementById(parentElement).innerHTML = '<object id="objectCompass" width="100px" height="100px" data="css/images/compass.svg" type="image/svg+xml"></object>';
 
-    var rotationFactor = options.rotationFactor ? options.rotationFactor : 8.;
-    var panFactor = options.panFactor ? options.panFactor : 30.;
-    
-	var _lastMouseX = -1;
-	var _lastMouseY = -1;
-	var _dx = 0;
-	var _dy = 0;
-	var dragging = false;
-	var _outerCircleRadius = outerCircle.ownerSVGElement.clientWidth / 2;
+	// Initialize it on load
+	document.getElementById('objectCompass').addEventListener('load', function(){
+		initialize();
+		// Publish modified event to update compass north
+		navigation.publish('modified');
+		$('#'+parentElement).css("display","block");
+	});
 
 	/**
-	 *	Function updating the north position on compass
+	 *	Initialize interactive events
 	 */
-	function updateNorth() {
+	var initialize = function() {
+		/* Svg interactive elements */
+		var compass = document.getElementById("objectCompass");
+		var svgDoc = compass.contentDocument; //get the inner DOM of compass.svg
+	    var east = svgDoc.getElementById("East"); //get the inner element by id
+	    var west = svgDoc.getElementById("West"); //get the inner element by id
+	    var south = svgDoc.getElementById("South"); //get the inner element by id
+	    var north = svgDoc.getElementById("North"); //get the inner element by id
+	    var northText = svgDoc.getElementById("NorthText");
+	    var outerCircle = svgDoc.getElementById("OuterCircle");
 
-		var geo = [];
-		CoordinateSystem.from3DToGeo(navigation.center3d, geo);
+	    var rotationFactor = options.rotationFactor ? options.rotationFactor : 8.;
+	    var panFactor = options.panFactor ? options.panFactor : 30.;
+	    
+		var _lastMouseX = -1;
+		var _lastMouseY = -1;
+		var _dx = 0;
+		var _dy = 0;
+		var dragging = false;
+		var _outerCircleRadius = outerCircle.ownerSVGElement.clientWidth / 2;
 
-		if ( CoordinateSystem.type != "EQ" )
+		var _handleMouseDown = function(event)
 		{
-			geo = CoordinateSystem.convert(geo, 'EQ', 'GAL');
+			event.preventDefault();
+			if ( event.type.search("touch") >= 0 )
+			{
+				event.clientX = event.changedTouches[0].clientX;
+				event.clientY = event.changedTouches[0].clientY;
+			}
+
+			 dragging = true;
+			_lastMouseX = event.clientX - _outerCircleRadius;
+			_lastMouseY = event.clientY - _outerCircleRadius;
+			_dx = 0;
+			_dy = 0;
 		}
 
-		var LHV = [];
-		CoordinateSystem.getLHVTransform(geo, LHV);
+	    svgDoc.addEventListener('mousedown', _handleMouseDown);
 
-		var temp = [];
-		var north = [LHV[4],LHV[5],LHV[6]];
-		var vertical = [LHV[8], LHV[9], LHV[10]];
 
-		if ( CoordinateSystem.type != "EQ" )
-		{
-			north = CoordinateSystem.transformVec( [LHV[4],LHV[5],LHV[6]] );
-			CoordinateSystem.from3DToGeo(north, temp);
-			temp = CoordinateSystem.convert(temp, 'EQ', 'GAL');
-			CoordinateSystem.fromGeoTo3D(temp, north);
-
-			vertical = CoordinateSystem.transformVec( [LHV[8],LHV[9],LHV[10]] );
-			CoordinateSystem.from3DToGeo(vertical, temp);
-			temp = CoordinateSystem.convert(temp, 'EQ', 'GAL');
-			CoordinateSystem.fromGeoTo3D(temp, vertical);
-		}
-
-		// Find angle between up and north
-		var cosNorth = vec3.dot(navigation.up, north);
-		var radNorth = Math.acos(cosNorth);
-		if ( isNaN(radNorth) )
-			return;
-		var degNorth = radNorth * 180/Math.PI;
-		
-		// Find sign between up and north
-		var sign;
-		vec3.cross( navigation.up, north, temp );
-		sign = vec3.dot( temp, [vertical[0], vertical[1], vertical[2]] );
-	    if ( sign < 0 )
+	    var _handleMouseMove = function(event)
 	    {
-	    	degNorth *= -1;
+	    	event.preventDefault();
+	    	if ( event.type.search("touch") >= 0 )
+			{
+				event.clientX = event.changedTouches[0].clientX;
+				event.clientY = event.changedTouches[0].clientY;
+			}
+
+	    	if (!dragging)
+	    		return;
+
+			var c = _lastMouseX*(event.clientY -_outerCircleRadius) - _lastMouseY*(event.clientX - _outerCircleRadius); // c>0 -> clockwise, counterclockwise otherwise
+			navigation.rotate(c, 0);
+
+			_lastMouseX = event.clientX - _outerCircleRadius;
+			_lastMouseY = event.clientY - _outerCircleRadius;
+
+	    	updateNorth();
 	    }
-	    northText.setAttribute("transform", "rotate(" + degNorth + " 40 40)");
-	};
 
-	var _handleMouseDown = function(event)
-	{
-		event.preventDefault();
-		if ( event.type.search("touch") >= 0 )
+	    svgDoc.addEventListener('mousemove', _handleMouseMove);
+
+	    var _handleMouseUp = function(event)
+	    {
+	    	event.preventDefault();
+	    	dragging = false;
+	    	// TODO add inertia
+	    }
+
+		svgDoc.addEventListener('mouseup', _handleMouseUp);
+
+		east.addEventListener("click", function(){
+	    	navigation.pan( panFactor, 0. );
+	    	updateNorth();
+		});
+
+		west.addEventListener("click", function(){
+	    	navigation.pan( -panFactor, 0. );
+	    	updateNorth();
+		});
+
+		north.addEventListener("click", function(){
+	    	navigation.pan( 0, panFactor );
+	    	updateNorth();
+		});
+
+	    south.addEventListener("click", function(){
+	    	navigation.pan( 0, -panFactor );
+	    	updateNorth();
+		});
+
+		var _alignWithNorth = function(event)
 		{
-			event.clientX = event.changedTouches[0].clientX;
-			event.clientY = event.changedTouches[0].clientY;
+			var up = [0,0,1];
+			
+			if ( CoordinateSystem.type != "EQ" )
+			{
+				var temp = [];
+				CoordinateSystem.from3DToGeo(up, temp);
+				temp = CoordinateSystem.convert(temp, 'GAL', 'EQ');
+				CoordinateSystem.fromGeoTo3D(temp, up);
+			}
+			navigation.moveUpTo(up);
 		}
 
-		 dragging = true;
-		_lastMouseX = event.clientX - _outerCircleRadius;
-		_lastMouseY = event.clientY - _outerCircleRadius;
-		_dx = 0;
-		_dy = 0;
-	}
+		northText.addEventListener("click", _alignWithNorth);
 
-    svgDoc.addEventListener('mousedown', _handleMouseDown);
-
-
-    var _handleMouseMove = function(event)
-    {
-    	event.preventDefault();
-    	if ( event.type.search("touch") >= 0 )
+		if ( options.isMobile )
 		{
-			event.clientX = event.changedTouches[0].clientX;
-			event.clientY = event.changedTouches[0].clientY;
+			svgDoc.addEventListener('touchstart', _handleMouseDown);
+			svgDoc.addEventListener('touchup', _handleMouseUp);
+			svgDoc.addEventListener('touchmove', _handleMouseMove);
+			northText.addEventListener("touchstart", _alignWithNorth);
 		}
 
-    	if (!dragging)
-    		return;
-
-		var c = _lastMouseX*(event.clientY -_outerCircleRadius) - _lastMouseY*(event.clientX - _outerCircleRadius); // c>0 -> clockwise, counterclockwise otherwise
-		navigation.rotate(c, 0);
-
-		_lastMouseX = event.clientX - _outerCircleRadius;
-		_lastMouseY = event.clientY - _outerCircleRadius;
-
-    	updateNorth();
-    }
-
-    svgDoc.addEventListener('mousemove', _handleMouseMove);
-
-    var _handleMouseUp = function(event)
-    {
-    	event.preventDefault();
-    	dragging = false;
-    	// TODO add inertia
-    }
-
-	svgDoc.addEventListener('mouseup', _handleMouseUp);
-
-	east.addEventListener("click", function(){
-    	navigation.pan( panFactor, 0. );
-    	updateNorth();
-	});
-
-	west.addEventListener("click", function(){
-    	navigation.pan( -panFactor, 0. );
-    	updateNorth();
-	});
-
-	north.addEventListener("click", function(){
-    	navigation.pan( 0, panFactor );
-    	updateNorth();
-	});
-
-    south.addEventListener("click", function(){
-    	navigation.pan( 0, -panFactor );
-    	updateNorth();
-	});
-
-	var _alignWithNorth = function(event)
-	{
-		var up = [0,0,1];
-		
-		if ( CoordinateSystem.type != "EQ" )
-		{
-			var temp = [];
-			CoordinateSystem.from3DToGeo(up, temp);
-			temp = CoordinateSystem.convert(temp, 'GAL', 'EQ');
-			CoordinateSystem.fromGeoTo3D(temp, up);
-		}
-		navigation.moveUpTo(up);
+	    // Update fov when moving
+		navigation.subscribe("modified", updateNorth);
 	}
-
-	northText.addEventListener("click", _alignWithNorth);
-
-	if ( options.isMobile )
-	{
-		svgDoc.addEventListener('touchstart', _handleMouseDown);
-		svgDoc.addEventListener('touchup', _handleMouseUp);
-		svgDoc.addEventListener('touchmove', _handleMouseMove);
-		northText.addEventListener("touchstart", _alignWithNorth);
-	}
-
-    // Update fov when moving
-	navigation.subscribe("modified", updateNorth);
 };
+
+/**
+ *	Remove compass element
+ */
+Compass.prototype.remove = function() {
+	navigation.unsubscribe("modified", updateNorth);
+	document.getElementById(parentElement).innerHTML = '';
+}
 
 return Compass;
 

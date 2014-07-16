@@ -31,6 +31,7 @@ define( [ "jquery", "underscore-min", "gw/EquatorialCoordinateSystem", "gw/Sky",
 	 */
 	var aboutShowed = false;
 	var parentElement;
+	var isMobile;
 
 	/**
 	 *	Retrieve SiTools2 configuration from URI
@@ -153,8 +154,8 @@ define( [ "jquery", "underscore-min", "gw/EquatorialCoordinateSystem", "gw/Sky",
 		var mizarContent = _.template(mizarCoreHTML,{});
 		$(mizarContent).appendTo(div);
 
-		var sky = null;
-		var navigation = null;
+		this.sky = null;
+		this.navigation = null;
 		var mollweideViewer = null;
 
 		var confURL = _retrieveConfiguration();
@@ -176,11 +177,11 @@ define( [ "jquery", "underscore-min", "gw/EquatorialCoordinateSystem", "gw/Sky",
 				canvas.height = window.innerHeight;
 		});
 		
-		var isMobile = (('ontouchstart' in window && window.ontouchstart != null) || window.DocumentTouch && document instanceof DocumentTouch);
+		isMobile = (('ontouchstart' in window && window.ontouchstart != null) || window.DocumentTouch && document instanceof DocumentTouch);
 		// Initialize sky
 		try
 		{
-			sky = new Sky( { 
+			this.sky = new Sky( { 
 				canvas: canvas, 
 				tileErrorTreshold: 1.5,
 				continuousRendering: isMobile ? false : true
@@ -194,10 +195,10 @@ define( [ "jquery", "underscore-min", "gw/EquatorialCoordinateSystem", "gw/Sky",
 		}
 
 		// When base layer is ready, hide loading
-		sky.subscribe("baseLayersReady", _showAbout);
+		this.sky.subscribe("baseLayersReady", _showAbout);
 
 		// When base layer failed to load, open error dialog
-		sky.subscribe("baseLayersError", function(layer){
+		this.sky.subscribe("baseLayersError", function(layer){
 
 			$(parentElement).find('#loading').hide();
 			// TODO : handle multiple errors !
@@ -223,7 +224,7 @@ define( [ "jquery", "underscore-min", "gw/EquatorialCoordinateSystem", "gw/Sky",
 				mollweideViewer.setCoordSystem( newCoordSystem );
 
 				// Publish modified event to update compass north
-				navigation.publish('modified');
+				self.navigation.publish('modified');
 			},
 			width: 100
 		});
@@ -278,7 +279,7 @@ define( [ "jquery", "underscore-min", "gw/EquatorialCoordinateSystem", "gw/Sky",
 
 				// Add stats
 				if ( data.stats.visible ) {
-					new Stats( sky.renderContext, { element: "fps", verbose: data.stats.verbose });
+					new Stats( self.sky.renderContext, { element: "fps", verbose: data.stats.verbose });
 				} else  {
 					$("#fps").hide();
 				}
@@ -292,66 +293,55 @@ define( [ "jquery", "underscore-min", "gw/EquatorialCoordinateSystem", "gw/Sky",
 				    // Mobile
 					options.navigation.handlers = [ new TouchNavigationHandler({ inversed: true, zoomOnDblClick: true }) ];
 					window.addEventListener("orientationchange", function() {
-						sky.renderContext.requestFrame();
+						self.sky.renderContext.requestFrame();
 					}, false);
 					data.isMobile = isMobile;
 				}
 
 				// Initialize navigation
-				navigation = new AstroNavigation(sky, options.navigation);
+				self.navigation = new AstroNavigation(self.sky, options.navigation);
 
 				// Add attribution handler
-				new AttributionHandler( sky, {element: 'attributions'});
+				new AttributionHandler( self.sky, {element: 'attributions'});
 
 				// Add distance measure tool
-				new MeasureTool({ globe: sky, navigation: navigation, isMobile: data.isMobile } );
+				new MeasureTool({ globe: self.sky, navigation: self.navigation, isMobile: data.isMobile } );
 				
 				// Initialize the name resolver
-				NameResolver.init(sky, navigation, data);
+				NameResolver.init(self.sky, self.navigation, data);
 			
 				// Initialize the reverse name resolver
-				ReverseNameResolver.init(sky, navigation, data);
+				ReverseNameResolver.init(self.sky, self.navigation, data);
 
 				// Create layers from configuration file
-				LayerManager.init(sky, navigation, data);
+				LayerManager.init(self.sky, self.navigation, data);
 
 				// Create data manager
-				PickingManager.init(sky, navigation, data);
+				PickingManager.init(self.sky, self.navigation, data);
 
 				// Compass component(only for desktop due to performance issue on mobile)
 				if ( !isMobile )
 				{
-					document.getElementById('objectCompass').addEventListener('load', function(){
-						new Compass({
-							element : "objectCompass",
-							globe : sky,
-							navigation : navigation,
-							coordSystem : data.coordSystem,
-							isMobile : data.isMobile
-						});
-						// Publish modified event to update compass north
-						navigation.publish('modified');
-					});
-					$('#compassDiv').css("display","block");
+					self.setCompassGui(true);
 				}
 
 				// Mollweide viewer
-				mollweideViewer = new MollweideViewer({ globe : sky, navigation : navigation });
+				mollweideViewer = new MollweideViewer({ globe : self.sky, navigation : self.navigation });
 
 				// Share configuration module init
-				Share.init({navigation : navigation, configuration: data});
+				Share.init({navigation : self.navigation, configuration: data});
 
 				// Initialize SAMP component
-				Samp.init(sky, navigation, AdditionalLayersView, ImageManager, ImageViewer, data);
+				Samp.init(self.sky, self.navigation, AdditionalLayersView, ImageManager, ImageViewer, data);
 
 				// Eye position tracker initialization
-				PositionTracker.init({ element: "posTracker", globe: sky, navigation : navigation, isMobile: data.isMobile });
+				PositionTracker.init({ element: "posTracker", globe: self.sky, navigation : self.navigation, isMobile: data.isMobile });
 
 				// UWS services initialization
 				UWSManager.init(data);
 
 				// Initialization of tools useful for different modules
-				Utils.init(sky);
+				Utils.init(self.sky);
 
 			},
 			error: function(xhr){
@@ -533,6 +523,23 @@ define( [ "jquery", "underscore-min", "gw/EquatorialCoordinateSystem", "gw/Sky",
 	}
 
 	/**************************************************************************************************************/
+
+	/**
+	 *	Add/remove compass GUI component
+	 */
+	MizarWidget.prototype.setCompassGui = function(visible) {
+		if ( visible ) {
+			this.compass = new Compass({
+				element : "compassDiv",
+				globe : this.sky,
+				navigation : this.navigation,
+				coordSystem : CoordinateSystem.type,
+				isMobile : isMobile
+			});
+		} else {
+			this.compass.remove();
+		}
+	}
 
 	return MizarWidget;
 
