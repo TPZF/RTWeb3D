@@ -23,7 +23,7 @@
 define(["jquery", "gw/CoordinateSystem", "gw/Numeric", "./IFrame", "./Utils", "./ErrorDialog", "underscore-min", "text!../templates/featureDescription.html", "text!../templates/descriptionTable.html", "jquery.ui"],
 	function($, CoordinateSystem, Numeric, IFrame, Utils, ErrorDialog, _, featureDescriptionHTMLTemplate, descriptionTableHTMLTemplate) {
 
-var globe;
+var sky;
 var configuration = {};
 var geoPick = [];
 var navigation = null;
@@ -55,6 +55,12 @@ var reverseNameResolverHTML =
 
 var $reverseNameResolver;
 
+/**************************************************************************************************************/
+
+/**
+ *	Mouse down handler
+ *	Registers the position of the mouse and time of click
+ */
 function _handleMouseDown(event)
 {
 	$reverseNameResolver.fadeOut();
@@ -70,6 +76,12 @@ function _handleMouseDown(event)
 	mouseYStart = event.clientY;
 }
 
+/**************************************************************************************************************/
+
+/**
+ *	Mouse up handler
+ *	Opens reverse name resolver popup if mouse has been clicked at least 0.5s and hasn't been moved
+ */
 function _handleMouseUp(event)
 {
 	var epsilon = 5;
@@ -94,7 +106,7 @@ function _handleMouseUp(event)
 		$('#reverseSearchResult').css("display","none");
 
 		var equatorial = [];
-		geoPick = globe.getLonLatFromPixel(event.clientX, event.clientY);
+		geoPick = sky.getLonLatFromPixel(event.clientX, event.clientY);
 		var astro = Utils.formatCoordinates([ geoPick[0], geoPick[1] ]);
 
 		if ( CoordinateSystem.type == "EQ" ) {
@@ -105,7 +117,7 @@ function _handleMouseUp(event)
 										"<br/><em>Latitude:</em><br/>&nbsp;&nbsp;&nbsp;&nbsp;" + astro[1]);
 		}
 
-		var selectedTile = globe.tileManager.getVisibleTile(geoPick[0], geoPick[1]);
+		var selectedTile = sky.tileManager.getVisibleTile(geoPick[0], geoPick[1]);
 		if ( configuration.debug )
 			$('#reverseSearchField #healpixInfo').html('<em>Healpix index/order: </em>&nbsp;&nbsp;&nbsp;&nbsp;'+selectedTile.pixelIndex + '/' + selectedTile.order);
 
@@ -119,31 +131,33 @@ function _handleMouseUp(event)
 	}
 }
 
+/**************************************************************************************************************/
+
+/**
+ *	Initialize events for reverse name resolver
+ */
 function setBehavior()
 {
-	globe.renderContext.canvas.addEventListener("mousedown", _handleMouseDown);
-	globe.renderContext.canvas.addEventListener("mouseup", _handleMouseUp);
+	sky.renderContext.canvas.addEventListener("mousedown", _handleMouseDown);
+	sky.renderContext.canvas.addEventListener("mouseup", _handleMouseUp);
 
 	if ( isMobile )
 	{
-		globe.renderContext.canvas.addEventListener("touchstart", _handleMouseDown);
-		globe.renderContext.canvas.addEventListener("touchend", _handleMouseUp);
+		sky.renderContext.canvas.addEventListener("touchstart", _handleMouseDown);
+		sky.renderContext.canvas.addEventListener("touchend", _handleMouseUp);
 	}
 
 	// External link event
-	$reverseNameResolver.on("click", '.propertiesTable a', function(event){
-		event.preventDefault();
-		IFrame.show(event.target.innerHTML);
-	});
+	$reverseNameResolver.on("click", '.propertiesTable a', _showIFrame);
 
-	navigation.subscribe("modified", function(){
-		if ($reverseNameResolver.css('display') != 'none')
-		{
-			$reverseNameResolver.fadeOut(300);
-		}
-	});
+	navigation.subscribe("modified", _hidePopup);
 }
 
+/**************************************************************************************************************/
+
+/**
+ *	Show feature information in popup
+ */
 function showFeature( feature )
 {
 	var output = featureDescriptionTemplate( { dictionary: {}, services: feature.services, properties: feature.properties, descriptionTableTemplate: descriptionTableTemplate } );
@@ -157,79 +171,129 @@ function showFeature( feature )
 	});
 }
 
+/**************************************************************************************************************/
+
+/**
+ *	External link event handler
+ */
+function _showIFrame(event)
+{
+	event.preventDefault();
+	IFrame.show(event.target.innerHTML);
+}
+
+/**************************************************************************************************************/
+
+/**
+ *	Hide reverse name resolver popup handler
+ */
+function _hidePopup(event)
+{
+	if ($reverseNameResolver.css('display') != 'none')
+	{
+		$reverseNameResolver.fadeOut(300);
+	}
+}
+
+/**************************************************************************************************************/
+
 return {
-	init: function(gl, nav, conf) {
+	init: function(mizar, conf) {
+		if ( !$reverseNameResolver ) {
+			sky = mizar.sky;
+			navigation = mizar.navigation;
+			$reverseNameResolver = $(reverseNameResolverHTML).appendTo('body');
 
-		globe = gl;
-		navigation = nav;
-		$reverseNameResolver = $(reverseNameResolverHTML).appendTo('body');
+			$( "#reverseNameResolver input[type=submit]")
+			.button()
+			.click(function( event ) {
+				event.preventDefault();
 
-		$( "#reverseNameResolver input[type=submit]")
-		.button()
-		.click(function( event ) {
-			event.preventDefault();
+				$('#reverseSearchField input[type="submit"]').attr('disabled', 'disabled');
 
-			$('#reverseSearchField input[type="submit"]').attr('disabled', 'disabled');
+				var equatorialCoordinates = [];
+				CoordinateSystem.fromGeoToEquatorial( geoPick, equatorialCoordinates );
 
-			var equatorialCoordinates = [];
-			CoordinateSystem.fromGeoToEquatorial( geoPick, equatorialCoordinates );
+				// Format to equatorial coordinates
+				equatorialCoordinates[0] = equatorialCoordinates[0].replace("h ",":");
+				equatorialCoordinates[0] = equatorialCoordinates[0].replace("m ",":");
+				equatorialCoordinates[0] = equatorialCoordinates[0].replace("s","");
+				
+				equatorialCoordinates[1] = equatorialCoordinates[1].replace("° ",":");
+				equatorialCoordinates[1] = equatorialCoordinates[1].replace("' ",":");
+				equatorialCoordinates[1] = equatorialCoordinates[1].replace("\"","");
 
-			// Format to equatorial coordinates
-			equatorialCoordinates[0] = equatorialCoordinates[0].replace("h ",":");
-			equatorialCoordinates[0] = equatorialCoordinates[0].replace("m ",":");
-			equatorialCoordinates[0] = equatorialCoordinates[0].replace("s","");
-			
-			equatorialCoordinates[1] = equatorialCoordinates[1].replace("° ",":");
-			equatorialCoordinates[1] = equatorialCoordinates[1].replace("' ",":");
-			equatorialCoordinates[1] = equatorialCoordinates[1].replace("\"","");
+				// Find max order
+				var maxOrder = 3;
+				sky.tileManager.visitTiles( function( tile ){ if ( maxOrder < tile.order ) maxOrder = tile.order} );
 
-			// Find max order
-			var maxOrder = 3;
-			globe.tileManager.visitTiles( function( tile ){ if ( maxOrder < tile.order ) maxOrder = tile.order} );
+				var requestUrl = configuration.baseUrl + '/EQUATORIAL/' + equatorialCoordinates[0] + " " + equatorialCoordinates[1] + ";" + maxOrder;
 
-			var requestUrl = configuration.baseUrl + '/EQUATORIAL/' + equatorialCoordinates[0] + " " + equatorialCoordinates[1] + ";" + maxOrder;
-
-			$.ajax({
-				type: "GET",
-				url: requestUrl,
-				success: function(response){
-					// Only one feature for the moment
-					showFeature( response.features[0] );
-				},
-				error: function (xhr, ajaxOptions, thrownError) {
-					switch (xhr.status)
+				$.ajax({
+					type: "GET",
+					url: requestUrl,
+					success: function(response){
+						// Only one feature for the moment
+						showFeature( response.features[0] );
+					},
+					error: function (xhr, ajaxOptions, thrownError) {
+						switch (xhr.status)
+						{
+							case 503: 
+								ErrorDialog.open("Please wait at least 6 seconds between each request to reverse name resolver");
+								break;
+							case 500:
+								ErrorDialog.open("Internal server error");
+								break;
+							case 404:
+								ErrorDialog.open("Object not found");
+								break;
+							case 400:
+								ErrorDialog.open("Bad input");
+							default:
+								break;
+						}
+					},
+					complete: function(xhr)
 					{
-						case 503: 
-							ErrorDialog.open("Please wait at least 6 seconds between each request to reverse name resolver");
-							break;
-						case 500:
-							ErrorDialog.open("Internal server error");
-							break;
-						case 404:
-							ErrorDialog.open("Object not found");
-							break;
-						case 400:
-							ErrorDialog.open("Bad input");
-						default:
-							break;
+						$('#reverseSearchField input[type="submit"]').removeAttr('disabled');
 					}
-				},
-				complete: function(xhr)
-				{
-					$('#reverseSearchField input[type="submit"]').removeAttr('disabled');
-				}
+				});
 			});
-		});
 
-		for( var x in conf.reverseNameResolver )
-		{
-			configuration[x] = conf.reverseNameResolver[x];
+			for( var x in conf.reverseNameResolver )
+			{
+				configuration[x] = conf.reverseNameResolver[x];
+			}
+			configuration.debug = conf.debug;
+			isMobile = mizar.isMobile;
+			setBehavior();
+		} else {
+			console.error("Reverse name resolver is already initialized");
 		}
-		configuration.debug = conf.debug;
-		isMobile = conf.isMobile;
+	},
 
+	/**
+	 *	Unregister all event handlers
+	 */
+	remove : function() {
+		if ( $reverseNameResolver ) {
+			sky.renderContext.canvas.removeEventListener("mousedown", _handleMouseDown);
+			sky.renderContext.canvas.removeEventListener("mouseup", _handleMouseUp);
 
-		setBehavior();
+			if ( isMobile )
+			{
+				sky.renderContext.canvas.removeEventListener("touchstart", _handleMouseDown);
+				sky.renderContext.canvas.removeEventListener("touchend", _handleMouseUp);
+			}
+
+			// External link event
+			$reverseNameResolver.off("click", '.propertiesTable a', _showIFrame);
+
+			navigation.unsubscribe("modified", _hidePopup);
+			$reverseNameResolver.remove();
+			$reverseNameResolver = null;
+		}
 	}
 };
 

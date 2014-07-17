@@ -31,7 +31,6 @@ define( [ "jquery", "underscore-min", "gw/EquatorialCoordinateSystem", "gw/Sky",
 	 */
 	var aboutShowed = false;
 	var parentElement;
-	var isMobile;
 
 	/**
 	 *	Apply shared parameters to options if exist
@@ -169,7 +168,8 @@ define( [ "jquery", "underscore-min", "gw/EquatorialCoordinateSystem", "gw/Sky",
 
 		parentElement = div;
 		var sitoolsBaseUrl = userOptions.sitoolsBaseUrl ? userOptions.sitoolsBaseUrl : "http://demonstrator.telespazio.com/sitools";
-		var options = {
+		this.isMobile = (('ontouchstart' in window && window.ontouchstart != null) || window.DocumentTouch && document instanceof DocumentTouch);
+		options = {
 			"sitoolsBaseUrl" : sitoolsBaseUrl,
 			"coordSystem" : "EQ",
 			"debug" : false,
@@ -218,7 +218,7 @@ define( [ "jquery", "underscore-min", "gw/EquatorialCoordinateSystem", "gw/Sky",
 				"verbose": false,
 				"visible": false
 			},
-			"isMobile" : (('ontouchstart' in window && window.ontouchstart != null) || window.DocumentTouch && document instanceof DocumentTouch)
+			"isMobile" : this.isMobile
 		};
 
 		var extendableOptions = [ "coordSystem", "navigation", "nameResolver", "stats", "debug" ];
@@ -255,14 +255,13 @@ define( [ "jquery", "underscore-min", "gw/EquatorialCoordinateSystem", "gw/Sky",
 				canvas.height = window.innerHeight;
 		});
 		
-		isMobile = (('ontouchstart' in window && window.ontouchstart != null) || window.DocumentTouch && document instanceof DocumentTouch);
 		// Initialize sky
 		try
 		{
 			this.sky = new Sky( { 
 				canvas: canvas, 
 				tileErrorTreshold: 1.5,
-				continuousRendering: isMobile ? false : true
+				continuousRendering: this.isMobile ? false : true
 			} );
 		}
 		catch (err)
@@ -321,7 +320,7 @@ define( [ "jquery", "underscore-min", "gw/EquatorialCoordinateSystem", "gw/Sky",
 		CoordinateSystem.type = options.coordSystem;
 
 		// Add touch navigation handler if client supports touch events
-		if( isMobile ) {
+		if( this.isMobile ) {
 		    // Mobile
 			options.navigation.handlers = [ new TouchNavigationHandler({ inversed: true, zoomOnDblClick: true }) ];
 			window.addEventListener("orientationchange", function() {
@@ -333,14 +332,8 @@ define( [ "jquery", "underscore-min", "gw/EquatorialCoordinateSystem", "gw/Sky",
 		this.navigation = new AstroNavigation(self.sky, options.navigation);
 
 		// Add attribution handler
-		new AttributionHandler( this.sky, {element: 'attributions'});
-		
-		// Initialize the name resolver
-		NameResolver.init(this.sky, this.navigation, options);
+		new AttributionHandler( this.sky, {element: 'attributions'});		
 	
-		// Initialize the reverse name resolver
-		ReverseNameResolver.init(this.sky, this.navigation, options);
-
 		// Create layers from configuration file
 		LayerManager.init(this, options);
 
@@ -348,7 +341,7 @@ define( [ "jquery", "underscore-min", "gw/EquatorialCoordinateSystem", "gw/Sky",
 		PickingManager.init(this.sky, this.navigation, options);
 
 		// Compass component(only for desktop due to performance issue on mobile)
-		if ( !isMobile )
+		if ( !this.isMobile )
 		{
 			self.setCompassGui(true);
 		}
@@ -362,7 +355,7 @@ define( [ "jquery", "underscore-min", "gw/EquatorialCoordinateSystem", "gw/Sky",
 		Samp.init(this.sky, this.navigation, AdditionalLayersView, ImageManager, ImageViewer, options);
 
 		// Eye position tracker initialization
-		PositionTracker.init({ element: "posTracker", globe: this.sky, navigation : this.navigation, isMobile: isMobile });
+		PositionTracker.init({ element: "posTracker", globe: this.sky, navigation : this.navigation, isMobile: this.isMobile });
 
 		// UWS services initialization
 		UWSManager.init(options);
@@ -536,7 +529,7 @@ define( [ "jquery", "underscore-min", "gw/EquatorialCoordinateSystem", "gw/Sky",
 				globe : this.sky,
 				navigation : this.navigation,
 				coordSystem : CoordinateSystem.type,
-				isMobile : isMobile
+				isMobile : this.isMobile
 			});
 		} else {
 			this.compass.remove();
@@ -552,7 +545,7 @@ define( [ "jquery", "underscore-min", "gw/EquatorialCoordinateSystem", "gw/Sky",
 	 	if ( visible ) {
 	 		// Distance measure tool lazy initialization
 	 		if ( !this.measureTool )
-				this.measureTool = new MeasureTool({ globe: this.sky, navigation: this.navigation, isMobile: isMobile } );
+				this.measureTool = new MeasureTool({ globe: this.sky, navigation: this.navigation, isMobile: this.isMobile } );
 			$(parentElement).find("#measureContainer").show();
 	 	} else {
 	 		$(parentElement).find("#measureContainer").hide();
@@ -599,6 +592,34 @@ define( [ "jquery", "underscore-min", "gw/EquatorialCoordinateSystem", "gw/Sky",
 			$(parentElement).find("#2dMapContainer").show();
 	 	} else {
 	 		$(parentElement).find("#2dMapContainer").hide();
+	 	}
+	}
+
+	/**************************************************************************************************************/
+
+	/**
+	 *	Add/remove reverse name resolver GUI
+	 */
+	MizarWidget.prototype.setReverseNameResolverGui = function(visible) {
+	 	if ( visible ) {
+	 		// Mollweide viewer lazy initialization
+	 		ReverseNameResolver.init(this, options);
+	 	} else {
+	 		ReverseNameResolver.remove();
+	 	}
+	}
+
+	/**************************************************************************************************************/
+
+	/**
+	 *	Add/remove name resolver GUI
+	 */
+	MizarWidget.prototype.setNameResolverGui = function(visible) {
+	 	if ( visible ) {
+	 		// Mollweide viewer lazy initialization
+	 		NameResolver.init(this, options);
+	 	} else {
+	 		NameResolver.remove();
 	 	}
 	}
 
