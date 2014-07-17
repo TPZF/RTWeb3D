@@ -20,12 +20,11 @@
 /**
  * AdditionalLayersView module
  */
-define(["jquery", "gw/CoordinateSystem", "gw/FeatureStyle", "gw/OpenSearchLayer", "./HEALPixFITSLayer", "./MocLayer", "gw/VectorLayer", "./PickingManager", "./DynamicImageView", "./LayerServiceView", "./Samp", "./ImageViewer", "./ErrorDialog", "./Utils", "underscore-min", "text!../templates/additionalLayer.html", "jquery.nicescroll.min", , "jquery.ui"],
-		function($, CoordinateSystem, FeatureStyle, OpenSearchLayer, HEALPixFITSLayer, MocLayer, VectorLayer, PickingManager, DynamicImageView, LayerServiceView, Samp, ImageViewer, ErrorDialog, Utils, _, additionalLayerHTMLTemplate){
+define(["jquery", "gw/CoordinateSystem", "gw/FeatureStyle", "gw/OpenSearchLayer", "./LayerManager", "./HEALPixFITSLayer", "./MocLayer", "gw/VectorLayer", "./PickingManager", "./DynamicImageView", "./LayerServiceView", "./Samp", "./ImageViewer", "./ErrorDialog", "./Utils", "underscore-min", "text!../templates/additionalLayer.html", "jquery.nicescroll.min", , "jquery.ui"],
+		function($, CoordinateSystem, FeatureStyle, OpenSearchLayer, LayerManager, HEALPixFITSLayer, MocLayer, VectorLayer, PickingManager, DynamicImageView, LayerServiceView, Samp, ImageViewer, ErrorDialog, Utils, _, additionalLayerHTMLTemplate){
 
-var globe;
+var sky;
 var navigation;
-var layerManager;
 var categories = {
 	"Other": 'otherLayers',
 	"Coordinate systems": 'coordinateSystems'
@@ -209,14 +208,14 @@ function createHtmlForAdditionalLayer( gwLayer, categoryId )
 			{
 				for ( var i=0; i<gwLayer.subLayers.length; i++ )
 				{
-					globe.addLayer( gwLayer.subLayers[i] );
+					sky.addLayer( gwLayer.subLayers[i] );
 				}
 			}
 			else
 			{
 				for ( var i=0; i<gwLayer.subLayers.length; i++ )
 				{
-					globe.removeLayer( gwLayer.subLayers[i] );
+					sky.removeLayer( gwLayer.subLayers[i] );
 				}	
 			}
 		}
@@ -346,8 +345,9 @@ function createHtmlForAdditionalLayer( gwLayer, categoryId )
 /**
  * 	Create HTML for the given layer
  */
-function addView ( gwLayer, category )
-{	
+function addView ( gwLayer )
+{
+	var category = gwLayer.category;
 	// Other as default
 	if ( !category )
 	{
@@ -404,14 +404,14 @@ function buildVisibleTilesUrl(layer)
 	// Find max visible order & visible pixel indices
 	var maxOrder = 3;
 	var pixelIndices = "";
-	for ( var i=0; i<globe.tileManager.visibleTiles.length; i++ )
+	for ( var i=0; i<sky.tileManager.visibleTiles.length; i++ )
 	{
-		var tile = globe.tileManager.visibleTiles[i];
+		var tile = sky.tileManager.visibleTiles[i];
 		if ( maxOrder < tile.order )
 			maxOrder = tile.order;
 
 		pixelIndices+=tile.pixelIndex;
-		if ( i < globe.tileManager.visibleTiles.length - 1 )
+		if ( i < sky.tileManager.visibleTiles.length - 1 )
 		{
 			pixelIndices+=",";
 		}
@@ -436,12 +436,12 @@ function initToolbarEvents ()
 		});
 
 		var layer = $(this).parent().parent().data("layer");
-		var gwLayers = layerManager.getLayers();
+		var gwLayers = LayerManager.getLayers();
 		var index = gwLayers.indexOf(layer);
 		gwLayers.splice(index, 1);
 		PickingManager.removePickableLayer( layer );
 		ImageViewer.removeLayer( layer );
-		globe.removeLayer(layer);
+		sky.removeLayer(layer);
 
 		updateScroll('otherLayers');
 	});
@@ -510,8 +510,8 @@ function initToolbarEvents ()
 		// layer.setDatatype( dataType );
 
 		var prevId = layer.id;
-		globe.removeLayer(layer);
-		globe.addLayer(layer);
+		sky.removeLayer(layer);
+		sky.addLayer(layer);
 
 		// HACK : Layer id will be changed by remove/add so we need to change the html id
 		$('#addLayer_'+prevId).attr('id','addLayer_'+layer.id);
@@ -527,19 +527,21 @@ function initToolbarEvents ()
 /**************************************************************************************************************/
 
 return {
-	init : function(gl, nav, lm, conf)
+	/**
+	 *	Initialize additional layers view
+	 */
+	init : function(options)
 	{
-		globe = gl;
-		navigation = nav;
-		layerManager = lm;
-		isMobile = conf.isMobile;
+		sky = options.mizar.sky;
+		navigation = options.mizar.navigation;
+		isMobile = options.configuration.isMobile;
 
 		// Spinner event
-		globe.subscribe("startLoad", function(layer){
+		sky.subscribe("startLoad", function(layer){
 			var shortName = Utils.formatId( layer.name );
 			$('#addLayer_'+shortName).find('.spinner').stop(true,true).fadeIn('fast');
 		});
-		globe.subscribe("endLoad", function(layer){
+		sky.subscribe("endLoad", function(layer){
 			var shortName = Utils.formatId( layer.name );
 			$('#addLayer_'+shortName).find('.spinner').fadeOut(500);
 		});

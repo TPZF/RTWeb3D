@@ -21,10 +21,10 @@
  * Mizar widget
  */
 define( [ "jquery", "underscore-min", "gw/EquatorialCoordinateSystem", "gw/Sky", "gw/Stats", "gw/AstroNavigation", "gw/AttributionHandler", "gw/VectorLayer", "gw/TouchNavigationHandler", "gw/MouseNavigationHandler", "gw/KeyboardNavigationHandler", "gw/Event", "text!../templates/mizarCore.html",
-	"./LayerManager", "./NameResolver", "./NameResolverView", "./ReverseNameResolver", "./Utils", "./PickingManager", "./FeaturePopup", "./IFrame", "./Compass", "./MollweideViewer", "./ErrorDialog", "./AboutDialog", "./Share", "./Samp", "./AdditionalLayersView", "./ImageManager", "./ImageViewer", "./UWSManager", "./PositionTracker", "./MeasureTool", "./StarProvider", "./ConstellationProvider", "./JsonProvider", "./OpenSearchProvider", "./PlanetProvider",
+	"./LayerManager", "./LayerManagerView", "./BackgroundLayersView", "./NameResolver", "./NameResolverView", "./ReverseNameResolver", "./Utils", "./PickingManager", "./FeaturePopup", "./IFrame", "./Compass", "./MollweideViewer", "./ErrorDialog", "./AboutDialog", "./Share", "./Samp", "./AdditionalLayersView", "./ImageManager", "./ImageViewer", "./UWSManager", "./PositionTracker", "./MeasureTool", "./StarProvider", "./ConstellationProvider", "./JsonProvider", "./OpenSearchProvider", "./PlanetProvider",
 	"gw/ConvexPolygonRenderer", "gw/PointSpriteRenderer", "gw/PointRenderer", "jquery.ui"],
 	function($, _, CoordinateSystem, Sky, Stats, AstroNavigation, AttributionHandler, VectorLayer, TouchNavigationHandler, MouseNavigationHandler, KeyboardNavigationHandler, Event, mizarCoreHTML,
-			LayerManager, NameResolver, NameResolverView, ReverseNameResolver, Utils, PickingManager, FeaturePopup, IFrame, Compass, MollweideViewer, ErrorDialog, AboutDialog, Share, Samp, AdditionalLayersView, ImageManager, ImageViewer, UWSManager, PositionTracker, MeasureTool) {
+			LayerManager, LayerManagerView, BackgroundLayersView, NameResolver, NameResolverView, ReverseNameResolver, Utils, PickingManager, FeaturePopup, IFrame, Compass, MollweideViewer, ErrorDialog, AboutDialog, Share, Samp, AdditionalLayersView, ImageManager, ImageViewer, UWSManager, PositionTracker, MeasureTool) {
 
 	/**
 	 *	Private functions
@@ -340,6 +340,8 @@ define( [ "jquery", "underscore-min", "gw/EquatorialCoordinateSystem", "gw/Sky",
 		// Create layers from configuration file
 		LayerManager.init(this, options);
 
+		LayerManagerView.init(this,options);
+
 		// Create data manager
 		PickingManager.init(this.sky, this.navigation, options);
 
@@ -454,7 +456,7 @@ define( [ "jquery", "underscore-min", "gw/EquatorialCoordinateSystem", "gw/Sky",
 	/**
 	 *	Set a custom background survey
 	 */
-	MizarWidget.prototype.setCustomBackgroundSurvey = function(layerDesc) {
+	MizarWidget.prototype.setCustomBackgroundSurvey = function(layerDesc) {
 		// TODO
 		// Never tested..
 		var layer = LayerManager.addLayer(layerDesc);
@@ -473,6 +475,32 @@ define( [ "jquery", "underscore-min", "gw/EquatorialCoordinateSystem", "gw/Sky",
 	 *		The created layer
 	 */
 	MizarWidget.prototype.addLayer = function(layerDesc) {
+
+		if ( LayerManagerView.isInitialized() && layerDesc.fitsSupported ) {
+			// TODO : Move it..
+			layerDesc.onready = function( fitsLayer ) {
+				if ( fitsLayer.dataType == "fits" && fitsLayer.levelZeroImage )
+				{
+					if ( fitsLayer.div )
+					{
+						// Additional layer
+						// Using name as identifier, because we must know it before attachment to globe
+						// .. but identfier is assigned after layer creation.
+						var shortName = Utils.formatId( fitsLayer.name );
+						$('#addFitsView_'+shortName).button("enable");
+						fitsLayer.div.setImage(fitsLayer.levelZeroImage);
+					}
+					else
+					{
+						// Background fits layer
+						$('#fitsView').button("enable");
+						var backgroundDiv = BackgroundLayersView.getDiv();
+						backgroundDiv.setImage(fitsLayer.levelZeroImage);
+					}
+				}
+			}
+		}
+
 		return LayerManager.addLayer(layerDesc);
 	}
 

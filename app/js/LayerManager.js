@@ -20,8 +20,8 @@
 /**
  * LayerManager module
  */
-define( [ "jquery", "underscore-min", "gw/FeatureStyle", "gw/HEALPixLayer", "gw/VectorLayer", "gw/CoordinateGridLayer", "gw/TileWireframeLayer", "gw/OpenSearchLayer", "./ClusterOpenSearchLayer", "./MocLayer", "./HEALPixFITSLayer", "./Utils", "./ErrorDialog", "./JsonProcessor", "./LayerServiceView", "./BackgroundLayersView", "./AdditionalLayersView", "./FitsLoader", "./ImageManager", "./ImageViewer", "jquery.ui"], 
-	function($, _, FeatureStyle, HEALPixLayer, VectorLayer, CoordinateGridLayer, TileWireframeLayer, OpenSearchLayer, ClusterOpenSearchLayer, MocLayer, HEALPixFITSLayer, Utils, ErrorDialog, JsonProcessor, LayerServiceView, BackgroundLayersView, AdditionalLayersView, FitsLoader, ImageManager, ImageViewer) {
+define( [ "jquery", "underscore-min", "gw/FeatureStyle", "gw/HEALPixLayer", "gw/VectorLayer", "gw/CoordinateGridLayer", "gw/TileWireframeLayer", "gw/OpenSearchLayer", "./ClusterOpenSearchLayer", "./MocLayer", "./HEALPixFITSLayer", "./PickingManager", "./Utils", "./JsonProcessor", "jquery.ui"], 
+	function($, _, FeatureStyle, HEALPixLayer, VectorLayer, CoordinateGridLayer, TileWireframeLayer, OpenSearchLayer, ClusterOpenSearchLayer, MocLayer, HEALPixFITSLayer, PickingManager, Utils, JsonProcessor) {
 
 /**
  * Private variables
@@ -41,9 +41,9 @@ var votable2geojsonBaseUrl;
 /**************************************************************************************************************/
 
 /**
- *	Create custom vector layer for dropped data
+ *	Create simple vector layer
  */
-function createCustomLayer(name)
+function createSimpleLayer(name)
 {
 	// Generate random color
 	var rgb = Utils.generateColor();
@@ -66,10 +66,6 @@ function createCustomLayer(name)
 	gwLayer.type = "GeoJSON";
 	gwLayer.deletable = true;
 	gwLayer.pickable = true;
-	sky.addLayer(gwLayer);
-
-	AdditionalLayersView.addView( gwLayer );
-	gwLayers.push(gwLayer);
 
 	return gwLayer;
 }
@@ -82,7 +78,7 @@ function createCustomLayer(name)
 function createLayerFromConf(layer) {
 	var gwLayer;
 
-	// Insure that the link will be open in new tab
+	// Insure that the link will be opened in new tab
 	if ( layer.attribution && layer.attribution.search('<a') >= 0 && layer.attribution.search('target=') < 0 )
 	{
 		layer.attribution = layer.attribution.replace(' ', ' target=_blank ');
@@ -94,7 +90,8 @@ function createLayerFromConf(layer) {
 		attribution: layer.attribution,
 		visible: layer.visible,
 		icon: layer.icon,
-		description: layer.description
+		description: layer.description,
+		onready: layer.onready
 	};
 
 	if ( layer.color )
@@ -118,34 +115,14 @@ function createLayerFromConf(layer) {
 
 	switch(layer.type){
 		case "healpix":
-			// Add necessary option
+			// Add necessary options
 			options.baseUrl = layer.baseUrl;
 			options.coordSystem = layer.coordSystem || "EQ";
 			options.dataType = layer.dataType || "jpg";
 			options.numberOfLevels = layer.numberOfLevels;
+
 			if ( layer.fitsSupported )
 			{
-				options.onready = function( fitsLayer ) {
-					if ( fitsLayer.dataType == "fits" && fitsLayer.levelZeroImage )
-					{
-						if ( fitsLayer.div )
-						{
-							// Additional layer
-							// Using name as identifier, because we must know it before attachment to globe
-							// .. but identfier is assigned after layer creation.
-							var shortName = Utils.formatId( fitsLayer.name );
-							$('#addFitsView_'+shortName).button("enable");
-							fitsLayer.div.setImage(fitsLayer.levelZeroImage);
-						}
-						else
-						{
-							// Background fits layer
-							$('#fitsView').button("enable");
-							var backgroundDiv = BackgroundLayersView.getDiv();
-							backgroundDiv.setImage(fitsLayer.levelZeroImage);
-						}
-					}
-				}
 				gwLayer = new HEALPixFITSLayer(options);
 			}
 			else
@@ -249,191 +226,14 @@ function createLayerFromConf(layer) {
 /**************************************************************************************************************/
 
 /**
- * 	Drop event
- */
-function handleDrop(evt) {
-	evt.stopPropagation();
-	evt.preventDefault();
-
-	var files = evt.dataTransfer.files; // FileList object.
-	
-	// Files is a FileList of File objects.
-	$.each( files, function(index, f) {
-		
-		var name = f.name;
-		var reader = new FileReader();
-		$('#loading').show();
-
-		if ( f.type == "image/fits" )
-		{
-			// Handle fits image
-			reader.onloadend = function(e) {
-				var arrayBuffer = this.result;
-				var fits = FitsLoader.parseFits(arrayBuffer);
-
-				var gwLayer = createCustomLayer(name);
-				gwLayer.dataType = "line";
-
-				// Create feature
-				var coords = Utils.getPolygonCoordinatesFromFits(fits);
-				var feature = {
-					"geometry": {
-						"gid": name,
-						"coordinates": [coords],
-						"type": "Polygon"
-					},
-					"properties": {
-						"identifier": name
-					},
-					"type": "Feature"
-				};
-
-				gwLayer.addFeature( feature );
-
-				// Add fits texture
-				var featureData = {
-					layer: gwLayer,
-					feature: feature
-				};
-				var fitsData = fits.getHDU().data;
-				ImageViewer.addView(featureData, true);
-				ImageManager.handleFits( fitsData, featureData );
-				ImageViewer.show();
-
-				// AdditionalLayersView.addView( gwLayer );
-				// gwLayers.push(gwLayer);
-				$('#loading').hide();
-			};
-			reader.readAsArrayBuffer(f);
-		}
-		else
-		{
-			reader.onloadend = function(e) {
-
-				if ( this.result.search('<?xml') > 0 )
-				{
-					$.ajax({
-						type: "GET",
-						url: votable2geojsonBaseUrl,
-						data: {
-							url: proxyUrl,
-							coordSystem: "EQUATORIAL"
-						},
-						success: function(response)
-						{
-							// Add feature collection
-							var gwLayer = createCustomLayer(name);
-
-							// Add feature collection
-							JsonProcessor.handleFeatureCollection( gwLayer, response );
-							gwLayer.addFeatureCollection( response );
-							$('#loading').hide();
-						},
-						error: function(thrownError)
-						{
-							console.error(thrownError);
-						}
-					});
-				}
-				else
-				{
-					// Handle as json if possible
-					try {
-						var response = $.parseJSON(this.result);
-					} catch (e) {
-						ErrorDialog.open("JSON parsing error : " + e.type + "<br/> For more details see http://jsonlint.com/.");
-						$('#loading').hide();
-						return false;
-					}
-					var gwLayer = createCustomLayer(name);
-
-					// Add feature collection
-					JsonProcessor.handleFeatureCollection( gwLayer, response );
-					gwLayer.addFeatureCollection( response );
-					$('#loading').hide();
-				}
-				
-			};
-			reader.readAsText(f);
-		}
-
-	});
-}
-
-/**************************************************************************************************************/
-
-/**
- * 	Drag over event
- */
-function handleDragOver(evt)
-{
-	evt.stopPropagation();
-	evt.preventDefault();
-	evt.dataTransfer.dropEffect = 'copy'; // Explicitly show this is a copy.
-}
-
-/**************************************************************************************************************/
-
-function updateUI() {
-	// Create accordeon
-	$( "#accordion" ).accordion( {
-		header: "> div > h3",
-		autoHeight: false,
-		active: 0,
-		collapsible: true,
-		heightStyle: "content"
-	} ).show();
-
-	BackgroundLayersView.updateUI();
-	AdditionalLayersView.updateUI();
-}
-
-/**************************************************************************************************************/
-
-/**
  *	Fill the LayerManager table
  */
 function initLayers(layers) 
 {
 	for (var i=0; i<layers.length; i++) {
 		var layer = layers[i];
-		
-		// Define default optionnal parameters
-		if(!layer.opacity)
-			layer.opacity = 100.;
-		if (!layer.visible)
-			layer.visible = false;
-	
-		var gwLayer = createLayerFromConf(layer);
-		if ( gwLayer )
-		{
-			if( layer.background )
-			{
-				// Add to engine
-				if ( gwLayer.visible() ) {
-					// Change visibility's of previous layer(maybe GlobWeb should do it ?)
-					if ( sky.tileManager.imageryProvider )
-					{
-						sky.tileManager.imageryProvider.visible(false);
-					}
-
-					sky.setBaseImagery( gwLayer );
-					gwLayer.visible(true);
-				}
-				BackgroundLayersView.addView( gwLayer );
-			}
-			else
-			{
-				// Add to engine
-				sky.addLayer( gwLayer );
-				AdditionalLayersView.addView( gwLayer, layer.category );
-			}
-
-			gwLayers.push(gwLayer);
-		}
+		this.addLayer(layer);
 	}
-
-	updateUI();
 }
 
 /**************************************************************************************************************/
@@ -442,7 +242,7 @@ return {
 	/**
 	 *	Init
 	 *
-	 *	@param miz
+	 *	@param mizar
 	 *		Mizar API object
 	 *	@param configuration
 	 *		Mizar configuration 
@@ -452,26 +252,9 @@ return {
 		
 		// Store the sky in the global module variable
 		sky = mizar.sky;
-		AdditionalLayersView.init(sky, mizar.navigation, this, configuration);
-		BackgroundLayersView.init(sky, this);
 
-		// Necessary to drag&drop option while using jQuery
-		$.event.props.push('dataTransfer');
-
-		// Call init layers
+		// TODO : Call init layers
 		//initLayers(configuration.layers);
-		updateUI();
-
-		// Setup the drag & drop listeners.
-		$('canvas').on('dragover', handleDragOver);
-		$('canvas').on('drop', handleDrop);
-
-		LayerServiceView.init(sky, mizar.navigation, this, configuration);
-
-		if ( configuration.votable2geojson )
-		{
-			votable2geojsonBaseUrl = configuration.votable2geojson.baseUrl;
-		}
 	},
 	
 	/**
@@ -528,17 +311,23 @@ return {
 						sky.setBaseImagery( gwLayer );
 						gwLayer.visible(true);
 					}
-					BackgroundLayersView.addView( gwLayer );
+					gwLayers.push(gwLayer);
+					this.mizar.publish("backgroundLayer:add", gwLayer);
+
+					// Store category name on GlobWeb layer object
+					gwLayer.category = "background";
 				}
 				else
 				{
 					// Add to engine
 					sky.addLayer( gwLayer );
-					AdditionalLayersView.addView( gwLayer, layerDesc.category );
-				}
-				$( "#accordion" ).accordion("refresh");
+					gwLayers.push(gwLayer);
 
-				gwLayers.push(gwLayer);
+					// Store category name on GlobWeb layer object
+					gwLayer.category = layerDesc.category;
+
+					this.mizar.publish("additionalLayer:add", gwLayer);
+				}
 			}
 		}
 		return gwLayer;
@@ -550,7 +339,6 @@ return {
 	  *		GlobWeb layer
 	  */
 	 removeLayer: function(gwLayer) {
-	 	AdditionalLayersView.removeView( gwLayer );
 
 	 	var index = gwLayers.indexOf(gwLayer);
 	 	gwLayers.splice( index, 1 );
@@ -564,12 +352,86 @@ return {
 	  *		Survey name
 	  */
 	 setBackgroundSurvey: function(survey) {
-	 	var surveyToSet = _.findWhere(gwLayers, {name: survey});
-	 	if ( surveyToSet ) {
-	 		BackgroundLayersView.selectLayer(surveyToSet);
+	 	var gwLayer = _.findWhere(gwLayers, {name: survey});
+	 	if ( gwLayer )
+	 	{
+		 	if ( gwLayer != sky.baseImagery )
+		 	{
+			 	// Change visibility's of previous layer, because visibility is used to know the active background layer in the layers list (layers can be shared)
+				sky.baseImagery.visible(false);
+				sky.setBaseImagery( gwLayer );
+				gwLayer.visible(true);
+
+				// Clear selection
+				PickingManager.getSelection().length = 0;
+
+				for ( var i=0; i<gwLayers.length; i++ )
+				{
+					var currentLayer = gwLayers[i];
+					if ( currentLayer.subLayers )
+					{
+						var len = currentLayer.subLayers.length;
+						for ( var j=0; j<len; j++ )
+						{
+							var subLayer = currentLayer.subLayers[j];
+							if (subLayer.name == "SolarObjectsSublayer" )
+							{
+								PickingManager.removePickableLayer( subLayer );
+								sky.removeLayer( subLayer );
+								currentLayer.subLayers.splice(j,1);
+							}
+						}
+					}
+				}
+			}
+			this.mizar.publish("backgroundLayer:change", gwLayer);
 	 	} else {
 	 		this.mizar.publish("backgroundSurveyError", "Survey " + survey + " hasn't been found");
 	 	}
+	},
+
+	/**
+	 *	Create layer from FITS
+	 */
+	createLayerFromFits: function(name, fits) {
+	 	var gwLayer = createSimpleLayer(name);
+		gwLayer.dataType = "line";
+
+		// Create feature
+		var coords = Utils.getPolygonCoordinatesFromFits(fits);
+		var feature = {
+			"geometry": {
+				"gid": name,
+				"coordinates": [coords],
+				"type": "Polygon"
+			},
+			"properties": {
+				"identifier": name
+			},
+			"type": "Feature"
+		};
+
+		gwLayer.addFeature( feature );
+
+		sky.addLayer(gwLayer);
+		gwLayers.push(gwLayer);
+		return gwLayer;
+	},
+
+	/**
+	 *	Create layer from GeoJSON
+	 */
+	createLayerFromGeoJson: function(name, geoJson) {
+	 	// Add feature collection
+		var gwLayer = createSimpleLayer(name);
+
+		// Add feature collection
+		JsonProcessor.handleFeatureCollection( gwLayer, geoJson );
+		gwLayer.addFeatureCollection( geoJson );
+
+		sky.addLayer(gwLayer);
+		gwLayers.push(gwLayer);
+		return gwLayer;
 	 }
 };
 
