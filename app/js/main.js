@@ -83,6 +83,9 @@ require(["./MizarWidget"], function(MizarWidget) {
 	// Set IRIS survey on load
 	mizarWidget.subscribe("backgroundSurveysReady", function() {
 		mizarWidget.setBackgroundSurvey("IRIS");
+
+		// TODO : Wait till background survey is loaded
+		mizarWidget.goTo("Mizar");
 	});
 	
 	// Set different GUIs
@@ -91,7 +94,7 @@ require(["./MizarWidget"], function(MizarWidget) {
 	mizarWidget.setShortenerUrlGui(true);
 	mizarWidget.set2dMapGui(true);
 	mizarWidget.setReverseNameResolverGui(true);
-	mizarWidget.setNameResolverGui(true);	
+	mizarWidget.setNameResolverGui(true);
 
 	// Define callback in case of error on survey loading
 	mizarWidget.subscribe("backgroundSurveyError", function(thrownError) {

@@ -18,39 +18,15 @@
 ******************************************************************************/ 
 
 /**
- * Name resolver module : search object name and zoom to them
+ * Name resolver module : search object name and zoom to it
  */
-define(["jquery", "gw/FeatureStyle", "gw/VectorLayer", "gw/HEALPixBase", "gw/CoordinateSystem", "./Utils", "underscore-min", "text!../templates/nameResolverResult.html", "jquery.ui"],
-	function($, FeatureStyle, VectorLayer, HEALPixBase, CoordinateSystem, Utils, _, nameResolverResultHTMLTemplate) {
-
-
-var nameResolverHTML = '<form id="searchForm">\
-				<fieldset>\
-					<div class="searchInputDiv">\
-						<input title="Enter an object name (e.g. m31) or coordinate (e.g 23h45m30.5s -45&#186;30\'30&rdquo;)" type="text" name="searchInput" id="searchInput" value="Object name or coordinates" />\
-					</div>\
-					<input type="submit" id="searchSubmit" value="" />\
-					<div style="display: none" id="searchSpinner"></div>\
-					<input type="button" id="searchClear" value="" style="display: none;"/>\
-				</fieldset>\
-			</form>\
-			<div style="display: none" id="resolverSearchResult"></div>';
-
-
-// Template generating the list of selected features
-var nameResolverResultTemplate = _.template(nameResolverResultHTMLTemplate);
-
-// jQuery selectors
-var $nameResolver;
-var $input;
-var $clear;
+define(["jquery", "gw/FeatureStyle", "gw/VectorLayer", "gw/HEALPixBase", "gw/CoordinateSystem", "./Utils", "jquery.ui"],
+	function($, FeatureStyle, VectorLayer, HEALPixBase, CoordinateSystem, Utils) {
 
 // Name resolver globals
 var sky;
 var astroNavigator;
 var configuration = {zoomFov: 15.};
-var response;
-var animationDuration = 300;
 
 // Target layer
 var style = new FeatureStyle({
@@ -79,62 +55,10 @@ function addTarget(lon, lat)
 			],
 			"type": "Point"
 		},
-	"type": "Feature"
+		"type": "Feature"
 	};
 
 	targetLayer.addFeature( targetFeature );
-}
-
-/**************************************************************************************************************/
-
-/**
- *	Stylized focus effect on input
- */
-function _focusInput()
-{
-	var defaultText = $input.attr("value");
-	if($input.val() === defaultText)
-	{
-		$input.val('');
-	}
-
-	$(this).animate({color: '#000'}, animationDuration).parent().animate({backgroundColor: '#fff'}, animationDuration, function(){
-		if(!($input.val() === '' || $input.val() === defaultText)) 
-		{
-			$clear.fadeIn(animationDuration);
-		}
-	}).addClass('focus');
-}
-
-/**************************************************************************************************************/
-
-/**
- *	Stylized blur effect on input
- */
-function _blurInput(event)
-{
-	var defaultText = $input.attr("value");
-	$(this).animate({color: '#b4bdc4'}, animationDuration, function() {
-		if($input.val() === '')
-		{
-			$input.val(defaultText)
-		}
-	}).parent().animate({backgroundColor: '#e8edf1'}, animationDuration).removeClass('focus');
-}
-
-/**************************************************************************************************************/
-
-/**
- *	Toggle visibility of clear button
- *	Designed to clear text in search input
- */
-function _toggleClear()
-{
-	if($input.val() === '') {
-		$clear.fadeOut(animationDuration);
-	} else {
-		$clear.fadeIn(animationDuration);
-	}
 }
 
 /**************************************************************************************************************/
@@ -146,7 +70,7 @@ function _toggleClear()
  *		* Object name as "Mars", "m31", "Mizar"
  *		* For debug : healpix(order, pixelIndex)
  */
-function search(objectName)
+function search(objectName, onSuccess, onError, onComplete)
 {
 	// regexp used only to distinct equatorial coordinates and objects
 	// TODO more accurate ( "x < 24h", "x < 60mn", etc.. )
@@ -212,49 +136,33 @@ function search(objectName)
 	else
 	{
 		// Name of the object which could be potentially found by name resolver
-		$nameResolver.find("#searchSpinner").fadeIn(animationDuration);
-		$nameResolver.find('#searchClear').fadeOut(animationDuration);
 		var url = configuration.baseUrl + "/" + objectName + "/EQUATORIAL";
 
-		var $resolverSearchResult = $('#searchDiv').find('#resolverSearchResult');
-		$resolverSearchResult.fadeOut(animationDuration);
 		$.ajax({
 			type: "GET",
 			url: url,
-			success: function(data){
-				response = data;
+			success: function(response){
+				// Check if response contains features
 				if(response.type == "FeatureCollection")
 				{
-					// Zoom to the first feature
 					var firstFeature = response.features[0];
 					zoomTo(firstFeature.geometry.coordinates[0], firstFeature.geometry.coordinates[1]);
-					
-					// Fill search result field
-					var output = "";
-					for ( var i=0; i<response.features.length; i++)
-					{
-						var astro = Utils.formatCoordinates([ response.features[i].geometry.coordinates[0], response.features[i].geometry.coordinates[1] ]);
-						var result = nameResolverResultTemplate( { properties: response.features[i].properties, lon: astro[0], lat: astro[1], type: CoordinateSystem.type } );
-						output+=result;
-					}
 
-					$resolverSearchResult.html(output);
-					$resolverSearchResult.find('div:first-child').addClass('selected');
-					$resolverSearchResult.fadeIn(animationDuration);
+					if ( onSuccess )
+						onSuccess(response);
 				} else {
-					$resolverSearchResult.html("Enter object name");
-					$resolverSearchResult.fadeIn(animationDuration);
+					onError();
 				}
 			},
 			error: function (xhr, ajaxOptions, thrownError) {
-				$resolverSearchResult.html("Bad input or object not found");
-				$resolverSearchResult.fadeIn(animationDuration);
+				if( onError )
+					onError();
 				console.error( xhr.responseText );
 			},
 			complete: function(xhr)
 			{
-				$nameResolver.find("#searchSpinner").fadeOut(animationDuration);
-				$nameResolver.find('#searchClear').fadeIn(animationDuration);
+				if ( onComplete )
+					onComplete(xhr);
 			}
 		});
 	}
@@ -263,86 +171,7 @@ function search(objectName)
 /**************************************************************************************************************/
 
 /**
- *	Submit request with string from input
- */
-function _submitRequest(event)
-{
-	event.preventDefault();
-	$input.blur();
-
-	var objectName = $input.val();
-	search(objectName);
-}
-
-/**************************************************************************************************************/
-
-/**
- *	Zoom to result by clicking on item of #resolverSearchResult list
- */
-function _zoomToResult(event)
-{
-	$('#resolverSearchResult').find('.selected').removeClass('selected');
-	$(this).addClass('selected');
-
-	var index = $(this).index();
-	var selectedFeature = response.features[index];
-	zoomTo(selectedFeature.geometry.coordinates[0], selectedFeature.geometry.coordinates[1]);
-}
-
-/**************************************************************************************************************/
-
-/**
- *	Clear results list
- */
-function _clearResults(){
-	$('#resolverSearchResult').fadeOut(animationDuration);
-}
-
-/**************************************************************************************************************/
-
-/**
- *	Clear search input
- */
-function _clearInput()
-{
-	var defaultText = $input.attr("value");
-	if($input.val() !== defaultText) {
-		$input.val(defaultText);
-	}
-	$clear.fadeOut(animationDuration);
-	$('#searchInput').animate({color: '#b4bdc4'}, animationDuration)
-			.parent().animate({backgroundColor: '#e8edf1'}, animationDuration).removeClass('focus');
-}
-
-/**************************************************************************************************************/
-
-/**
- *	Initialize events for name resolver
- */
-function setSearchBehavior()
-{
-	sky.addLayer( targetLayer );
-	astroNavigator.subscribe("modified", removeTarget);
-	
-	// Set style animations
-	$input.on('focus', _focusInput)
-		.on('blur', _blurInput)
-		.keyup(_toggleClear);
-	
-	// Submit event
-	$('#searchDiv').find('#searchForm').submit(_submitRequest);
-	
-	// Clear search result field when pan
-	$('canvas').on('click', _clearResults);
-	
-	$('#searchDiv').find('#resolverSearchResult').on("click", '.nameResolverResult', _zoomToResult);
-	$nameResolver.find('#searchClear').on('click', _clearInput);
-}
-
-/**************************************************************************************************************/
-
-/**
- *	Zoom to the given longitude/latitude
+ *	Zoom to the given longitude/latitude and add target at the end
  */
 function zoomTo(lon, lat)
 {
@@ -369,21 +198,17 @@ function removeTarget()
 
 return {
 	init: function(mizar, conf) {
-		if ( !$nameResolver ) {
+		if ( !sky ) {
 			sky = mizar.sky;
 			astroNavigator = mizar.navigation;
-
-			// TODO : replace searchDiv by "parentElement"
-			$nameResolver = $(nameResolverHTML).appendTo('#searchDiv');
-			$input = $nameResolver.find('#searchInput');
-			$clear = $nameResolver.find('#searchClear');
 
 			for( var x in conf.nameResolver )
 			{
 				configuration[x] = conf.nameResolver[x];
 			}
 
-			setSearchBehavior();
+			sky.addLayer( targetLayer );
+			astroNavigator.subscribe("modified", removeTarget);
 		} else {
 			console.error("Name resolver is already initialized");
 		}
@@ -393,25 +218,16 @@ return {
 	 *	Unregister all event handlers
 	 */
 	remove: function() {
-		if ( $nameResolver )
+		if ( sky )
 		{
 			sky.removeLayer( targetLayer );
 			astroNavigator.unsubscribe("modified", removeTarget);
-			
-			// Set style animations
-			$input.off('focus', _focusInput)
-				.off('blur', _blurInput)
-				.unbind('keyup', _toggleClear);
-					
-			// Clear search result field when pan
-			$('canvas').off('click', _clearResults);
-			
-			$('#searchDiv').find('#resolverSearchResult').off("click", '.nameResolverResult', _zoomToResult);
-			$nameResolver.find('#searchClear').off('click', _clearInput);
-			$nameResolver.remove();
-			$nameResolver = null;
+			sky = null;
 		}
-	}
+	},
+
+	goTo: search,
+	zoomTo: zoomTo
 };
 
 });

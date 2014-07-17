@@ -21,10 +21,10 @@
  * Mizar widget
  */
 define( [ "jquery", "underscore-min", "gw/EquatorialCoordinateSystem", "gw/Sky", "gw/Stats", "gw/AstroNavigation", "gw/AttributionHandler", "gw/VectorLayer", "gw/TouchNavigationHandler", "gw/MouseNavigationHandler", "gw/KeyboardNavigationHandler", "gw/Event", "text!../templates/mizarCore.html",
-	"./LayerManager", "./NameResolver", "./ReverseNameResolver", "./Utils", "./PickingManager", "./FeaturePopup", "./IFrame", "./Compass", "./MollweideViewer", "./ErrorDialog", "./AboutDialog", "./Share", "./Samp", "./AdditionalLayersView", "./ImageManager", "./ImageViewer", "./UWSManager", "./PositionTracker", "./MeasureTool", "./StarProvider", "./ConstellationProvider", "./JsonProvider", "./OpenSearchProvider", "./PlanetProvider",
+	"./LayerManager", "./NameResolver", "./NameResolverView", "./ReverseNameResolver", "./Utils", "./PickingManager", "./FeaturePopup", "./IFrame", "./Compass", "./MollweideViewer", "./ErrorDialog", "./AboutDialog", "./Share", "./Samp", "./AdditionalLayersView", "./ImageManager", "./ImageViewer", "./UWSManager", "./PositionTracker", "./MeasureTool", "./StarProvider", "./ConstellationProvider", "./JsonProvider", "./OpenSearchProvider", "./PlanetProvider",
 	"gw/ConvexPolygonRenderer", "gw/PointSpriteRenderer", "gw/PointRenderer", "jquery.ui"],
 	function($, _, CoordinateSystem, Sky, Stats, AstroNavigation, AttributionHandler, VectorLayer, TouchNavigationHandler, MouseNavigationHandler, KeyboardNavigationHandler, Event, mizarCoreHTML,
-			LayerManager, NameResolver, ReverseNameResolver, Utils, PickingManager, FeaturePopup, IFrame, Compass, MollweideViewer, ErrorDialog, AboutDialog, Share, Samp, AdditionalLayersView, ImageManager, ImageViewer, UWSManager, PositionTracker, MeasureTool) {
+			LayerManager, NameResolver, NameResolverView, ReverseNameResolver, Utils, PickingManager, FeaturePopup, IFrame, Compass, MollweideViewer, ErrorDialog, AboutDialog, Share, Samp, AdditionalLayersView, ImageManager, ImageViewer, UWSManager, PositionTracker, MeasureTool) {
 
 	/**
 	 *	Private functions
@@ -333,7 +333,10 @@ define( [ "jquery", "underscore-min", "gw/EquatorialCoordinateSystem", "gw/Sky",
 
 		// Add attribution handler
 		new AttributionHandler( this.sky, {element: 'attributions'});		
-	
+		
+		// Initialize name resolver
+		NameResolver.init(this, options);
+
 		// Create layers from configuration file
 		LayerManager.init(this, options);
 
@@ -496,7 +499,7 @@ define( [ "jquery", "underscore-min", "gw/EquatorialCoordinateSystem", "gw/Sky",
 	 *			3) Astronomical object name : m31, Mars, Polaris
 	 */
 	MizarWidget.prototype.goTo = function(location) {
-		// TODO
+		NameResolver.goTo(location);
 	}
 
 	/**************************************************************************************************************/
@@ -602,7 +605,6 @@ define( [ "jquery", "underscore-min", "gw/EquatorialCoordinateSystem", "gw/Sky",
 	 */
 	MizarWidget.prototype.setReverseNameResolverGui = function(visible) {
 	 	if ( visible ) {
-	 		// Mollweide viewer lazy initialization
 	 		ReverseNameResolver.init(this, options);
 	 	} else {
 	 		ReverseNameResolver.remove();
@@ -616,10 +618,9 @@ define( [ "jquery", "underscore-min", "gw/EquatorialCoordinateSystem", "gw/Sky",
 	 */
 	MizarWidget.prototype.setNameResolverGui = function(visible) {
 	 	if ( visible ) {
-	 		// Mollweide viewer lazy initialization
-	 		NameResolver.init(this, options);
+	 		NameResolverView.init();
 	 	} else {
-	 		NameResolver.remove();
+	 		NameResolverView.remove();
 	 	}
 	}
 
