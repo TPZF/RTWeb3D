@@ -73,6 +73,9 @@ require(["./MizarWidget"], function(MizarWidget) {
 		},
 		nameResolver: {
 			"zoomFov": 2
+		},
+		stats: {
+			visible: true
 		}
 	});
 
@@ -91,6 +94,7 @@ require(["./MizarWidget"], function(MizarWidget) {
 	mizarWidget.set2dMapGui(true);
 	mizarWidget.setReverseNameResolverGui(true);
 	mizarWidget.setNameResolverGui(true);
+	mizarWidget.setCategoryGui(true);
 
 	// Define callback in case of error on survey loading
 	mizarWidget.subscribe("backgroundSurveyError", function(thrownError) {

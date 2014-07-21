@@ -31,6 +31,7 @@ define( [ "jquery", "underscore-min", "gw/EquatorialCoordinateSystem", "gw/Sky",
 	 */
 	var aboutShowed = false;
 	var parentElement;
+	var options;
 
 	/**
 	 *	Apply shared parameters to options if exist
@@ -291,27 +292,11 @@ define( [ "jquery", "underscore-min", "gw/EquatorialCoordinateSystem", "gw/Sky",
 			document.getElementById('loading').style.display = "none";
 			document.getElementById('webGLContextLost').style.display = "block";
 		}, false);
-		
-		// Select default coordinate system event
-		var self = this;
-		$('#defaultCoordSystem').selectmenu({
-			select: function(e)
-			{
-				var newCoordSystem = $(this).children('option:selected').val();				
-				CoordinateSystem.type = newCoordSystem;
-
-				if (self.mollweideViewer)
-					self.mollweideViewer.setCoordSystem( newCoordSystem );
-
-				// Publish modified event to update compass north
-				self.navigation.publish('modified');
-			},
-			width: 100
-		});
 				
 		_applySharedParameters(options);
 
 		// Add stats
+		var self = this;
 		if ( options.stats.visible ) {
 			new Stats( self.sky.renderContext, { element: "fps", verbose: options.stats.verbose });
 			$("#fps").show();
@@ -329,7 +314,7 @@ define( [ "jquery", "underscore-min", "gw/EquatorialCoordinateSystem", "gw/Sky",
 		}
 
 		// Initialize navigation
-		this.navigation = new AstroNavigation(self.sky, options.navigation);
+		this.navigation = new AstroNavigation(this.sky, options.navigation);
 
 		// Add attribution handler
 		new AttributionHandler( this.sky, {element: 'attributions'});		
@@ -340,9 +325,6 @@ define( [ "jquery", "underscore-min", "gw/EquatorialCoordinateSystem", "gw/Sky",
 		// Create layers from configuration file
 		LayerManager.init(this, options);
 		
-		// Initialize jQueryUI layer manager view
-		LayerManagerView.init(this, options);
-
 		// Create data manager
 		PickingManager.init(this.sky, this.navigation, options);
 
@@ -358,7 +340,7 @@ define( [ "jquery", "underscore-min", "gw/EquatorialCoordinateSystem", "gw/Sky",
 		// Initialize SAMP component
 		// TODO : Bear in mind that a website may already implement specific SAMP logics, so check that
 		// current samp component doesn't break existing SAMP functionality
-		Samp.init(this.sky, this.navigation, AdditionalLayersView, ImageManager, ImageViewer, options);
+		Samp.init(this, LayerManager, ImageManager, ImageViewer, options);
 
 		// Eye position tracker initialization
 		PositionTracker.init({ element: "posTracker", globe: this.sky, navigation : this.navigation, isMobile: this.isMobile });
@@ -477,7 +459,7 @@ define( [ "jquery", "underscore-min", "gw/EquatorialCoordinateSystem", "gw/Sky",
 	 */
 	MizarWidget.prototype.addLayer = function(layerDesc) {
 
-		if ( LayerManagerView.isInitialized() && layerDesc.fitsSupported ) {
+		if ( layerDesc.fitsSupported ) {
 			// TODO : Move it..
 			layerDesc.onready = function( fitsLayer ) {
 				if ( fitsLayer.dataType == "fits" && fitsLayer.levelZeroImage )
@@ -651,7 +633,22 @@ define( [ "jquery", "underscore-min", "gw/EquatorialCoordinateSystem", "gw/Sky",
 	 	} else {
 	 		NameResolverView.remove();
 	 	}
+	},
+
+	/**************************************************************************************************************/
+
+	/**
+	 *	Add/remove jQueryUI layer manager view
+	 */
+	MizarWidget.prototype.setCategoryGui = function(visible) {
+		if ( visible ) {
+	 		LayerManagerView.init(this, $.extend({element: $(parentElement).find(".sidebar")}, options));
+	 	} else {
+	 		LayerManagerView.remove();
+	 	}	
 	}
+
+	/**************************************************************************************************************/
 
 	return MizarWidget;
 

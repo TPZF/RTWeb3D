@@ -100,6 +100,26 @@ function createHtmlForBackgroundLayer( gwLayer )
 
 /**************************************************************************************************************/
 
+/**
+ *	Show spinner on loading
+ */
+function onLoadStart(layer)
+{
+	$('#backgroundSpinner').fadeIn('fast');
+}
+
+/**************************************************************************************************************/
+
+/**
+ *	Hide spinner when layer is loaded
+ */
+function onLoadEnd(layer)
+{
+	$('#backgroundSpinner').fadeOut('fast');
+}
+
+/**************************************************************************************************************/
+
 return {
 	/**
 	 *	Initialization options
@@ -112,13 +132,16 @@ return {
 		this.updateUI();
 
 		// Background spinner events
-		sky.subscribe("startBackgroundLoad", function(layer){
-			$('#backgroundSpinner').fadeIn('fast');
-		});
-		sky.subscribe("endBackgroundLoad", function(layer){
-			$('#backgroundSpinner').fadeOut('fast');
-		});
+		sky.subscribe("startBackgroundLoad", onLoadStart);
+		sky.subscribe("endBackgroundLoad", onLoadEnd);
 		this.mizar.subscribe("backgroundLayer:change", this.selectLayer);
+	},
+	remove : function()
+	{
+		sky.unsubscribe("startBackgroundLoad", onLoadStart);
+		sky.unsubscribe("endBackgroundLoad", onLoadEnd);
+		this.mizar.unsubscribe("backgroundLayer:change", this.selectLayer);
+		$('#backgroundDiv').dialog("destroy").remove();
 	},
 	addView : createHtmlForBackgroundLayer,
 
@@ -180,14 +203,6 @@ return {
 			}
 		});
 
-		// Create Dynamic image view activator for background layers
-		$('#fitsView').button({
-			text: false,
-			icons: {
-				primary: "ui-icon-image"
-			}
-		});
-
 		$('#backgroundLayers').find('.layerServices').button({
 			text: false,
 			icons: {
@@ -219,7 +234,7 @@ return {
 			}
 		});		
 
-		var dialogId = backgroundDiv;
+		var dialogId = "backgroundDiv";
 		var $dialog = $('<div id="'+dialogId+'"></div>').appendTo('body').dialog({
 			title: 'Image processing',
 			autoOpen: false,
@@ -242,7 +257,12 @@ return {
 		});
 
 		// Show/hide Dynamic image service
-		$('#fitsView').on("click", function(event){
+		$('#fitsView').button({
+			text: false,
+			icons: {
+				primary: "ui-icon-image"
+			}
+		}).click(function(event){
 
 			if ( $dialog.dialog( "isOpen" ) )
 			{
@@ -258,8 +278,9 @@ return {
 			id : 'backgroundFitsView',
 		});
 
-		$('#fitsType').button();
-		$('#fitsType').on('click', function(){
+		$('#fitsType')
+			.button()
+			.click(function(){
 
 			isFits = $(this).is(':checked');
 

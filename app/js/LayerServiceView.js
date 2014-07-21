@@ -31,29 +31,8 @@ var layerServiceView = '<div id="layerServiceView" title="Available services">\
 							</div>\
 						</div>';
 
-// Create the div, use jQuery UI dialog
-var $layerServiceView = $(layerServiceView)
-					.appendTo('body')
-					.dialog({
-						autoOpen: false,
-						resizable: false,
-						width: '600px',
-						show: {
-							effect: "fade",
-							duration: 300
-						},
-						hide: {
-							effect: "fade",
-							duration: 300
-						},
-						minHeight: 'auto',
-						position:['middle',20],
-						open: function()
-						{
-							// Remove auto-focus
-							$(this).find('li:first-child').blur();
-						}
-					});
+// jQuery selector
+var $layerServiceView;
 
 var tabs = $('#layerServices').tabs({
 	collapsible: true,
@@ -97,11 +76,45 @@ function getServiceFromConf(service)
 }
 
 return {
+	/**
+	 *	Initilize layer service view
+	 */
 	init: function(gl, nav, lm, configuration)
 	{
+		// Create jQuery UI dialog to represent layer service view
+		$layerServiceView = $(layerServiceView)
+			.appendTo('body')
+			.dialog({
+				autoOpen: false,
+				resizable: false,
+				width: '600px',
+				show: {
+					effect: "fade",
+					duration: 300
+				},
+				hide: {
+					effect: "fade",
+					duration: 300
+				},
+				minHeight: 'auto',
+				position:['middle',20],
+				open: function()
+				{
+					// Remove auto-focus
+					$(this).find('li:first-child').blur();
+				}
+			});
+
 		MocService.init(gl, configuration);
 		XMatchService.init(gl, lm, configuration);
 		HEALPixCutService.init(gl, nav)
+	},
+
+	/**
+	 *	Remove created dialog
+	 */
+	remove: function() {
+		$layerServiceView.dialog("destroy").remove();
 	},
 
 	show: function(layer)

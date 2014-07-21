@@ -122,24 +122,11 @@ function updateScroll(categoryId)
 /**************************************************************************************************************/
 
 /**
- *	Create the Html for addtionnal layer
+ *	Add legend for the given layer if possible
+ *	Legend represents the "line" for polygon data or image from "iconUrl" for point data
  */
-function createHtmlForAdditionalLayer( gwLayer, categoryId )
+function addLegend($layerDiv, gwLayer)
 {
-	var currentIndex = gwLayer.id;
-	var shortName = Utils.formatId( gwLayer.name );
-	var layerDiv = additionalLayerTemplate( {
-		layer: gwLayer,
-		OpenSearchLayer: OpenSearchLayer,
-		HEALPixFITSLayer: HEALPixFITSLayer,
-		shortName : shortName,
-		isMobile: isMobile
-	} );
-
-	var $layerDiv = $(layerDiv)
-		.appendTo('#'+categoryId)
-		.data("layer", gwLayer);
-
 	var $canvas = $layerDiv.find('.legend');
 	var canvas = $canvas[0];
 
@@ -162,9 +149,18 @@ function createHtmlForAdditionalLayer( gwLayer, categoryId )
 	{
 		$canvas.css("display", "none");
 	}
-			
+}
+
+/**************************************************************************************************************/
+
+/**
+ *	Initialize UI of opacity slider for the given layer
+ */
+function initializeSlider( $layerDiv, gwLayer )
+{
+	var shortName = Utils.formatId( gwLayer.name );
 	// Slider initialisation
-	$('#slider_'+shortName).slider({
+	$layerDiv.find('#slider_'+shortName).slider({
 		value: gwLayer.opacity()*100,
 		min: 20,
 		max: 100,
@@ -185,66 +181,15 @@ function createHtmlForAdditionalLayer( gwLayer, categoryId )
 	
 	// Init percent input of slider
 	$( "#percentInput_"+shortName ).val( $( "#slider_"+shortName ).slider( "value" ) + "%" );
-		
-	// Open tools div when the user clicks on the layer label
-	var toolsDiv = $layerDiv.find('.layerTools');
-	$layerDiv.children('label').click(function() {
-		toolsDiv.slideToggle(updateScroll.bind(this, categoryId));
-	});
+}
 
-	if ( gwLayer.visible() )
-	{
-		toolsDiv.slideDown();
-	}
-	// Layer visibility management
-	$('#visible_'+shortName).click(function(){
-		// Manage 'custom' checkbox
-		// jQuery UI button is not sexy enough :)
-		// Toggle some classes when the user clicks on the visibility checkbox
-		var isOn = !$('#visible_'+shortName).hasClass('ui-state-active');
-		gwLayer.visible( isOn );
+/**************************************************************************************************************/
 
-		if ( gwLayer.subLayers )
-		{
-			if ( isOn )
-			{
-				for ( var i=0; i<gwLayer.subLayers.length; i++ )
-				{
-					sky.addLayer( gwLayer.subLayers[i] );
-				}
-			}
-			else
-			{
-				for ( var i=0; i<gwLayer.subLayers.length; i++ )
-				{
-					sky.removeLayer( gwLayer.subLayers[i] );
-				}	
-			}
-		}
-
-		$layerDiv.find('.slider').slider( isOn ? "enable" : "disable" );
-		if ( isOn )
-		{
-			$('.layerTools').slideUp();
-			toolsDiv.slideDown();
-		}
-		else
-		{
-			toolsDiv.slideUp();	
-		}
-		
-		// Change button's state
-		$('#visible_'+shortName).toggleClass('ui-state-active')
-			   .toggleClass('ui-state-default')
-			   .find('span')
-			   	  .toggleClass('ui-icon-check')
-			   	  .toggleClass('ui-icon-empty');
-
-		// Trigger on ImageViewer visibility button
-		$('#layerVisibility_'+gwLayer.id).trigger('click');
-
-	});
-
+/**
+ *	Update all toolbar buttons UI
+ */
+function updateButtonsUI($layerDiv)
+{
 	// Init buttons of tool bar
 	$layerDiv
 		.find('.deleteLayer').button({
@@ -284,61 +229,183 @@ function createHtmlForAdditionalLayer( gwLayer, categoryId )
 				primary: "ui-icon-wrench"
 			}
 		});
+}
 
-	if ( gwLayer instanceof HEALPixFITSLayer && !isMobile )
-	{
-		// Supports fits, so create dynamic image view in dialog
-		var dialogId = "addFitsViewDialog_"+shortName;
-		var $dialog = $('<div id="'+dialogId+'"></div>').appendTo('body').dialog({
-			title: 'Image processing',
-			autoOpen: false,
-			show: {
-				effect: "fade",
-		    	duration: 300
-			},
-			hide: {
-				effect: "fade",
-				duration: 300
-			},
-			width: 400,
-			resizable: false,
-			width: 'auto',
-			minHeight: 'auto',
-			close: function(event, ui)
+/**************************************************************************************************************/
+
+/**
+ *	Create dialog to modify contrast/colormap of fits layers
+ */
+function createDynamicImageDialog( gwLayer )
+{
+	var shortName = Utils.formatId( gwLayer.name );
+	// Supports fits, so create dynamic image view in dialog
+	var dialogId = "addFitsViewDialog_"+shortName;
+	var $dialog = $('<div id="'+dialogId+'"></div>').appendTo('body').dialog({
+		title: 'Image processing',
+		autoOpen: false,
+		show: {
+			effect: "fade",
+	    	duration: 300
+		},
+		hide: {
+			effect: "fade",
+			duration: 300
+		},
+		width: 400,
+		resizable: false,
+		width: 'auto',
+		minHeight: 'auto',
+		close: function(event, ui)
+		{
+			$('#addFitsView_'+shortName).removeAttr("checked").button("refresh");
+			$(this).dialog("close");
+		}
+	});
+
+	// Dialog activator
+	$('#addFitsView_'+shortName).click(function(){
+
+		if ( $dialog.dialog( "isOpen" ) )
+		{
+			$dialog.dialog("close");
+		}
+		else
+		{
+			$dialog.dialog("open");
+		}
+	});
+
+	// Add dynamic image view content to dialog
+	gwLayer.div = new DynamicImageView( dialogId, {
+		id : shortName,
+		changeShaderCallback: function(contrast)
+		{
+			if ( contrast == "raw" )
 			{
-				$('#addFitsView_'+shortName).removeAttr("checked").button("refresh");
-				$(this).dialog("close");
-			}
-		});
-
-		// Dialog activator
-		$('#addFitsView_'+shortName).click(function(){
-
-			if ( $dialog.dialog( "isOpen" ) )
-			{
-				$dialog.dialog("close");
+				gwLayer.customShader.fragmentCode = gwLayer.rawFragShader;
 			}
 			else
 			{
-				$dialog.dialog("open");
+				gwLayer.customShader.fragmentCode = gwLayer.colormapFragShader;
 			}
-		});
+		}
+	});
+}
 
-		// Add dynamic image view content to dialog
-		gwLayer.div = new DynamicImageView( dialogId, {
-			id : shortName,
-			changeShaderCallback: function(contrast)
-			{
-				if ( contrast == "raw" )
-				{
-					gwLayer.customShader.fragmentCode = gwLayer.rawFragShader;
-				}
-				else
-				{
-					gwLayer.customShader.fragmentCode = gwLayer.colormapFragShader;
-				}
-			}
-		});
+/**************************************************************************************************************/
+
+/**
+ *	Show/hide layer tools depending on layer visibility
+ *	Set visibility event handlers
+ */
+function manageLayerVisibility($layerDiv, gwLayer)
+{
+	var shortName = Utils.formatId( gwLayer.name );
+	// Open tools div when the user clicks on the layer label
+	var toolsDiv = $layerDiv.find('.layerTools');
+	$layerDiv.children('label').click(function() {
+		toolsDiv.slideToggle(updateScroll.bind(this, Utils.formatId( gwLayer.category )));
+	});
+
+	if ( gwLayer.visible() )
+	{
+		toolsDiv.slideDown();
+	}
+
+	// Layer visibility management
+	$layerDiv.find('#visible_'+shortName).click(function(){
+		// Manage 'custom' checkbox
+		// jQuery UI button is not sexy enough :)
+		// Toggle some classes when the user clicks on the visibility checkbox
+		var isOn = !$(this).hasClass('ui-state-active');
+		gwLayer.visible( isOn );
+		if ( gwLayer.subLayers )
+		{
+			setSublayersVisibility(gwLayer, isOn);
+		}
+
+		$layerDiv.find('.slider').slider( isOn ? "enable" : "disable" );
+		if ( isOn )
+		{
+			$('.layerTools').slideUp();
+			toolsDiv.slideDown();
+		}
+		else
+		{
+			toolsDiv.slideUp();	
+		}
+		
+		// Change button's state
+		$('#visible_'+shortName).toggleClass('ui-state-active')
+			   .toggleClass('ui-state-default')
+			   .find('span')
+			   	  .toggleClass('ui-icon-check')
+			   	  .toggleClass('ui-icon-empty');
+
+		// Trigger on ImageViewer visibility button
+		$('#layerVisibility_'+gwLayer.id).trigger('click');
+
+	});
+}
+
+/**************************************************************************************************************/
+
+/**
+ *	Set sublayers visibility
+ */
+function setSublayersVisibility(gwLayer, isOn)
+{
+	if ( isOn )
+	{
+		for ( var i=0; i<gwLayer.subLayers.length; i++ )
+		{
+			sky.addLayer( gwLayer.subLayers[i] );
+		}
+	}
+	else
+	{
+		for ( var i=0; i<gwLayer.subLayers.length; i++ )
+		{
+			sky.removeLayer( gwLayer.subLayers[i] );
+		}
+	}
+}
+
+/**************************************************************************************************************/
+
+/**
+ *	Create the Html for addtionnal layer
+ */
+function createHtmlForAdditionalLayer( gwLayer, categoryId )
+{
+	var currentIndex = gwLayer.id;
+	var shortName = Utils.formatId( gwLayer.name );
+	var layerDiv = additionalLayerTemplate( {
+		layer: gwLayer,
+		OpenSearchLayer: OpenSearchLayer,
+		HEALPixFITSLayer: HEALPixFITSLayer,
+		shortName : shortName,
+		isMobile: isMobile
+	} );
+
+	var $layerDiv = $(layerDiv)
+		.appendTo('#'+categoryId)
+		.data("layer", gwLayer);
+	
+	// Add legend
+	addLegend($layerDiv, gwLayer);
+	
+	// Create UI of opacity slider
+	initializeSlider($layerDiv, gwLayer);
+
+	manageLayerVisibility($layerDiv, gwLayer);
+	
+	updateButtonsUI($layerDiv);
+
+	if ( gwLayer instanceof HEALPixFITSLayer && !isMobile )
+	{
+		createDynamicImageDialog(gwLayer);
 	}
 }
 
@@ -399,6 +466,12 @@ function removeView ( gwLayer ) {
 	} else {
 		addLayerDiv.remove();
 	}
+
+	if ( gwLayer.div )
+	{
+		$('#addFitsView_'+gwLayer.div.id).dialog("destroy").remove();
+		gwLayer.div = null;
+	}
 }
 
 /**************************************************************************************************************/
@@ -430,99 +503,160 @@ function buildVisibleTilesUrl(layer)
 /**************************************************************************************************************/
 
 /**
+ *	Delete layer handler
+ */
+function deleteLayer()
+{
+	$(this).parent().parent().fadeOut(300, function(){
+		$(this).remove();
+	});
+
+	var layer = $(this).closest(".addLayer").data("layer");
+	var gwLayers = LayerManager.getLayers();
+	var index = gwLayers.indexOf(layer);
+	gwLayers.splice(index, 1);
+	PickingManager.removePickableLayer( layer );
+	ImageViewer.removeLayer( layer );
+	sky.removeLayer(layer);
+
+	updateScroll('otherLayers');
+}
+
+/**************************************************************************************************************/
+
+/**
+ *	Show layer services popup
+ */
+function showLayerServices()
+{
+	var layer = $(this).closest(".addLayer").data("layer");
+	LayerServiceView.show( layer );
+}
+
+/**************************************************************************************************************/
+
+/**
+ *	Export the given layer by SAMP
+ */
+function exportLayer()
+{
+	if ( Samp.isConnected() )
+	{
+		var layer = $(this).closest(".addLayer").data("layer");
+		var url = buildVisibleTilesUrl(layer);
+		var message = Samp.sendVOTable(layer, url);
+	}
+	else
+	{
+		ErrorDialog.open("You must be connected to SAMP Hub");
+	}
+}
+
+/**************************************************************************************************************/
+
+/**
+ *	Download features on visible tiles of the given layer as VO table
+ */
+function downloadAsVO()
+{
+	var layer = $(this).closest(".addLayer").data("layer");
+	var url = buildVisibleTilesUrl(layer);
+	url+="&media=votable";
+	var posGeo = CoordinateSystem.from3DToGeo( navigation.center3d );
+	var astro = Utils.formatCoordinates( posGeo );
+	$(this).parent().attr('href', url)
+					.attr('download', layer.name+"_"+astro[0]+'_'+astro[1]);
+}
+
+/**************************************************************************************************************/
+
+/**
+ *	Zoom to barycenter of all features contained by layer
+ *	(available for GlobWeb.VectorLayers only)
+ */
+function zoomTo()
+{
+	var layer = $(this).closest(".addLayer").data("layer");
+	var sLon = 0;
+	var sLat = 0;
+	var nbGeometries = 0;
+
+	for (var i=0; i<layer.features.length; i++)
+	{
+		var barycenter = Utils.computeGeometryBarycenter( layer.features[i].geometry );
+		sLon += barycenter[0];
+		sLat += barycenter[1];
+		nbGeometries++;
+	}
+
+	navigation.zoomTo([sLon/nbGeometries, sLat/nbGeometries], 2., 2000);
+}
+
+/**************************************************************************************************************/
+
+/**
+ *	Toggle layer to fits rendering
+ */
+function toggleFits()
+{
+	var isFits = $(this).is(':checked');
+	var layer = $(this).closest(".addLayer").data("layer");
+	layer.dataType = isFits ? 'fits' : 'jpg';
+	if ( !isFits )
+	{
+		$(this).nextAll('.addFitsView').button('disable');
+	}
+
+	// TODO: make reset function ?
+	// layer.setDatatype( dataType );
+
+	var prevId = layer.id;
+	sky.removeLayer(layer);
+	sky.addLayer(layer);
+
+	// HACK : Layer id will be changed by remove/add so we need to change the html id
+	$('#addLayer_'+prevId).attr('id','addLayer_'+layer.id);
+}
+
+/**************************************************************************************************************/
+
+/**
  *	Initialize toolbar events
  */
-function initToolbarEvents ()
+function registerEvents()
 {
+	sky.subscribe("startLoad", onLoadStart);
+	sky.subscribe("endLoad", onLoadEnd);
 
-	// Delete layer event
-	$('#accordion').on("click",'.category .deleteLayer', function(){
-		
-		$(this).parent().parent().fadeOut(300, function(){
-			$(this).remove();
-		});
+	$('#accordion')
+		.on("click",'.category .deleteLayer', deleteLayer)
+		.on('click', ".category .layerServices", showLayerServices)
+		.on('click', ".category .exportLayer", exportLayer)
+		.on('click', '.category .downloadAsVO', downloadAsVO)
+		.on("click", ".category .zoomTo", zoomTo)
+		.on('click', '.category .isFits', toggleFits);
+}
 
-		var layer = $(this).parent().parent().data("layer");
-		var gwLayers = LayerManager.getLayers();
-		var index = gwLayers.indexOf(layer);
-		gwLayers.splice(index, 1);
-		PickingManager.removePickableLayer( layer );
-		ImageViewer.removeLayer( layer );
-		sky.removeLayer(layer);
+/**************************************************************************************************************/
 
-		updateScroll('otherLayers');
-	});
+/**
+ *	Show spinner on layer loading
+ */
+function onLoadStart(layer)
+{
+	var shortName = Utils.formatId( layer.name );
+	$('#addLayer_'+shortName).find('.spinner').stop(true,true).fadeIn('fast');
+}
 
-	// Layer services
-	$('#accordion').on('click', ".category .layerServices", function(){
-		var layer = $(this).parent().parent().data("layer");
-		LayerServiceView.show( layer );
-	});
+/**************************************************************************************************************/
 
-	$('#accordion').on('click', ".category .exportLayer", function(){
-
-		if ( Samp.isConnected() )
-		{
-			var layer = $(this).parent().parent().data("layer");
-			
-			var url = buildVisibleTilesUrl(layer);
-			var message = Samp.sendVOTable(layer, url);
-		}
-		else
-		{
-			ErrorDialog.open("You must be connected to SAMP Hub");
-		}
-	});
-	
-	// Download features on visible tiles as VO table
-	$('#accordion').on('click', '.category .downloadAsVO', function(){
-		var layer = $(this).parent().parent().parent().data("layer");
-		var url = buildVisibleTilesUrl(layer);
-		url+="&media=votable";
-		var posGeo = CoordinateSystem.from3DToGeo( navigation.center3d );
-		var astro = Utils.formatCoordinates( posGeo );
-		$(this).parent().attr('href', url)
-						.attr('download', layer.name+"_"+astro[0]+'_'+astro[1]);
-	});
-
-	// ZoomTo event (available for GlobWeb.VectorLayers only)
-	$('#accordion').on("click", ".category .zoomTo", function(){
-
-		var layer = $(this).parent().parent().data("layer");
-		var sLon = 0;
-		var sLat = 0;
-		var nbGeometries = 0;
-
-		for (var i=0; i<layer.features.length; i++)
-		{
-			var barycenter = Utils.computeGeometryBarycenter( layer.features[i].geometry );
-			sLon += barycenter[0];
-			sLat += barycenter[1];
-			nbGeometries++;
-		}
-
-		navigation.zoomTo([sLon/nbGeometries, sLat/nbGeometries], 2., 2000);
-	});
-
-	$('#accordion').on('click', '.category .isFits', function(event){
-		var isFits = $(this).is(':checked');
-		var layer = $(this).parent().parent().data("layer");
-		layer.dataType = isFits ? 'fits' : 'jpg';
-		if ( !isFits )
-		{
-			$(this).nextAll('.addFitsView').button('disable');
-		}
-
-		// TODO: make reset function ?
-		// layer.setDatatype( dataType );
-
-		var prevId = layer.id;
-		sky.removeLayer(layer);
-		sky.addLayer(layer);
-
-		// HACK : Layer id will be changed by remove/add so we need to change the html id
-		$('#addLayer_'+prevId).attr('id','addLayer_'+layer.id);
-	});
+/**
+ *	Hide spinner when layer is loaded	
+ */
+function onLoadEnd(layer)
+{
+	var shortName = Utils.formatId( layer.name );
+	$('#addLayer_'+shortName).find('.spinner').fadeOut(500);
 }
 
 /**************************************************************************************************************/
@@ -537,20 +671,62 @@ return {
 		navigation = options.mizar.navigation;
 		isMobile = options.configuration.isMobile;
 
-		// Spinner event
-		sky.subscribe("startLoad", function(layer){
-			var shortName = Utils.formatId( layer.name );
-			$('#addLayer_'+shortName).find('.spinner').stop(true,true).fadeIn('fast');
+		// Select default coordinate system event
+		$('#defaultCoordSystem').selectmenu({
+			select: function(e)
+			{
+				var newCoordSystem = $(this).children('option:selected').val();				
+				CoordinateSystem.type = newCoordSystem;
+
+				if (options.mizar.mollweideViewer)
+					options.mizar.mollweideViewer.setCoordSystem( newCoordSystem );
+
+				// Publish modified event to update compass north
+				navigation.publish('modified');
+			},
+			width: 100
 		});
-		sky.subscribe("endLoad", function(layer){
-			var shortName = Utils.formatId( layer.name );
-			$('#addLayer_'+shortName).find('.spinner').fadeOut(500);
-		});
-		this.updateUI();
+
+		registerEvents();
 	},
+
+	/**
+	 *	Unregister all event handlers
+	 */
+	remove: function()
+	{
+		sky.unsubscribe("startLoad", onLoadStart);
+		sky.unsubscribe("endLoad", onLoadEnd);
+
+		$('#accordion')
+			.off("click",'.category .deleteLayer', deleteLayer)
+			.off('click', ".category .layerServices", showLayerServices)
+			.off('click', ".category .exportLayer", exportLayer)
+			.off('click', '.category .downloadAsVO', downloadAsVO)
+			.off("click", ".category .zoomTo", zoomTo)
+			.off('click', '.category .isFits', toggleFits);
+
+		// Remove all created dialogs
+		var layers = LayerManager.getLayers();
+		for ( var i=0; i<layers.length; i++ )
+		{
+			var layer = layers[i];
+			if ( layer.div )
+			{
+				$('#addFitsViewDialog_'+layer.div.id).dialog("destroy").remove();
+			}
+		}
+
+		// Reinit categories
+		categories = {
+			"Other": 'otherLayers',
+			"Coordinate systems": 'coordinateSystems'
+		}
+		
+	},
+
 	addView : addView,
 	removeView: removeView,
-	updateUI : initToolbarEvents,
 	hideView: function(layer)
 	{
 		$('#addLayer_'+layer.id).hide();

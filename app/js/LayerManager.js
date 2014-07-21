@@ -213,7 +213,12 @@ function createLayerFromConf(layer) {
 			gwLayer = new MocLayer( options );
 			gwLayer.dataType = "line";
 			break;
-			
+		case "Vector":
+			gwLayer = createSimpleLayer(options.name);
+			gwLayer.dataType = layer.dataType;
+			gwLayer.pickable = layer.hasOwnProperty('pickable') ? layer.pickable : true;
+			gwLayer.deletable = false;
+			break;
 		default:
 			console.error(layer.type+" isn't not implemented");
 			return null;
@@ -432,7 +437,9 @@ return {
 		sky.addLayer(gwLayer);
 		gwLayers.push(gwLayer);
 		return gwLayer;
-	 }
+	 },
+
+	 createSimpleLayer: createSimpleLayer
 };
 
 });

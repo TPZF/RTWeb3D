@@ -20,8 +20,8 @@
 /**
  * Layer manager view module
  */
-define( [ "jquery", "underscore-min", "LayerManager", "./ErrorDialog", "./LayerServiceView", "./BackgroundLayersView", "./AdditionalLayersView", "./FitsLoader", "./ImageManager", "./ImageViewer", "jquery.ui"], 
-	function($, _, LayerManager, ErrorDialog, LayerServiceView, BackgroundLayersView, AdditionalLayersView, FitsLoader, ImageManager, ImageViewer) {
+define( [ "jquery", "underscore-min", "LayerManager", "./ErrorDialog", "./LayerServiceView", "./BackgroundLayersView", "./AdditionalLayersView", "./FitsLoader", "./ImageManager", "./ImageViewer", "text!../templates/layerManagerContent.html", "jquery.ui"], 
+	function($, _, LayerManager, ErrorDialog, LayerServiceView, BackgroundLayersView, AdditionalLayersView, FitsLoader, ImageManager, ImageViewer, layerManagerHTML) {
 
 /**
  * Private variables
@@ -31,6 +31,7 @@ var sky = null;
 // GeoJSON data providers
 var dataProviders = {};
 var votable2geojsonBaseUrl;
+var parentElement;
 
 
 /**
@@ -188,28 +189,26 @@ return {
  	 */
 	init: function(mizar, configuration) {
 		this.mizar = mizar;
-		
+		parentElement = configuration.element;
+		$(layerManagerHTML).appendTo(parentElement);
+
 		// Store the sky in the global module variable
 		sky = mizar.sky;
 		AdditionalLayersView.init({ mizar: mizar, configuration: configuration });
 		BackgroundLayersView.init({ mizar: mizar });
 
 		this.mizar.subscribe("backgroundLayer:add", BackgroundLayersView.addView);
-		this.mizar.subscribe("additionalLayer:add", function(gwLayer) {
-			$( "#accordion" ).accordion("refresh");
-			AdditionalLayersView.addView(gwLayer);
-		});
+		this.mizar.subscribe("additionalLayer:add", AdditionalLayersView.addView);
 
 		// Necessary to drag&drop option while using jQuery
 		$.event.props.push('dataTransfer');
 
 		initLayers();
+		LayerServiceView.init(sky, mizar.navigation, this, configuration);
 
 		// Setup the drag & drop listeners.
 		$('canvas').on('dragover', handleDragOver);
 		$('canvas').on('drop', handleDrop);
-
-		LayerServiceView.init(sky, mizar.navigation, this, configuration);
 
 		if ( configuration.votable2geojson )
 		{
@@ -218,10 +217,18 @@ return {
 	},
 
 	/**
-	 *	Remove view
+	 *	Unregister all event handlers and remove view
 	 */
-	removeView: function() {
-		// TODO
+	remove: function() {
+		AdditionalLayersView.remove();
+		BackgroundLayersView.remove();
+		LayerServiceView.remove();
+		$(parentElement).empty();
+
+		this.mizar.unsubscribe("backgroundLayer:add", BackgroundLayersView.addView);
+		this.mizar.unsubscribe("additionalLayer:add", AdditionalLayersView.addView);
+		$('canvas').off('dragover', handleDragOver);
+		$('canvas').off('drop', handleDrop);
 	},
 
 	/**

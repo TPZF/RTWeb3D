@@ -23,7 +23,7 @@
 define(["jquery", "underscore-min", "gw/CoordinateSystem", "gw/FeatureStyle", "gw/VectorLayer", "./Utils", "./JsonProcessor", "samp", "jquery.ui"],
 	function($, _, CoordinateSystem, FeatureStyle, VectorLayer, Utils, JsonProcessor) {
 
-var globe;
+var sky;
 var navigation;
 var additionalLayersView;
 var imageManager;
@@ -39,6 +39,7 @@ var connector;	// SAMP connector
 var sampLayer;	// SAMP vector layer containing all incoming fits images
 var pointAtReceived = false; // Parameter avoiding looping while receiving coord.pointAt.sky SAMP event
 var votable2geojsonBaseUrl;
+var sitoolsBaseUrl;
 
 /**************************************************************************************************************/
 
@@ -99,7 +100,7 @@ function initUI()
 	.find('#sendVOTable').button()
 		.click(function(){
 			// DEBUG:
-			var tableUrl = "http://demonstrator.telespazio.com/sitools/sia/search?order=3&healpix=293&coordSystem=EQUATORIAL&media=votable";
+			var tableUrl = sitoolsBaseUrl + "/sia/search?order=3&healpix=293&coordSystem=EQUATORIAL&media=votable";
 			var msg = new samp.Message("table.load.votable", {"url": tableUrl});
 			connector.connection.notifyAll([msg]);
 		});
@@ -160,7 +161,6 @@ function createClientTracker()
 	                 			// Add feature collection
 								JsonProcessor.handleFeatureCollection( sampLayer, response );
 								sampLayer.addFeatureCollection( response );
-								additionalLayersView.showView(sampLayer);
 	                    	},
 	                    	error: function(thrownError)
 	                    	{
@@ -242,7 +242,7 @@ function createClientTracker()
 			layer: sampLayer,
 			feature: feature
 		};
-		var url = "/sitools/proxy?external_url=" + encodeURIComponent(params['image-id']);		
+		var url = sitoolsBaseUrl + "/proxy?external_url=" + encodeURIComponent(params['image-id']);
 		imageViewer.addView(featureData, true);
 		imageManager.computeFits(featureData, url, function(featureData, fits){
 			// Update feature coordinates according to Fits header
@@ -251,7 +251,6 @@ function createClientTracker()
 			sampLayer.addFeature(featureData.feature);
 		});
 
-		additionalLayersView.showView(sampLayer);
 		imageViewer.show();
 	};
 
@@ -266,7 +265,7 @@ function createClientTracker()
 		CoordinateSystem.fromGeoTo3D( geoPick, center3d );
 		navigation.center3d = center3d;
 		navigation.computeViewMatrix();
-		globe.renderContext.requestFrame();
+		sky.renderContext.requestFrame();
 	};
 
 	callHandler["samp.hub.event.unregister"] = function(senderId, message, isCall) {
@@ -341,16 +340,17 @@ function initSamp()
 /**
  *	Init SAMP module
  */
-function init(gl, nav, alv, im, iv, configuration)
+function init(mizar, lm, im, iv, configuration)
 {
-	globe = gl;
-	navigation = nav;
-	additionalLayersView = alv;
+	sky = mizar.sky;
+	navigation = mizar.navigation;
+	layerManager = lm;
 	imageViewer = iv;
 	imageManager = im;
 
 	if ( configuration.votable2geojson )
 	{
+		sitoolsBaseUrl = configuration.sitoolsBaseUrl;
 		votable2geojsonBaseUrl = configuration.votable2geojson.baseUrl;
 	}
 
@@ -377,39 +377,15 @@ function init(gl, nav, alv, im, iv, configuration)
 		}
 	});
 
-	// Generate random color
-	var rgb = Utils.generateColor();
-	var rgba = rgb.concat([1]);
-
-	// Create style
-	var options = {
+	var sampDesc = {
+		type: "Vector",
 		name: "SAMP",
-		style: new FeatureStyle({
-			fillColor: rgba,
-			strokeColor: rgba,
-			visible: false
-		})
+		pickable: true,
+		dataType: "line"
 	};
-	// Create vector layer
-	sampLayer = new VectorLayer( options );
 
-	// Add view in layer manager
-	sampLayer.type = "GeoJSON";
-	sampLayer.dataType = "line";
-	sampLayer.pickable = true;
-	globe.addLayer(sampLayer);
-	additionalLayersView.addView( sampLayer );
-	additionalLayersView.hideView( sampLayer );
-
-	// Unregister samp connector onunload or refresh
-	// $(window).unload(function(e){
-	// 	e.preventDefault();
-	// 	connector.unregister();
-	// 	// Wait one second before reloading
-	// 	setTimeout(function(){
-	// 		window.location.reload();
-	// 	}, 1000);
-	// });
+	sampLayer = layerManager.addLayer(sampDesc);
+	
 	window.onbeforeunload = function() {
 		// Doesn't work onrefresh actually
 		connector.unregister();
