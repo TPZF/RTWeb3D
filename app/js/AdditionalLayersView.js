@@ -95,7 +95,9 @@ function generateLineLegend( gwLayer, canvas )
 function initNiceScroll(categoryId)
 {
 	// Nice scrollbar initialization
-	$('#'+categoryId).niceScroll({ autohidemode: false });
+	$('#'+categoryId).niceScroll({
+		autohidemode: false
+	});
 	// Hide scroll while accordion animation
 	$( "#accordion" ).on( "accordionbeforeactivate", function(event, ui) {
 		$('#'+categoryId).niceScroll().hide();
@@ -364,6 +366,11 @@ function addView ( gwLayer )
 				.insertBefore($('#otherLayers').parent());
 
 		categories[category] = categoryId;
+
+		// Refresh accordion
+		$('#accordion').accordion("refresh");
+		// Add scroll to the new category
+		initNiceScroll(categoryId);
 	}
 	else
 	{
@@ -516,12 +523,6 @@ function initToolbarEvents ()
 		// HACK : Layer id will be changed by remove/add so we need to change the html id
 		$('#addLayer_'+prevId).attr('id','addLayer_'+layer.id);
 	});
-	
-	// Initialize nice scroll for categories
-	for ( var x in categories )
-	{
-		initNiceScroll(categories[x]);
-	}
 }
 
 /**************************************************************************************************************/
@@ -545,6 +546,7 @@ return {
 			var shortName = Utils.formatId( layer.name );
 			$('#addLayer_'+shortName).find('.spinner').fadeOut(500);
 		});
+		this.updateUI();
 	},
 	addView : addView,
 	removeView: removeView,

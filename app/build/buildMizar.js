@@ -18,7 +18,7 @@
 		"jquery": "../externals/jquery-1.11.1.min",
 		"jquery.ui": "../externals/jquery-ui-1.11.0.min",
 		"underscore-min": "../externals/underscore-1.6.0.min",
-		"jquery.nicescroll.min": "../externals/jquery.nicescroll.min",
+		"jquery.nicescroll.min": "../externals/jquery.nicescroll-3.5.4.min",
 		"fits": "../externals/fits",
 		"samp": "../externals/samp",
 		"gzip": "../externals/gzip",
@@ -36,10 +36,6 @@
 		},
 		'jquery.ui': {
 			deps: ['jquery'],
-			exports: 'jQuery'
-		},
-		'jquery.ui.selectmenu': {
-			deps: ['jquery.ui'],
 			exports: 'jQuery'
 		},
 		'jquery.ui.timepicker': {

@@ -107,6 +107,61 @@ return {
 	init : function(options)
 	{
 		this.mizar = options.mizar;
+		
+		sky = this.mizar.sky;
+		this.updateUI();
+
+		// Background spinner events
+		sky.subscribe("startBackgroundLoad", function(layer){
+			$('#backgroundSpinner').fadeIn('fast');
+		});
+		sky.subscribe("endBackgroundLoad", function(layer){
+			$('#backgroundSpinner').fadeOut('fast');
+		});
+		this.mizar.subscribe("backgroundLayer:change", this.selectLayer);
+	},
+	addView : createHtmlForBackgroundLayer,
+
+	/**
+	 *	Select the given layer
+	 */
+	selectLayer: function(layer) {
+
+		// Update selectmenu ui by choosen layer(if called programmatically)
+		$('#backgroundLayersSelect').children().removeAttr("selected");
+		var option = _.find($('#backgroundLayersSelect').children(), function(item) {
+			return item.text == layer.name;
+		});
+		$(option).attr("selected","selected");
+
+		selectedLayer = layer;
+
+		// Show background loading spinner
+		$('#loading').show(300);
+
+		// Set shader callback for choosen layer
+		backgroundDiv.changeShaderCallback = function(contrast){
+			if ( contrast == "raw" )
+			{
+				layer.customShader.fragmentCode = layer.rawFragShader;
+			} else {
+				layer.customShader.fragmentCode = layer.colormapFragShader;
+			}
+		};
+
+		// Change dynamic image view button
+		updateBackgroundOptions(layer);
+
+		$('#backgroundLayersSelect').iconselectmenu("refresh");	
+
+	},
+
+	/**
+	 *	Create select menu
+	 *	Synchonize background spinner with background survey events
+	 */
+	updateUI : function() {
+
 		// Add custion icon select menu
 		$.widget( "custom.iconselectmenu", $.ui.selectmenu, {
 			_renderItem: function( ul, item ) {
@@ -124,8 +179,6 @@ return {
 				return li.appendTo( ul );
 			}
 		});
-
-		sky = this.mizar.sky;
 
 		// Create Dynamic image view activator for background layers
 		$('#fitsView').button({
@@ -221,56 +274,6 @@ return {
 			$('#loading').show();
 		});
 
-		// Background spinner events
-		sky.subscribe("startBackgroundLoad", function(layer){
-			$('#backgroundSpinner').fadeIn('fast');
-		});
-		sky.subscribe("endBackgroundLoad", function(layer){
-			$('#backgroundSpinner').fadeOut('fast');
-		});
-		this.mizar.subscribe("backgroundLayer:change", this.selectLayer);
-	},
-	addView : createHtmlForBackgroundLayer,
-
-	/**
-	 *	Select the given layer
-	 */
-	selectLayer: function(layer) {
-
-		// Update selectmenu ui by choosen layer(if called programmatically)
-		$('#backgroundLayersSelect').children().removeAttr("selected");
-		var option = _.find($('#backgroundLayersSelect').children(), function(item) {
-			return item.text == layer.name;
-		});
-		$(option).attr("selected","selected");
-
-		selectedLayer = layer;
-
-		// Show background loading spinner
-		$('#loading').show(300);
-
-		// Set shader callback for choosen layer
-		backgroundDiv.changeShaderCallback = function(contrast){
-			if ( contrast == "raw" )
-			{
-				layer.customShader.fragmentCode = layer.rawFragShader;
-			} else {
-				layer.customShader.fragmentCode = layer.colormapFragShader;
-			}
-		};
-
-		// Change dynamic image view button
-		updateBackgroundOptions(layer);
-
-		$('#backgroundLayersSelect').iconselectmenu("refresh");	
-
-	},
-
-	/**
-	 *	Create select menu
-	 *	Synchonize background spinner with background survey events
-	 */
-	updateUI : function() {
 		var self = this;
 		$('#backgroundLayersSelect').iconselectmenu({
 			select: function(event, ui)

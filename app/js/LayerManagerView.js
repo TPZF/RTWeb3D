@@ -142,31 +142,37 @@ function handleDragOver(evt)
 
 /**************************************************************************************************************/
 
-function updateUI() {
-	// Create accordeon
+/**
+ *	Initialize view with layers stored in <LayerManager>
+ */
+function initLayers() 
+{
+	var layers = LayerManager.getLayers();
+
+	// Due to scroll initialization which corrumps accordion UI init in additional layers view,
+	// accordion UI must be initialized before
 	$( "#accordion" ).accordion( {
 		header: "> div > h3",
 		autoHeight: false,
 		active: 0,
 		collapsible: true,
 		heightStyle: "content"
-	} ).show();
+	} ).show().accordion("refresh");
 
-	BackgroundLayersView.updateUI();
-	AdditionalLayersView.updateUI();
-}
-
-/**************************************************************************************************************/
-
-/**
- *	Fill the LayerManager table
- */
-function initLayers(layers) 
-{
-	var layers = LayerManager.getLayers();
-
-	// TODO: Call Additionnal/Background addView method to initialize the view
-	updateUI();
+	// Add view depending on category of each layer
+	for ( var i=0; i<layers.length; i++ )
+	{
+		var layer = layers[i];
+		if ( layer.category == "background" )
+		{
+			BackgroundLayersView.addView( layer );
+		}
+		else
+		{
+			AdditionalLayersView.addView( layer );
+		}
+	}
+	
 }
 
 /**************************************************************************************************************/
@@ -197,14 +203,11 @@ return {
 		// Necessary to drag&drop option while using jQuery
 		$.event.props.push('dataTransfer');
 
-		// TODO : Call init layers
-		initLayers(configuration.layers);
+		initLayers();
 
 		// Setup the drag & drop listeners.
 		$('canvas').on('dragover', handleDragOver);
 		$('canvas').on('drop', handleDrop);
-
-		//$( "#accordion" ).accordion("refresh");
 
 		LayerServiceView.init(sky, mizar.navigation, this, configuration);
 

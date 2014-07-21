@@ -339,8 +339,9 @@ define( [ "jquery", "underscore-min", "gw/EquatorialCoordinateSystem", "gw/Sky",
 
 		// Create layers from configuration file
 		LayerManager.init(this, options);
-
-		LayerManagerView.init(this,options);
+		
+		// Initialize jQueryUI layer manager view
+		LayerManagerView.init(this, options);
 
 		// Create data manager
 		PickingManager.init(this.sky, this.navigation, options);
