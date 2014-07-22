@@ -23,7 +23,7 @@
 define( [ "jquery", "gw/FeatureStyle", "gw/DynamicImage", "./SimpleProgressBar", "./FitsLoader", "./ImageViewer", "./Utils", "./ImageProcessing", "fits" ],
 			function($, FeatureStyle, DynamicImage, SimpleProgressBar, FitsLoader, ImageViewer, Utils, ImageProcessing) {
 
-var globe = null;
+var sky = null;
 var progressBars = {};
 var sitoolsBaseUrl;
 
@@ -65,8 +65,8 @@ function handleFits(fitsData, featureData)
 {
 	// Create new image coming from Fits
 	var typedArray = new Float32Array( fitsData.view.buffer, fitsData.begin, fitsData.length/4); // with gl.FLOAT
-	var gl = globe.renderContext.gl;
-	var image = new DynamicImage(globe.renderContext, typedArray, gl.LUMINANCE, gl.FLOAT, fitsData.width, fitsData.height);
+	var gl = sky.renderContext.gl;
+	var image = new DynamicImage(sky.renderContext, typedArray, gl.LUMINANCE, gl.FLOAT, fitsData.width, fitsData.height);
 
 	var feature = featureData.feature;
 	var layer = featureData.layer;
@@ -121,7 +121,7 @@ function removeFits(featureData)
  */
 function removeFitsFromRenderer(featureData)
 {
-	var gl = globe.renderContext.gl;
+	var gl = sky.renderContext.gl;
 	if ( featureData.feature.properties.style.uniformValues )
 	{
 		featureData.feature.properties.style.uniformValues.dispose();
@@ -153,13 +153,13 @@ return {
 	/**
 	 *	Initialize
 	 */
-	init: function(pm, g, nav, configuration)
+	init: function(mizar, pm, configuration)
 	{
-		globe = g;
+		sky = mizar.sky;
 		sitoolsBaseUrl = configuration.sitoolsBaseUrl;
 		// Enable float texture extension to have higher luminance range
-		var ext = globe.renderContext.gl.getExtension("OES_texture_float");
-		ImageViewer.init(g, nav, pm, this);
+		var ext = sky.renderContext.gl.getExtension("OES_texture_float");
+		ImageViewer.init(mizar, pm, this);
 	},
 
 	/**********************************************************************************************/

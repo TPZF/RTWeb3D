@@ -21,7 +21,7 @@ define(["require", "jquery", "gw/FeatureStyle", "./ImageProcessing", "./Utils", 
 	function(require, $, FeatureStyle, ImageProcessing, Utils, Samp, _, imageViewerLayerItemHTMLTemplate, imageViewerImageItemHTMLTemplate){
 
 var navigation;
-var globe;
+var sky;
 var pickingManager;
 var imageManager;
 
@@ -33,6 +33,11 @@ var imageViewerLayerItemTemplate = _.template(imageViewerLayerItemHTMLTemplate);
 // Template generating the li representing image
 var imageViewerImageItemTemplate = _.template(imageViewerImageItemHTMLTemplate);
 
+/**************************************************************************************************************/
+
+/**
+ *	Disable image toolbar inputs
+ */
 function disableImageUI(layer)
 {
 	$('#loadedImages').find('.imageLayers div[id="imageLayer_'+layer.id+'"] ul')
@@ -41,6 +46,11 @@ function disableImageUI(layer)
 		})
 }
 
+/**************************************************************************************************************/
+
+/**
+ *	Enable image toolbar inputs
+ */
 function enableImageUI(layer)
 {
 	$('#loadedImages').find('.imageLayers div[id="imageLayer_'+layer.id+'"] ul')
@@ -53,54 +63,55 @@ function enableImageUI(layer)
 		})
 }
 
+/**************************************************************************************************************/
+
+/**
+ *	Create layer view
+ *	This view will contain all the loaded images for the given layer
+ */
 function createLayerView(layer)
 {
 	var imageViewerLayerItemContent = imageViewerLayerItemTemplate( { id: layer.id, name: layer.name });
 	$layer = $(imageViewerLayerItemContent)
 		.appendTo($('#loadedImages').find('.imageLayers'));
 
-	// Stylize layer visibility checkbox
-	$layer.find('#layerVisibility_'+layer.id).button({
-		text: false,
-		icons: {
-        	primary: "ui-icon-check"
-      	}
-	});
-
 	// Slide loaded images for current layer onclick
 	$layer.find('label.layerName').click(function(){
 		$("#imageLayer_"+layer.id+ " > ul").slideToggle();
 	});
 
+	// Stylize layer visibility checkbox
+	var $layerVisibility = $layer.find('#layerVisibility_'+layer.id);
 	// Layer visibility management
-	var $layerVisibility = $('#layerVisibility_'+layer.id);
-	$('#layerVisibility_'+layer.id).click(function(){
-
-		var isChecked = ($layerVisibility.button('option', 'icons').primary == "ui-icon-check");
+	$layerVisibility.button({
+		text: false,
+		icons: {
+        	primary: "ui-icon-check"
+      	}
+	}).click(function(){
+		var isChecked = !($layerVisibility.button('option', 'icons').primary == "ui-icon-check");
 		var shortName = Utils.formatId( layer.name );
-		if ( $('#visible_'+shortName ).hasClass('ui-state-active') == isChecked )
+		$layerVisibility.button("option", {
+			icons: {
+				primary: isChecked ? "ui-icon-check" : ""
+			},
+		}).button('refresh');
+
+		if ( isChecked )
 		{
-			// Trigger event on LayerManager visibility button
-			$('#visible_'+shortName).trigger("click");
+			enableImageUI(layer);
 		}
 		else
 		{
-			// Manage visibility of ImageViewer checkbox
-			var isOn = layer.visible();
-			$layerVisibility.button("option", {
-				icons: {
-					primary: isOn ? "ui-icon-check" : ""
-				},
-			}).button('refresh');
-
-			if ( isOn )
-			{
-				enableImageUI(layer);
-			}
-			else
-			{
-				disableImageUI(layer);
-			}
+			disableImageUI(layer);
+		}
+		
+		// Synchronize with visibility button of LayerManager if needed
+		var $layerManagerBtn = $('#visible_'+shortName );
+		if ( $layerManagerBtn.hasClass('ui-state-active') != isChecked )
+		{
+			// Trigger event on LayerManager visibility button
+			$layerManagerBtn.trigger("click");
 		}
 	});
 
@@ -120,12 +131,14 @@ function createLayerView(layer)
 	return $layer;
 }
 
+/**************************************************************************************************************/
+
 return {
 
-	init: function(g,nav, pm, im){
+	init: function(mizar, pm, im){
 
-		globe = g;
-		navigation = nav;
+		sky = mizar.sky;
+		navigation = mizar.navigation;
 		pickingManager = pm;
 		imageManager = im;
 		var self = this;
@@ -148,7 +161,7 @@ return {
 	/**
 	 *	Add view for the given feature
 	 *
-	 *	@returns jQuery element of view,
+	 *	@returns jQuery element of view
 	 */
 	addView: function(selectedData, isFits)
 	{	
@@ -219,7 +232,7 @@ return {
 					{
 						imageManager.hideImage(selectedData);
 					}
-					globe.renderContext.requestFrame();
+					sky.renderContext.requestFrame();
 				}).end()
 				// Delete fits
 				.find('.delete').button({
@@ -232,7 +245,7 @@ return {
 					imageManager.removeImage(selectedData, isFits);
 					if ( isFits )
 						ImageProcessing.removeData(selectedData);
-					globe.renderContext.requestFrame();
+					sky.renderContext.requestFrame();
 				}).end()
 				// Image processing
 				.find('.imageProcessing').button({

@@ -342,8 +342,12 @@ function manageLayerVisibility($layerDiv, gwLayer)
 			   	  .toggleClass('ui-icon-check')
 			   	  .toggleClass('ui-icon-empty');
 
-		// Trigger on ImageViewer visibility button
-		$('#layerVisibility_'+gwLayer.id).trigger('click');
+		// Synchronize with visibility button of ImageViewer if needed
+		var $imageViewerBtn = $('#layerVisibility_'+gwLayer.id);
+		if ( ($imageViewerBtn.button('option', 'icons').primary == "ui-icon-check") != isOn )
+		{
+			$imageViewerBtn.trigger('click');
+		}
 
 	});
 }

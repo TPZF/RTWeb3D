@@ -23,7 +23,7 @@
 define( [ "jquery", "gw/FeatureStyle", "gw/CoordinateSystem", "gw/OpenSearchLayer", "./FeaturePopup", "./ImageManager", "./CutOutViewFactory", "./Utils" ],
 		function($, FeatureStyle, CoordinateSystem, OpenSearchLayer, FeaturePopup, ImageManager, CutOutViewFactory, Utils) {
 
-var globe;
+var sky;
 var navigation;
 var self;
 
@@ -82,7 +82,7 @@ function _handleMouseUp(event)
 	// If not pan and not reverse name resolver call
 	if ( diff < 500 && Math.abs(mouseXStart - event.clientX) < epsilon && Math.abs(mouseYStart - event.clientY) < epsilon )
 	{
-		var pickPoint = globe.getLonLatFromPixel(event.clientX, event.clientY);
+		var pickPoint = sky.getLonLatFromPixel(event.clientX, event.clientY);
 
 		// Remove selected style for previous selection
 		clearSelection();
@@ -118,7 +118,7 @@ function _handleMouseUp(event)
 						$('#featureList div:eq(0)').addClass('selected');
 						FeaturePopup.showFeatureInformation( selection[stackSelectionIndex].layer, selection[stackSelectionIndex].feature )
 					}
-					FeaturePopup.show(globe.renderContext.canvas.width/2, globe.renderContext.canvas.height/2);
+					FeaturePopup.show(sky.renderContext.canvas.width/2, sky.renderContext.canvas.height/2);
 					}
 				);
 			});
@@ -135,13 +135,13 @@ function _handleMouseUp(event)
  */
 function activate()
 {
-	globe.renderContext.canvas.addEventListener("mousedown", _handleMouseDown);
-	globe.renderContext.canvas.addEventListener("mouseup", _handleMouseUp);
+	sky.renderContext.canvas.addEventListener("mousedown", _handleMouseDown);
+	sky.renderContext.canvas.addEventListener("mouseup", _handleMouseUp);
 
 	if ( isMobile )
 	{
-		globe.renderContext.canvas.addEventListener("touchstart", _handleMouseDown);
-		globe.renderContext.canvas.addEventListener("touchend", _handleMouseUp);
+		sky.renderContext.canvas.addEventListener("touchstart", _handleMouseDown);
+		sky.renderContext.canvas.addEventListener("touchend", _handleMouseUp);
 	}
 
 	// Hide popup and blur selection when pan/zoom or animation
@@ -158,13 +158,13 @@ function activate()
  */
 function deactivate()
 {
-	globe.renderContext.canvas.removeEventListener("mousedown", _handleMouseDown);
-	globe.renderContext.canvas.removeEventListener("mouseup", _handleMouseUp);
+	sky.renderContext.canvas.removeEventListener("mousedown", _handleMouseDown);
+	sky.renderContext.canvas.removeEventListener("mouseup", _handleMouseUp);
 
 	if ( isMobile )
 	{
-		globe.renderContext.canvas.removeEventListener("touchstart", _handleMouseDown);
-		globe.renderContext.canvas.removeEventListener("touchend", _handleMouseUp);
+		sky.renderContext.canvas.removeEventListener("touchstart", _handleMouseDown);
+		sky.renderContext.canvas.removeEventListener("touchend", _handleMouseUp);
 	}
 	
 	// Hide popup and blur selection when pan/zoom or animation
@@ -313,7 +313,7 @@ function fixDateLine(pickPoint, coords)
  */
 function computePickSelection( pickPoint )
 {
-	selectedTile = globe.tileManager.getVisibleTile(pickPoint[0], pickPoint[1]);
+	selectedTile = sky.tileManager.getVisibleTile(pickPoint[0], pickPoint[1]);
 	var newSelection = [];
 	
 	for ( var i=0; i<pickableLayers.length; i++ )
@@ -431,29 +431,35 @@ function computePickSelection( pickPoint )
 /**************************************************************************************************************/
 
 return {
-	init: function( gl, nav, configuration ) 
+	/**
+	 *	Init picking manager
+	 */
+	init: function( mizar, configuration ) 
 	{
-		// Store the globe in the global module variable
-		globe = gl;
-		navigation = nav;
+		// Store the sky in the global module variable
+		sky = mizar.sky;
+		navigation = mizar.navigation;
 		self = this;
 		isMobile = configuration.isMobile;
 
 		activate();
 	
 		// Initialize the fits manager
-		ImageManager.init(this, globe, navigation, configuration);
+		ImageManager.init(mizar, this, configuration);
 
 		if ( configuration.cutOut )
 		{
 			// CutOutView factory ... TODO : move it/refactor it/do something with it...
-			CutOutViewFactory.init(globe, navigation, this);
+			CutOutViewFactory.init(sky, navigation, this);
 		}
-		FeaturePopup.init(this, ImageManager, gl, configuration);
+		FeaturePopup.init(this, ImageManager, sky, configuration);
 	},
 
 	/**************************************************************************************************************/
 	
+	/**
+	 *	Add pickable layer
+	 */
 	addPickableLayer: function( layer )
 	{
 		pickableLayers.push( layer );
@@ -461,6 +467,9 @@ return {
 
 	/**************************************************************************************************************/
 	
+	/**
+	 *	Remove pickable layers
+	 */
 	removePickableLayer: function( layer )
 	{
 		for ( var i=0; i<pickableLayers.length; i++ )

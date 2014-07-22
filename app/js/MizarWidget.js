@@ -326,7 +326,7 @@ define( [ "jquery", "underscore-min", "gw/EquatorialCoordinateSystem", "gw/Sky",
 		LayerManager.init(this, options);
 		
 		// Create data manager
-		PickingManager.init(this.sky, this.navigation, options);
+		PickingManager.init(this, options);
 
 		// Compass component(only for desktop due to performance issue on mobile)
 		if ( !this.isMobile )
