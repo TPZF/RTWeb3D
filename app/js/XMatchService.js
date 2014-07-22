@@ -20,16 +20,15 @@
 /**
  *	Moc xMatch service
  */
-define( [ "jquery", "gw/FeatureStyle", "./MocLayer", "./MocBase", "gw/OpenSearchLayer", "./ErrorDialog", "underscore-min", "text!../templates/mocServiceItem.html", "jquery.ui" ],
-		function($, FeatureStyle, MocLayer, MocBase, OpenSearchLayer, ErrorDialog, _, mocServiceHTMLTemplate) {
+define( [ "jquery", "./LayerManager", "gw/FeatureStyle", "./MocLayer", "./MocBase", "gw/OpenSearchLayer", "./ErrorDialog", "underscore-min", "text!../templates/mocServiceItem.html", "jquery.ui" ],
+		function($, LayerManager, FeatureStyle, MocLayer, MocBase, OpenSearchLayer, ErrorDialog, _, mocServiceHTMLTemplate) {
 
 // Template generating the services html
 var mocServiceTemplate = _.template(mocServiceHTMLTemplate);
 
 var coverageServiceUrl;
 var intersectionLayer;
-var globe;
-var layerManager;
+var sky;
 
 /**************************************************************************************************************/
 
@@ -135,7 +134,7 @@ function addIntersectionLayer(layersToIntersect)
 		}
 
 		if ( intersectionLayer )
-			globe.removeLayer(intersectionLayer);
+			sky.removeLayer(intersectionLayer);
 
 		// Create intersection MOC layer
 		intersectionLayer = new MocLayer({
@@ -148,7 +147,7 @@ function addIntersectionLayer(layersToIntersect)
 				}),
 				visible: false
 			});
-		globe.addLayer(intersectionLayer);
+		sky.addLayer(intersectionLayer);
 
 		MocBase.requestSkyCoverage( intersectionLayer, url + "&media=txt", function(layer){
 			$("#xMatchService #mocLayer_"+layer.id).find('.mocCoverage').html("Sky coverage: "+layer.coverage);
@@ -158,16 +157,16 @@ function addIntersectionLayer(layersToIntersect)
 	else
 	{
 		ErrorDialog.open("Coverage service URL isn't defined in configuration file");
+		$('#intersectMocBtn').removeAttr("disabled").button("refresh");
 	}
 }
 
 /**************************************************************************************************************/
 
 return {
-	init: function(gl,lm,configuration)
+	init: function(s, configuration)
 	{
-		globe = gl;
-		layerManager = lm;
+		sky = s;
 		if ( configuration.coverageService )
 		{
 			coverageServiceUrl = configuration.coverageService.baseUrl;
@@ -223,7 +222,7 @@ return {
 				<div id="intersectResult"></div>\
 			</div>');
 
-		var allLayers = layerManager.getLayers();
+		var allLayers = LayerManager.getLayers();
 		var allOSLayers = _.filter(allLayers, function(layer){ return (layer instanceof OpenSearchLayer) });
 
 		for ( var i=0; i<allOSLayers.length; i++ )
@@ -293,7 +292,7 @@ return {
 		$( "#xMatchService" ).remove();
 		tabs.tabs( "refresh" );
 
-		var allLayers = layerManager.getLayers();
+		var allLayers = LayerManager.getLayers();
 		var allOSLayers = _.filter(allLayers, function(layer){ return (layer instanceof OpenSearchLayer) });
 
 		for ( var i=0; i<allOSLayers.length; i++ )
@@ -304,7 +303,7 @@ return {
 
 		if ( intersectionLayer )
 		{
-			intersectionLayer.globe.removeLayer( intersectionLayer );
+			sky.removeLayer( intersectionLayer );
 			intersectionLayer = null;
 		}
 	}

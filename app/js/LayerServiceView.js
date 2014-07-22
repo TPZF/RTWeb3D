@@ -31,14 +31,9 @@ var layerServiceView = '<div id="layerServiceView" title="Available services">\
 							</div>\
 						</div>';
 
-// jQuery selector
+// jQuery selectors
 var $layerServiceView;
-
-var tabs = $('#layerServices').tabs({
-	collapsible: true,
-	hide: { effect: "slideUp", duration: 300 },
-	show: { effect: "slideDown", duration: 300 }
-});
+var tabs;
 
 var services = [ OpenSearchService, MocService, XMatchService ];
 
@@ -79,7 +74,7 @@ return {
 	/**
 	 *	Initilize layer service view
 	 */
-	init: function(gl, nav, lm, configuration)
+	init: function(mizar, configuration)
 	{
 		// Create jQuery UI dialog to represent layer service view
 		$layerServiceView = $(layerServiceView)
@@ -105,15 +100,22 @@ return {
 				}
 			});
 
-		MocService.init(gl, configuration);
-		XMatchService.init(gl, lm, configuration);
-		HEALPixCutService.init(gl, nav)
+		tabs = $layerServiceView.find('#layerServices').tabs({
+			collapsible: true,
+			hide: { effect: "slideUp", duration: 300 },
+			show: { effect: "slideDown", duration: 300 }
+		})
+
+		MocService.init(mizar.sky, configuration);
+		XMatchService.init(mizar.sky, configuration);
+		HEALPixCutService.init(mizar.sky, mizar.navigation)
 	},
 
 	/**
 	 *	Remove created dialog
 	 */
 	remove: function() {
+		$layerServiceView.find('#layerServices').tabs("destroy");
 		$layerServiceView.dialog("destroy").remove();
 	},
 

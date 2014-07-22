@@ -204,7 +204,7 @@ return {
 		$.event.props.push('dataTransfer');
 
 		initLayers();
-		LayerServiceView.init(sky, mizar.navigation, this, configuration);
+		LayerServiceView.init(mizar, configuration);
 
 		// Setup the drag & drop listeners.
 		$('canvas').on('dragover', handleDragOver);
