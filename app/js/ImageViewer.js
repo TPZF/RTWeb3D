@@ -17,16 +17,15 @@
 * along with SITools2. If not, see <http://www.gnu.org/licenses/>. 
 ******************************************************************************/ 
 
-define(["require", "jquery", "gw/FeatureStyle", "./ImageProcessing", "./Utils", "./Samp", "underscore-min", "text!../templates/imageViewerLayerItem.html", "text!../templates/imageViewerImageItem.html", "jquery.ui"],
-	function(require, $, FeatureStyle, ImageProcessing, Utils, Samp, _, imageViewerLayerItemHTMLTemplate, imageViewerImageItemHTMLTemplate){
+define(["require", "jquery", "gw/FeatureStyle", "./PickingManager", "./ImageManager", "./ImageProcessing", "./SimpleProgressBar", "./Utils", "./Samp", "underscore-min", "text!../templates/imageViewerLayerItem.html", "text!../templates/imageViewerImageItem.html", "jquery.ui"],
+	function(require, $, FeatureStyle, PickingManager, ImageManager, ImageProcessing, SimpleProgressBar, Utils, Samp, _, imageViewerLayerItemHTMLTemplate, imageViewerImageItemHTMLTemplate){
 
 var navigation;
 var sky;
-var pickingManager;
-var imageManager;
 
 var layers = [];
 var featuresWithImages = [];
+var progressBars = {};
 
 // Template generating the div representing layer which contains loaded images
 var imageViewerLayerItemTemplate = _.template(imageViewerLayerItemHTMLTemplate);
@@ -135,12 +134,15 @@ function createLayerView(layer)
 
 return {
 
-	init: function(mizar, pm, im){
+	init: function(mizar){
+
+		var self = this;
+		mizar.subscribe("image:add", $.proxy(this.addView, this) );
+		mizar.subscribe("image:remove", $.proxy(this.removeView, this));
+		mizar.subscribe("image:download", $.proxy(this.addProgressBar, this));
 
 		sky = mizar.sky;
 		navigation = mizar.navigation;
-		pickingManager = pm;
-		imageManager = im;
 		var self = this;
 		// Show/hide image viewer
 		$('#imageViewInvoker').click(function(){
@@ -159,12 +161,31 @@ return {
 	},
 
 	/**
-	 *	Add view for the given feature
+	 *	Add progress bar
 	 *
+	 *	@param data
+	 *		Contains feature data(layer, feature) and its XMLHttpRequest
+	 */
+	addProgressBar: function(data)
+	{
+		var featureData = data.featureData;
+		var xhr = data.xhr;
+
+		var id = "imageView_" + Utils.formatId(featureData.feature.properties.identifier) + "_fits";
+		var progressBar = new SimpleProgressBar( { id: id } );
+		xhr.onprogress = progressBar.onprogress.bind(progressBar);
+		// Store xhr to cancel if needed
+		progressBars[ id ] = xhr;
+	},
+
+	/**
+	 *	Add view for the given feature
+	 * 
 	 *	@returns jQuery element of view
 	 */
-	addView: function(selectedData, isFits)
+	addView: function(selectedData)
 	{	
+		this.show();
 		// Get or create layer view
 		var $layer;
 		var layer = selectedData.layer;
@@ -181,7 +202,7 @@ return {
 		// Remove special caracters from feature id
 		var id = Utils.formatId(selectedData.feature.properties.identifier);
 		// Add isFits property for correct progress bar handling
-		if ( isFits )
+		if ( selectedData.isFits )
 		{
 			id+="_fits";
 		}
@@ -193,7 +214,7 @@ return {
 		if ( $layer.find('ul li[id="'+id+'"]').length == 0 )
 		{
 			// Create only if not already added
-			var imageViewerItemContent = imageViewerImageItemTemplate( { id: id, name: name, isFits: isFits });
+			var imageViewerItemContent = imageViewerImageItemTemplate( { id: id, name: name, isFits: selectedData.isFits });
 			$li = $(imageViewerItemContent)
 				.appendTo($layer.find('ul'))
 				// ZoomTo
@@ -207,7 +228,7 @@ return {
 					var barycenter = Utils.computeGeometryBarycenter( feature.geometry );
 					navigation.zoomTo([barycenter[0], barycenter[1]], 0.1, 2000, function(){
 						// Update selection
-						pickingManager.focusFeature(selectedData);
+						PickingManager.focusFeature(selectedData);
 					});
 
 				}).end()
@@ -226,11 +247,11 @@ return {
 					});
 					if ( $(this).is(':checked') )
 					{
-						imageManager.showImage(selectedData);
+						ImageManager.showImage(selectedData);
 					}
 					else
 					{
-						imageManager.hideImage(selectedData);
+						ImageManager.hideImage(selectedData);
 					}
 					sky.renderContext.requestFrame();
 				}).end()
@@ -242,8 +263,8 @@ return {
 					}
 				}).click(function(){
 					// Remove image
-					imageManager.removeImage(selectedData, isFits);
-					if ( isFits )
+					ImageManager.removeImage(selectedData, selectedData.isFits);
+					if ( selectedData.isFits )
 						ImageProcessing.removeData(selectedData);
 					sky.renderContext.requestFrame();
 				}).end()
@@ -321,7 +342,7 @@ return {
 			});
 
 			// Disable image processing button for not fits images
-			if ( !isFits )
+			if ( !selectedData.isFits )
 			{
 				$li.find('.imageProcessing').button("disable");
 			}
@@ -335,13 +356,22 @@ return {
 	/**
 	 *	Remove view of the given feature
 	 */
-	removeView: function(selectedData, isFits)
+	removeView: function(selectedData)
 	{
 		var id = "imageView_" + Utils.formatId(selectedData.feature.properties.identifier);
-		if ( isFits )
+		if ( selectedData.isFits )
 		{
 			id+="_fits";
 		}
+
+		//Remove progress bar if inprogress
+		var progressXhr = progressBars[id];
+		if ( progressXhr )
+		{
+			progressXhr.abort();
+			delete progressBars[id];
+		}
+
 		$('#loadedImages').find('li.image[id="'+id+'"]').fadeOut(function(){
 
 			// No more loaded image views for current layer

@@ -328,6 +328,9 @@ define( [ "jquery", "underscore-min", "gw/EquatorialCoordinateSystem", "gw/Sky",
 		// Create data manager
 		PickingManager.init(this, options);
 
+		// Create image viewer
+		ImageViewer.init(this);
+
 		// Compass component(only for desktop due to performance issue on mobile)
 		if ( !this.isMobile )
 		{
@@ -340,7 +343,7 @@ define( [ "jquery", "underscore-min", "gw/EquatorialCoordinateSystem", "gw/Sky",
 		// Initialize SAMP component
 		// TODO : Bear in mind that a website may already implement specific SAMP logics, so check that
 		// current samp component doesn't break existing SAMP functionality
-		Samp.init(this, LayerManager, ImageManager, ImageViewer, options);
+		Samp.init(this, LayerManager, ImageManager, options);
 
 		// Eye position tracker initialization
 		PositionTracker.init({ element: "posTracker", globe: this.sky, navigation : this.navigation, isMobile: this.isMobile });

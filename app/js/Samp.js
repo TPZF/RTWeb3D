@@ -23,11 +23,11 @@
 define(["jquery", "underscore-min", "gw/CoordinateSystem", "gw/FeatureStyle", "gw/VectorLayer", "./Utils", "./JsonProcessor", "samp", "jquery.ui"],
 	function($, _, CoordinateSystem, FeatureStyle, VectorLayer, Utils, JsonProcessor) {
 
+var mizar;
 var sky;
 var navigation;
 var additionalLayersView;
 var imageManager;
-var imageViewer;
 var tables = {};
 var highlightStyle = new FeatureStyle( {
 	strokeColor: [1., 1., 1., 1.],
@@ -240,18 +240,17 @@ function createClientTracker()
 		// Get fits texture from url
 		var featureData = {
 			layer: sampLayer,
-			feature: feature
+			feature: feature,
+			isFits: true
 		};
 		var url = sitoolsBaseUrl + "/proxy?external_url=" + encodeURIComponent(params['image-id']);
-		imageViewer.addView(featureData, true);
+		mizar.publish("image:add", featureData);
 		imageManager.computeFits(featureData, url, function(featureData, fits){
 			// Update feature coordinates according to Fits header
 			var coords = Utils.getPolygonCoordinatesFromFits(fits);
 			featureData.feature.geometry.coordinates = [coords];
 			sampLayer.addFeature(featureData.feature);
 		});
-
-		imageViewer.show();
 	};
 
 	callHandler["coord.pointAt.sky"] = function(senderId, message, isCall) {
@@ -340,12 +339,12 @@ function initSamp()
 /**
  *	Init SAMP module
  */
-function init(mizar, lm, im, iv, configuration)
+function init(m, lm, im, configuration)
 {
+	mizar = m;
 	sky = mizar.sky;
 	navigation = mizar.navigation;
 	layerManager = lm;
-	imageViewer = iv;
 	imageManager = im;
 
 	if ( configuration.votable2geojson )

@@ -20,11 +20,10 @@
 /**
  * Image manager
  */
-define( [ "jquery", "gw/FeatureStyle", "gw/DynamicImage", "./SimpleProgressBar", "./FitsLoader", "./ImageViewer", "./Utils", "./ImageProcessing", "fits" ],
-			function($, FeatureStyle, DynamicImage, SimpleProgressBar, FitsLoader, ImageViewer, Utils, ImageProcessing) {
+define( [ "jquery", "gw/FeatureStyle", "gw/DynamicImage", "./FitsLoader", "./Utils", "./ImageProcessing", "fits" ],
+			function($, FeatureStyle, DynamicImage, FitsLoader, Utils, ImageProcessing) {
 
 var sky = null;
-var progressBars = {};
 var sitoolsBaseUrl;
 
 /**********************************************************************************************/
@@ -37,10 +36,6 @@ var sitoolsBaseUrl;
  */
 function computeFits(featureData, url, preprocessing)
 {
-	// Remove all spaces from identifier
-	var id = "imageView_" + Utils.formatId(featureData.feature.properties.identifier) + "_fits";
-	var progressBar = new SimpleProgressBar( { id: id } );
-
 	var xhr = FitsLoader.loadFits(url, function(fits){
 		var fitsData = fits.getHDU().data;
 
@@ -50,10 +45,9 @@ function computeFits(featureData, url, preprocessing)
 		}
 
 		handleFits(fitsData, featureData);
-	}, null, progressBar.onprogress.bind(progressBar));
+	});
 
-	// Store xhr to cancel if needed
-	progressBars[ featureData.feature.properties.identifier ] = xhr;
+	this.mizar.publish("image:download", {featureData: featureData, xhr: xhr});
 }
 
 /**********************************************************************************************/
@@ -98,25 +92,6 @@ function handleFits(fitsData, featureData)
 /**********************************************************************************************/
 
 /**
- *	Remove fits
- */
-function removeFits(featureData)
-{
-	var id = featureData.feature.properties.identifier;
-	//Remove progress bar if inprogress
-	var progressXhr = progressBars[id];
-	if ( progressXhr )
-	{
-		progressXhr.abort();
-		delete progressBars[id];
-	}
-
-	removeFitsFromRenderer(featureData);
-}
-
-/**********************************************************************************************/
-
-/**
  *	Remove fits texture from feature
  */
 function removeFitsFromRenderer(featureData)
@@ -155,11 +130,11 @@ return {
 	 */
 	init: function(mizar, pm, configuration)
 	{
+		this.mizar = mizar;
 		sky = mizar.sky;
 		sitoolsBaseUrl = configuration.sitoolsBaseUrl;
 		// Enable float texture extension to have higher luminance range
 		var ext = sky.renderContext.gl.getExtension("OES_texture_float");
-		ImageViewer.init(mizar, pm, this);
 	},
 
 	/**********************************************************************************************/
@@ -192,12 +167,14 @@ return {
 	/**
 	 *	Remove image from renderer
 	 */
-	removeImage: function(featureData, isFits)
+	removeImage: function(featureData)
 	{
-		ImageViewer.removeView(featureData, isFits);
-		if ( isFits )
+
+		// Publish event that the image of the given feature will be removed
+		this.mizar.publish("image:remove", featureData);
+		if ( featureData.isFits )
 		{
-			removeFits(featureData);
+			removeFitsFromRenderer(featureData);
 			$('#quicklookFits').removeClass('selected');
 		}
 		else 
@@ -215,29 +192,29 @@ return {
 	/**
 	 *	Start download of texture
 	 */
-	addImage: function(featureData, isFits)
+	addImage: function(featureData)
 	{
+		var feature = featureData.feature;
 		// Set fill to true while loading
-		var style = new FeatureStyle( featureData.feature.properties.style );
+		var style = new FeatureStyle( feature.properties.style );
 		style.fill = true;
+		
+		// Publish event that the image for the given feature will be loaded
+		this.mizar.publish("image:add", featureData);
 
-		ImageViewer.addView(featureData, isFits);
-		if ( isFits )
+		if ( featureData.isFits )
 		{
-			var url = sitoolsBaseUrl+"/proxy?external_url=" + encodeURIComponent(featureData.feature.services.download.url);
-			computeFits(featureData, url);
+			var url = sitoolsBaseUrl+"/proxy?external_url=" + encodeURIComponent(feature.services.download.url);
+			this.computeFits(featureData, url);
 			$('#quicklookFits').addClass('selected');
 		}
 		else
 		{
-			style.fillTextureUrl = sitoolsBaseUrl + "/proxy?external_url=" + featureData.feature.properties.quicklook + "&rewrite_redirection=true";
+			style.fillTextureUrl = sitoolsBaseUrl + "/proxy?external_url=" + feature.properties.quicklook + "&rewrite_redirection=true";
 			// For DEBUG : 'upload/ADP_WFI_30DOR_RGB_V1.0_degraded.jpg';
 			$('#quicklook').addClass('selected');
 		}
-		featureData.layer.modifyFeatureStyle( featureData.feature, style );
-
-		// Show image viewer
-		ImageViewer.show();
+		featureData.layer.modifyFeatureStyle( feature, style );
 	},
 	
 	computeFits: computeFits,

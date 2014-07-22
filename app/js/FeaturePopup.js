@@ -274,43 +274,43 @@ return {
 		// Show/hide quicklook
 		$selectedFeatureDiv.on("click", '#quicklook', function(event){
 			var selectedData = pickingManager.getSelectedData();
-			var isFits = false;
 
 			var otherQuicklookOn = selectedData.feature.properties.style.fill && !selectedData.feature.properties.style.fillTextureUrl;
 			if ( otherQuicklookOn )
 			{
 				// Remove fits quicklook
-				imageManager.removeImage(selectedData, !isFits);
+				imageManager.removeImage(selectedData);
 			}
 
+			selectedData.isFits = false;
 			if ( selectedData.feature.properties.style.fill == true )
 			{
-				imageManager.removeImage(selectedData, isFits);
+				imageManager.removeImage(selectedData);
 			} 
 			else
 			{
-				imageManager.addImage(selectedData, isFits );
+				imageManager.addImage(selectedData);
 			}
 		});
 
 		$selectedFeatureDiv.on('click', "#quicklookFits", function(event){
 			var selectedData = pickingManager.getSelectedData();
-			var isFits = true;
 
 			var otherQuicklookOn = selectedData.feature.properties.style.fill && selectedData.feature.properties.style.fillTextureUrl;
 			if ( otherQuicklookOn )
 			{
 				// Remove quicklook
-				imageManager.removeImage(selectedData, !isFits);
+				imageManager.removeImage(selectedData);
 			}
 
+			selectedData.isFits = true;
 			if ( selectedData.feature.properties.style.fill == true )
 			{
-				imageManager.removeImage(selectedData, isFits);
+				imageManager.removeImage(selectedData);
 			} 
 			else
 			{
-				imageManager.addImage(selectedData, isFits );
+				imageManager.addImage(selectedData);
 			}
 		});
 

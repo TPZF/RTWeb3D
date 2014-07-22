@@ -20,12 +20,13 @@
 /**
  * Layer manager view module
  */
-define( [ "jquery", "underscore-min", "LayerManager", "./ErrorDialog", "./LayerServiceView", "./BackgroundLayersView", "./AdditionalLayersView", "./FitsLoader", "./ImageManager", "./ImageViewer", "text!../templates/layerManagerContent.html", "jquery.ui"], 
-	function($, _, LayerManager, ErrorDialog, LayerServiceView, BackgroundLayersView, AdditionalLayersView, FitsLoader, ImageManager, ImageViewer, layerManagerHTML) {
+define( [ "jquery", "underscore-min", "LayerManager", "./ErrorDialog", "./LayerServiceView", "./BackgroundLayersView", "./AdditionalLayersView", "./FitsLoader", "./ImageManager", "text!../templates/layerManagerContent.html", "jquery.ui"], 
+	function($, _, LayerManager, ErrorDialog, LayerServiceView, BackgroundLayersView, AdditionalLayersView, FitsLoader, ImageManager, layerManagerHTML) {
 
 /**
  * Private variables
  */
+var mizar;
 var sky = null;
 
 // GeoJSON data providers
@@ -48,7 +49,6 @@ function handleDrop(evt) {
 	evt.preventDefault();
 
 	var files = evt.dataTransfer.files; // FileList object.
-	
 	// Files is a FileList of File objects.
 	$.each( files, function(index, f) {
 		
@@ -69,12 +69,12 @@ function handleDrop(evt) {
 				// Add fits texture
 				var featureData = {
 					layer: gwLayer,
-					feature: gwLayer.features[0]
+					feature: gwLayer.features[0],
+					isFits: true
 				};
 				var fitsData = fits.getHDU().data;
-				ImageViewer.addView(featureData, true);
+				mizar.publish("image:add", featureData);
 				ImageManager.handleFits( fitsData, featureData );
-				ImageViewer.show();
 
 				$('#loading').hide();
 			};
@@ -188,7 +188,7 @@ return {
 	 *		Mizar configuration 
  	 */
 	init: function(mizar, configuration) {
-		this.mizar = mizar;
+		
 		parentElement = configuration.element;
 		$(layerManagerHTML).appendTo(parentElement);
 
@@ -197,8 +197,8 @@ return {
 		AdditionalLayersView.init({ mizar: mizar, configuration: configuration });
 		BackgroundLayersView.init({ mizar: mizar });
 
-		this.mizar.subscribe("backgroundLayer:add", BackgroundLayersView.addView);
-		this.mizar.subscribe("additionalLayer:add", AdditionalLayersView.addView);
+		mizar.subscribe("backgroundLayer:add", BackgroundLayersView.addView);
+		mizar.subscribe("additionalLayer:add", AdditionalLayersView.addView);
 
 		// Necessary to drag&drop option while using jQuery
 		$.event.props.push('dataTransfer');
@@ -225,8 +225,8 @@ return {
 		LayerServiceView.remove();
 		$(parentElement).empty();
 
-		this.mizar.unsubscribe("backgroundLayer:add", BackgroundLayersView.addView);
-		this.mizar.unsubscribe("additionalLayer:add", AdditionalLayersView.addView);
+		mizar.unsubscribe("backgroundLayer:add", BackgroundLayersView.addView);
+		mizar.unsubscribe("additionalLayer:add", AdditionalLayersView.addView);
 		$('canvas').off('dragover', handleDragOver);
 		$('canvas').off('drop', handleDrop);
 	},
