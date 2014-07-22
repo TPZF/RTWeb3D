@@ -20,8 +20,8 @@
 /**
  * BackgroundLayersView module
  */
-define(["jquery", "./LayerManager", "./DynamicImageView", "./PickingManager", "./HEALPixFITSLayer", "./LayerServiceView", "./Samp", "./ErrorDialog", "jquery.ui"],
-		function($, LayerManager, DynamicImageView, PickingManager, HEALPixFITSLayer, LayerServiceView, Samp, ErrorDialog){
+define(["jquery", "underscore-min", "./LayerManager", "./DynamicImageView", "./PickingManager", "./HEALPixFITSLayer", "./LayerServiceView", "./Samp", "./ErrorDialog", "jquery.ui"],
+		function($, _, LayerManager, DynamicImageView, PickingManager, HEALPixFITSLayer, LayerServiceView, Samp, ErrorDialog){
 
 var nbBackgroundLayers = 0; // required because background id is always equal to 0
 var sky;

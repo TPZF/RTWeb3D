@@ -20,7 +20,7 @@
 /**
  * AdditionalLayersView module
  */
-define(["jquery", "gw/CoordinateSystem", "gw/FeatureStyle", "gw/OpenSearchLayer", "./LayerManager", "./HEALPixFITSLayer", "./MocLayer", "gw/VectorLayer", "./PickingManager", "./DynamicImageView", "./LayerServiceView", "./Samp", "./ImageViewer", "./ErrorDialog", "./Utils", "underscore-min", "text!../templates/additionalLayer.html", "jquery.nicescroll.min", , "jquery.ui"],
+define(["jquery", "gw/CoordinateSystem", "gw/FeatureStyle", "gw/OpenSearchLayer", "./LayerManager", "./HEALPixFITSLayer", "./MocLayer", "gw/VectorLayer", "./PickingManager", "./DynamicImageView", "./LayerServiceView", "./Samp", "./ImageViewer", "./ErrorDialog", "./Utils", "underscore-min", "text!../templates/additionalLayer.html", "jquery.nicescroll.min", "jquery.ui"],
 		function($, CoordinateSystem, FeatureStyle, OpenSearchLayer, LayerManager, HEALPixFITSLayer, MocLayer, VectorLayer, PickingManager, DynamicImageView, LayerServiceView, Samp, ImageViewer, ErrorDialog, Utils, _, additionalLayerHTMLTemplate){
 
 var sky;
@@ -252,7 +252,6 @@ function createDynamicImageDialog( gwLayer )
 			effect: "fade",
 			duration: 300
 		},
-		width: 400,
 		resizable: false,
 		width: 'auto',
 		minHeight: 'auto',
@@ -589,7 +588,7 @@ function zoomTo()
 		nbGeometries++;
 	}
 
-	navigation.zoomTo([sLon/nbGeometries, sLat/nbGeometries], 2., 2000);
+	navigation.zoomTo([sLon/nbGeometries, sLat/nbGeometries], 2.0, 2000);
 }
 
 /**************************************************************************************************************/
@@ -721,7 +720,7 @@ return {
 		categories = {
 			"Other": 'otherLayers',
 			"Coordinate systems": 'coordinateSystems'
-		}
+		};
 		
 	},
 
@@ -735,6 +734,6 @@ return {
 	{
 		$('#addLayer_'+layer.id).show();
 	}
-}
+};
 
 });

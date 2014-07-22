@@ -38,10 +38,6 @@
 			deps: ['jquery'],
 			exports: 'jQuery'
 		},
-		'jquery.ui.timepicker': {
-			deps: ['jquery.ui'],
-			exports: 'jQuery'
-		},
 		'underscore-min': {
 			deps: ['jquery'],
 			exports: '_'
@@ -49,6 +45,10 @@
 		'jquery.nicescroll.min': {
 			deps: ['jquery'],
 			exports: ''
+		},
+		'jquery.ui.timepicker': {
+			deps: ['jquery.ui'],
+			exports: 'jQuery'
 		}
 	},
   	uglify: {
@@ -59,7 +59,7 @@
             beautify: false
         },
         compress: {
- 	    unsafe: true
+ 	    	unsafe: true
         },
         warnings: true,
         mangle: true

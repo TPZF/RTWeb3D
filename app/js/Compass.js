@@ -20,7 +20,7 @@
 /**
  * Compass module : map control with "north" composant
  */
-define(["gw/CoordinateSystem", "gw/glMatrix"], function(CoordinateSystem) {
+define(["jquery", "gw/CoordinateSystem", "gw/glMatrix"], function($, CoordinateSystem) {
 
 /**
  *	Private variables

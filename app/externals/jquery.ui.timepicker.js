@@ -12,8 +12,17 @@
 
 /*jslint evil: true, white: false, undef: false, nomen: false */
 
-(function($) {
+(function(factory) {
+if ( typeof define === "function" && define.amd ) {
 
+		// AMD. Register as an anonymous module.
+		define('jquery.ui.timepicker',[ "jquery", "jquery.ui" ], factory );
+	} else {
+
+		// Browser globals
+		factory( jQuery );
+	}
+}(function( $ ) {
 	/*
 	* Lets not redefine timepicker, Prevent "Uncaught RangeError: Maximum call stack size exceeded"
 	*/
@@ -1916,4 +1925,5 @@
 	*/
 	$.timepicker.version = "1.2";
 
-})(jQuery);
+
+}));
