@@ -328,9 +328,6 @@ define( [ "jquery", "underscore-min", "gw/EquatorialCoordinateSystem", "gw/Sky",
 		// Create data manager
 		PickingManager.init(this, options);
 
-		// Create image viewer
-		ImageViewer.init(this);
-
 		// Compass component(only for desktop due to performance issue on mobile)
 		if ( !this.isMobile )
 		{
@@ -636,7 +633,7 @@ define( [ "jquery", "underscore-min", "gw/EquatorialCoordinateSystem", "gw/Sky",
 	 	} else {
 	 		NameResolverView.remove();
 	 	}
-	},
+	}
 
 	/**************************************************************************************************************/
 
@@ -648,7 +645,20 @@ define( [ "jquery", "underscore-min", "gw/EquatorialCoordinateSystem", "gw/Sky",
 	 		LayerManagerView.init(this, $.extend({element: $(parentElement).find(".sidebar")}, options));
 	 	} else {
 	 		LayerManagerView.remove();
-	 	}	
+	 	}
+	}
+
+	/**************************************************************************************************************/
+
+	/**
+	 *	Add/remove jQueryUI image viewer GUI
+	 */
+	MizarWidget.prototype.setImageViewerGui = function(visible) {
+		if ( visible ) {
+	 		ImageViewer.init(this);
+	 	} else {
+	 		ImageViewer.remove();
+	 	}
 	}
 
 	/**************************************************************************************************************/

@@ -17,11 +17,15 @@
 * along with SITools2. If not, see <http://www.gnu.org/licenses/>. 
 ******************************************************************************/ 
 
-define(["require", "jquery", "gw/FeatureStyle", "./PickingManager", "./ImageManager", "./ImageProcessing", "./SimpleProgressBar", "./Utils", "./Samp", "underscore-min", "text!../templates/imageViewerLayerItem.html", "text!../templates/imageViewerImageItem.html", "jquery.ui"],
-	function(require, $, FeatureStyle, PickingManager, ImageManager, ImageProcessing, SimpleProgressBar, Utils, Samp, _, imageViewerLayerItemHTMLTemplate, imageViewerImageItemHTMLTemplate){
+define(["require", "jquery", "gw/FeatureStyle", "./PickingManager", "./ImageManager", "./ImageProcessing", "./SimpleProgressBar", "./Utils", "./Samp", "./ErrorDialog", "underscore-min", "text!../templates/imageViewer.html", "text!../templates/imageViewerLayerItem.html", "text!../templates/imageViewerImageItem.html", "jquery.ui"],
+	function(require, $, FeatureStyle, PickingManager, ImageManager, ImageProcessing, SimpleProgressBar, Utils, Samp, ErrorDialog, _, imageViewerHTML, imageViewerLayerItemHTMLTemplate, imageViewerImageItemHTMLTemplate){
 
+var mizar;
 var navigation;
 var sky;
+
+// jQuery selector
+var $imageViewer;
 
 var layers = [];
 var featuresWithImages = [];
@@ -39,7 +43,7 @@ var imageViewerImageItemTemplate = _.template(imageViewerImageItemHTMLTemplate);
  */
 function disableImageUI(layer)
 {
-	$('#loadedImages').find('.imageLayers div[id="imageLayer_'+layer.id+'"] ul')
+	$imageViewer.find('.imageLayers div[id="imageLayer_'+layer.id+'"] ul')
 		.find('button, input').each(function(){
 			$(this).attr('disabled','disabled').button('refresh');
 		})
@@ -52,7 +56,7 @@ function disableImageUI(layer)
  */
 function enableImageUI(layer)
 {
-	$('#loadedImages').find('.imageLayers div[id="imageLayer_'+layer.id+'"] ul')
+	$imageViewer.find('.imageLayers div[id="imageLayer_'+layer.id+'"] ul')
 		.find('button, input').each(function(){
 			// Don't enable image processing for not fits files
 			if ( !$(this).hasClass('fitsUnavailable') )
@@ -72,7 +76,7 @@ function createLayerView(layer)
 {
 	var imageViewerLayerItemContent = imageViewerLayerItemTemplate( { id: layer.id, name: layer.name });
 	$layer = $(imageViewerLayerItemContent)
-		.appendTo($('#loadedImages').find('.imageLayers'));
+		.appendTo($imageViewer.find('.imageLayers'));
 
 	// Slide loaded images for current layer onclick
 	$layer.find('label.layerName').click(function(){
@@ -116,7 +120,7 @@ function createLayerView(layer)
 
 	if ( layers.length == 0 )
 	{
-		$('#loadedImages p').fadeOut(function(){
+		$imageViewer.find('#loadedImages p').fadeOut(function(){
 			$layer.fadeIn();
 		});
 	}
@@ -132,32 +136,73 @@ function createLayerView(layer)
 
 /**************************************************************************************************************/
 
+/**
+ *	Show image viewer
+ */
+function showImageViewer()
+{
+	$imageViewer.find('#loadedImages').css({ boxShadow: "0px 0px 8px 1px rgba(255, 158, 82, 0.92)"});
+	$imageViewer.find('#imageViewInvoker').css('background-position', '0px -20px')
+		.parent().animate({right: '0px'}, 300);
+}
+
+/**************************************************************************************************************/
+
+/**
+ *	Hide image viewer
+ */
+function hideImageViewer()
+{
+	$imageViewer.find('#loadedImages').css({ boxShadow: "none"});
+	$imageViewer.find('#imageViewInvoker').css('background-position', '0px 0px')
+		.parent().animate({right: '-254px'}, 300);
+}
+
+/**************************************************************************************************************/
+
 return {
 
-	init: function(mizar){
-
+	/**
+	 *	Init image viewer
+	 */
+	init: function(m)
+	{
+		mizar = m;
 		var self = this;
-		mizar.subscribe("image:add", $.proxy(this.addView, this) );
-		mizar.subscribe("image:remove", $.proxy(this.removeView, this));
-		mizar.subscribe("image:download", $.proxy(this.addProgressBar, this));
-
+		mizar.subscribe("image:add", this.addView);
+		mizar.subscribe("image:remove", this.removeView);
+		mizar.subscribe("image:download", this.addProgressBar);
 		sky = mizar.sky;
 		navigation = mizar.navigation;
-		var self = this;
-		// Show/hide image viewer
-		$('#imageViewInvoker').click(function(){
 
+		$imageViewer = $(imageViewerHTML).appendTo('#imageViewerDiv');
+
+		// Show/hide image viewer
+		$imageViewer.find('#imageViewInvoker').click(function(){
 			if ( parseFloat($(this).parent().css('right')) < 0 )
 			{
-				self.show();
+				showImageViewer();
 			}
 			else
 			{
-				self.hide();
+				hideImageViewer();
 			}
 		});
 		// Create accordion
-		$( "#loadedImages" ).accordion( { heightStyle: "content", active: 0, collapsible: true } ).show();
+		$imageViewer.find( "#loadedImages" ).accordion( { heightStyle: "content", active: 0, collapsible: true } ).show();
+	},
+
+	/**
+	 *	Remove UI and unregister all the events
+	 */
+	remove: function()
+	{
+		mizar.unsubscribe("image:add", this.addView );
+		mizar.unsubscribe("image:remove", this.removeView);
+		mizar.unsubscribe("image:download", this.addProgressBar);
+		$imageViewer.remove();
+		sky = null;
+		navigation = null;
 	},
 
 	/**
@@ -185,7 +230,8 @@ return {
 	 */
 	addView: function(selectedData)
 	{	
-		this.show();
+		showImageViewer();
+
 		// Get or create layer view
 		var $layer;
 		var layer = selectedData.layer;
@@ -195,7 +241,7 @@ return {
 		}
 		else
 		{
-			$layer = $('#loadedImages').find('.imageLayers div[id="imageLayer_'+layer.id+'"]');
+			$layer = $imageViewer.find('.imageLayers div[id="imageLayer_'+layer.id+'"]');
 		}
 
 		var feature = selectedData.feature;
@@ -333,7 +379,14 @@ return {
 						primary: "ui-icon-extlink"
 					}
 				}).click(function(){
-					Samp.sendImage(feature.services.download.url);
+					if ( Samp.isConnected() )
+					{
+						Samp.sendImage(feature.services.download.url);
+					}
+					else
+					{
+						ErrorDialog.open("You must be connected to SAMP Hub");
+					}
 				}).end()
 				.fadeIn();
 			
@@ -372,19 +425,19 @@ return {
 			delete progressBars[id];
 		}
 
-		$('#loadedImages').find('li.image[id="'+id+'"]').fadeOut(function(){
+		$imageViewer.find('#loadedImages').find('li.image[id="'+id+'"]').fadeOut(function(){
 
 			// No more loaded image views for current layer
 			if ( $(this).siblings().length == 0 )
 			{
 				// Remove layer view
-				$('#loadedImages').find('.imageLayers div[id="imageLayer_'+selectedData.layer.id+'"]').fadeOut(300, function(){
+				$imageViewer.find('.imageLayers div[id="imageLayer_'+selectedData.layer.id+'"]').fadeOut(300, function(){
 					// Remove layer view
 					$(this).remove();
 
 					// Show "No image was loaded"
 					if ( layers.length == 0 )
-						$('#loadedImages p').fadeIn();
+						$imageViewer.find('#loadedImages p').fadeIn();
 				});
 
 				var index = layers.indexOf(selectedData.layer);
@@ -403,31 +456,11 @@ return {
 	 */
 	 removeLayer: function(layer)
 	 {
-	 	var $layer = $('#loadedImages').find('.imageLayers div[id="imageLayer_'+layer.id+'"]');
+	 	var $layer = $imageViewer.find('.imageLayers div[id="imageLayer_'+layer.id+'"]');
 	 	$layer.find('ul li').each(function(){
 	 		$(this).find('.delete').trigger("click");
 	 	});
 	 },
-
-	/**
-	 *	Show image viewer
-	 */
-	show: function()
-	{
-		$('#loadedImages').css({ boxShadow: "0px 0px 8px 1px rgba(255, 158, 82, 0.92)"});
-		$('#imageViewInvoker').css('background-position', '0px -20px')
-			.parent().animate({right: '0px'}, 300);
-	},
-
-	/**
-	 *	Hide image viewer
-	 */
-	hide: function()
-	{
-		$('#loadedImages').css({ boxShadow: "none"});
-		$('#imageViewInvoker').css('background-position', '0px 0px')
-			.parent().animate({right: '-254px'}, 300);
-	},
 
 	getFeatures: function()
 	{
