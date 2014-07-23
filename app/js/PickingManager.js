@@ -52,13 +52,13 @@ function _handleMouseDown(event)
 {
 	if ( isMobile && event.type.search("touch") >= 0 )
 	{
-		event.clientX = event.changedTouches[0].clientX;
-		event.clientY = event.changedTouches[0].clientY;
+		event.layerX = event.changedTouches[0].clientX;
+		event.layerY = event.changedTouches[0].clientY;
 	}
 
 	timeStart = new Date();
-	mouseXStart = event.clientX;
-	mouseYStart = event.clientY;
+	mouseXStart = event.layerX;
+	mouseYStart = event.layerY;
 	clearSelection();
 }
 
@@ -75,14 +75,14 @@ function _handleMouseUp(event)
 
 	if ( isMobile && event.type.search("touch") >= 0 )
 	{
-		event.clientX = event.changedTouches[0].clientX;
-		event.clientY = event.changedTouches[0].clientY;
+		event.layerX = event.changedTouches[0].clientX;
+		event.layerY = event.changedTouches[0].clientY;
 	}
 
 	// If not pan and not reverse name resolver call
-	if ( diff < 500 && Math.abs(mouseXStart - event.clientX) < epsilon && Math.abs(mouseYStart - event.clientY) < epsilon )
+	if ( diff < 500 && Math.abs(mouseXStart - event.layerX) < epsilon && Math.abs(mouseYStart - event.layerY) < epsilon )
 	{
-		var pickPoint = sky.getLonLatFromPixel(event.clientX, event.clientY);
+		var pickPoint = sky.getLonLatFromPixel(event.layerX, event.layerY);
 
 		// Remove selected style for previous selection
 		clearSelection();
@@ -118,7 +118,8 @@ function _handleMouseUp(event)
 						$('#featureList div:eq(0)').addClass('selected');
 						FeaturePopup.showFeatureInformation( selection[stackSelectionIndex].layer, selection[stackSelectionIndex].feature )
 					}
-					FeaturePopup.show(sky.renderContext.canvas.width/2, sky.renderContext.canvas.height/2);
+					var offset = $(sky.renderContext.canvas).offset();
+					FeaturePopup.show(offset.left + sky.renderContext.canvas.width/2, offset.top + sky.renderContext.canvas.height/2);
 					}
 				);
 			});
