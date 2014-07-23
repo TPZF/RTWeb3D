@@ -20,7 +20,7 @@
 /**
  * Mollweider viewer module : Sky representation in mollweide coordinate system
  */
-define(["gw/CoordinateSystem", "./Utils", "gw/glMatrix"], function(CoordinateSystem, Utils) {
+define(["jquery", "gw/CoordinateSystem", "./Utils", "gw/glMatrix"], function($, CoordinateSystem, Utils) {
 
 /**
  *  Newton-Raphson method to find auxiliary theta needed for mollweide x/y computation
