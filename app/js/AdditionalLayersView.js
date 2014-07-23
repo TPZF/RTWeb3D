@@ -20,8 +20,8 @@
 /**
  * AdditionalLayersView module
  */
-define(["jquery", "gw/CoordinateSystem", "gw/FeatureStyle", "gw/OpenSearchLayer", "./LayerManager", "./HEALPixFITSLayer", "./MocLayer", "gw/VectorLayer", "./PickingManager", "./DynamicImageView", "./LayerServiceView", "./Samp", "./ImageViewer", "./ErrorDialog", "./Utils", "underscore-min", "text!../templates/additionalLayer.html", "jquery.nicescroll.min", "jquery.ui"],
-		function($, CoordinateSystem, FeatureStyle, OpenSearchLayer, LayerManager, HEALPixFITSLayer, MocLayer, VectorLayer, PickingManager, DynamicImageView, LayerServiceView, Samp, ImageViewer, ErrorDialog, Utils, _, additionalLayerHTMLTemplate){
+define(["jquery", "gw/CoordinateSystem", "gw/FeatureStyle", "gw/OpenSearchLayer", "./LayerManager", "./HEALPixFITSLayer", "./MocLayer", "gw/VectorLayer", "./PickingManager", "./DynamicImageView", "./LayerServiceView", "./Samp", "./ErrorDialog", "./Utils", "underscore-min", "text!../templates/additionalLayer.html", "jquery.nicescroll.min", "jquery.ui"],
+		function($, CoordinateSystem, FeatureStyle, OpenSearchLayer, LayerManager, HEALPixFITSLayer, MocLayer, VectorLayer, PickingManager, DynamicImageView, LayerServiceView, Samp, ErrorDialog, Utils, _, additionalLayerHTMLTemplate){
 
 var sky;
 var navigation;
@@ -449,9 +449,6 @@ function addView ( gwLayer )
 
 	// Add HTML
 	createHtmlForAdditionalLayer( gwLayer, categoryId );
-
-	if ( gwLayer.pickable )
-		PickingManager.addPickableLayer(gwLayer);
 }
 
 /**************************************************************************************************************/
@@ -515,12 +512,7 @@ function deleteLayer()
 	});
 
 	var layer = $(this).closest(".addLayer").data("layer");
-	var gwLayers = LayerManager.getLayers();
-	var index = gwLayers.indexOf(layer);
-	gwLayers.splice(index, 1);
-	PickingManager.removePickableLayer( layer );
-	ImageViewer.removeLayer( layer );
-	sky.removeLayer(layer);
+	LayerManager.removeLayer(layer);
 
 	updateScroll('otherLayers');
 }

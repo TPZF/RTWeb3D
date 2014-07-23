@@ -335,6 +335,10 @@ return {
 				}
 			}
 		}
+
+		if ( gwLayer.pickable )
+			PickingManager.addPickableLayer(gwLayer);
+
 		return gwLayer;
 	 },
 
@@ -347,7 +351,10 @@ return {
 
 	 	var index = gwLayers.indexOf(gwLayer);
 	 	gwLayers.splice( index, 1 );
+	 	if ( gwLayer.pickable )
+			PickingManager.removePickableLayer(gwLayer);
 
+		this.mizar.publish("layer:remove", gwLayer);
 	 	sky.removeLayer(gwLayer);
 	 },
 

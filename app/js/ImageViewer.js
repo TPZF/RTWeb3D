@@ -171,6 +171,7 @@ return {
 		mizar.subscribe("image:add", this.addView);
 		mizar.subscribe("image:remove", this.removeView);
 		mizar.subscribe("image:download", this.addProgressBar);
+		mizar.subscribe("layer:remove", this.removeLayer);
 		sky = mizar.sky;
 		navigation = mizar.navigation;
 
@@ -199,6 +200,7 @@ return {
 		mizar.unsubscribe("image:add", this.addView );
 		mizar.unsubscribe("image:remove", this.removeView);
 		mizar.unsubscribe("image:download", this.addProgressBar);
+		mizar.unsubscribe("layer:remove", this.removeLayer);
 		$imageViewer.remove();
 		sky = null;
 		navigation = null;
