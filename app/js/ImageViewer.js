@@ -29,7 +29,6 @@ var $imageViewer;
 
 var layers = [];
 var featuresWithImages = [];
-var progressBars = {};
 
 // Template generating the div representing layer which contains loaded images
 var imageViewerLayerItemTemplate = _.template(imageViewerLayerItemHTMLTemplate);
@@ -211,16 +210,11 @@ return {
 	 *	@param data
 	 *		Contains feature data(layer, feature) and its XMLHttpRequest
 	 */
-	addProgressBar: function(data)
+	addProgressBar: function(featureData)
 	{
-		var featureData = data.featureData;
-		var xhr = data.xhr;
-
 		var id = "imageView_" + Utils.formatId(featureData.feature.properties.identifier) + "_fits";
 		var progressBar = new SimpleProgressBar( { id: id } );
-		xhr.onprogress = progressBar.onprogress.bind(progressBar);
-		// Store xhr to cancel if needed
-		progressBars[ id ] = xhr;
+		featureData.xhr.onprogress = progressBar.onprogress.bind(progressBar);
 	},
 
 	/**
@@ -415,14 +409,6 @@ return {
 		if ( selectedData.isFits )
 		{
 			id+="_fits";
-		}
-
-		//Remove progress bar if inprogress
-		var progressXhr = progressBars[id];
-		if ( progressXhr )
-		{
-			progressXhr.abort();
-			delete progressBars[id];
 		}
 
 		$imageViewer.find('#loadedImages').find('li.image[id="'+id+'"]').fadeOut(function(){

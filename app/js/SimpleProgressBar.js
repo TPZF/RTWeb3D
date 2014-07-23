@@ -20,7 +20,7 @@
 /**
  * Simple progress bar
  */
-define(function() {
+define(["jquery"], function($) {
 
 var SimpleProgressBar = function(options)
 {

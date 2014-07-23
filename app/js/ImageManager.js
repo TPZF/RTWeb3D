@@ -37,8 +37,9 @@ var sitoolsBaseUrl;
 function computeFits(featureData, url, preprocessing)
 {
 	var xhr = FitsLoader.loadFits(url, function(fits){
-		var fitsData = fits.getHDU().data;
+		delete featureData.xhr;
 
+		var fitsData = fits.getHDU().data;
 		if ( preprocessing )
 		{
 			preprocessing(featureData, fits);
@@ -47,7 +48,9 @@ function computeFits(featureData, url, preprocessing)
 		handleFits(fitsData, featureData);
 	});
 
-	this.mizar.publish("image:download", {featureData: featureData, xhr: xhr});
+	// Store xhr on feature data object to cancel it if needed
+	featureData.xhr = xhr;
+	this.mizar.publish("image:download", featureData);
 }
 
 /**********************************************************************************************/
@@ -96,6 +99,13 @@ function handleFits(fitsData, featureData)
  */
 function removeFitsFromRenderer(featureData)
 {
+	// Abort xhr if inprogress
+	if ( featureData.xhr )
+	{
+		featureData.xhr.abort();
+		delete featureData.xhr;
+	}
+
 	var gl = sky.renderContext.gl;
 	if ( featureData.feature.properties.style.uniformValues )
 	{
