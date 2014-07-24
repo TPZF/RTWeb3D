@@ -240,13 +240,31 @@ define( [ "jquery", "underscore-min", "gw/EquatorialCoordinateSystem", "gw/Sky",
 		var confURL = _retrieveConfiguration();
 
 		var canvas = $(div).find('#GlobWebCanvas')[0];
-		// TODO: Make canvas have the same size as parent div
-		//var width = $(div).attr("width");
-		//var height = $(div).attr("height");
+		
+		// Set canvas dimensions from width/height attributes
+		var width = $(div).attr("width");
+		if ( !width )
+		{
+			// Use window width by default if not defined
+			width = window.innerWidth;
+		}
 
-		// Make canvas fullscreen
-		canvas.width = window.innerWidth;
-		canvas.height = window.innerHeight;
+		var height = $(div).attr("height");
+		if ( !height )
+		{
+			// Use window height if not defined
+			height = window.innerHeight;
+		}
+		canvas.width = width;
+		canvas.height = height;
+		
+		// Add some useful css properties to parent element
+		$(parentElement).css({
+			position: "relative",
+			width: canvas.width,
+			height: canvas.height,
+			overflow: "hidden"
+		});
 		
 		// Take into account window resize
 		$(window).resize(function() {
@@ -327,12 +345,6 @@ define( [ "jquery", "underscore-min", "gw/EquatorialCoordinateSystem", "gw/Sky",
 		
 		// Create data manager
 		PickingManager.init(this, options);
-
-		// Compass component(only for desktop due to performance issue on mobile)
-		if ( !this.isMobile )
-		{
-			self.setCompassGui(true);
-		}
 
 		// Share configuration module init
 		Share.init({navigation : this.navigation, configuration: options});
@@ -440,11 +452,9 @@ define( [ "jquery", "underscore-min", "gw/EquatorialCoordinateSystem", "gw/Sky",
 	 *	Set a custom background survey
 	 */
 	MizarWidget.prototype.setCustomBackgroundSurvey = function(layerDesc) {
-		// TODO
-		// Never tested..
-		var layer = LayerManager.addLayer(layerDesc);
 		layerDesc.background = true; // Ensure that background option is set to true
-		LayerManager.setBackgroundSurvey(layerDesc.name);	
+		var layer = LayerManager.addLayer(layerDesc);
+		LayerManager.setBackgroundSurvey(layerDesc.name);
 		return layer;
 	}
 

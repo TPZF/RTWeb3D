@@ -149,7 +149,6 @@ body
 #GlobWebCanvas
 {
 	z-index: -1;
-	position : absolute;
 }
 
 /*** Loading animation gif ***/
@@ -203,7 +202,7 @@ body
 	overflow: hidden;
 	outline: none;
 	display: inline-block;
-	background: url(../css/images/measure_off.png) no-repeat;
+	background: url(./images/measure_off.png) no-repeat;
 	position: relative;
 	left: -20px;
 	pointer-events: auto;
