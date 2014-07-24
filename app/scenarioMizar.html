@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<title>Mizar</title>
+<meta http-equiv="content-type" content="text/html; charset=ISO-8859-1" />
+<meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, maximum-scale=1, user-scalable=no" />
+
+<link rel="stylesheet" href="css/style.css" />
+
+<!-- Dev -->
+<!-- <script type="text/javascript" data-main="js/main" src="js/require.min.js"></script> -->
+
+<!-- Prod -->
+<script type="text/javascript" src="build/generated/MizarWidget.min.js"></script>
+<script type="text/javascript">
+
+	window.onload = function(){
+		var options = {
+			"debug": true,
+			"nameResolver": {
+				"zoomFov": 2
+			},
+			"navigation": {
+				"initTarget": [0,0]
+			},
+			"stats": {
+				"visible":true
+			}
+		};
+		var mizar = new MizarWidget("#mizarWidget-div", options);
+
+		mizar.setCompassGui(true);
+		mizar.setImageViewerGui(true);
+
+		mizar.subscribe("backgroundSurveysReady", function() {
+		    // Define a background once surveys are loaded
+		    var customSurvey = {
+				"type": "healpix",
+				"name": "IRIS",
+				"baseUrl": "http://demonstrator.telespazio.com/Alasky/IRISColor",
+				"description": "IRIS color",
+				"icon": "css/images/star_icon.png",
+				"visible": false,
+				"background": true,
+				"coordSystem": "GAL",
+		        "attribution": "IRIS background from <img width='24' height='16' src=\"css/images/cds.svg\" />",
+				"numberOfLevels": 1
+			};
+
+			mizar.setCustomBackgroundSurvey(customSurvey);
+			mizar.setCategoryGui(true);
+
+		});
+
+		// Define custom layer
+		var openSearchDesc = 	{
+			"type": "DynamicOpenSearch",
+			"category": "Image",
+			"name": "HST",
+			"serviceUrl": "http://demonstrator.telespazio.com/sitools/hst",
+			"dataType": "line",
+	        "description":"Hubble Space Telescope (HST) is an orbiting astronomical observatory operating from the near-infrared into the ultraviolet. Launched in 1990 and scheduled to operate through 2010, HST carries and has carried a wide variety of instruments producing imaging, spectrographic, astrometric, and photometric data through both pointed and parallel observing programs. MAST is the primary archive and distribution center for HST data, distributing science, calibration, and engineering data to HST users and the astronomical community at large. Over 100 000 observations of more than 20 000 targets are available for retrieval from the Archive.",
+			"visible": false,
+			"minOrder": 4,
+	        "attribution":"HST data provided by <a href=\"http://hst.esac.esa.int\" target=\"_blank\"><img src=\"http://demonstrator.telespazio.com/sitools/upload/esa.svg\" width='28' height='16'/></a>"
+		};
+		var myOpenSearchLayer = mizar.addLayer(openSearchDesc);
+
+		var geoJsonDesc = {
+			"category": "Other",
+			"type": "GeoJSON",
+			"name": "Herschel",
+			"description": "Herschel response used for testing",
+			"data": {
+				"type": "JSON",
+				"url": "data/responseHerschel.json",
+			},
+			"visible": true,
+			"pickable" : true
+		};
+
+		var geoJsonLayer = mizar.addLayer(geoJsonDesc);
+
+		// Adjust FOV
+		//var fov = mizar.getCurrentFov();
+		//if (fov < 20) { mizar.setZoom(20)} 
+
+		// Make open search layer visible
+		myOpenSearchLayer.visible(true);
+
+		// Go to mizar
+		mizar.goTo("mizar");
+
+		// Wait while searching results arrive
+		window.setTimeout(function(){
+			console.log("Opacity changed");
+			console.log(geoJsonLayer);
+			// Change opacity
+		    myOpenSearchLayer.opacity(0.3);
+		}, 10000);
+
+		/* TBD
+		// Browse metadata for a specific layer and highlight them for each record
+		var metadataList = mizar.getMetadata("myLayerID-0");
+		for(var metadata in metadataList["features"] ) {
+		    var identifier = metadata["properties"]["identifier"];
+		    sleep(10);
+		    mizar.setHighLight(["myLayerID-0:"+identifier]);
+		}
+		*/
+
+	}
+
+</script>
+
+</head>
+
+<body style="background-color: white;">
+
+<div style="display: inline-block;" id="mizarWidget-div">
+</div>
+
+</body>
+
+</html>
+

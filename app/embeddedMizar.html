@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<title>Mizar</title>
+<meta http-equiv="content-type" content="text/html; charset=ISO-8859-1" />
+<meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, maximum-scale=1, user-scalable=no" />
+
+<link rel="stylesheet" href="css/style.css" />
+
+<!-- Dev -->
+<!-- <script type="text/javascript" data-main="js/main" src="js/require.min.js"></script> -->
+
+<!-- Prod -->
+<script type="text/javascript" src="http://code.jquery.com/jquery-1.8.2.min.js"></script>
+<script type="text/javascript" charset="UTF-8" src="build/generated/MizarWidget.min.js"></script>
+<script type="text/javascript">
+
+	window.onload = function(){
+		var mizarWidget = new MizarWidget("#mizarWidget-div", {"debug": true, "navigation": { "initTarget": [0,0]}});
+
+		mizarWidget.setNameResolverGui(true);
+		mizarWidget.setReverseNameResolverGui(true);
+		mizarWidget.set2dMapGui(true);
+		mizarWidget.setCompassGui(true);
+
+		$('#toggleCompass').click(function(){
+			if ( $(this).is(":checked") )
+			{
+				mizarWidget.setCompassGui(true);
+			}
+			else
+			{
+				mizarWidget.setCompassGui(false);
+			}
+		});
+
+	}
+
+</script>
+
+</head>
+
+<body style="background-color: white;">
+
+<div style="display: inline-block; width: 40%">
+
+	<div style="margin: 20px;" id="menu">
+		<legend>Menu</legend>
+		<input type="checkbox" id="toggleCompass" checked="checked">Toggle compass</input>
+	</div>
+
+	<br/>
+	Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque luctus in tellus sed viverra. Donec adipiscing blandit sapien, at ullamcorper tortor convallis nec. Vestibulum luctus eleifend iaculis. Mauris pellentesque justo id nunc feugiat dictum. Vivamus quam nibh, commodo et sem vitae, convallis vehicula lacus. Nulla ut erat lobortis, lobortis ipsum quis, venenatis dui. Curabitur vel mauris dignissim, luctus metus ac, suscipit erat. Proin volutpat, arcu sit amet accumsan cursus, tortor purus sollicitudin dui, semper sagittis libero arcu sed massa. Sed eu ultricies leo. Pellentesque sit amet neque rhoncus neque auctor iaculis.
+
+Pellentesque tincidunt nec nunc et rutrum. Sed est diam, consectetur elementum orci sed, molestie adipiscing augue. Donec auctor dignissim gravida. Nunc feugiat neque mauris, quis tincidunt erat sollicitudin sed. Vivamus egestas malesuada tellus id mollis. Donec in lorem tellus. Fusce tempus porta odio, at placerat nibh pulvinar eget. Etiam non ante pharetra, imperdiet nibh ut, dapibus augue. Fusce mauris metus, elementum a ultricies ut, vehicula a est. Phasellus scelerisque neque erat, et commodo lorem luctus ultrices. Curabitur pulvinar interdum elit, in accumsan mi vehicula a. Quisque sit amet sem et magna tristique fringilla. Phasellus eu commodo urna.
+
+Donec non eros euismod, accumsan nisi id, condimentum erat. Proin tempus, tortor vitae vulputate interdum, augue sapien porta felis, et ultricies ipsum eros vitae ante. Sed tincidunt fringilla tellus et hendrerit. Quisque rhoncus diam sit amet nisl malesuada, vitae ullamcorper sapien ullamcorper. Pellentesque et feugiat lorem, id iaculis mi. Aenean rutrum pharetra enim in tristique. Proin nisl odio, semper vel lectus vitae, pharetra ornare leo. Nam vitae purus non orci imperdiet lacinia eget ac est. Integer pulvinar eros lectus, sit amet interdum purus aliquam nec. Donec auctor arcu libero, vitae pharetra lorem tincidunt sit amet. Fusce molestie dictum vehicula. Nam accumsan libero vel tellus accumsan posuere. Nulla hendrerit congue vehicula. Vivamus eleifend elit quis nunc vehicula suscipit. Mauris facilisis sem a orci ultricies, in lacinia sapien egestas.
+
+Vivamus sit amet suscipit nulla, quis iaculis urna. Nunc urna est, pulvinar ut dolor sit amet, interdum blandit nunc. Nunc convallis nunc eu mollis fermentum. Fusce tempus sollicitudin massa sed auctor. In porta tempor nibh, non laoreet quam egestas in. Praesent a sollicitudin tellus. Maecenas vitae volutpat nunc. Sed ut leo sem. Quisque in urna blandit, convallis nunc ac, viverra purus. Nulla facilisi. Nunc eget aliquet risus. Aenean aliquet risus leo, sodales consequat metus tincidunt nec. Duis a vestibulum ligula, vitae consectetur augue. Nullam pretium ac urna id ultricies. Curabitur tempus, lacus ac molestie placerat, lorem ipsum gravida metus, sit amet vestibulum eros dolor at urna.
+
+Aliquam nisi quam, dictum id rhoncus volutpat, luctus vel diam. Quisque pharetra dui nec augue egestas vulputate. Maecenas feugiat ipsum vitae augue adipiscing viverra. Proin feugiat accumsan nisi, at pellentesque augue aliquet a. Nunc ac pharetra leo, at facilisis libero. Ut blandit fringilla nisi quis iaculis. Aliquam feugiat scelerisque condimentum. Vivamus condimentum ante dolor, vel fermentum ante tincidunt ac. Cras lacus neque, hendrerit aliquam erat et, ullamcorper gravida augue. Duis molestie pharetra vulputate.
+</div> 
+
+<div style="display: inline-block; margin: 50px; vertical-align: top;" id="mizarWidget-div" width="600" height="600">
+</div>
+
+</body>
+
+</html>
