@@ -28,6 +28,7 @@ define( [ "jquery", "underscore-min", "gw/FeatureStyle", "gw/HEALPixLayer", "gw/
  */
 var sky;
 var gwLayers = [];
+var configuration;
 
 // GeoJSON data providers
 var dataProviders = {};
@@ -53,7 +54,7 @@ function createSimpleLayer(name)
 	var options = {
 		name: name,
 		style: new FeatureStyle({
-			iconUrl: "css/images/star.png",
+			iconUrl: configuration.mizarBaseUrl + "css/images/star.png",
 			fillColor: rgba,
 			strokeColor: rgba,
 			visible: true
@@ -108,7 +109,7 @@ function createLayerFromConf(layer) {
 	var defaultVectorStyle = new FeatureStyle({ 
 				rendererHint: "Basic", 
 				opacity: layer.opacity/100.,
-				iconUrl: layer.icon ? layer.icon : "css/images/star.png",
+				iconUrl: layer.icon ? layer.icon : configuration.mizarBaseUrl + "css/images/star.png",
 				fillColor: rgba,
 				strokeColor: rgba
 	});
@@ -249,12 +250,12 @@ return {
 	 *
 	 *	@param mizar
 	 *		Mizar API object
-	 *	@param configuration
-	 *		Mizar configuration 
+	 *	@param conf
+	 *		Mizar configuration
  	 */
-	init: function(mizar, configuration) {
+	init: function(mizar, conf) {
 		this.mizar = mizar;
-		
+		configuration = conf;
 		// Store the sky in the global module variable
 		sky = mizar.sky;
 

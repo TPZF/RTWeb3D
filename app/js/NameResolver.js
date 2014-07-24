@@ -18,7 +18,7 @@
 ******************************************************************************/ 
 
 /**
- * Name resolver module : search object name and zoom to it
+ * Name resolver module : API allowing to search object name and zoom to it
  */
 define(["jquery", "gw/FeatureStyle", "gw/VectorLayer", "gw/HEALPixBase", "gw/CoordinateSystem", "./Utils", "jquery.ui"],
 	function($, FeatureStyle, VectorLayer, HEALPixBase, CoordinateSystem, Utils) {
@@ -26,14 +26,14 @@ define(["jquery", "gw/FeatureStyle", "gw/VectorLayer", "gw/HEALPixBase", "gw/Coo
 // Name resolver globals
 var sky;
 var astroNavigator;
-var configuration = {zoomFov: 15.};
+var configuration = {
+	"nameResolver": {
+		zoomFov: 15.
+	}
+};
 
 // Target layer
-var style = new FeatureStyle({
-	iconUrl: "css/images/target.png",
-	fillColor: [1., 1., 1., 1.]
- });
-var targetLayer = new VectorLayer({ style: style });
+var targetLayer;
 // Zooming destination feature
 var targetFeature;
 
@@ -199,13 +199,16 @@ function removeTarget()
 return {
 	init: function(mizar, conf) {
 		if ( !sky ) {
+			configuration = conf;
+			var style = new FeatureStyle({
+				iconUrl: configuration.mizarBaseUrl + "css/images/target.png",
+				fillColor: [1., 1., 1., 1.]
+			});
+			targetLayer = new VectorLayer({ style: style });
+
 			sky = mizar.sky;
 			astroNavigator = mizar.navigation;
-
-			for( var x in conf.nameResolver )
-			{
-				configuration[x] = conf.nameResolver[x];
-			}
+			configuration = $.extend(conf['nameResolver'], configuration['nameResolver']);
 
 			sky.addLayer( targetLayer );
 			astroNavigator.subscribe("modified", removeTarget);

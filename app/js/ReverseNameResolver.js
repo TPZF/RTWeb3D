@@ -48,8 +48,8 @@ var reverseNameResolverHTML =
 		</div>\
 		<div id="reverseSearchResult"></div>\
 		<div class="closeBtn">\
-			<img src="css/images/close_button.png" alt="" class="defaultImg" />\
-			<img src="css/images/close_buttonHover.png" alt="" class="hoverImg" />\
+			<span class="defaultImg"></span>\
+			<span style="opacity: 0" class="hoverImg"></span>\
 		</div>\
 	</div>';
 
@@ -219,7 +219,7 @@ return {
 				equatorialCoordinates[0] = equatorialCoordinates[0].replace("m ",":");
 				equatorialCoordinates[0] = equatorialCoordinates[0].replace("s","");
 				
-				equatorialCoordinates[1] = equatorialCoordinates[1].replace("Â° ",":");
+				equatorialCoordinates[1] = equatorialCoordinates[1].replace("° ",":");
 				equatorialCoordinates[1] = equatorialCoordinates[1].replace("' ",":");
 				equatorialCoordinates[1] = equatorialCoordinates[1].replace("\"","");
 

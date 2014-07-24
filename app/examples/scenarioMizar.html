@@ -6,13 +6,13 @@
 <meta http-equiv="content-type" content="text/html; charset=ISO-8859-1" />
 <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, maximum-scale=1, user-scalable=no" />
 
-<link rel="stylesheet" href="css/style.css" />
+<link rel="stylesheet" href="../css/style.css" />
 
 <!-- Dev -->
 <!-- <script type="text/javascript" data-main="js/main" src="js/require.min.js"></script> -->
 
 <!-- Prod -->
-<script type="text/javascript" src="build/generated/MizarWidget.min.js"></script>
+<script type="text/javascript" charset="UTF-8" src="../MizarWidget.min.js"></script>
 <script type="text/javascript">
 
 	window.onload = function(){
@@ -33,27 +33,24 @@
 		mizar.setCompassGui(true);
 		mizar.setImageViewerGui(true);
 
-		mizar.subscribe("backgroundSurveysReady", function() {
-		    // Define a background once surveys are loaded
-		    var customSurvey = {
-				"type": "healpix",
-				"name": "IRIS",
-				"baseUrl": "http://demonstrator.telespazio.com/Alasky/IRISColor",
-				"description": "IRIS color",
-				"icon": "css/images/star_icon.png",
-				"visible": false,
-				"background": true,
-				"coordSystem": "GAL",
-		        "attribution": "IRIS background from <img width='24' height='16' src=\"css/images/cds.svg\" />",
-				"numberOfLevels": 1
-			};
+		// Add custom survey
+	    var customSurvey = {
+			"type": "healpix",
+			"name": "IRIS",
+			"baseUrl": "http://demonstrator.telespazio.com/Alasky/IRISColor",
+			"description": "IRIS color",
+			"icon": "css/images/star_icon.png",
+			"visible": false,
+			"background": true,
+			"coordSystem": "GAL",
+	        "attribution": "IRIS background from <img width='24' height='16' src=\"http://demonstrator.telespazio.com/mizar/css/images/cds.svg\" />",
+			"numberOfLevels": 1
+		};
 
-			mizar.setCustomBackgroundSurvey(customSurvey);
-			mizar.setCategoryGui(true);
+		mizar.setCustomBackgroundSurvey(customSurvey);
+		mizar.setCategoryGui(true);
 
-		});
-
-		// Define custom layer
+		// Add custom opensearch layer
 		var openSearchDesc = 	{
 			"type": "DynamicOpenSearch",
 			"category": "Image",
@@ -67,6 +64,7 @@
 		};
 		var myOpenSearchLayer = mizar.addLayer(openSearchDesc);
 
+		// Add custom GeoJSON layer
 		var geoJsonDesc = {
 			"category": "Other",
 			"type": "GeoJSON",
@@ -74,31 +72,39 @@
 			"description": "Herschel response used for testing",
 			"data": {
 				"type": "JSON",
-				"url": "data/responseHerschel.json",
+				"url": "http://demonstrator.telespazio.com/mizar/data/responseHerschel.json",
 			},
 			"visible": true,
 			"pickable" : true
 		};
-
 		var geoJsonLayer = mizar.addLayer(geoJsonDesc);
 
-		// Adjust FOV
-		//var fov = mizar.getCurrentFov();
-		//if (fov < 20) { mizar.setZoom(20)} 
-
-		// Make open search layer visible
-		myOpenSearchLayer.visible(true);
-
-		// Go to mizar
-		mizar.goTo("mizar");
-
-		// Wait while searching results arrive
+		// Wait till survey is loaded
+		// TODO : replace it by event subscribing
 		window.setTimeout(function(){
-			console.log("Opacity changed");
-			console.log(geoJsonLayer);
-			// Change opacity
-		    myOpenSearchLayer.opacity(0.3);
-		}, 10000);
+			// Go to point of interest
+			mizar.goTo("mizar");
+
+			// Wait till animation is finished
+			window.setTimeout(function(){
+
+				// Adjust FOV
+				var fov = mizar.getCurrentFov();
+				if (fov[1] <= 2) {
+					mizar.setZoom(1);
+				} 
+
+				// Make open search layer visible
+				myOpenSearchLayer.visible(true);
+
+				// Wait while searching results arrive
+				window.setTimeout(function(){
+					console.log("Opacity changed");
+					// Change opacity
+				    myOpenSearchLayer.opacity(0.3);
+				}, 10000);
+			}, 5000);
+		}, 5000);
 
 		/* TBD
 		// Browse metadata for a specific layer and highlight them for each record

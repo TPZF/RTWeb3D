@@ -671,13 +671,7 @@ return {
 			select: function(e)
 			{
 				var newCoordSystem = $(this).children('option:selected').val();				
-				CoordinateSystem.type = newCoordSystem;
-
-				if (options.mizar.mollweideViewer)
-					options.mizar.mollweideViewer.setCoordSystem( newCoordSystem );
-
-				// Publish modified event to update compass north
-				navigation.publish('modified');
+				options.mizar.setCoordinateSystem(newCoordSystem);
 			},
 			width: 100
 		});

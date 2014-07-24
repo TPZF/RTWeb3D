@@ -22,6 +22,8 @@
  */
 define(["jquery", "gw/CoordinateSystem", "./Utils", "gw/glMatrix"], function($, CoordinateSystem, Utils) {
 
+var mizarBaseUrl;
+
 /**
  *  Newton-Raphson method to find auxiliary theta needed for mollweide x/y computation
  *  @see https://en.wikipedia.org/wiki/Mollweide_projection
@@ -65,6 +67,8 @@ var Point = function(options) {
 /*************************************************************************/
 
 var MollweideViewer = function(options) {
+
+    mizarBaseUrl = options.mizarBaseUrl;
 
     // Init options
     var globe = options.globe;
@@ -297,7 +301,7 @@ var MollweideViewer = function(options) {
 MollweideViewer.prototype.setCoordSystem = function(coordSystem)
 {
     // Update mollweideViewer background image
-    $(this.imageObj).attr("src", "css/images/MollweideSky_"+coordSystem+".png");
+    $(this.imageObj).attr("src", mizarBaseUrl + "css/images/MollweideSky_"+coordSystem+".png");
 }
 
 /**********************************************************************************************/

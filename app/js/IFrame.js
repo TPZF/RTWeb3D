@@ -29,8 +29,8 @@ var iframe =
 		  <button id="next">Next page</button>\
 		</div>\
 		<div class="closeBtn">\
-			<img src="css/images/close_button.png" alt="" class="defaultImg" />\
-			<img style="opacity: 0" src="css/images/close_buttonHover.png" alt="" class="hoverImg" />\
+			<span class="defaultImg"></span>\
+			<span style="opacity: 0" class="hoverImg"></span>\
 		</div>\
 		<iframe src=""><p>Your browser does not support iframes.</p></iframe>\
 	</div>';

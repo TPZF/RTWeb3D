@@ -27,6 +27,7 @@ var featureListHTML = '';
 var pickingManager = null;
 var imageManager = null;
 var globe = null;
+var configuration;
 
 var isMobile;
 
@@ -35,8 +36,8 @@ var selectedFeatureDiv = '<div id="selectedFeatureDiv" class="contentBox ui-widg
 				<div id="leftDiv"></div>\
 				<div id="rightDiv"></div>\
 				<div class="closeBtn">\
-					<img src="css/images/close_button.png" alt="" class="defaultImg" />\
-					<img style="opacity: 0" src="css/images/close_buttonHover.png" alt="" class="hoverImg" />\
+					<span class="defaultImg"></span>\
+					<span style="opacity: 0" class="hoverImg"></span>\
 				</div>\
 				<div class="arrow-left"></div>\
 			</div>';
@@ -234,9 +235,6 @@ function createHTMLSelectedFeatureDiv( layer, feature )
 	$rightDiv.find('.featureProperties').css('max-height', computeHeight());
 
 	$selectedFeatureDiv.find('.featureProperties').niceScroll({
-		railoffset: {
-			left: 15
-		},
 		autohidemode: false
 	}).hide();
 }
@@ -251,11 +249,12 @@ return {
 	 *	@param pm <PickingManager>
 	 *	@param gl <GlobWeb.Globe>
 	 */
-	init: function(pm, im, gl, configuration){
+	init: function(pm, im, gl, conf){
 		pickingManager = pm;
 		imageManager = im;
 		globe = gl;
-		isMobile = configuration.isMobile;
+		configuration = conf;
+		isMobile = conf.isMobile;
 
 		$selectedFeatureDiv = $(selectedFeatureDiv).appendTo('body');
 		$leftDiv = $('#leftDiv');
@@ -361,7 +360,7 @@ return {
 			{
 				// Create solar object layer
 				var defaultVectorStyle = new FeatureStyle({ 
-					iconUrl: "css/images/star.png",
+					iconUrl: configuration.mizarBaseUrl + "css/images/star.png",
 					zIndex: 2
 				});
 

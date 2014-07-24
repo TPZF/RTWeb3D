@@ -7,12 +7,12 @@
 		"type": "GeoJSON",
 		"name": "Constellations",
 		"icon": "css/images/constellation_icon.png",
-		"attribution": "Constellation coming from <a href=\"http://cdsweb.u-strasbg.fr/index-fr.gml\" target=\"_blank\"><object width='24' height='16' data=\"css/images/cds.svg\" type=\"image/svg+xml\"></object></a>",
+		"attribution": "Constellation coming from <a href=\"http://cdsweb.u-strasbg.fr/index-fr.gml\" target=\"_blank\"><object width='24' height='16' data=\"http://demonstrator.telespazio.com/mizar/css/images/cds.svg\" type=\"image/svg+xml\"></object></a>",
 		"description": "Constellation shapes from VizieR Catalogue",
 		"data": {
 			"type": "constellation",
-			"nameUrl": "data/ConstellationNames.tsv",
-			"catalogueUrl": "data/bound_20.dat"
+			"nameUrl": "http://demonstrator.telespazio.com/mizar/data/ConstellationNames.tsv",
+			"catalogueUrl": "http://demonstrator.telespazio.com/mizar/data/bound_20.dat"
 		},
 		"visible": false,
 		"pickable" : false,
@@ -22,13 +22,13 @@
 		"category": "Other",
 		"type": "GeoJSON",
 		"name": "Brighten stars",
-		"icon": "css/images/star_icon.png",
-		"attribution": "The most brighten stars coming from <a href=\"http://cdsweb.u-strasbg.fr/index-fr.gml\" target=\"_blank\"><object width='24' height='16' data=\"css/images/cds.svg\" type=\"image/svg+xml\"></object></a>",
+		"icon": "http://demonstrator.telespazio.com/mizar/css/images/star_icon.png",
+		"attribution": "The most brighten stars coming from <a href=\"http://cdsweb.u-strasbg.fr/index-fr.gml\" target=\"_blank\"><object width='24' height='16' data=\"http://demonstrator.telespazio.com/mizar/css/images/cds.svg\" type=\"image/svg+xml\"></object></a>",
 		"description": "The most brighten stars from VizieR Catalogue",
 		"data": {
 			"type": "star",
-			"nameUrl": "data/Names.tsv",
-			"catalogueUrl": "data/Catalogue.tsv"
+			"nameUrl": "http://demonstrator.telespazio.com/mizar/data/Names.tsv",
+			"catalogueUrl": "http://demonstrator.telespazio.com/mizar/data/Catalogue.tsv"
 		},
 		"visible": true,
 		"opacity": 100,
@@ -72,7 +72,7 @@
 		"visible": false,
 		"background": true,	
         "coordSystem": "GAL",
-        "attribution":"<a href=\"http://irsa.ipac.caltech.edu/Missions/wise.html\" target=\"_blank\"><img src=\"http://demonstrator.telespazio.com/sitools/upload/wise.svg\" width='24' height='16'/></a> color background provided by <a href=\"http://cdsweb.u-strasbg.fr/index-fr.gml\" target=\"_blank\"><object width='24' height='16' data=\"css/images/cds.svg\" type=\"image/svg+xml\"></object></a>",
+        "attribution":"<a href=\"http://irsa.ipac.caltech.edu/Missions/wise.html\" target=\"_blank\"><img src=\"http://demonstrator.telespazio.com/sitools/upload/wise.svg\" width='24' height='16'/></a> color background provided by <a href=\"http://cdsweb.u-strasbg.fr/index-fr.gml\" target=\"_blank\"><object width='24' height='16' data=\"http://demonstrator.telespazio.com/mizar/css/images/cds.svg\" type=\"image/svg+xml\"></object></a>",
 		"numberOfLevels": 5
 	},
 	{
@@ -83,7 +83,7 @@
 		"visible": false,
 		"background": true,	
         "coordSystem": "GAL",
-        "attribution":"<object width='24' height='16' data=\"http://demonstrator.telespazio.com/upload/spitzer.svg\" type=\"image/svg+xml\"></object> color background provided by <a href=\"http://cdsweb.u-strasbg.fr/index-fr.gml\" target=\"_blank\"><object width='24' height='16' data=\"css/images/cds.svg\" type=\"image/svg+xml\"></object></a>",
+        "attribution":"<object width='24' height='16' data=\"http://demonstrator.telespazio.com/upload/spitzer.svg\" type=\"image/svg+xml\"></object> color background provided by <a href=\"http://cdsweb.u-strasbg.fr/index-fr.gml\" target=\"_blank\"><object width='24' height='16' data=\"http://demonstrator.telespazio.com/mizar/css/images/cds.svg\" type=\"image/svg+xml\"></object></a>",
 		"numberOfLevels": 9
 	},
 	{
@@ -91,19 +91,19 @@
 		"name": "IRIS",
 		"baseUrl": "http://demonstrator.telespazio.com/Alasky/IRISColor",
 		"description": "IRIS color",
-		"icon": "css/images/star_icon.png",
+		"icon": "http://demonstrator.telespazio.com/mizar/css/images/star_icon.png",
 		"visible": false,
 		"background": true,
 		"coordSystem": "GAL",
-        "attribution": "IRIS background from <img width='24' height='16' src=\"css/images/cds.svg\" />",
-		"numberOfLevels": 2
+        "attribution": "IRIS background from <img width='24' height='16' src=\"http://demonstrator.telespazio.com/mizar/css/images/cds.svg\" />",
+		"numberOfLevels": 1
 	},
 	{ 
 		"type": "healpix",
 		"name": "Deep CFHTLS",
 		"baseUrl": "http://demonstrator.telespazio.com/sitools/Alasky/CFHTLS-T0007b/Deep/RGB-UGIm",
 		"description": "Deep CFHTLS from CDS",
-		"attribution": "Deep CFHTLS background from <a href=\"http://cdsweb.u-strasbg.fr/index-fr.gml\" target=\"_blank\"><img width='24' height='16' src=\"css/images/cds.svg\" /></a>",
+		"attribution": "Deep CFHTLS background from <a href=\"http://cdsweb.u-strasbg.fr/index-fr.gml\" target=\"_blank\"><img width='24' height='16' src=\"http://demonstrator.telespazio.com/mizar/css/images/cds.svg\" /></a>",
 		"visible": false,
 		"background": true,
 		"numberOfLevels": 11
@@ -113,7 +113,7 @@
 		"name": "CFHTLS Wide",
 		"baseUrl": "http://demonstrator.telespazio.com/sitools/Alasky/CFHTLS-T0007b/Wide/RGB-UGIm",
 		"description": "CFHTLS-W-Colored (UGI)",
-        "attribution": "TERAPIX - Healpixed by <a href=\"http://cdsweb.u-strasbg.fr/index-fr.gml\" target=\"_blank\"><img width='24' height='16' src=\"css/images/cds.svg\" /></a>",
+        "attribution": "TERAPIX - Healpixed by <a href=\"http://cdsweb.u-strasbg.fr/index-fr.gml\" target=\"_blank\"><img width='24' height='16' src=\"http://demonstrator.telespazio.com/mizar/css/images/cds.svg\" /></a>",
 		"visible": false,
 		"background": true,
 		"numberOfLevels": 10
@@ -123,7 +123,7 @@
 		"name": "2MASS",
 		"baseUrl": "http://demonstrator.telespazio.com/sitools/Alasky/2MASS/Color",
 		"description": "Infrared 2MASS colored survey from NASA, healpixed by CDS",
-		"attribution": "2MASS background from <a href=\"http://cdsweb.u-strasbg.fr/index-fr.gml\" target=\"_blank\"><img width='24' height='16' src=\"css/images/cds.svg\" /></a>",
+		"attribution": "2MASS background from <a href=\"http://cdsweb.u-strasbg.fr/index-fr.gml\" target=\"_blank\"><img width='24' height='16' src=\"http://demonstrator.telespazio.com/mizar/css/images/cds.svg\" /></a>",
 		"visible": false,
 		"background": true,
 		"numberOfLevels": 8
@@ -133,7 +133,7 @@
 		"name": "RASS",
 		"baseUrl": "http://demonstrator.telespazio.com/sitools/Alasky/RASS",
 		"description": "RASS-ROSAT X-Ray All-Sky Survey",
-		"attribution": "Distributed by MPE - Healpixed by <a href=\"http://cdsweb.u-strasbg.fr/index-fr.gml\" target=\"_blank\"><img width='24' height='16' src=\"css/images/cds.svg\" /></a>",
+		"attribution": "Distributed by MPE - Healpixed by <a href=\"http://cdsweb.u-strasbg.fr/index-fr.gml\" target=\"_blank\"><img width='24' height='16' src=\"http://demonstrator.telespazio.com/mizar/css/images/cds.svg\" /></a>",
 		"visible": false,
 		"background": true,
 		"numberOfLevels": 3
@@ -152,7 +152,7 @@
 		"name": "DSS",
 		"baseUrl": "http://demonstrator.telespazio.com/Alasky/DssColor",
 		"description": "Digital Sky Survey from CDS",
-		"attribution": "DSS background from <a href=\"http://cdsweb.u-strasbg.fr/index-fr.gml\" target=\"_blank\"><img width='24' height='16' src=\"css/images/cds.svg\" /></a>",
+		"attribution": "DSS background from <a href=\"http://cdsweb.u-strasbg.fr/index-fr.gml\" target=\"_blank\"><img width='24' height='16' src=\"http://demonstrator.telespazio.com/mizar/css/images/cds.svg\" /></a>",
 		"visible": true,
 		"background": true,
 		"numberOfLevels": 8
@@ -162,8 +162,8 @@
 		"name": "SDSS",
 		"baseUrl": "http://demonstrator.telespazio.com/sitools/Alasky/SDSS/DR7/Color",
 		"description": "Sloan Digital Sky Survey from CDS",
-		"attribution": "SDSS background from <a href=\"http://cdsweb.u-strasbg.fr/index-fr.gml\" target=\"_blank\"><img width='24' height='16' src=\"css/images/cds.svg\" /></a>",
-		"icon": "css/images/star_icon.png",
+		"attribution": "SDSS background from <a href=\"http://cdsweb.u-strasbg.fr/index-fr.gml\" target=\"_blank\"><img width='24' height='16' src=\"http://demonstrator.telespazio.com/mizar/css/images/cds.svg\" /></a>",
+		"icon": "http://demonstrator.telespazio.com/mizar/css/images/star_icon.png",
 		"visible": false,
 		"background": true
 	},
@@ -183,7 +183,7 @@
 		"coordSystem": "GAL",
 		//"availableServices": [ { "name": "HEALPixCut", "fileName": "HFI_SkyMap_857_2048_R1.10_nominal.fits"	} ],
 		"numberOfLevels": 2,
-        "attribution":"<a href=\"http://irsa.ipac.caltech.edu/data/Planck/release_1/all-sky-maps/\" target=\"_blank\"><img src=\"http://demonstrator.telespazio.com/sitools/upload/planck.svg\" width='20' height='20'/></a> data provided by <a href=\"http://cdsweb.u-strasbg.fr/index-fr.gml\" target=\"_blank\"><img width='24' height='16' src=\"css/images/cds.svg\" /></a>"
+        "attribution":"<a href=\"http://irsa.ipac.caltech.edu/data/Planck/release_1/all-sky-maps/\" target=\"_blank\"><img src=\"http://demonstrator.telespazio.com/sitools/upload/planck.svg\" width='20' height='20'/></a> data provided by <a href=\"http://cdsweb.u-strasbg.fr/index-fr.gml\" target=\"_blank\"><img width='24' height='16' src=\"http://demonstrator.telespazio.com/mizar/css/images/cds.svg\" /></a>"
 	},
     {
 		"type": "healpix",
@@ -197,7 +197,7 @@
 		"dataType": "jpg",
 		//"availableServices": [ { "name": "HEALPixCut", "fileName": "HFI_SkyMap_857_2048_R1.10_nominal.fits"	} ],
 		"numberOfLevels": 2,
-        "attribution":"<a href=\"http://irsa.ipac.caltech.edu/data/Planck/release_1/all-sky-maps/\" target=\"_blank\"><img src=\"http://demonstrator.telespazio.com/sitools/upload/planck.svg\" width='20' height='20'/></a> data provided by <a href=\"http://cdsweb.u-strasbg.fr/index-fr.gml\" target=\"_blank\"><img width='24' height='16' src=\"css/images/cds.svg\" /></a>"
+        "attribution":"<a href=\"http://irsa.ipac.caltech.edu/data/Planck/release_1/all-sky-maps/\" target=\"_blank\"><img src=\"http://demonstrator.telespazio.com/sitools/upload/planck.svg\" width='20' height='20'/></a> data provided by <a href=\"http://cdsweb.u-strasbg.fr/index-fr.gml\" target=\"_blank\"><img width='24' height='16' src=\"http://demonstrator.telespazio.com/mizar/css/images/cds.svg\" /></a>"
     },
     {
 		"type": "healpix",
@@ -211,7 +211,7 @@
 		"dataType": "jpg",
 		//"availableServices": [ { "name": "HEALPixCut", "fileName": "HFI_SkyMap_545_2048_R1.10_nominal.fits"	} ],
 		"numberOfLevels": 2,
-        "attribution":"<a href=\"http://irsa.ipac.caltech.edu/data/Planck/release_1/all-sky-maps/\" target=\"_blank\"><img src=\"http://demonstrator.telespazio.com/sitools/upload/planck.svg\" width='20' height='20'/></a> data provided by <a href=\"http://cdsweb.u-strasbg.fr/index-fr.gml\" target=\"_blank\"><img width='24' height='16' src=\"css/images/cds.svg\" /></a>"
+        "attribution":"<a href=\"http://irsa.ipac.caltech.edu/data/Planck/release_1/all-sky-maps/\" target=\"_blank\"><img src=\"http://demonstrator.telespazio.com/sitools/upload/planck.svg\" width='20' height='20'/></a> data provided by <a href=\"http://cdsweb.u-strasbg.fr/index-fr.gml\" target=\"_blank\"><img width='24' height='16' src=\"http://demonstrator.telespazio.com/mizar/css/images/cds.svg\" /></a>"
     },
     {
 		"type": "healpix",
@@ -225,7 +225,7 @@
 		"dataType": "jpg",
 		//"availableServices": [ { "name": "HEALPixCut", "fileName": "HFI_SkyMap_353_2048_R1.10_nominal.fits"	} ],
 		"numberOfLevels": 2,
-        "attribution":"<a href=\"http://irsa.ipac.caltech.edu/data/Planck/release_1/all-sky-maps/\" target=\"_blank\"><img src=\"http://demonstrator.telespazio.com/sitools/upload/planck.svg\" width='20' height='20'/></a> data provided by <a href=\"http://cdsweb.u-strasbg.fr/index-fr.gml\" target=\"_blank\"><img width='24' height='16' src=\"css/images/cds.svg\" /></a>"
+        "attribution":"<a href=\"http://irsa.ipac.caltech.edu/data/Planck/release_1/all-sky-maps/\" target=\"_blank\"><img src=\"http://demonstrator.telespazio.com/sitools/upload/planck.svg\" width='20' height='20'/></a> data provided by <a href=\"http://cdsweb.u-strasbg.fr/index-fr.gml\" target=\"_blank\"><img width='24' height='16' src=\"http://demonstrator.telespazio.com/mizar/css/images/cds.svg\" /></a>"
     },
     {
 		"type": "healpix",
@@ -239,7 +239,7 @@
 		"dataType": "jpg",
 		//"availableServices": [ { "name": "HEALPixCut", "fileName": "HFI_SkyMap_217_2048_R1.10_nominal.fits"	} ],
 		"numberOfLevels": 2,
-        "attribution":"<a href=\"http://irsa.ipac.caltech.edu/data/Planck/release_1/all-sky-maps/\" target=\"_blank\"><img src=\"http://demonstrator.telespazio.com/sitools/upload/planck.svg\" width='20' height='20'/></a> data provided by <a href=\"http://cdsweb.u-strasbg.fr/index-fr.gml\" target=\"_blank\"><img width='24' height='16' src=\"css/images/cds.svg\" /></a>"
+        "attribution":"<a href=\"http://irsa.ipac.caltech.edu/data/Planck/release_1/all-sky-maps/\" target=\"_blank\"><img src=\"http://demonstrator.telespazio.com/sitools/upload/planck.svg\" width='20' height='20'/></a> data provided by <a href=\"http://cdsweb.u-strasbg.fr/index-fr.gml\" target=\"_blank\"><img width='24' height='16' src=\"http://demonstrator.telespazio.com/mizar/css/images/cds.svg\" /></a>"
     },
     {
 		"type": "healpix",
@@ -253,7 +253,7 @@
 		"dataType": "jpg",
 		//"availableServices": [ { "name": "HEALPixCut", "fileName": "HFI_SkyMap_143_2048_R1.10_nominal.fits"	} ],
 		"numberOfLevels": 2,
-        "attribution":"<a href=\"http://irsa.ipac.caltech.edu/data/Planck/release_1/all-sky-maps/\" target=\"_blank\"><img src=\"http://demonstrator.telespazio.com/sitools/upload/planck.svg\" width='20' height='20'/></a> data provided by <a href=\"http://cdsweb.u-strasbg.fr/index-fr.gml\" target=\"_blank\"><img width='24' height='16' src=\"css/images/cds.svg\" /></a>"
+        "attribution":"<a href=\"http://irsa.ipac.caltech.edu/data/Planck/release_1/all-sky-maps/\" target=\"_blank\"><img src=\"http://demonstrator.telespazio.com/sitools/upload/planck.svg\" width='20' height='20'/></a> data provided by <a href=\"http://cdsweb.u-strasbg.fr/index-fr.gml\" target=\"_blank\"><img width='24' height='16' src=\"http://demonstrator.telespazio.com/mizar/css/images/cds.svg\" /></a>"
     },
     {
 		"type": "healpix",
@@ -267,7 +267,7 @@
 		"dataType": "jpg",
 		//"availableServices": [ { "name": "HEALPixCut", "fileName": "HFI_SkyMap_100_2048_R1.10_nominal.fits"	} ],
 		"numberOfLevels": 2,
-        "attribution":"<a href=\"http://irsa.ipac.caltech.edu/data/Planck/release_1/all-sky-maps/\" target=\"_blank\"><img src=\"http://demonstrator.telespazio.com/sitools/upload/planck.svg\" width='20' height='20'/></a> data provided by <a href=\"http://cdsweb.u-strasbg.fr/index-fr.gml\" target=\"_blank\"><img width='24' height='16' src=\"css/images/cds.svg\" /></a>"
+        "attribution":"<a href=\"http://irsa.ipac.caltech.edu/data/Planck/release_1/all-sky-maps/\" target=\"_blank\"><img src=\"http://demonstrator.telespazio.com/sitools/upload/planck.svg\" width='20' height='20'/></a> data provided by <a href=\"http://cdsweb.u-strasbg.fr/index-fr.gml\" target=\"_blank\"><img width='24' height='16' src=\"http://demonstrator.telespazio.com/mizar/css/images/cds.svg\" /></a>"
     },
 
 	// Overlay
@@ -282,7 +282,7 @@
 		"dataType": "jpg",
 		"fitsSupported": true,
 		"coordSystem": "GAL",
-        "attribution":"<a href=\"http://irsa.ipac.caltech.edu/data/Planck/release_1/all-sky-maps/\" target=\"_blank\"><img src=\"http://demonstrator.telespazio.com/sitools/upload/planck.svg\" width='20' height='20'/></a> data provided by <a href=\"http://cdsweb.u-strasbg.fr/index-fr.gml\" target=\"_blank\"><img width='24' height='16' src=\"css/images/cds.svg\" /></a>"
+        "attribution":"<a href=\"http://irsa.ipac.caltech.edu/data/Planck/release_1/all-sky-maps/\" target=\"_blank\"><img src=\"http://demonstrator.telespazio.com/sitools/upload/planck.svg\" width='20' height='20'/></a> data provided by <a href=\"http://cdsweb.u-strasbg.fr/index-fr.gml\" target=\"_blank\"><img width='24' height='16' src=\"http://demonstrator.telespazio.com/mizar/css/images/cds.svg\" /></a>"
 	},
 	/**
 	 *	Healpix grid
@@ -491,7 +491,7 @@
 		"dataType": "point",
 		"name": "USNO-B1.0",
 		"description":" The USNO-B1.0 is a catalog that presents positions, proper motions, magnitudes in various optical passbands, and star/galaxy estimators for 1,045,913,669 objects derived from 3,648,832,040 separate observations. The data were taken from scans of 7,435 Schmidt plates taken from various sky surveys during the last 50 years. The catalog is expected to be complete down to V=21; the estimated accuracies are 0.2arcsec for the positions at J2000, 0.3mag in up to 5 colors, and 85% accuracy for distinguishing stars from non-stellar objects.",
-		"attribution": "USNOB1 coming from <a href=\"http://cdsweb.u-strasbg.fr/index-fr.gml\" target=\"_blank\"><img width='24' height='16' src=\"css/images/cds.svg\" /></a>",
+		"attribution": "USNOB1 coming from <a href=\"http://cdsweb.u-strasbg.fr/index-fr.gml\" target=\"_blank\"><img width='24' height='16' src=\"http://demonstrator.telespazio.com/mizar/css/images/cds.svg\" /></a>",
 		"serviceUrl": "http://demonstrator.telespazio.com/sitools/usnob1",
 		"visible": false,
 		"minOrder": 9,
@@ -510,7 +510,7 @@
 	//	"dataType": "point",
 	//	"name": "Hipparcos",
 	//	"description":" The Hipparcos and Tycho Catalogues are the primary products of the  European Space Agency's astrometric mission, Hipparcos. The satellite, which operated for four years, returned high quality scientific data from November 1989 to March 1993.",
-	//	"attribution": "Hipparcos coming from <a href=\"http://cdsweb.u-strasbg.fr/index-fr.gml\" target=\"_blank\"><img width='24' height='16' src=\"css/images/cds.svg\" /></a>",
+	//	"attribution": "Hipparcos coming from <a href=\"http://cdsweb.u-strasbg.fr/index-fr.gml\" target=\"_blank\"><img width='24' height='16' src=\"http://demonstrator.telespazio.com/mizar/css/images/cds.svg\" /></a>",
 	//	"serviceUrl": "/sitools/hipparcos",
 	//	"visible": false,
 	//	"minOrder": 5,
@@ -523,7 +523,7 @@
         "category": "Solar system",
         "type": "GeoJSON",
         "name": "Planets",
-        "icon": "css/images/star_icon.png",
+        "icon": "http://demonstrator.telespazio.com/mizar/css/images/star_icon.png",
         "description": "Planets",
         "data": {
                 "type": "planets"
@@ -580,7 +580,7 @@
 		"visible": false,
 		"minOrder": 5,
 		"availableServices" : [ "Moc", "XMatch" ],
-        "attribution":"<img width='28' height='16' src=\"http://demonstrator.telespazio.com/sitools/upload/corot.svg\"> data provided by <a href=\"http://cdsweb.u-strasbg.fr/index-fr.gml\" target=\"_blank\"><img width='24' height='16' src=\"css/images/cds.svg\" /></a>"
+        "attribution":"<img width='28' height='16' src=\"http://demonstrator.telespazio.com/sitools/upload/corot.svg\"> data provided by <a href=\"http://cdsweb.u-strasbg.fr/index-fr.gml\" target=\"_blank\"><img width='24' height='16' src=\"http://demonstrator.telespazio.com/mizar/css/images/cds.svg\" /></a>"
 	},
 	/**
 	 *	OpenSearch ConeSearch COROT exo
@@ -598,6 +598,6 @@
 		"visible": false,
 		"minOrder": 5,
 		"availableServices" : [ "Moc", "XMatch" ],
-        "attribution":"<img width='28' height='16' src=\"http://demonstrator.telespazio.com/sitools/upload/corot.svg\"> data provided by <a href=\"http://cdsweb.u-strasbg.fr/index-fr.gml\" target=\"_blank\"><img width='24' height='16' src=\"css/images/cds.svg\" /></a>"
+        "attribution":"<img width='28' height='16' src=\"http://demonstrator.telespazio.com/sitools/upload/corot.svg\"> data provided by <a href=\"http://cdsweb.u-strasbg.fr/index-fr.gml\" target=\"_blank\"><img width='24' height='16' src=\"http://demonstrator.telespazio.com/mizar/css/images/cds.svg\" /></a>"
 	}
 ]

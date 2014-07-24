@@ -154,6 +154,9 @@ body
 /*** Loading animation gif ***/
 #loading
 {
+	width: 48px;
+	height: 48px;
+	background: url(images/loading.gif) no-repeat;
 	position: absolute;
 	left: 50%;
 	top: 50%;
@@ -225,6 +228,9 @@ body
 /*** Stylized fade on hover effect ***/
 .defaultImg
 {
+	background: url(./images/close_button.png) no-repeat;
+	width: 30px;
+	height: 30px;
 	position: absolute;
 	z-index: 1;
 	top: 0px;
@@ -233,6 +239,9 @@ body
 
 .hoverImg
 {
+	background: url(./images/close_buttonHover.png) no-repeat;
+	width: 30px;
+	height: 30px;
 	position: absolute;
 	top: 0px;
 	right: 0px;

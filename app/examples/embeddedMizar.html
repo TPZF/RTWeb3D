@@ -6,23 +6,29 @@
 <meta http-equiv="content-type" content="text/html; charset=ISO-8859-1" />
 <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, maximum-scale=1, user-scalable=no" />
 
-<link rel="stylesheet" href="css/style.css" />
+<link rel="stylesheet" href="../css/style.css" />
 
 <!-- Dev -->
 <!-- <script type="text/javascript" data-main="js/main" src="js/require.min.js"></script> -->
 
 <!-- Prod -->
 <script type="text/javascript" src="http://code.jquery.com/jquery-1.8.2.min.js"></script>
-<script type="text/javascript" charset="UTF-8" src="build/generated/MizarWidget.min.js"></script>
+<script type="text/javascript" charset="UTF-8" src="../MizarWidget.min.js"></script>
 <script type="text/javascript">
 
 	window.onload = function(){
-		var mizarWidget = new MizarWidget("#mizarWidget-div", {"debug": true, "navigation": { "initTarget": [0,0]}});
+		var options = {
+			"nameResolver": {
+				"zoomFov": 2
+			}
+		};
+		var mizarWidget = new MizarWidget("#mizarWidget-div", options);
 
 		mizarWidget.setNameResolverGui(true);
 		mizarWidget.setReverseNameResolverGui(true);
 		mizarWidget.set2dMapGui(true);
 		mizarWidget.setCompassGui(true);
+		mizarWidget.setCategoryGui(true);
 
 		$('#toggleCompass').click(function(){
 			if ( $(this).is(":checked") )

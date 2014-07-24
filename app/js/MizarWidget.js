@@ -20,10 +20,10 @@
 /**
  * Mizar widget
  */
-define( [ "jquery", "underscore-min", "gw/EquatorialCoordinateSystem", "gw/Sky", "gw/Stats", "gw/AstroNavigation", "gw/AttributionHandler", "gw/VectorLayer", "gw/TouchNavigationHandler", "gw/MouseNavigationHandler", "gw/KeyboardNavigationHandler", "gw/Event", "text!../templates/mizarCore.html",
+define( [ "jquery", "underscore-min", "gw/EquatorialCoordinateSystem", "gw/Sky", "gw/Stats", "gw/AstroNavigation", "gw/AttributionHandler", "gw/VectorLayer", "gw/TouchNavigationHandler", "gw/MouseNavigationHandler", "gw/KeyboardNavigationHandler", "gw/Event", "text!../templates/mizarCore.html", "text!../data/backgroundSurveys.json",
 	"./LayerManager", "./LayerManagerView", "./BackgroundLayersView", "./NameResolver", "./NameResolverView", "./ReverseNameResolver", "./Utils", "./PickingManager", "./FeaturePopup", "./IFrame", "./Compass", "./MollweideViewer", "./ErrorDialog", "./AboutDialog", "./Share", "./Samp", "./AdditionalLayersView", "./ImageManager", "./ImageViewer", "./UWSManager", "./PositionTracker", "./MeasureTool", "./StarProvider", "./ConstellationProvider", "./JsonProvider", "./OpenSearchProvider", "./PlanetProvider",
 	"gw/ConvexPolygonRenderer", "gw/PointSpriteRenderer", "gw/PointRenderer", "jquery.ui"],
-	function($, _, CoordinateSystem, Sky, Stats, AstroNavigation, AttributionHandler, VectorLayer, TouchNavigationHandler, MouseNavigationHandler, KeyboardNavigationHandler, Event, mizarCoreHTML,
+	function($, _, CoordinateSystem, Sky, Stats, AstroNavigation, AttributionHandler, VectorLayer, TouchNavigationHandler, MouseNavigationHandler, KeyboardNavigationHandler, Event, mizarCoreHTML, backgroundSurveys,
 			LayerManager, LayerManagerView, BackgroundLayersView, NameResolver, NameResolverView, ReverseNameResolver, Utils, PickingManager, FeaturePopup, IFrame, Compass, MollweideViewer, ErrorDialog, AboutDialog, Share, Samp, AdditionalLayersView, ImageManager, ImageViewer, UWSManager, PositionTracker, MeasureTool) {
 
 	/**
@@ -162,6 +162,33 @@ define( [ "jquery", "underscore-min", "gw/EquatorialCoordinateSystem", "gw/Sky",
 	/**************************************************************************************************************/
 
 	/**
+	 *	Store the mizar base url
+	 *	Used to access to images(Compass, Mollweide, Target icon for name resolver)
+	 *	Also used to define "star" icon for point data on-fly
+	 *	NB: Not the best solution of my life.... TODO: think how to improve it..
+	 */
+	// Search throught all the loaded scripts for minified version
+	var scripts= document.getElementsByTagName('script');
+	var mizarMin = _.find(scripts, function(script){
+		return script.src.indexOf("MizarWidget.min") != -1;
+	});
+	
+	// Depending on its presence decide if Mizar is used on prod or on dev
+	var mizarBaseUrl;
+	if ( mizarMin )
+	{
+		// Prod
+		// Extract mizar's url
+		mizarBaseUrl = mizarMin.src.split('/').slice(0, -1).join('/')+'/';
+	}
+	else
+	{
+		// Dev
+		// Basically use the relative path from index page
+		mizarBaseUrl = "./";
+	}
+
+	/**
 	 *	Mizar widget constructor
 	 */
 	var MizarWidget = function(div, userOptions) {
@@ -172,6 +199,7 @@ define( [ "jquery", "underscore-min", "gw/EquatorialCoordinateSystem", "gw/Sky",
 		this.isMobile = (('ontouchstart' in window && window.ontouchstart != null) || window.DocumentTouch && document instanceof DocumentTouch);
 		options = {
 			"sitoolsBaseUrl" : sitoolsBaseUrl,
+			"mizarBaseUrl": mizarBaseUrl,
 			"coordSystem" : "EQ",
 			"debug" : false,
 			"nameResolver" : {
@@ -366,32 +394,48 @@ define( [ "jquery", "underscore-min", "gw/EquatorialCoordinateSystem", "gw/Sky",
 		// Get background surveys only
 		// Currently in background surveys there are not only background layers but also catalog ones
 		// TODO : Refactor it !
-		$.ajax({
-			type: "GET",
-			url: "data/backgroundSurveys.json",
-			dataType: "text",
-			success: function(response) {
-				response = _removeComments(response);
-				try
-				{
-					var layers = $.parseJSON(response);
-				}
-				catch (e) {
-					ErrorDialog.open("Background surveys parsing error<br/> For more details see http://jsonlint.com/.");
-					console.error(e.message);
-					return false;
-				}
+		backgroundSurveys = _removeComments(backgroundSurveys);
+		try
+		{
+			var layers = $.parseJSON(backgroundSurveys);
+		}
+		catch (e) {
+			ErrorDialog.open("Background surveys parsing error<br/> For more details see http://jsonlint.com/.");
+			console.error(e.message);
+			return false;
+		}
+		// Add surveys
+		for( var i=0; i<layers.length; i++ ) {
+			self.addLayer( layers[i] );
+		}
 
-				// Add surveys
-				for( var i=0; i<layers.length; i++ ) {
-					self.addLayer( layers[i] );
-				}
-				self.publish("backgroundSurveysReady");
-			},
-			error: function(thrownError) {
-				console.error(thrownError);
-			}
-		});
+		// Ajax request to retrieve background 
+		// $.ajax({
+		// 	type: "GET",
+		// 	url: mizarBaseUrl + "data/backgroundSurveys.json",
+		// 	dataType: "text",
+		// 	success: function(response) {
+		// 		response = _removeComments(response);
+		// 		try
+		// 		{
+		// 			var layers = $.parseJSON(response);
+		// 		}
+		// 		catch (e) {
+		// 			ErrorDialog.open("Background surveys parsing error<br/> For more details see http://jsonlint.com/.");
+		// 			console.error(e.message);
+		// 			return false;
+		// 		}
+
+		// 		// Add surveys
+		// 		for( var i=0; i<layers.length; i++ ) {
+		// 			self.addLayer( layers[i] );
+		// 		}
+		// 		self.publish("backgroundSurveysReady");
+		// 	},
+		// 	error: function(thrownError) {
+		// 		console.error(thrownError);
+		// 	}
+		// });
 		
 		// Fullscreen mode
 		document.addEventListener("keydown", function(event){
@@ -406,12 +450,12 @@ define( [ "jquery", "underscore-min", "gw/EquatorialCoordinateSystem", "gw/Sky",
 		
 		/*** Refactor into common ? ***/
 		// Fade hover styled image effect
-		$("body").on("mouseenter", "img.defaultImg", function () {
+		$("body").on("mouseenter", "span.defaultImg", function () {
 			//stuff to do on mouseover
 			$(this).stop().animate({"opacity": "0"}, 100);
 			$(this).siblings('.hoverImg').stop().animate({"opacity": "1"}, 100);
 		});
-		$("body").on("mouseleave", "img.defaultImg", function () {
+		$("body").on("mouseleave", "span.defaultImg", function () {
 			//stuff to do on mouseleave
 			$(this).stop().animate({"opacity": "1"}, 100);
 			$(this).siblings('.hoverImg').stop().animate({"opacity": "0"}, 100);
@@ -529,7 +573,7 @@ define( [ "jquery", "underscore-min", "gw/EquatorialCoordinateSystem", "gw/Sky",
 	 *	Return current fov
 	 */
 	MizarWidget.prototype.getCurrentFov = function() {
-		// TODO
+		return this.navigation.getFov();
 	}
 
 	/**************************************************************************************************************/
@@ -538,7 +582,8 @@ define( [ "jquery", "underscore-min", "gw/EquatorialCoordinateSystem", "gw/Sky",
 	 *	Set zoom(in other words fov)
 	 */
 	MizarWidget.prototype.setZoom = function(fovInDegrees) {
-		// TODO
+		var geoPos = CoordinateSystem.from3DToGeo(this.navigation.center3d);
+		this.navigation.zoomTo(geoPos, fovInDegrees, 1000);
 	}
 
 	/**************************************************************************************************************/
@@ -553,7 +598,8 @@ define( [ "jquery", "underscore-min", "gw/EquatorialCoordinateSystem", "gw/Sky",
 				globe : this.sky,
 				navigation : this.navigation,
 				coordSystem : CoordinateSystem.type,
-				isMobile : this.isMobile
+				isMobile : this.isMobile,
+				mizarBaseUrl : mizarBaseUrl
 			});
 		} else {
 			this.compass.remove();
@@ -611,7 +657,7 @@ define( [ "jquery", "underscore-min", "gw/EquatorialCoordinateSystem", "gw/Sky",
 	 	if ( visible ) {
 	 		// Mollweide viewer lazy initialization
 	 		if ( !this.mollweideViewer )
-				this.mollweideViewer = new MollweideViewer({ globe : this.sky, navigation : this.navigation });
+				this.mollweideViewer = new MollweideViewer({ globe : this.sky, navigation : this.navigation, mizarBaseUrl: mizarBaseUrl });
 
 			$(parentElement).find("#2dMapContainer").show();
 	 	} else {
@@ -672,6 +718,21 @@ define( [ "jquery", "underscore-min", "gw/EquatorialCoordinateSystem", "gw/Sky",
 	}
 
 	/**************************************************************************************************************/
+	
+	/**
+	 *	Set coordinate system
+	 *	@param newCoordSystem
+	 *		"EQ" or "GAL"(respectively equatorial or galactic)
+	 */
+	MizarWidget.prototype.setCoordinateSystem = function(newCoordSystem) {
+		CoordinateSystem.type = newCoordSystem;
+
+		if (this.mollweideViewer)
+			this.mollweideViewer.setCoordSystem( newCoordSystem );
+
+		// Publish modified event to update compass north
+		this.navigation.publish('modified');
+	}
 
 	return MizarWidget;
 

@@ -2,7 +2,7 @@
 	baseUrl: "../js",
 	name: "../build/almond",
 	include: ['MizarWidget'],
-	out: "../build/generated/MizarWidget.min.js",
+	out: "../MizarWidget.min.js",
 	wrap: {
  	    start: "(function (root, factory) {\
 		    if (typeof define === 'function' && define.amd) {\

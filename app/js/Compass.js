@@ -88,7 +88,7 @@ var Compass = function(options){
 	navigation = options.navigation;
 
 	// Add compass object to parent element
-	document.getElementById(parentElement).innerHTML = '<object id="objectCompass" width="100px" height="100px" data="css/images/compass.svg" type="image/svg+xml"></object>';
+	document.getElementById(parentElement).innerHTML = '<object id="objectCompass" width="100px" height="100px" data="'+ options.mizarBaseUrl +'css/images/compass.svg" type="image/svg+xml"></object>';
 
 	// Initialize it on load
 	document.getElementById('objectCompass').addEventListener('load', function(){

@@ -16,7 +16,7 @@
 		<div id="services">
 			<%
 			if ( properties.quicklook ) { %>
-				<img title="Quicklook" id='quicklook' src="css/images/quicklook.png" class=<%= (properties.style.fillTextureUrl && properties.style.fill ? 'selected' : '' ) %> />
+				<span class="featureService" title="Quicklook" id='quicklook' class=<%= (properties.style.fillTextureUrl && properties.style.fill ? 'selected' : '' ) %> ></span>
 			<% } %>
 
 			<% if ( services )
@@ -29,22 +29,22 @@
 						{
 							var fitsQuicklookOn = properties.style.fill && !properties.style.fillTextureUrl;
 							%>
-							<img title="Fits quicklook" id='quicklookFits' src="css/images/quicklook_fits.png" class=<%= (fitsQuicklookOn ? 'selected' : '' ) %> />
+							<span class="featureService" title="Fits quicklook" id='quicklookFits' class=<%= (fitsQuicklookOn ? 'selected' : '' ) %> ></span>
 						<% } %>
 						<span style="display: inline-block; position: relative;">
-							<img title="Solar object service" id="solarObjects" src="css/images/solarObjectsService.png" class=<%= (services.solarObjects && services.solarObjects.layer.visible() ? 'selected' : '' ) %> />
-							<img style="display: none" id="solarObjectsSpinner" src="css/images/loading.gif" />
+							<span class="featureService" title="Solar object service" id="solarObjects" class=<%= (services.solarObjects && services.solarObjects.layer.visible() ? 'selected' : '' ) %>></span>
+							<div style="display: none" id="solarObjectsSpinner"></div>
 						</span>
 						<span title="Image processing" id="dynamicImageView" class='dynamicAvailable' />
-						<img title="Export image by SAMP" id="sendImage" src="css/images/exportSamp.png" />
+						<span class="featureService" title="Export image by SAMP" id="sendImage"></span>
 					<%
 					}
 				 	%>
-					<a href="<%= services ? services.download.url : "" %>" target="_self" download><img title="Download" src="css/images/download1.png"></a>
+					<a href="<%= services ? services.download.url : "" %>" target="_self" download><span class="featureService" id="downloadImage" title="Download"></span></a>
 					<%
 				}
 				if ( services.healpix ) { %>
-					<img title="Healpix service" id='healpix' src="css/images/healpix.png" class=<%= (services.healpix.layer.visible() ? 'selected' : '' ) %> />
+					<span class="featureService" title="Healpix service" id='healpix' class=<%= (services.healpix.layer.visible() ? 'selected' : '' ) %> ></span>
 				<% }
 			} %>
 			<div style="display: none;" id="serviceStatus"></div>

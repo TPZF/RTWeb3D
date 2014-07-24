@@ -28,6 +28,8 @@
 
 #backgroundSpinner
 {
+	background: url(images/loading.gif) no-repeat;
+	background-size: 15px 15px;
 	width: 15px;
 	height: 15px;
 	position: relative;
@@ -83,6 +85,8 @@
 
 .spinner
 {
+	background: url(images/loading.gif) no-repeat;
+	background-size: 16px;
 	position: absolute;
 	right: -20px;
 	top: 0px;
