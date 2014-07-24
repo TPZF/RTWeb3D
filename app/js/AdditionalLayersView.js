@@ -298,13 +298,13 @@ function createDynamicImageDialog( gwLayer )
  *	Show/hide layer tools depending on layer visibility
  *	Set visibility event handlers
  */
-function manageLayerVisibility($layerDiv, gwLayer)
+function manageLayerVisibility($layerDiv, gwLayer, categoryId)
 {
 	var shortName = Utils.formatId( gwLayer.name );
 	// Open tools div when the user clicks on the layer label
 	var toolsDiv = $layerDiv.find('.layerTools');
 	$layerDiv.children('label').click(function() {
-		toolsDiv.slideToggle(updateScroll.bind(this, Utils.formatId( gwLayer.category )));
+		toolsDiv.slideToggle(updateScroll.bind(this, categoryId));
 	});
 
 	if ( gwLayer.visible() )
@@ -402,7 +402,7 @@ function createHtmlForAdditionalLayer( gwLayer, categoryId )
 	// Create UI of opacity slider
 	initializeSlider($layerDiv, gwLayer);
 
-	manageLayerVisibility($layerDiv, gwLayer);
+	manageLayerVisibility($layerDiv, gwLayer, categoryId);
 	
 	updateButtonsUI($layerDiv);
 
