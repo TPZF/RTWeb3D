@@ -762,6 +762,19 @@ define( [ "jquery", "underscore-min", "gw/EquatorialCoordinateSystem", "gw/Sky",
 		var layers = this.getLayers();
 		return _.findWhere(layers, {name: layerName});
 	}
+	
+	/**************************************************************************************************************/
+	
+	/**
+	 *	Highlight the given feature
+	 *
+	 *	@param featureData
+	 *		Feature data is an object composed by feature and its layer
+	 *	// TODO : maybe it's more intelligent to store layer reference on feature ?
+	 */
+	MizarWidget.prototype.highlightObservation = function(featureData) {
+		PickingManager.focusFeature(featureData);
+	}
 
 	return MizarWidget;
 
