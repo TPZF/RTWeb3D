@@ -200,8 +200,9 @@ define( [ "jquery", "underscore-min", "gw/EquatorialCoordinateSystem", "gw/Sky",
 		options = {
 			"sitoolsBaseUrl" : sitoolsBaseUrl,
 			"mizarBaseUrl": mizarBaseUrl,
-			"coordSystem" : "EQ",
-			"debug" : false,
+			"continuousRendering" : userOptions.hasOwnProperty('continuousRendering') ? userOptions.continuousRendering : true,
+			"coordSystem" : userOptions.hasOwnProperty('coordSystem') ? userOptions.coordSystem : "EQ",
+			"debug" : userOptions.hasOwnProperty('debug') ? userOptions.debug : false,
 			"nameResolver" : {
 				"baseUrl" : sitoolsBaseUrl + '/project/mizar/plugin/nameResolver',
 				"zoomFov": 15
@@ -250,7 +251,7 @@ define( [ "jquery", "underscore-min", "gw/EquatorialCoordinateSystem", "gw/Sky",
 			"isMobile" : this.isMobile
 		};
 
-		var extendableOptions = [ "coordSystem", "navigation", "nameResolver", "stats", "debug" ];
+		var extendableOptions = [ "navigation", "nameResolver", "stats" ];
 		// Merge default options with user ones
 		for ( var i=0; i<extendableOptions.length; i++ ) {
 			var option = extendableOptions[i];
@@ -258,7 +259,6 @@ define( [ "jquery", "underscore-min", "gw/EquatorialCoordinateSystem", "gw/Sky",
 		}
 
 		// Create mizar core HTML
-		// TODO: generate only core parts
 		var mizarContent = _.template(mizarCoreHTML,{});
 		$(mizarContent).appendTo(div);
 
@@ -308,7 +308,7 @@ define( [ "jquery", "underscore-min", "gw/EquatorialCoordinateSystem", "gw/Sky",
 			this.sky = new Sky( { 
 				canvas: canvas, 
 				tileErrorTreshold: 1.5,
-				continuousRendering: this.isMobile ? false : true
+				continuousRendering: this.isMobile ? false : options.continuousRendering
 			} );
 		}
 		catch (err)
