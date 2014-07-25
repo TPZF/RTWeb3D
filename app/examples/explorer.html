@@ -22,6 +22,7 @@ div#options
 	display: inline-block;
 	vertical-align: top;
 	text-align: center;
+	width: 680px;
 }
 
 #poiMenu
@@ -50,7 +51,7 @@ li.poi:hover
 	font-family: "Lucida Sans Unicode", "Lucida Grande", Sans-Serif;
 	font-size: 12px;
 	background: #fff;
-	margin: 45px;
+	margin: 20px 45px;
 	width: 100px;
 	border-collapse: collapse;
 	text-align: left;
@@ -61,7 +62,7 @@ li.poi:hover
 	width: 600px;
 }
 
-.stylizedTable th
+.stylizedTable th, .toolbar
 {
 	font-size: 14px;
 	font-weight: normal;
@@ -78,6 +79,13 @@ li.poi:hover
 {
 	color: #009;
 	cursor: pointer;
+}
+
+.toolbar
+{
+	width: 100px;
+	margin-left: 50px;
+	text-align: left;
 }
 
 </style>
@@ -139,7 +147,7 @@ li.poi:hover
 		</tbody>
 		</table>
 
-			<table id="featureResults">
+			<table class="display" id="featureResults">
 			<thead>
 				<tr>
 					<th scope="col"><span class="header">ID</span></th>
@@ -151,7 +159,7 @@ li.poi:hover
 			</tbody>
 			</table>
 	</div>
-    <div style="float: right; display: inline-block" id="mizarWidget-div" style="border: none;" width="600" height="600"></div> 
+    <div style="margin-left: 40px; display: inline-block" id="mizarWidget-div" style="border: none;" width="600" height="600"></div> 
   	<br/>
 </body>
 

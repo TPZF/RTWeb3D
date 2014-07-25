@@ -60,11 +60,13 @@ require(["jquery", "./MizarWidget", "underscore-min", "datatables"], function($,
 
 	var hstLayer = mizar.getLayer("HST");
 	var table = $('#featureResults').DataTable( {
+		"dom": '<"toolbar">frtip',
 		"scrollY": "600px",
 		"scrollCollapse": true,
 		paging: false
 	} );
-
+	$("div.toolbar").html('Observations');
+	
 	mizar.subscribe("features:added", function(featureData){
 
 		if ( hstLayer.name == featureData.layer.name )
@@ -86,7 +88,6 @@ require(["jquery", "./MizarWidget", "underscore-min", "datatables"], function($,
 
 	mizar.subscribe("goTo:finished", function(){
 		hstLayer.visible(true);
-		console.log("finished");
 	});
 
 	$('#poiTable tr td').click(function(event){

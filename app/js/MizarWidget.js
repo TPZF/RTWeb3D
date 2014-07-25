@@ -169,23 +169,26 @@ define( [ "jquery", "underscore-min", "gw/EquatorialCoordinateSystem", "gw/Sky",
 	 */
 	// Search throught all the loaded scripts for minified version
 	var scripts= document.getElementsByTagName('script');
-	var mizarMin = _.find(scripts, function(script){
+	var mizarSrc = _.find(scripts, function(script){
 		return script.src.indexOf("MizarWidget.min") != -1;
 	});
 	
 	// Depending on its presence decide if Mizar is used on prod or on dev
 	var mizarBaseUrl;
-	if ( mizarMin )
+	if ( mizarSrc )
 	{
 		// Prod
 		// Extract mizar's url
-		mizarBaseUrl = mizarMin.src.split('/').slice(0, -1).join('/')+'/';
+		mizarBaseUrl = mizarSrc.src.split('/').slice(0, -1).join('/')+'/';
 	}
 	else
 	{
 		// Dev
 		// Basically use the relative path from index page
-		mizarBaseUrl = "./";
+		mizarSrc = _.find(scripts, function(script){
+			return script.src.indexOf("MizarWidget") != -1;
+		});
+		mizarBaseUrl = mizarSrc.src.split('/').slice(0, -1).join('/')+'/../';
 	}
 
 	/**
@@ -347,7 +350,14 @@ define( [ "jquery", "underscore-min", "gw/EquatorialCoordinateSystem", "gw/Sky",
 			new Stats( self.sky.renderContext, { element: "fps", verbose: options.stats.verbose });
 			$("#fps").show();
 		}
-
+		
+		// TODO : Extend GlobWeb base layer to be able to publish events by itself
+		// to avoid the following useless call
+		this.sky.subscribe("features:added", function(featureData) {
+			self.publish("features:added", featureData);
+		});
+	
+		
 		CoordinateSystem.type = options.coordSystem;
 
 		// Add touch navigation handler if client supports touch events
@@ -732,6 +742,25 @@ define( [ "jquery", "underscore-min", "gw/EquatorialCoordinateSystem", "gw/Sky",
 
 		// Publish modified event to update compass north
 		this.navigation.publish('modified');
+	}
+	
+	/**************************************************************************************************************/
+	
+	/**
+	 *	Get all layers
+	 */
+	MizarWidget.prototype.getLayers = function() {
+		return LayerManager.getLayers();
+	}
+	
+	/**************************************************************************************************************/
+	
+	/**
+	 *	Get layer with the given name
+	 */
+	MizarWidget.prototype.getLayer = function(layerName) {
+		var layers = this.getLayers();
+		return _.findWhere(layers, {name: layerName});
 	}
 
 	return MizarWidget;

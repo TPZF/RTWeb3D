@@ -24,6 +24,7 @@ define(["jquery", "gw/FeatureStyle", "gw/VectorLayer", "gw/HEALPixBase", "gw/Coo
 	function($, FeatureStyle, VectorLayer, HEALPixBase, CoordinateSystem, Utils) {
 
 // Name resolver globals
+var mizar;
 var sky;
 var astroNavigator;
 var configuration = {
@@ -177,6 +178,7 @@ function zoomTo(lon, lat)
 {
 	astroNavigator.zoomTo([lon, lat], configuration.zoomFov, 3000, function() {
 		addTarget(lon,lat);
+		mizar.publish("goTo:finished");
 	} );
 }
 
@@ -197,7 +199,8 @@ function removeTarget()
 /**************************************************************************************************************/
 
 return {
-	init: function(mizar, conf) {
+	init: function(m, conf) {
+		mizar = m;
 		if ( !sky ) {
 			configuration = conf;
 			var style = new FeatureStyle({
