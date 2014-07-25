@@ -1,0 +1,159 @@
+<html>
+
+<head>
+<title>AstroWeb example</title>
+<meta http-equiv="content-type" content="text/html; charset=ISO-8859-1">
+<link rel="stylesheet" href="../css/style.css" />
+<link rel="stylesheet" href="http://cdn.datatables.net/1.10.1/css/jquery.dataTables.css" />
+
+<!-- Dev -->
+<script type="text/javascript" data-main="../js/explorer-main" src="../js/require.min.js"></script>
+
+<!-- <script type="text/javascript" charset="UTF-8" src="http://cdn.datatables.net/1.10.1/js/jquery.dataTables.min.js"></script> -->
+
+<!-- Prod -->
+<!-- <script type="text/javascript" charset="UTF-8" src="../MizarWidget.min.js"></script> -->
+<!-- <script type="text/javascript" charset="UTF-8" src="http://demonstrator.telespazio.com/mizar/MizarWidget.min.js"></script> -->
+
+<style>
+
+div#options
+{
+	display: inline-block;
+	vertical-align: top;
+	text-align: center;
+}
+
+#poiMenu
+{
+	padding: 0px 0px;
+}
+
+li.poi
+{
+	text-align: center;
+	border: 1px solid grey;
+	border-radius: 5px;
+	margin: 2px;
+	padding: 2px;
+	background: white;
+	list-style: none;
+}
+li.poi:hover
+{
+	background: grey;
+	cursor: pointer;
+}
+
+.stylizedTable
+{
+	font-family: "Lucida Sans Unicode", "Lucida Grande", Sans-Serif;
+	font-size: 12px;
+	background: #fff;
+	margin: 45px;
+	width: 100px;
+	border-collapse: collapse;
+	text-align: left;
+}
+
+#featureResults
+{
+	width: 600px;
+}
+
+.stylizedTable th
+{
+	font-size: 14px;
+	font-weight: normal;
+	color: #039;
+	padding: 10px 8px;
+	border-bottom: 2px solid #6678b1;
+}
+.stylizedTable td
+{
+	color: #669;
+	padding: 9px 8px 0px 8px;
+}
+.stylizedTable tbody tr:hover td
+{
+	color: #009;
+	cursor: pointer;
+}
+
+</style>
+
+<script type="text/javascript">
+		
+	// window.onload = function(){
+	// 	var options = {
+	// 		"nameResolver": {
+	// 			zoomFov: 2
+	// 		}
+	// 	};
+	// 	var mizar = new MizarWidget("#mizarWidget-div", options);
+
+	// 	var hstLayer = mizar.getLayer("HST");
+
+	// 	mizar.subscribe("goTo:finished", function(){
+	// 		console.log("show features");
+	// 		hstLayer.visibile(true);
+	// 	});
+
+	// 	$('#poiTable tr td').click(function(event){
+	// 		hstLayer.visible(false);
+	// 		var poiName = $(event.target).text();
+	// 		mizar.goTo(poiName);
+	// 	});
+
+	// };
+
+</script>
+
+</head>
+
+
+<body style="background-color:white;">
+	<div id="options">
+		<table id="poiTable" class="stylizedTable" summary="POI">
+		<thead>
+			<tr>
+				<th scope="col">POIs</th>
+			</tr>
+		</thead>
+		<tbody>
+		<tr>
+			<td>Mizar</td>
+		</tr>
+		<tr>
+			<td>Atlas</td>
+		</tr>
+		<tr>
+			<td>m31</td>
+		</tr>
+		<tr>
+			<td>m42</td>
+		</tr>
+		<tr>
+			<td>Polaris</td>
+		</tr>
+		</tbody>
+		</table>
+
+			<table id="featureResults">
+			<thead>
+				<tr>
+					<th scope="col"><span class="header">ID</span></th>
+					<th scope="col"><span class="header">Ra</span></th>
+					<th scope="col"><span class="header">Dec</span></th>
+				</tr>
+			</thead>
+			<tbody>
+			</tbody>
+			</table>
+	</div>
+    <div style="float: right; display: inline-block" id="mizarWidget-div" style="border: none;" width="600" height="600"></div> 
+  	<br/>
+</body>
+
+</html>
+
