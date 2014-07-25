@@ -47,6 +47,7 @@ function generatePointLegend( gwLayer, canvas, imageUrl )
 {
 	var context = canvas.getContext('2d');
 	var icon = new Image();
+	icon.crossOrigin = '';
 	icon.onload = function() {
 		// var width = (icon.width > canvas.width) ? canvas.width : icon.width;
 		// var height = (icon.height > canvas.height) ? canvas.height : icon.height;

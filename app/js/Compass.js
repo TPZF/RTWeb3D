@@ -27,6 +27,7 @@ define(["jquery", "gw/CoordinateSystem", "gw/glMatrix"], function($, CoordinateS
  */
 var parentElement = null;
 var navigation = null;
+var svgDoc;
 
 /**
  *	Function updating the north position on compass
@@ -77,7 +78,7 @@ var updateNorth = function() {
     	degNorth *= -1;
     }
 
-    var northText = document.getElementById("objectCompass").contentDocument.getElementById("NorthText");
+    var northText = svgDoc.getElementById("NorthText");
     northText.setAttribute("transform", "rotate(" + degNorth + " 40 40)");
 };
 
@@ -88,15 +89,25 @@ var Compass = function(options){
 	navigation = options.navigation;
 
 	// Add compass object to parent element
-	document.getElementById(parentElement).innerHTML = '<object id="objectCompass" width="100px" height="100px" data="'+ options.mizarBaseUrl +'css/images/compass.svg" type="image/svg+xml"></object>';
+	// Don't use <object> HTML tag due to cross-origin nature of svg
+	document.getElementById(parentElement).innerHTML = '<div id="objectCompass"></div>';
+	$.get(options.mizarBaseUrl +'css/images/compass.svg',
+		function(response){
+			// Import contents of the svg document into this document
+			svgDoc = document.importNode(response.documentElement,true);
 
-	// Initialize it on load
-	document.getElementById('objectCompass').addEventListener('load', function(){
-		initialize();
-		// Publish modified event to update compass north
-		navigation.publish('modified');
-		$('#'+parentElement).css("display","block");
-	});
+			// Update width/height
+			svgDoc.height.baseVal.value = 100
+			svgDoc.width.baseVal.value = 100
+			// Append the imported SVG root element to the appropriate HTML element
+			$("#objectCompass").append(svgDoc);
+
+			initialize();
+			// Publish modified event to update compass north
+			navigation.publish('modified');
+			$('#'+parentElement).css("display","block");
+		},
+	"xml");
 
 	/**
 	 *	Initialize interactive events
@@ -104,7 +115,6 @@ var Compass = function(options){
 	var initialize = function() {
 		/* Svg interactive elements */
 		var compass = document.getElementById("objectCompass");
-		var svgDoc = compass.contentDocument; //get the inner DOM of compass.svg
 	    var east = svgDoc.getElementById("East"); //get the inner element by id
 	    var west = svgDoc.getElementById("West"); //get the inner element by id
 	    var south = svgDoc.getElementById("South"); //get the inner element by id
@@ -127,13 +137,13 @@ var Compass = function(options){
 			event.preventDefault();
 			if ( event.type.search("touch") >= 0 )
 			{
-				event.clientX = event.changedTouches[0].clientX;
-				event.clientY = event.changedTouches[0].clientY;
+				event.layerX = event.changedTouches[0].clientX;
+				event.layerY = event.changedTouches[0].clientY;
 			}
 
 			 dragging = true;
-			_lastMouseX = event.clientX - _outerCircleRadius;
-			_lastMouseY = event.clientY - _outerCircleRadius;
+			_lastMouseX = event.layerX - _outerCircleRadius;
+			_lastMouseY = event.layerY - _outerCircleRadius;
 			_dx = 0;
 			_dy = 0;
 		}
@@ -146,18 +156,18 @@ var Compass = function(options){
 	    	event.preventDefault();
 	    	if ( event.type.search("touch") >= 0 )
 			{
-				event.clientX = event.changedTouches[0].clientX;
-				event.clientY = event.changedTouches[0].clientY;
+				event.layerX = event.changedTouches[0].clientX;
+				event.layerY = event.changedTouches[0].clientY;
 			}
 
 	    	if (!dragging)
 	    		return;
 
-			var c = _lastMouseX*(event.clientY -_outerCircleRadius) - _lastMouseY*(event.clientX - _outerCircleRadius); // c>0 -> clockwise, counterclockwise otherwise
+			var c = _lastMouseX*(event.layerY -_outerCircleRadius) - _lastMouseY*(event.layerX - _outerCircleRadius); // c>0 -> clockwise, counterclockwise otherwise
 			navigation.rotate(c, 0);
 
-			_lastMouseX = event.clientX - _outerCircleRadius;
-			_lastMouseY = event.clientY - _outerCircleRadius;
+			_lastMouseX = event.layerX - _outerCircleRadius;
+			_lastMouseY = event.layerY - _outerCircleRadius;
 
 	    	updateNorth();
 	    }
