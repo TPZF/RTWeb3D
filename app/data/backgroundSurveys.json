@@ -78,7 +78,7 @@
 	{
 		"type": "healpix",
 		"name": "SpitzerI1I2I4color",
-		"baseUrl": "http://demonstrator.telespazio.com/Alasky/SpitzerI1I2I4color",
+		"baseUrl": "http://demonstrator.telespazio.com/sitools/Alasky/SpitzerI1I2I4color",
 		"description": "Spitzer color",			
 		"visible": false,
 		"background": true,	
@@ -89,7 +89,7 @@
 	{
 		"type": "healpix",
 		"name": "IRIS",
-		"baseUrl": "http://demonstrator.telespazio.com/Alasky/IRISColor",
+		"baseUrl": "http://demonstrator.telespazio.com/sitools/Alasky/IRISColor",
 		"description": "IRIS color",
 		"icon": "http://demonstrator.telespazio.com/mizar/css/images/star_icon.png",
 		"visible": false,
@@ -150,7 +150,7 @@
 	{ 
 		"type": "healpix",
 		"name": "DSS",
-		"baseUrl": "http://demonstrator.telespazio.com/Alasky/DssColor",
+		"baseUrl": "http://demonstrator.telespazio.com/sitools/Alasky/DssColor",
 		"description": "Digital Sky Survey from CDS",
 		"attribution": "DSS background from <a href=\"http://cdsweb.u-strasbg.fr/index-fr.gml\" target=\"_blank\"><img width='24' height='16' src=\"http://demonstrator.telespazio.com/mizar/css/images/cds.svg\" /></a>",
 		"visible": true,
@@ -174,7 +174,7 @@
 	{
 		"type": "healpix",
 		"name": "PlanckCMB",
-		"baseUrl" : "http://demonstrator.telespazio.com/Alasky/PLANCK/CMB",
+		"baseUrl" : "http://demonstrator.telespazio.com/sitools/Alasky/PLANCK/CMB",
 		"description": "Planck survey from CDS",
 		"visible": false,
 		"background": true,
