@@ -20,8 +20,10 @@
 /**
  * LayerManager module
  */
-define( [ "jquery", "underscore-min", "gw/FeatureStyle", "gw/HEALPixLayer", "gw/VectorLayer", "gw/CoordinateGridLayer", "gw/TileWireframeLayer", "gw/OpenSearchLayer", "./ClusterOpenSearchLayer", "./MocLayer", "./HEALPixFITSLayer", "./PickingManager", "./Utils", "./JsonProcessor", "jquery.ui"], 
-	function($, _, FeatureStyle, HEALPixLayer, VectorLayer, CoordinateGridLayer, TileWireframeLayer, OpenSearchLayer, ClusterOpenSearchLayer, MocLayer, HEALPixFITSLayer, PickingManager, Utils, JsonProcessor) {
+define( [ "jquery", "underscore-min", "gw/FeatureStyle", "gw/HEALPixLayer", "gw/VectorLayer", "gw/CoordinateGridLayer", "gw/TileWireframeLayer", "gw/OpenSearchLayer", "gw/WMSLayer",
+		 "./ClusterOpenSearchLayer", "./MocLayer", "./HEALPixFITSLayer", "./PickingManager", "./Utils", "./JsonProcessor", "jquery.ui"], 
+	function($, _, FeatureStyle, HEALPixLayer, VectorLayer, CoordinateGridLayer, TileWireframeLayer, OpenSearchLayer, WMSLayer,
+			ClusterOpenSearchLayer, MocLayer, HEALPixFITSLayer, PickingManager, Utils, JsonProcessor) {
 
 /**
  * Private variables
@@ -76,155 +78,134 @@ function createSimpleLayer(name)
 /**
  *	Create layer from configuration file
  */
-function createLayerFromConf(layer) {
+function createLayerFromConf(layerDesc) {
 	var gwLayer;
 
-	// Insure that the link will be opened in new tab
-	if ( layer.attribution && layer.attribution.search('<a') >= 0 && layer.attribution.search('target=') < 0 )
+	// Ensure that the attribution link will be opened in new tab
+	if ( layerDesc.attribution && layerDesc.attribution.search('<a') >= 0 && layerDesc.attribution.search('target=') < 0 )
 	{
-		layer.attribution = layer.attribution.replace(' ', ' target=_blank ');
+		layerDesc.attribution = layerDesc.attribution.replace(' ', ' target=_blank ');
 	}
 
-	// default options
-	var options = {
-		name: layer.name,
-		attribution: layer.attribution,
-		visible: layer.visible,
-		icon: layer.icon,
-		description: layer.description,
-		onready: layer.onready
+	// Default options
+	var defaultOptions = {
+		opacity: 100,
+		visible: false,
+		coordSystem: "EQ",
+		dataType: (layerDesc.type == "healpix") ? "jpg" : "line"
 	};
-
-	if ( layer.color )
+	// Merge layer options with default options
+	layerDesc = $.extend( {}, defaultOptions, layerDesc );
+	
+	// Update layer color
+	if ( layerDesc.color )
 	{
-		var rgba = FeatureStyle.fromStringToColor( layer.color );
+		layerDesc.color = FeatureStyle.fromStringToColor( layerDesc.color );
 	}
 	else
 	{
-		// generate random color
+		// Generate random color
 		var rgb = Utils.generateColor();
-		var rgba = rgb.concat([1]);
+		layerDesc.color = rgb.concat([1]);
 	}
-	
-	var defaultVectorStyle = new FeatureStyle({ 
-				rendererHint: "Basic", 
-				opacity: layer.opacity/100.,
-				iconUrl: layer.icon ? layer.icon : configuration.mizarBaseUrl + "css/images/star.png",
-				fillColor: rgba,
-				strokeColor: rgba
-	});
 
-	switch(layer.type){
+	// HACK: it seems to be a little incoherence between opacity property on layerDesc and FeatureStyle opacity, to explore.. 
+	layerDesc.opacity /= 100;
+
+	// Create style if needed
+	if ( !layerDesc.style ) {
+		var defaultVectorStyle = new FeatureStyle({ 
+			rendererHint: "Basic", 
+			opacity: layerDesc.opacity,
+			iconUrl: layerDesc.icon ? layerDesc.icon : configuration.mizarBaseUrl + "css/images/star.png",
+			fillColor: layerDesc.color,
+			strokeColor: layerDesc.color
+		});
+		layerDesc.style = defaultVectorStyle;
+	}
+
+	// Depending on type of layer, create layer
+	switch(layerDesc.type){
 		case "healpix":
-			// Add necessary options
-			options.baseUrl = layer.baseUrl;
-			options.coordSystem = layer.coordSystem || "EQ";
-			options.dataType = layer.dataType || "jpg";
-			options.numberOfLevels = layer.numberOfLevels;
 
-			if ( layer.fitsSupported )
+			if ( layerDesc.fitsSupported )
 			{
-				gwLayer = new HEALPixFITSLayer(options);
+				gwLayer = new HEALPixFITSLayer(layerDesc);
 			}
 			else
 			{
-				gwLayer = new HEALPixLayer(options);
+				gwLayer = new HEALPixLayer(layerDesc);
 			}
-			if ( layer.availableServices )
+			if ( layerDesc.availableServices )
 			{
-				gwLayer.availableServices = layer.availableServices;
-				gwLayer.healpixCutFileName = layer.healpixCutFileName;
+				gwLayer.availableServices = layerDesc.availableServices;
+				gwLayer.healpixCutFileName = layerDesc.healpixCutFileName;
 			}
 
 			break;
 		
 		case "coordinateGrid":
-			gwLayer = new CoordinateGridLayer( {
-				name: layer.name,
-				visible: layer.visible,
-				longFormat: layer.longFormat,
-				latFormat: layer.latFormat,
-				coordSystem: layer.coordSystem,
-				color: rgba
-			} );
+			gwLayer = new CoordinateGridLayer( layerDesc );
 			break;
 			
 		case "healpixGrid":
-			gwLayer = new TileWireframeLayer( {name: layer.name, visible: layer.visible, outline: layer.outline });
-			gwLayer.style = defaultVectorStyle;
+			gwLayer = new TileWireframeLayer( layerDesc );
 			break;
 			
 		case "GeoJSON":
 
-			options.style = defaultVectorStyle;
-			gwLayer = new VectorLayer(options);
+			gwLayer = new VectorLayer(layerDesc);
 
-			if ( dataProviders[layer.data.type] )
+			if ( dataProviders[layerDesc.data.type] )
 			{
-				var callback = dataProviders[layer.data.type];
-				var data = callback(gwLayer, layer.data);
+				var callback = dataProviders[layerDesc.data.type];
+				var data = callback(gwLayer, layerDesc.data);
 			}
 
-			gwLayer.dataType = layer.dataType || "line";
-			gwLayer.pickable = layer.hasOwnProperty('pickable') ? layer.pickable : true;
+			gwLayer.dataType = layerDesc.dataType || "line";
+			gwLayer.pickable = layerDesc.hasOwnProperty('pickable') ? layerDesc.pickable : true;
 
 			break;
 			
 		case "DynamicOpenSearch":
-			
-			// Add necessary option			
-			options.serviceUrl = layer.serviceUrl;
-			options.minOrder = layer.minOrder;
-			if (layer.hasOwnProperty('invertY'))
-				options.invertY = layer.invertY;
 
-			options.style = defaultVectorStyle;
-			if ( layer.hasOwnProperty('coordSystemRequired') ) 
+			if ( layerDesc.useCluster )
 			{
-				options.coordSystemRequired = layer.coordSystemRequired;
-			}
-			if ( layer.useCluster )
-			{
-				if( layer.maxClusterOrder )
-					options.maxClusterOrder = layer.maxClusterOrder;
-				if ( layer.treshold )
-					options.treshold = layer.treshold;
-				if ( layer.accuracyOrder )
-					options.accuracyOrder
-
-				gwLayer = new ClusterOpenSearchLayer( options );
+				gwLayer = new ClusterOpenSearchLayer( layerDesc );
 			}
 			else
 			{
-				gwLayer = new OpenSearchLayer( options );
+				gwLayer = new OpenSearchLayer( layerDesc );
 			}
 
-			if (layer.displayProperties)
-				gwLayer.displayProperties = layer.displayProperties;
-			gwLayer.dataType = layer.dataType;
-			gwLayer.pickable = layer.hasOwnProperty('pickable') ? layer.pickable : true;
-			gwLayer.availableServices = layer.availableServices;
+			if (layerDesc.displayProperties)
+				gwLayer.displayProperties = layerDesc.displayProperties;
+			gwLayer.dataType = layerDesc.dataType;
+			gwLayer.pickable = layerDesc.hasOwnProperty('pickable') ? layer.pickable : true;
+			gwLayer.availableServices = layerDesc.availableServices;
 			break;
 
 		case "Moc":
-			options.style = defaultVectorStyle;
-			options.serviceUrl = layer.serviceUrl;
-			options.style.fill = true;
-			options.style.fillColor[3] = 0.3 // make transparent
-			gwLayer = new MocLayer( options );
+			layerDesc.style.fill = true;
+			layerDesc.style.fillColor[3] = 0.3 // make transparent
+			gwLayer = new MocLayer( layerDesc );
 			gwLayer.dataType = "line";
 			break;
 		case "Vector":
-			gwLayer = createSimpleLayer(options.name);
-			gwLayer.dataType = layer.dataType;
-			gwLayer.pickable = layer.hasOwnProperty('pickable') ? layer.pickable : true;
+			gwLayer = createSimpleLayer(layerDesc.name);
+			gwLayer.dataType = layerDesc.dataType;
+			gwLayer.pickable = layerDesc.hasOwnProperty('pickable') ? layerDesc.pickable : true;
 			gwLayer.deletable = false;
 			break;
+		case "WMS":
+			gwLayer = new WMSLayer( layerDesc );
+			break;
 		default:
-			console.error(layer.type+" isn't not implemented");
+			console.error(layerDesc.type+" isn't not implemented");
 			return null;
 	}
-	gwLayer.type = layer.type;
+	gwLayer.type = layerDesc.type;
+	gwLayer.dataType = layerDesc.dataType;
 
 	return gwLayer;
 }
@@ -294,12 +275,6 @@ return {
 
 		var gwLayer = _.findWhere(gwLayers, {name: layerDesc.name});
 		if ( !gwLayer ) {
-			// If layer hasn't been already added
-		 	// Define default optionnal parameters
-			if(!layerDesc.opacity)
-				layerDesc.opacity = 100.;
-			if (!layerDesc.visible)
-				layerDesc.visible = false;
 		
 			gwLayer = createLayerFromConf(layerDesc);
 			if ( gwLayer )
@@ -371,8 +346,10 @@ return {
 		 	if ( gwLayer != sky.baseImagery )
 		 	{
 			 	// Change visibility's of previous layer, because visibility is used to know the active background layer in the layers list (layers can be shared)
-				sky.baseImagery.visible(false);
+			 	if ( sky.baseImagery )
+					sky.baseImagery.visible(false);
 				sky.setBaseImagery( gwLayer );
+				sky.baseImagery = gwLayer;
 				gwLayer.visible(true);
 
 				// Clear selection
