@@ -463,7 +463,14 @@ return {
 	 */
 	addPickableLayer: function( layer )
 	{
-		pickableLayers.push( layer );
+		if ( pickableLayers.indexOf(layer) == -1 )
+		{
+			pickableLayers.push( layer );
+		}
+		else
+		{
+			console.log("WARN:" + layer.name + " has been already added");
+		}
 	},
 
 	/**************************************************************************************************************/
