@@ -21,15 +21,16 @@
  * LayerManager module
  */
 define( [ "jquery", "underscore-min", "gw/FeatureStyle", "gw/HEALPixLayer", "gw/VectorLayer", "gw/CoordinateGridLayer", "gw/TileWireframeLayer", "gw/OpenSearchLayer", "gw/WMSLayer",
-		 "./ClusterOpenSearchLayer", "./MocLayer", "./HEALPixFITSLayer", "./PickingManager", "./Utils", "./JsonProcessor", "jquery.ui"], 
+		 "./ClusterOpenSearchLayer", "./MocLayer", "./PlanetLayer", "./HEALPixFITSLayer", "./PickingManager", "./Utils", "./JsonProcessor", "jquery.ui"], 
 	function($, _, FeatureStyle, HEALPixLayer, VectorLayer, CoordinateGridLayer, TileWireframeLayer, OpenSearchLayer, WMSLayer,
-			ClusterOpenSearchLayer, MocLayer, HEALPixFITSLayer, PickingManager, Utils, JsonProcessor) {
+			ClusterOpenSearchLayer, MocLayer, PlanetLayer, HEALPixFITSLayer, PickingManager, Utils, JsonProcessor) {
 
 /**
  * Private variables
  */
 var sky;
 var gwLayers = [];
+var planetLayers = [];
 var configuration;
 
 // GeoJSON data providers
@@ -197,8 +198,8 @@ function createLayerFromConf(layerDesc) {
 			gwLayer.pickable = layerDesc.hasOwnProperty('pickable') ? layerDesc.pickable : true;
 			gwLayer.deletable = false;
 			break;
-		case "WMS":
-			gwLayer = new WMSLayer( layerDesc );
+		case "Planet":
+			gwLayer = new PlanetLayer( layerDesc );
 			break;
 		default:
 			console.error(layerDesc.type+" isn't not implemented");
@@ -274,15 +275,22 @@ return {
 	 addLayer: function(layerDesc) {
 
 		var gwLayer = _.findWhere(gwLayers, {name: layerDesc.name});
-		if ( !gwLayer ) {
-		
+		if ( !gwLayer )
+		{
 			gwLayer = createLayerFromConf(layerDesc);
 			if ( gwLayer )
-			{
+			{	
+				// Store planet layers to be able to set background from name
+				if ( gwLayer instanceof PlanetLayer ) {
+					for (var i=0; i<gwLayer.layers.length; i++) {
+						planetLayers.push( gwLayer.layers[i] );
+					}
+				};
 				if( layerDesc.background )
 				{
 					// Add to engine
-					if ( gwLayer.visible() ) {
+					if ( gwLayer.visible() )
+					{
 						// Change visibility's of previous layer(maybe GlobWeb should do it ?)
 						if ( sky.tileManager.imageryProvider )
 						{
@@ -340,16 +348,18 @@ return {
 	  *		Survey name
 	  */
 	 setBackgroundSurvey: function(survey) {
-	 	var gwLayer = _.findWhere(gwLayers, {name: survey});
+		// Find the layer by name among all the layers
+	 	var gwLayer = _.findWhere(gwLayers.concat(planetLayers), {name: survey});
 	 	if ( gwLayer )
 	 	{
-		 	if ( gwLayer != sky.baseImagery )
+			// Check if is not already set
+		 	if ( gwLayer != this.mizar.sky.baseImagery )
 		 	{
 			 	// Change visibility's of previous layer, because visibility is used to know the active background layer in the layers list (layers can be shared)
-			 	if ( sky.baseImagery )
-					sky.baseImagery.visible(false);
-				sky.setBaseImagery( gwLayer );
-				sky.baseImagery = gwLayer;
+			 	if ( this.mizar.sky.baseImagery )
+					this.mizar.sky.baseImagery.visible(false);
+				this.mizar.sky.setBaseImagery( gwLayer );
+				this.mizar.sky.baseImagery = gwLayer;
 				gwLayer.visible(true);
 
 				// Clear selection
@@ -367,7 +377,7 @@ return {
 							if (subLayer.name == "SolarObjectsSublayer" )
 							{
 								PickingManager.removePickableLayer( subLayer );
-								sky.removeLayer( subLayer );
+								this.mizar.sky.removeLayer( subLayer );
 								currentLayer.subLayers.splice(j,1);
 							}
 						}

@@ -22,7 +22,7 @@
  */
  define(["gw/CoordinateSystem", "wcs"], function( CoordinateSystem ) {
 
-var globe;
+var mizar;
 
 /**
  *	HSV values in [0..1[
@@ -74,9 +74,9 @@ function createCoordinate( x, y )
 
 return {
   	
-	init: function(gl)
+	init: function(m)
 	{
-		globe = gl;
+		mizar = m;
 	},
 
 	roundNumber : function (num, dec) {
@@ -244,7 +244,7 @@ return {
 		var sphere3D = [];
 
 		// Compute pixel size vector to offset the points from the earth
-		var pixelSizeVector = globe.renderContext.computePixelSizeVector();
+		var pixelSizeVector = mizar.sky.renderContext.computePixelSizeVector();
 
 		CoordinateSystem.fromGeoTo3D( point, point3D );
 		CoordinateSystem.fromGeoTo3D( sphere, sphere3D );

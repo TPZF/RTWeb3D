@@ -20,11 +20,13 @@
 /**
  * AdditionalLayersView module
  */
-define(["jquery", "gw/CoordinateSystem", "gw/FeatureStyle", "gw/OpenSearchLayer", "./LayerManager", "./HEALPixFITSLayer", "./MocLayer", "gw/VectorLayer", "./PickingManager", "./DynamicImageView", "./LayerServiceView", "./Samp", "./ErrorDialog", "./Utils", "underscore-min", "text!../templates/additionalLayer.html", "jquery.nicescroll.min", "jquery.ui"],
-		function($, CoordinateSystem, FeatureStyle, OpenSearchLayer, LayerManager, HEALPixFITSLayer, MocLayer, VectorLayer, PickingManager, DynamicImageView, LayerServiceView, Samp, ErrorDialog, Utils, _, additionalLayerHTMLTemplate){
+define(["jquery", "gw/CoordinateSystem", "gw/FeatureStyle", "gw/OpenSearchLayer", "./LayerManager", "./HEALPixFITSLayer", "./MocLayer", "./PlanetLayer", "gw/VectorLayer", "./PickingManager", "./DynamicImageView", "./LayerServiceView", "./Samp", "./ErrorDialog", "./Utils", "underscore-min", "text!../templates/additionalLayers.html", "text!../templates/additionalLayer.html", "jquery.nicescroll.min", "jquery.ui"],
+		function($, CoordinateSystem, FeatureStyle, OpenSearchLayer, LayerManager, HEALPixFITSLayer, MocLayer, PlanetLayer, VectorLayer, PickingManager, DynamicImageView, LayerServiceView, Samp, ErrorDialog, Utils, _, additionalLayersHTML, additionalLayerHTMLTemplate){
 
+var mizar;
 var sky;
 var navigation;
+var parentElement;
 var categories = {
 	"Other": 'otherLayers',
 	"Coordinate systems": 'coordinateSystems'
@@ -100,11 +102,11 @@ function initNiceScroll(categoryId)
 		autohidemode: false
 	});
 	// Hide scroll while accordion animation
-	$( "#accordion" ).on( "accordionbeforeactivate", function(event, ui) {
+	$(parentElement).on( "accordionbeforeactivate", function(event, ui) {
 		$('#'+categoryId).niceScroll().hide();
 	} );
 	// Show&resize scroll on the end of accordion animation
-	$( "#accordion" ).on( "accordionactivate", function( event, ui ) {
+	$(parentElement).on( "accordionactivate", function( event, ui ) {
 		$('#'+categoryId).niceScroll().show();
 		updateScroll(categoryId);
 	} );
@@ -117,7 +119,7 @@ function initNiceScroll(categoryId)
  */
 function updateScroll(categoryId)
 {
-	$('#accordion').find('#'+categoryId).getNiceScroll().resize();
+	$(parentElement).find('#'+categoryId).getNiceScroll().resize();
 }
 
 /**************************************************************************************************************/
@@ -315,41 +317,48 @@ function manageLayerVisibility($layerDiv, gwLayer, categoryId)
 
 	// Layer visibility management
 	$layerDiv.find('#visible_'+shortName).click(function(){
-		// Manage 'custom' checkbox
-		// jQuery UI button is not sexy enough :)
-		// Toggle some classes when the user clicks on the visibility checkbox
-		var isOn = !$(this).hasClass('ui-state-active');
-		gwLayer.visible( isOn );
-		if ( gwLayer.subLayers )
-		{
-			setSublayersVisibility(gwLayer, isOn);
-		}
 
-		$layerDiv.find('.slider').slider( isOn ? "enable" : "disable" );
-		if ( isOn )
-		{
-			$('.layerTools').slideUp();
-			toolsDiv.slideDown();
-		}
-		else
-		{
-			toolsDiv.slideUp();	
-		}
-		
-		// Change button's state
-		$('#visible_'+shortName).toggleClass('ui-state-active')
-			   .toggleClass('ui-state-default')
-			   .find('span')
-			   	  .toggleClass('ui-icon-check')
-			   	  .toggleClass('ui-icon-empty');
+		if ( gwLayer instanceof PlanetLayer ) {
+			// Temporary use visiblity button to change mizar context to "planet"
+			// TODO: change button, 
+			mizar.toggleMode(gwLayer);
+		} else {
+			// Manage 'custom' checkbox
+			// jQuery UI button is not sexy enough :)
+			// Toggle some classes when the user clicks on the visibility checkbox
+			var isOn = !$(this).hasClass('ui-state-active');
+			gwLayer.visible( isOn );
+			if ( gwLayer.subLayers )
+			{
+				setSublayersVisibility(gwLayer, isOn);
+			}
 
-		// Synchronize with visibility button of ImageViewer if needed
-		var $imageViewerBtn = $('#layerVisibility_'+gwLayer.id);
-		if ( ($imageViewerBtn.button('option', 'icons').primary == "ui-icon-check") != isOn )
-		{
-			$imageViewerBtn.trigger('click');
-		}
+			$layerDiv.find('.slider').slider( isOn ? "enable" : "disable" );
+			if ( isOn )
+			{
+				$('.layerTools').slideUp();
+				toolsDiv.slideDown();
+			}
+			else
+			{
+				toolsDiv.slideUp();	
+			}
+			
+			// Change button's state
+			$('#visible_'+shortName).toggleClass('ui-state-active')
+				   .toggleClass('ui-state-default')
+				   .find('span')
+				   	  .toggleClass('ui-icon-check')
+				   	  .toggleClass('ui-icon-empty');
 
+			// Synchronize with visibility button of ImageViewer if needed
+			var $imageViewerBtn = $('#layerVisibility_'+gwLayer.id);
+			if ( ($imageViewerBtn.button('option', 'icons').primary == "ui-icon-check") != isOn )
+			{
+				$imageViewerBtn.trigger('click');
+			}
+			sky.refresh();
+		}
 	});
 }
 
@@ -439,7 +448,7 @@ function addView ( gwLayer )
 		categories[category] = categoryId;
 
 		// Refresh accordion
-		$('#accordion').accordion("refresh");
+		$(parentElement).accordion("refresh");
 		// Add scroll to the new category
 		initNiceScroll(categoryId);
 	}
@@ -460,7 +469,7 @@ function addView ( gwLayer )
  */
 function removeView ( gwLayer ) {
 	var shortName = Utils.formatId( gwLayer.name );
-	var addLayerDiv = $('#accordion').find('#addLayer_'+shortName);
+	var addLayerDiv = $(parentElement).find('#addLayer_'+shortName);
 	if ( addLayerDiv.parent().children().length == 1 ) {
 		// Last child to remove -> remove the category
 		addLayerDiv.closest('.category').remove();
@@ -624,7 +633,7 @@ function registerEvents()
 	sky.subscribe("startLoad", onLoadStart);
 	sky.subscribe("endLoad", onLoadEnd);
 
-	$('#accordion')
+	$(parentElement)
 		.on("click",'.category .deleteLayer', deleteLayer)
 		.on('click', ".category .layerServices", showLayerServices)
 		.on('click', ".category .exportLayer", exportLayer)
@@ -663,9 +672,15 @@ return {
 	 */
 	init : function(options)
 	{
+		// Set some globals
+		mizar = options.mizar;
 		sky = options.mizar.sky;
 		navigation = options.mizar.navigation;
 		isMobile = options.configuration.isMobile;
+
+		// Append content to parent element
+		parentElement = options.configuration.element;
+		$(parentElement).append(additionalLayersHTML);
 
 		// Select default coordinate system event
 		$('#defaultCoordSystem').selectmenu({
@@ -685,10 +700,12 @@ return {
 	 */
 	remove: function()
 	{
+		$(parentElement).find(".category").remove();
+
 		sky.unsubscribe("startLoad", onLoadStart);
 		sky.unsubscribe("endLoad", onLoadEnd);
 
-		$('#accordion')
+		$(parentElement)
 			.off("click",'.category .deleteLayer', deleteLayer)
 			.off('click', ".category .layerServices", showLayerServices)
 			.off('click', ".category .exportLayer", exportLayer)

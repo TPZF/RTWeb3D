@@ -20,18 +20,22 @@
 /**
  * Mizar widget
  */
-define( [ "jquery", "underscore-min", "gw/EquatorialCoordinateSystem", "gw/Sky", "gw/Stats", "gw/AstroNavigation", "gw/AttributionHandler", "gw/VectorLayer", "gw/TouchNavigationHandler", "gw/MouseNavigationHandler", "gw/KeyboardNavigationHandler", "gw/Event", "text!../templates/mizarCore.html", "text!../data/backgroundSurveys.json",
+define( [ "jquery", "underscore-min", "gw/EquatorialCoordinateSystem", "./PlanetContext", "./SkyContext", "gw/Stats", "gw/AttributionHandler", "gw/Event",  "gw/TouchNavigationHandler", "gw/MouseNavigationHandler", "gw/KeyboardNavigationHandler", "text!../templates/mizarCore.html", "text!../data/backgroundSurveys.json",
 	"./LayerManager", "./LayerManagerView", "./BackgroundLayersView", "./NameResolver", "./NameResolverView", "./ReverseNameResolver", "./Utils", "./PickingManager", "./FeaturePopup", "./IFrame", "./Compass", "./MollweideViewer", "./ErrorDialog", "./AboutDialog", "./Share", "./Samp", "./AdditionalLayersView", "./ImageManager", "./ImageViewer", "./UWSManager", "./PositionTracker", "./MeasureTool", "./StarProvider", "./ConstellationProvider", "./JsonProvider", "./OpenSearchProvider", "./PlanetProvider",
 	"gw/ConvexPolygonRenderer", "gw/PointSpriteRenderer", "gw/PointRenderer", "jquery.ui"],
-	function($, _, CoordinateSystem, Sky, Stats, AstroNavigation, AttributionHandler, VectorLayer, TouchNavigationHandler, MouseNavigationHandler, KeyboardNavigationHandler, Event, mizarCoreHTML, backgroundSurveys,
+	function($, _, CoordinateSystem, PlanetContext, SkyContext, Stats, AttributionHandler, Event, TouchNavigationHandler, MouseNavigationHandler, KeyboardNavigationHandler, mizarCoreHTML, backgroundSurveys,
 			LayerManager, LayerManagerView, BackgroundLayersView, NameResolver, NameResolverView, ReverseNameResolver, Utils, PickingManager, FeaturePopup, IFrame, Compass, MollweideViewer, ErrorDialog, AboutDialog, Share, Samp, AdditionalLayersView, ImageManager, ImageViewer, UWSManager, PositionTracker, MeasureTool) {
 
 	/**
-	 *	Private functions
+	 *	Private variables
 	 */
 	var aboutShowed = false;
 	var parentElement;
 	var options;
+	var planetContext;
+	var skyContext;
+
+	/**************************************************************************************************************/
 
 	/**
 	 *	Apply shared parameters to options if exist
@@ -69,6 +73,8 @@ define( [ "jquery", "underscore-min", "gw/EquatorialCoordinateSystem", "gw/Sky",
 		}
 	}
 
+	/**************************************************************************************************************/
+
 	/**
 	 *	Retrieve SiTools2 configuration from URI
 	 *	(to be removed ?)
@@ -95,23 +101,6 @@ define( [ "jquery", "underscore-min", "gw/EquatorialCoordinateSystem", "gw/Sky",
 			}
 		}
 		return confURL;
-	}
-
-	/**************************************************************************************************************/
-
-	/**
-	 *	Hide loading and show about on first connection
-	 */
-	var _showAbout = function()
-	{
-		// Show about information only at the end of first loading
-		if ( localStorage.showAbout == undefined && !aboutShowed )
-		{
-			AboutDialog.show();
-			aboutShowed = true;
-		}
-
-		$(parentElement).find('#loading').hide(300);
 	}
 
 	/**************************************************************************************************************/
@@ -196,6 +185,9 @@ define( [ "jquery", "underscore-min", "gw/EquatorialCoordinateSystem", "gw/Sky",
 	 */
 	var MizarWidget = function(div, userOptions) {
 		Event.prototype.constructor.call( this );
+		
+		// Sky mode by default
+		this.mode = "sky";
 
 		parentElement = div;
 		var sitoolsBaseUrl = userOptions.sitoolsBaseUrl ? userOptions.sitoolsBaseUrl : "http://demonstrator.telespazio.com/sitools";
@@ -269,111 +261,37 @@ define( [ "jquery", "underscore-min", "gw/EquatorialCoordinateSystem", "gw/Sky",
 		this.navigation = null;
 
 		var confURL = _retrieveConfiguration();
-
-		var canvas = $(div).find('#GlobWebCanvas')[0];
+	
+		// Initialize sky&globe contexts
+		planetContext = new PlanetContext($(div).find('#GlobWebCanvas')[0], div, options);
+		skyContext = new SkyContext($(div).find('#SkyCanvas')[0], div, options);
 		
-		// Set canvas dimensions from width/height attributes
-		var width = $(div).attr("width");
-		if ( !width )
-		{
-			// Use window width by default if not defined
-			width = window.innerWidth;
-		}
-
-		var height = $(div).attr("height");
-		if ( !height )
-		{
-			// Use window height if not defined
-			height = window.innerHeight;
-		}
-		canvas.width = width;
-		canvas.height = height;
-		
-		// Add some useful css properties to parent element
-		$(parentElement).css({
-			position: "relative",
-			width: canvas.width,
-			height: canvas.height,
-			overflow: "hidden"
+		// TODO : Extend GlobWeb base layer to be able to publish events by itself
+		// to avoid the following useless call
+		var self = this;
+		skyContext.sky.subscribe("features:added", function(featureData) {
+			self.publish("features:added", featureData);
 		});
-		
-		// Take into account window resize
-		$(window).resize(function() {
-			if ( canvas.width !=  window.innerWidth ) 
-				canvas.width = window.innerWidth;
-			if ( canvas.height != window.innerHeight )
-				canvas.height = window.innerHeight;
-		});
-		
-		// Initialize sky
-		try
-		{
-			this.sky = new Sky( { 
-				canvas: canvas, 
-				tileErrorTreshold: 1.5,
-				continuousRendering: this.isMobile ? false : options.continuousRendering
-			} );
-		}
-		catch (err)
-		{
-			document.getElementById('GlobWebCanvas').style.display = "none";
-			document.getElementById('loading').style.display = "none";
-			document.getElementById('webGLNotAvailable').style.display = "block";
-		}
 
-		// When base layer is ready, hide loading
-		this.sky.subscribe("baseLayersReady", _showAbout);
-
-		// When base layer failed to load, open error dialog
-		this.sky.subscribe("baseLayersError", function(layer){
-
-			$(parentElement).find('#loading').hide();
-			// TODO : handle multiple errors !
-			var layerType = layer.id == 0 ? " background layer " : " additional layer ";
-			ErrorDialog.open("<p>The"+ layerType + "<span style='color: orange'>"+layer.name+"</span> can not be displayed.</p>\
-			 <p>First check if data source related to this layer is still accessible. Otherwise, check your Sitools2 configuration.</p>");
-		});
-		
-		// Context lost listener
-		canvas.addEventListener("webglcontextlost", function(event) {
-			// TODO
-			event.preventDefault();
-			document.getElementById('loading').style.display = "none";
-			document.getElementById('webGLContextLost').style.display = "block";
-		}, false);
+		this.sky = skyContext.sky;
+		this.navigation = skyContext.navigation;
 				
 		_applySharedParameters(options);
 
 		// Add stats
 		var self = this;
 		if ( options.stats.visible ) {
-			new Stats( self.sky.renderContext, { element: "fps", verbose: options.stats.verbose });
+			new Stats( this.sky.renderContext, { element: "fps", verbose: options.stats.verbose });
 			$("#fps").show();
 		}
 		
 		// TODO : Extend GlobWeb base layer to be able to publish events by itself
 		// to avoid the following useless call
-		this.sky.subscribe("features:added", function(featureData) {
-			self.publish("features:added", featureData);
-		});
-	
 		
 		CoordinateSystem.type = options.coordSystem;
 
-		// Add touch navigation handler if client supports touch events
-		if( this.isMobile ) {
-		    // Mobile
-			options.navigation.handlers = [ new TouchNavigationHandler({ inversed: true, zoomOnDblClick: true }) ];
-			window.addEventListener("orientationchange", function() {
-				self.sky.renderContext.requestFrame();
-			}, false);
-		}
-
-		// Initialize navigation
-		this.navigation = new AstroNavigation(this.sky, options.navigation);
-
 		// Add attribution handler
-		new AttributionHandler( this.sky, {element: 'attributions'});		
+		new AttributionHandler( this.sky, {element: 'attributions'});
 		
 		// Initialize name resolver
 		NameResolver.init(this, options);
@@ -392,28 +310,32 @@ define( [ "jquery", "underscore-min", "gw/EquatorialCoordinateSystem", "gw/Sky",
 		// current samp component doesn't break existing SAMP functionality
 		Samp.init(this, LayerManager, ImageManager, options);
 
-		// Eye position tracker initialization
-		PositionTracker.init({ element: "posTracker", globe: this.sky, navigation : this.navigation, isMobile: this.isMobile });
-
 		// UWS services initialization
 		UWSManager.init(options);
 
 		// Initialization of tools useful for different modules
-		Utils.init(this.sky);
+		Utils.init(this);
 		
 		// Get background surveys only
 		// Currently in background surveys there are not only background layers but also catalog ones
 		// TODO : Refactor it !
-		backgroundSurveys = _removeComments(backgroundSurveys);
-		try
-		{
-			var layers = $.parseJSON(backgroundSurveys);
+		if ( userOptions.backgroundSurveys ) {
+			// Use user defined background surveys
+			var layers = userOptions.backgroundSurveys;
+		} else {
+			// Use built-in background surveys
+			backgroundSurveys = _removeComments(backgroundSurveys);
+			try
+			{
+				var layers = $.parseJSON(backgroundSurveys);
+			}
+			catch (e) {
+				ErrorDialog.open("Background surveys parsing error<br/> For more details see http://jsonlint.com/.");
+				console.error(e.message);
+				return false;
+			}
 		}
-		catch (e) {
-			ErrorDialog.open("Background surveys parsing error<br/> For more details see http://jsonlint.com/.");
-			console.error(e.message);
-			return false;
-		}
+
 		// Add surveys
 		for( var i=0; i<layers.length; i++ ) {
 			self.addLayer( layers[i] );
@@ -452,7 +374,7 @@ define( [ "jquery", "underscore-min", "gw/EquatorialCoordinateSystem", "gw/Sky",
 			// Ctrl + Space
 			if ( event.ctrlKey == true && event.keyCode == 32 )
 			{
-				$('.canvas > canvas').siblings().each(function(){
+				$('.canvas > canvas').siblings(":not(canvas)").each(function(){
 					$(this).fadeToggle();
 				});
 			}
@@ -774,6 +696,27 @@ define( [ "jquery", "underscore-min", "gw/EquatorialCoordinateSystem", "gw/Sky",
 	 */
 	MizarWidget.prototype.highlightObservation = function(featureData) {
 		PickingManager.focusFeature(featureData);
+	}
+
+	/**************************************************************************************************************/
+
+	/**
+	 *	Toggle between planet/sky mode
+	 */
+	MizarWidget.prototype.toggleMode = function(gwLayer) {
+		this.mode = (this.mode == "sky") ? "planet" : "sky";
+		if ( this.mode == "sky" ) {
+			planetContext.hide();
+			skyContext.show();
+			this.sky = skyContext.sky;
+			this.navigation = skyContext.navigation;
+		} else {
+			skyContext.hide();
+			planetContext.show();
+			this.sky = planetContext.globe;
+			this.navigation = planetContext.navigation;
+		}
+		this.publish("mizarMode:toggle", gwLayer);
 	}
 
 	return MizarWidget;

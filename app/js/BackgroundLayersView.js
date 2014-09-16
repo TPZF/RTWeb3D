@@ -20,12 +20,14 @@
 /**
  * BackgroundLayersView module
  */
-define(["jquery", "underscore-min", "./LayerManager", "./DynamicImageView", "./PickingManager", "./HEALPixFITSLayer", "./LayerServiceView", "./Samp", "./ErrorDialog", "jquery.ui"],
-		function($, _, LayerManager, DynamicImageView, PickingManager, HEALPixFITSLayer, LayerServiceView, Samp, ErrorDialog){
+define(["jquery", "underscore-min", "./LayerManager", "./DynamicImageView", "./PickingManager", "./HEALPixFITSLayer", "./LayerServiceView", "./Samp", "./ErrorDialog", "text!../templates/backgroundLayers.html", "jquery.ui"],
+		function($, _, LayerManager, DynamicImageView, PickingManager, HEALPixFITSLayer, LayerServiceView, Samp, ErrorDialog, backgroundLayersHTML){
 
 var nbBackgroundLayers = 0; // required because background id is always equal to 0
 var sky;
 var layerManager;
+var parentElement;
+var $el;
 
 var backgroundDiv;
 var selectedLayer;
@@ -52,7 +54,7 @@ function updateBackgroundOptions(layer)
 		$('#fitsView').button("disable");
 	}
 
-	var $layerServices = $('#backgroundLayers').find('.layerServices');
+	var $layerServices = $el.find('.layerServices');
 	if ( !layer.availableServices )
 	{
 		$layerServices.attr('disabled','disabled').button('refresh');
@@ -72,8 +74,8 @@ function createHtmlForBackgroundLayer( gwLayer )
 {
 	// Add HTML
 	var $layerDiv = $('<option '+ (gwLayer.visible() ? "selected" : "") +'>'+ gwLayer.name + '</option>')
-			.appendTo('#backgroundLayersSelect')
-			.data("layer", gwLayer);
+		.appendTo($el.find('#backgroundLayersSelect'))
+		.data("layer", gwLayer);
 	
 	if ( gwLayer.icon )
 	{	
@@ -92,9 +94,12 @@ function createHtmlForBackgroundLayer( gwLayer )
 		// Update background options layout
 		updateBackgroundOptions(gwLayer);
 		selectedLayer = gwLayer;
+		if ( gwLayer != sky.baseImagery ) {
+			LayerManager.setBackgroundSurvey(gwLayer.name);
+		}
 	}
 
-	$('#backgroundLayersSelect').iconselectmenu("refresh");	
+	$el.find('#backgroundLayersSelect').iconselectmenu("refresh");
 	nbBackgroundLayers++;
 }
 
@@ -105,7 +110,7 @@ function createHtmlForBackgroundLayer( gwLayer )
  */
 function onLoadStart(layer)
 {
-	$('#backgroundSpinner').fadeIn('fast');
+	$el.find('#backgroundSpinner').fadeIn('fast');
 }
 
 /**************************************************************************************************************/
@@ -115,7 +120,7 @@ function onLoadStart(layer)
  */
 function onLoadEnd(layer)
 {
-	$('#backgroundSpinner').fadeOut('fast');
+	$el.find('#backgroundSpinner').fadeOut('fast');
 }
 
 /**************************************************************************************************************/
@@ -129,6 +134,7 @@ return {
 		this.mizar = options.mizar;
 		
 		sky = this.mizar.sky;
+		parentElement = options.configuration.element;
 		this.updateUI();
 
 		// Background spinner events
@@ -142,6 +148,8 @@ return {
 		sky.unsubscribe("endBackgroundLoad", onLoadEnd);
 		this.mizar.unsubscribe("backgroundLayer:change", this.selectLayer);
 		$('#backgroundDiv').dialog("destroy").remove();
+		$el.remove();
+		nbBackgroundLayers = 0;
 	},
 	addView : createHtmlForBackgroundLayer,
 
@@ -151,8 +159,8 @@ return {
 	selectLayer: function(layer) {
 
 		// Update selectmenu ui by choosen layer(if called programmatically)
-		$('#backgroundLayersSelect').children().removeAttr("selected");
-		var option = _.find($('#backgroundLayersSelect').children(), function(item) {
+		$el.children().removeAttr("selected");
+		var option = _.find($el.children(), function(item) {
 			return item.text == layer.name;
 		});
 		$(option).attr("selected","selected");
@@ -175,8 +183,6 @@ return {
 		// Change dynamic image view button
 		updateBackgroundOptions(layer);
 
-		$('#backgroundLayersSelect').iconselectmenu("refresh");	
-
 	},
 
 	/**
@@ -184,7 +190,7 @@ return {
 	 *	Synchonize background spinner with background survey events
 	 */
 	updateUI : function() {
-
+		$el = $(backgroundLayersHTML).prependTo($(parentElement));
 		// Add custion icon select menu
 		$.widget( "custom.iconselectmenu", $.ui.selectmenu, {
 			_renderItem: function( ul, item ) {
@@ -202,8 +208,22 @@ return {
 				return li.appendTo( ul );
 			}
 		});
+		
+		// Back to sky button if in globe mode
+		if ( this.mizar.mode == "planet" ) {
+			var self = this;
+			$el.find('.backToSky').button().click(function(event) {
+				self.mizar.toggleMode();
+			});	
+		}
+		else
+		{
+			// Already in sky mode
+			$el.find('.backToSky').hide();
+		}
+		
 
-		$('#backgroundLayers').find('.layerServices').button({
+		$el.find('.layerServices').button({
 			text: false,
 			icons: {
 				primary: "ui-icon-wrench"
@@ -212,7 +232,7 @@ return {
 			LayerServiceView.show( selectedLayer );
 		});
 
-		$('#backgroundLayers').find('.exportLayer').button({
+		$el.find('.exportLayer').button({
 			text: false,
 			icons: {
 				primary: "ui-icon-extlink"
@@ -257,7 +277,7 @@ return {
 		});
 
 		// Show/hide Dynamic image service
-		$('#fitsView').button({
+		$el.find('#fitsView').button({
 			text: false,
 			icons: {
 				primary: "ui-icon-image"
@@ -278,7 +298,7 @@ return {
 			id : 'backgroundFitsView',
 		});
 
-		$('#fitsType')
+		$el.find('#fitsType')
 			.button()
 			.click(function(){
 
@@ -295,8 +315,7 @@ return {
 			$('#loading').show();
 		});
 
-		var self = this;
-		$('#backgroundLayersSelect').iconselectmenu({
+		$el.find('#backgroundLayersSelect').iconselectmenu({
 			select: function(event, ui)
 			{
 				var index = ui.item.index;

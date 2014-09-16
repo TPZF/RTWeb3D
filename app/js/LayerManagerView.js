@@ -20,19 +20,20 @@
 /**
  * Layer manager view module
  */
-define( [ "jquery", "underscore-min", "LayerManager", "./ErrorDialog", "./LayerServiceView", "./BackgroundLayersView", "./AdditionalLayersView", "./FitsLoader", "./ImageManager", "text!../templates/layerManagerContent.html", "jquery.ui"], 
-	function($, _, LayerManager, ErrorDialog, LayerServiceView, BackgroundLayersView, AdditionalLayersView, FitsLoader, ImageManager, layerManagerHTML) {
+define( [ "jquery", "underscore-min", "./LayerManager", "./ErrorDialog", "./LayerServiceView", "./BackgroundLayersView", "./AdditionalLayersView", "./FitsLoader", "./ImageManager", "jquery.ui"], 
+	function($, _, LayerManager, ErrorDialog, LayerServiceView, BackgroundLayersView, AdditionalLayersView, FitsLoader, ImageManager) {
 
 /**
  * Private variables
  */
 var mizar;
-var sky = null;
+var configuration;
 
 // GeoJSON data providers
 var dataProviders = {};
 var votable2geojsonBaseUrl;
 var parentElement;
+var $el;
 
 
 /**
@@ -150,16 +151,6 @@ function initLayers()
 {
 	var layers = LayerManager.getLayers();
 
-	// Due to scroll initialization which corrumps accordion UI init in additional layers view,
-	// accordion UI must be initialized before
-	$( "#accordion" ).accordion( {
-		header: "> div > h3",
-		autoHeight: false,
-		active: 0,
-		collapsible: true,
-		heightStyle: "content"
-	} ).show().accordion("refresh");
-
 	// Add view depending on category of each layer
 	for ( var i=0; i<layers.length; i++ )
 	{
@@ -173,12 +164,27 @@ function initLayers()
 			AdditionalLayersView.addView( layer );
 		}
 	}
-	
+}
+
+/**************************************************************************************************************/
+
+/**
+ *	Init background layer only from the given planet layer
+ */
+function initPlanetLayer(planetLayer)
+{
+	// Add planet WMS layers only
+	for ( var i=0; i<planetLayer.layers.length; i++ )
+	{
+		var layer = planetLayer.layers[i];
+		BackgroundLayersView.addView( layer );
+	}	
 }
 
 /**************************************************************************************************************/
 
 return {
+
 	/**
 	 *	Init
 	 *
@@ -187,21 +193,32 @@ return {
 	 *	@param configuration
 	 *		Mizar configuration 
  	 */
-	init: function(mizar, configuration) {
-		
+	init: function(m, conf) {
+		mizar = m;
+		configuration = conf;
 		parentElement = configuration.element;
-		$(layerManagerHTML).appendTo(parentElement);
+		$el = $('<div id="accordion" style="display: none;"></div>').appendTo(parentElement);
+		configuration.element = $el;
 
-		// Store the sky in the global module variable
-		sky = mizar.sky;
+		BackgroundLayersView.init({ mizar: mizar, configuration: configuration });
 		AdditionalLayersView.init({ mizar: mizar, configuration: configuration });
-		BackgroundLayersView.init({ mizar: mizar });
 
 		mizar.subscribe("backgroundLayer:add", BackgroundLayersView.addView);
 		mizar.subscribe("additionalLayer:add", AdditionalLayersView.addView);
+		mizar.subscribe("mizarMode:toggle", this.toggleMode);
 
 		// Necessary to drag&drop option while using jQuery
 		$.event.props.push('dataTransfer');
+
+		// Due to scroll initialization which corrumps accordion UI init in additional layers view,
+		// accordion UI must be initialized before
+		$el.accordion( {
+			header: "> div > h3",
+			autoHeight: false,
+			active: 0,
+			collapsible: true,
+			heightStyle: "content"
+		} ).show().accordion("refresh");
 
 		initLayers();
 		LayerServiceView.init(mizar, configuration);
@@ -232,11 +249,36 @@ return {
 	},
 
 	/**
+	 *	Update view depending on mizar mode
+	 *
+	 *	@param planetLayer
+	 *		Planet layer if toggled in globe mode
+	 */
+	toggleMode: function(planetLayer) {
+		if ( mizar.mode == "sky" ) {
+			// Reinit background&additional views
+			BackgroundLayersView.remove();
+			BackgroundLayersView.init( { mizar: mizar, configuration: configuration } );
+			AdditionalLayersView.init({ mizar: mizar, configuration: configuration });
+			initLayers();
+		}
+		else
+		{
+			// Reinit only background layers view for the given planet layer
+			BackgroundLayersView.remove();
+			AdditionalLayersView.remove();
+			BackgroundLayersView.init( { mizar: mizar, configuration: configuration } );
+			initPlanetLayer(planetLayer);
+		}
+		$el.accordion("option", "active", 0 ).accordion("refresh");
+	},
+
+	/**
 	 *	Returns the state of view
 	 */
 	isInitialized: function()
 	{
-		return (sky != null)
+		return (mizar.sky != null)
 	}
 };
 

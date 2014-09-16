@@ -599,5 +599,81 @@
 		"minOrder": 5,
 		"availableServices" : [ "Moc", "XMatch" ],
         "attribution":"<img width='28' height='16' src=\"http://demonstrator.telespazio.com/sitools/upload/corot.svg\"> data provided by <a href=\"http://cdsweb.u-strasbg.fr/index-fr.gml\" target=\"_blank\"><img width='24' height='16' src=\"http://demonstrator.telespazio.com/mizar/css/images/cds.svg\" /></a>"
+	},
+	/**
+	 *	Planet layers
+	 */
+	{
+		"category": "Planets",
+		"type": "Planet",
+		"name": "Mars",
+		"baseImageries": [
+			{
+				"type": "WMS",
+				"name": "MOLA",
+				"baseUrl": "http://localhost/ms-mars",
+				"layers": "MOLA_Color",
+				"description": "MOLA color",
+				"visible": false,
+				"background": true,	
+				"coordSystem": "EQ",
+				"format": "image/png",
+		        "attribution":"Color background provided by <a href=\"http://www.mars.asu.edu/data/\" target=\"_blank\">Mars Dataset</a>"
+			},
+			{
+				"type": "WMS",
+				"name": "MOC Atlas",
+				"baseUrl": "http://localhost/ms-mars",
+				"layers": "MOC_Atlas_256ppd",
+				"description": "MOC Atlas",
+				"visible": false,
+				"background": true,	
+				"coordSystem": "EQ",
+				"format": "image/png",
+		        "attribution":"Color background provided by <a href=\"http://www.mars.asu.edu/data/\" target=\"_blank\">Mars Dataset</a>"
+			},
+			{
+				"type": "WMS",
+				"name": "pyroxene",
+				"baseUrl": "http://demonstrator.telespazio.com/mars",
+				"layers": "pyroxene",
+				"description": "Pyroxene",
+				"visible": false,
+				"background": true,
+				"coordSystem": "EQ",
+		        "attribution":"Color background provided by <a href=\"http://www.mars.asu.edu/data/\" target=\"_blank\">Mars Dataset</a>"
+			},
+			{
+				"type": "WMS",
+				"name": "THEMIS",
+				"baseUrl": "http://demonstrator.telespazio.com/mars",
+				"layers": "THEMIS",
+				"description": "Thermis",
+				"visible": true,
+				"background": true,
+				"coordSystem": "EQ",
+		        "attribution":"Color background provided by <a href=\"http://www.mars.asu.edu/data/\" target=\"_blank\">Mars Dataset</a>"
+			}
+		],
+		"visible": false
+	},
+	{
+		"category": "Planets",
+		"type": "Planet",
+		"name": "Earth",
+		"baseImageries": [
+			{
+				"type": "WMS",
+				"name": "Blue Marble",
+				"baseUrl": "http://demonstrator.telespazio.com/wmspub",
+				"layers": "BlueMarble",
+				"description": "BlueMarble",
+				"visible": true,
+				"background": true,
+				"coordSystem": "EQ",
+		        "attribution":"BlueMarble"
+			}
+		],
+		"visible": false
 	}
 ]
