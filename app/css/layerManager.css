@@ -8,7 +8,7 @@
 
 #backgroundLayersSelect-menu
 {
-	height: 200px;
+	max-height: 200px;
 }
 
 #backgroundLayers fieldset
