@@ -195,7 +195,7 @@ define( [ "jquery", "underscore-min", "gw/EquatorialCoordinateSystem", "./Planet
 		options = {
 			"sitoolsBaseUrl" : sitoolsBaseUrl,
 			"mizarBaseUrl": mizarBaseUrl,
-			"continuousRendering" : userOptions.hasOwnProperty('continuousRendering') ? userOptions.continuousRendering : true,
+			"continuousRendering" : userOptions.hasOwnProperty('continuousRendering') ? userOptions.continuousRendering : false,
 			"coordSystem" : userOptions.hasOwnProperty('coordSystem') ? userOptions.coordSystem : "EQ",
 			"debug" : userOptions.hasOwnProperty('debug') ? userOptions.debug : false,
 			"nameResolver" : {
@@ -261,7 +261,8 @@ define( [ "jquery", "underscore-min", "gw/EquatorialCoordinateSystem", "./Planet
 		this.navigation = null;
 
 		var confURL = _retrieveConfiguration();
-	
+		_applySharedParameters(options);
+		
 		// Initialize sky&globe contexts
 		planetContext = new PlanetContext($(div).find('#GlobWebCanvas')[0], div, options);
 		skyContext = new SkyContext($(div).find('#SkyCanvas')[0], div, options);
@@ -275,8 +276,6 @@ define( [ "jquery", "underscore-min", "gw/EquatorialCoordinateSystem", "./Planet
 
 		this.sky = skyContext.sky;
 		this.navigation = skyContext.navigation;
-				
-		_applySharedParameters(options);
 
 		// Add stats
 		var self = this;
