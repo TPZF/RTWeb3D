@@ -523,14 +523,13 @@
         "category": "Solar system",
         "type": "GeoJSON",
         "name": "Planets",
-        "icon": "http://demonstrator.telespazio.com/mizar/css/images/star_icon.png",
         "description": "Planets",
         "data": {
-                "type": "planets"
+            "type": "planets"
         },
         "visible": true,
         "opacity": 100,
-        "pickable" : false
+        "pickable" : true
     },
 
 	/**

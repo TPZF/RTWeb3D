@@ -126,6 +126,7 @@ function _handleMouseUp(event)
 		} else {
 			FeaturePopup.hide();
 		}
+		sky.refresh();
 	}
 }
 
@@ -310,6 +311,39 @@ function fixDateLine(pickPoint, coords)
 /**************************************************************************************************************/
 
 /**
+ *	Picking test for feature
+ */
+function featureIsPicked( feature, pickPoint )
+{
+	switch ( feature['geometry'].type )
+	{
+		case "Polygon":
+			var ring = fixDateLine(pickPoint, feature['geometry']['coordinates'][0]);
+			return Utils.pointInRing( pickPoint, ring );
+		case "MultiPolygon":
+			for ( var p=0; p<feature['geometry']['coordinates'].length; p++ )
+			{
+				var ring = fixDateLine(pickPoint, feature['geometry']['coordinates'][p][0]);
+				if( Utils.pointInRing( pickPoint, ring ) )
+				{
+					return true;
+				}
+			}
+			return false;
+		case "Point":
+			var point = feature['geometry']['coordinates'];
+			// Do not pick the labeled features
+			var isLabel = feature.properties.style.label;
+			return Utils.pointInSphere( pickPoint, point, feature['geometry']._bucket.textureHeight ) && !isLabel;
+		default:
+			console.log("Picking for " + feature['geometry'].type + " is not implemented yet");
+			return false;
+	}
+}
+
+/**************************************************************************************************************/
+
+/**
  * 	Compute the selection at the picking point
  */
 function computePickSelection( pickPoint )
@@ -343,48 +377,12 @@ function computePickSelection( pickPoint )
 					for ( var j=0; j<tileData.featureIds.length; j++ )
 					{
 						var feature = pickableLayer.features[pickableLayer.featuresSet[tileData.featureIds[j]].index];
-
-						switch ( feature['geometry'].type )
+						if ( featureIsPicked(feature, pickPoint) )
 						{
-							case "Polygon":
-								var ring = fixDateLine(pickPoint, feature['geometry']['coordinates'][0]);
-								if ( Utils.pointInRing( pickPoint, ring ) )
-								{
-									newSelection.push( { feature: feature, layer: pickableLayer } );
-								}
-								break;
-							case "MultiPolygon":
-								for ( var p=0; p<feature['geometry']['coordinates'].length; p++ )
-								{
-									var ring = fixDateLine(pickPoint, feature['geometry']['coordinates'][p][0]);
-									if( Utils.pointInRing( pickPoint, ring ) )
-									{
-										newSelection.push( { feature: feature, layer: pickableLayer } );
-									}
-								}
-								break;
-							case "Point":
-								var point = feature['geometry']['coordinates'];
-								if ( feature.cluster )
-								{
-									if ( Utils.pointInSphere( pickPoint, point, feature['geometry']._bucket.textureHeight ) )
-									{
-										newSelection.push( { feature: feature, layer: pickableLayer } );
-									}
-								}
-								else
-								{
-									if ( Utils.pointInSphere( pickPoint, point, feature['geometry']._bucket.textureHeight ) )
-									{
-										newSelection.push( { feature: feature, layer: pickableLayer } );
-									}
-								}
-								break;
-							default:
-								break;
+							newSelection.push( { feature: feature, layer: pickableLayer } );
 						}
 					}
-				}	
+				}
 			}
 			else
 			{
@@ -393,33 +391,9 @@ function computePickSelection( pickPoint )
 				for ( var j=0; j<pickableLayer.features.length; j++ )
 				{
 					var feature =  pickableLayer.features[j];
-					switch ( feature['geometry'].type )
+					if ( featureIsPicked(feature, pickPoint) )
 					{
-						case "Polygon":
-							var ring = fixDateLine(pickPoint, feature['geometry']['coordinates'][0]);
-							if ( Utils.pointInRing( pickPoint, ring ) )
-							{
-								newSelection.push( { feature: feature, layer: pickableLayer } );
-							}
-							break;
-						case "MultiPolygon":
-							for ( var p=0; p<feature['geometry']['coordinates'].length; p++ )
-							{
-								var ring = fixDateLine(pickPoint, feature['geometry']['coordinates'][p][0]);
-								if( Utils.pointInRing( pickPoint, ring ) )
-								{
-									newSelection.push( { feature: feature, layer: pickableLayer } );
-								}
-							}
-							break;
-						case "Point":
-							if ( Utils.pointInSphere( pickPoint, feature['geometry']['coordinates'], feature['geometry']._bucket.textureHeight ) )
-							{
-								newSelection.push( { feature: feature, layer: pickableLayer } );
-							}
-							break;
-						default:
-							break;
+						newSelection.push( { feature: feature, layer: pickableLayer } );
 					}
 				}
 			}
