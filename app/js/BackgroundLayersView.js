@@ -38,30 +38,33 @@ var selectedLayer;
  *	Update layout of background layer options (HEALPixFITSLayer only for now)
  */
 function updateBackgroundOptions(layer)
-{		
-	if ( layer instanceof HEALPixFITSLayer )
+{	
+	if ( $el.find("#backgroundOptions").is(":visible") )
 	{
-		$("#fitsType").removeAttr('disabled').removeAttr('checked').button("refresh");
-		// Dynamic image view button visibility
-		if ( layer.dataType == 'jpeg' )
+		if ( layer instanceof HEALPixFITSLayer )
 		{
-			$('#fitsView').button("disable");
+			$el.find("#fitsType").removeAttr('disabled').removeAttr('checked').button("refresh");
+			// Dynamic image view button visibility
+			if ( layer.dataType == 'jpeg' )
+			{
+				$el.find('#fitsView').button("disable");
+			}
 		}
-	}
-	else
-	{
-		$("#fitsType").attr('disabled','disabled').button("refresh");
-		$('#fitsView').button("disable");
-	}
+		else
+		{
+			$el.find("#fitsType").attr('disabled','disabled').button("refresh");
+			$el.find('#fitsView').button("disable");
+		}
 
-	var $layerServices = $el.find('.layerServices');
-	if ( !layer.availableServices )
-	{
-		$layerServices.attr('disabled','disabled').button('refresh');
-	}
-	else
-	{
-		$layerServices.removeAttr('disabled').button('refresh');
+		var $layerServices = $el.find('.layerServices');
+		if ( !layer.availableServices )
+		{
+			$layerServices.attr('disabled','disabled').button('refresh');
+		}
+		else
+		{
+			$layerServices.removeAttr('disabled').button('refresh');
+		}
 	}
 }
 
@@ -209,112 +212,113 @@ return {
 			}
 		});
 		
-		// Back to sky button if in globe mode
+		// Back to sky button if in planet mode
 		if ( this.mizar.mode == "planet" ) {
 			var self = this;
 			$el.find('.backToSky').button().click(function(event) {
 				self.mizar.toggleMode();
-			});	
+			});
+
+			$el.find("#backgroundOptions").hide();
 		}
 		else
 		{
 			// Already in sky mode
 			$el.find('.backToSky').hide();
+
+			$el.find('.layerServices').button({
+				text: false,
+				icons: {
+					primary: "ui-icon-wrench"
+				}
+			}).click(function(event){
+				LayerServiceView.show( selectedLayer );
+			});
+
+			$el.find('.exportLayer').button({
+				text: false,
+				icons: {
+					primary: "ui-icon-extlink"
+				}
+			}).click(function(event){
+				if ( Samp.isConnected() )
+				{
+					var healpixLayer = sky.tileManager.imageryProvider;
+					for ( var i=0; i<sky.tileManager.tilesToRender.length; i++ )
+					{
+						var tile = sky.tileManager.tilesToRender[i];
+						var url = window.location.origin + healpixLayer.getUrl( tile );
+						Samp.sendImage(url);
+					}
+				}
+				else
+				{
+					ErrorDialog.open('You must be connected to SAMP Hub');
+				}
+			});		
+
+			var dialogId = "backgroundDiv";
+			var $dialog = $('<div id="'+dialogId+'"></div>').appendTo('body').dialog({
+				title: 'Image processing',
+				autoOpen: false,
+				show: {
+					effect: "fade",
+			    	duration: 300
+				},
+				hide: {
+					effect: "fade",
+					duration: 300
+				},
+				width: 400,
+				resizable: false,
+				minHeight: 'auto',
+				close: function(event, ui)
+				{
+					$('#fitsView').removeAttr("checked").button("refresh");
+					$(this).dialog("close");
+				}
+			});
+
+			// Show/hide Dynamic image service
+			$el.find('#fitsView').button({
+				text: false,
+				icons: {
+					primary: "ui-icon-image"
+				}
+			}).click(function(event){
+
+				if ( $dialog.dialog( "isOpen" ) )
+				{
+					$dialog.dialog("close");
+				}
+				else
+				{
+					$dialog.dialog("open");
+				}
+			});
+
+			backgroundDiv = new DynamicImageView(dialogId, {
+				id : 'backgroundFitsView',
+			});
+
+			$el.find('#fitsType')
+				.button()
+				.click(function(){
+
+				isFits = $(this).is(':checked');
+
+				selectedLayer.dataType = isFits ? 'fits' : 'jpg';
+				if ( !isFits )
+				{
+					$('#fitsView').button('disable');
+				}
+
+				sky.setBaseImagery( null );
+				sky.setBaseImagery( selectedLayer );
+				$('#loading').show();
+			});
 		}
 		
-
-		$el.find('.layerServices').button({
-			text: false,
-			icons: {
-				primary: "ui-icon-wrench"
-			}
-		}).click(function(event){
-			LayerServiceView.show( selectedLayer );
-		});
-
-		$el.find('.exportLayer').button({
-			text: false,
-			icons: {
-				primary: "ui-icon-extlink"
-			}
-		}).click(function(event){
-			if ( Samp.isConnected() )
-			{
-				var healpixLayer = sky.tileManager.imageryProvider;
-				for ( var i=0; i<sky.tileManager.tilesToRender.length; i++ )
-				{
-					var tile = sky.tileManager.tilesToRender[i];
-					var url = window.location.origin + healpixLayer.getUrl( tile );
-					Samp.sendImage(url);
-				}
-			}
-			else
-			{
-				ErrorDialog.open('You must be connected to SAMP Hub');
-			}
-		});		
-
-		var dialogId = "backgroundDiv";
-		var $dialog = $('<div id="'+dialogId+'"></div>').appendTo('body').dialog({
-			title: 'Image processing',
-			autoOpen: false,
-			show: {
-				effect: "fade",
-		    	duration: 300
-			},
-			hide: {
-				effect: "fade",
-				duration: 300
-			},
-			width: 400,
-			resizable: false,
-			minHeight: 'auto',
-			close: function(event, ui)
-			{
-				$('#fitsView').removeAttr("checked").button("refresh");
-				$(this).dialog("close");
-			}
-		});
-
-		// Show/hide Dynamic image service
-		$el.find('#fitsView').button({
-			text: false,
-			icons: {
-				primary: "ui-icon-image"
-			}
-		}).click(function(event){
-
-			if ( $dialog.dialog( "isOpen" ) )
-			{
-				$dialog.dialog("close");
-			}
-			else
-			{
-				$dialog.dialog("open");
-			}
-		});
-
-		backgroundDiv = new DynamicImageView(dialogId, {
-			id : 'backgroundFitsView',
-		});
-
-		$el.find('#fitsType')
-			.button()
-			.click(function(){
-
-			isFits = $(this).is(':checked');
-
-			selectedLayer.dataType = isFits ? 'fits' : 'jpg';
-			if ( !isFits )
-			{
-				$('#fitsView').button('disable');
-			}
-
-			sky.setBaseImagery( null );
-			sky.setBaseImagery( selectedLayer );
-			$('#loading').show();
-		});
-
 		$el.find('#backgroundLayersSelect').iconselectmenu({
 			select: function(event, ui)
 			{
