@@ -140,7 +140,7 @@ define( [ "jquery", "underscore-min", "gw/Globe", "gw/Navigation", "gw/TouchNavi
 				canvas: canvas, 
 				lighting: false,
 				tileErrorTreshold: 3, 
-				continuousRendering: true
+				continuousRendering: false
 			} );
 		}
 		catch (err)
@@ -167,23 +167,37 @@ define( [ "jquery", "underscore-min", "gw/Globe", "gw/Navigation", "gw/TouchNavi
 			}, false);
 		}
 		this.navigation = new Navigation(this.globe, options.navigation);
-		this.navigation.stop(); // Stopped by default
 		
 	}
 
 	/**************************************************************************************************************/
 
-	// Utils.inherits( Event, SkyContext );
-
+	/**
+	 *	"Show" planet context
+	 */
 	PlanetContext.prototype.show = function() {
-		//$(parentElement).find('#GlobWebCanvas').hide();
-		$(this.canvas).show();
 		this.navigation.start();
+		this.globe.tileManager.renderContext.activate();
 	}
 
+	/**
+	 *	"Hide" planet context
+	 */
 	PlanetContext.prototype.hide = function() {
-		$(this.canvas).hide();
+		this.navigation.stopAnimations();
 		this.navigation.stop();
+		this.globe.tileManager.renderContext.deactivate();
+	}
+
+	/**************************************************************************************************************/
+
+	/**
+	 *	Destroy method
+	 */
+	PlanetContext.prototype.destroy = function() {
+		this.hide();
+		this.globe.dispose();
+		this.globe = null;
 	}
 
 	return PlanetContext;

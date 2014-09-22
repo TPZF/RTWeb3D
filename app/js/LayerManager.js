@@ -348,46 +348,59 @@ return {
 	  *		Survey name
 	  */
 	 setBackgroundSurvey: function(survey) {
-		// Find the layer by name among all the layers
-	 	var gwLayer = _.findWhere(gwLayers.concat(planetLayers), {name: survey});
-	 	if ( gwLayer )
+		
+	 	if ( this.mizar.mode == "sky" )
 	 	{
-			// Check if is not already set
-		 	if ( gwLayer != this.mizar.sky.baseImagery )
+			// Find the layer by name among all the layers
+		 	var gwLayer = _.findWhere(gwLayers, {name: survey});
+		 	if ( gwLayer )
 		 	{
-			 	// Change visibility's of previous layer, because visibility is used to know the active background layer in the layers list (layers can be shared)
-			 	if ( this.mizar.sky.baseImagery )
-					this.mizar.sky.baseImagery.visible(false);
-				this.mizar.sky.setBaseImagery( gwLayer );
-				this.mizar.sky.baseImagery = gwLayer;
-				gwLayer.visible(true);
+				// Check if is not already set
+			 	if ( gwLayer != this.mizar.sky.baseImagery )
+			 	{
+				 	// Change visibility's of previous layer, because visibility is used to know the active background layer in the layers list (layers can be shared)
+				 	if ( this.mizar.sky.baseImagery )
+						this.mizar.sky.baseImagery.visible(false);
+					this.mizar.sky.setBaseImagery( gwLayer );
+					this.mizar.sky.baseImagery = gwLayer;
+					gwLayer.visible(true);
 
-				// Clear selection
-				PickingManager.getSelection().length = 0;
+					// Clear selection
+					PickingManager.getSelection().length = 0;
 
-				for ( var i=0; i<gwLayers.length; i++ )
-				{
-					var currentLayer = gwLayers[i];
-					if ( currentLayer.subLayers )
+					for ( var i=0; i<gwLayers.length; i++ )
 					{
-						var len = currentLayer.subLayers.length;
-						for ( var j=0; j<len; j++ )
+						var currentLayer = gwLayers[i];
+						if ( currentLayer.subLayers )
 						{
-							var subLayer = currentLayer.subLayers[j];
-							if (subLayer.name == "SolarObjectsSublayer" )
+							var len = currentLayer.subLayers.length;
+							for ( var j=0; j<len; j++ )
 							{
-								PickingManager.removePickableLayer( subLayer );
-								this.mizar.sky.removeLayer( subLayer );
-								currentLayer.subLayers.splice(j,1);
+								var subLayer = currentLayer.subLayers[j];
+								if (subLayer.name == "SolarObjectsSublayer" )
+								{
+									PickingManager.removePickableLayer( subLayer );
+									this.mizar.sky.removeLayer( subLayer );
+									currentLayer.subLayers.splice(j,1);
+								}
 							}
 						}
 					}
 				}
-			}
-			this.mizar.publish("backgroundLayer:change", gwLayer);
-	 	} else {
-	 		this.mizar.publish("backgroundSurveyError", "Survey " + survey + " hasn't been found");
+				this.mizar.publish("backgroundLayer:change", gwLayer);
+		 	} else {
+		 		this.mizar.publish("backgroundSurveyError", "Survey " + survey + " hasn't been found");
+		 	}
 	 	}
+	 	else
+	 	{
+	 		// Planet mode
+		 	var gwLayer = _.findWhere(planetLayers, {name: survey});
+		 	var globe = this.mizar.planetContext.globe;
+			globe.setBaseImagery( gwLayer );
+			gwLayer.visible(true);
+	 	}
+
 	},
 
 	/**

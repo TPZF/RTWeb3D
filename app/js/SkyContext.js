@@ -123,7 +123,16 @@ define( [ "jquery", "underscore-min", "gw/Sky", "gw/AstroNavigation", "gw/TouchN
 	 *	Sky context constructor
 	 */
 	var SkyContext = function(canvas, div, options) {
-
+		var self = this;
+		this.components = {
+			"2dMapContainer": false,
+			"posTracker": false,
+			"shareContainer": false,
+			"sampContainer": false,
+			"measureContainer": false,
+			"compassDiv": false,
+			"imageViewerDiv": false
+		};
 		this.sky = null;
 		this.navigation = null;
 		this.canvas = canvas;
@@ -138,7 +147,7 @@ define( [ "jquery", "underscore-min", "gw/Sky", "gw/AstroNavigation", "gw/TouchN
 			this.sky = new Sky( { 
 				canvas: canvas, 
 				tileErrorTreshold: 1.5,
-				continuousRendering: false
+				continuousRendering: true
 			} );
 		}
 		catch (err)
@@ -162,24 +171,66 @@ define( [ "jquery", "underscore-min", "gw/Sky", "gw/AstroNavigation", "gw/TouchN
 		// Eye position tracker initialization
 		PositionTracker.init({ element: "posTracker", globe: this.sky, navigation : this.navigation, isMobile: this.isMobile });
 	}
-
-	SkyContext.prototype.show = function() {
-		$('#posTracker').show();
-		//$(parentElement).find('#GlobWebCanvas').hide();
-		$(this.canvas).show();
-		this.navigation.start();
-	}
-
-	SkyContext.prototype.hide = function() {
-		$('#posTracker').hide();
-		$(this.canvas).hide();
-		this.navigation.stop();
+	
+	/**************************************************************************************************************/
+	
+	/**
+	 *	Set UI component visibility
+	 */
+	SkyContext.prototype.setComponentVisibility = function(componentId, isVisible)
+	{
+		if ( isVisible )
+		{
+			$(parentElement).find("#"+componentId).show();
+		}
+		else
+		{
+			$(parentElement).find("#"+componentId).hide();
+		}
+		this.components[componentId] = isVisible;
 	}
 
 	/**************************************************************************************************************/
 
-	// Utils.inherits( Event, SkyContext );
+	/**
+	 *	"Show" sky context
+	 */
+	SkyContext.prototype.show = function() {
+		// Show UI components depending on its state
+		for ( var componentId in this.components )
+		{
+			if ( this.components[componentId] )
+			{
+				$(parentElement).find("#"+componentId).show();
+			}
+		}
 
+		this.navigation.start();
+		this.sky.tileManager.renderContext.activate();
+		// HACK
+		this.sky.tileManager.renderContext.frameRequested = false;
+	}
+
+	/**************************************************************************************************************/
+
+	/**
+	 *	"Hide" sky component
+	 */
+	SkyContext.prototype.hide = function() {
+		// Hide all the UI components
+		for ( var componentId in this.components )
+		{
+			$(parentElement).find("#"+componentId).hide();
+		}
+
+		this.sky.tileManagers["EQ"].abortRequests();
+		this.sky.tileManagers["GAL"].abortRequests();
+		this.navigation.stopAnimations();
+		this.navigation.stop();
+		this.sky.tileManager.renderContext.deactivate();
+	}
+
+	/**************************************************************************************************************/
 
 	return SkyContext;
 

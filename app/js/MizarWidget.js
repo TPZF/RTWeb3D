@@ -263,9 +263,10 @@ define( [ "jquery", "underscore-min", "gw/EquatorialCoordinateSystem", "./Planet
 		var confURL = _retrieveConfiguration();
 		_applySharedParameters(options);
 		
+		CoordinateSystem.radius = 2.;
+
 		// Initialize sky&globe contexts
-		planetContext = new PlanetContext($(div).find('#GlobWebCanvas')[0], div, options);
-		skyContext = new SkyContext($(div).find('#SkyCanvas')[0], div, options);
+		skyContext = new SkyContext($(div).find('#GlobWebCanvas')[0], div, options);
 		
 		// TODO : Extend GlobWeb base layer to be able to publish events by itself
 		// to avoid the following useless call
@@ -529,11 +530,13 @@ define( [ "jquery", "underscore-min", "gw/EquatorialCoordinateSystem", "./Planet
 				globe : this.sky,
 				navigation : this.navigation,
 				coordSystem : CoordinateSystem.type,
-				isMobile : this.isMobile,
-				mizarBaseUrl : mizarBaseUrl
+				isMobile : options.isMobile,
+				mizarBaseUrl : options.mizarBaseUrl
 			});
+			skyContext.setComponentVisibility("compass", true);
 		} else {
 			this.compass.remove();
+			skyContext.setComponentVisibility("compass", false);
 		}
 	}
 
@@ -547,9 +550,9 @@ define( [ "jquery", "underscore-min", "gw/EquatorialCoordinateSystem", "./Planet
 	 		// Distance measure tool lazy initialization
 	 		if ( !this.measureTool )
 				this.measureTool = new MeasureTool({ globe: this.sky, navigation: this.navigation, isMobile: this.isMobile } );
-			$(parentElement).find("#measureContainer").show();
+			skyContext.setComponentVisibility("measureContainer", true);
 	 	} else {
-	 		$(parentElement).find("#measureContainer").hide();
+	 		skyContext.setComponentVisibility("measureContainer", false);
 	 	}
 	}
 
@@ -560,9 +563,9 @@ define( [ "jquery", "underscore-min", "gw/EquatorialCoordinateSystem", "./Planet
 	 */
 	MizarWidget.prototype.setSampGui = function(visible) {
 	 	if ( visible ) {
-			$(parentElement).find("#sampContainer").show();
+	 		skyContext.setComponentVisibility("sampContainer", true);
 	 	} else {
-	 		$(parentElement).find("#sampContainer").hide();
+	 		skyContext.setComponentVisibility("sampContainer", false);
 	 	}
 	}
 
@@ -573,9 +576,9 @@ define( [ "jquery", "underscore-min", "gw/EquatorialCoordinateSystem", "./Planet
 	 */
 	MizarWidget.prototype.setShortenerUrlGui = function(visible) {
 	 	if ( visible ) {
-			$(parentElement).find("#shareContainer").show();
+	 		skyContext.setComponentVisibility("shareContainer", true);
 	 	} else {
-	 		$(parentElement).find("#shareContainer").hide();
+	 		skyContext.setComponentVisibility("shareContainer", false);
 	 	}
 	}
 
@@ -590,9 +593,9 @@ define( [ "jquery", "underscore-min", "gw/EquatorialCoordinateSystem", "./Planet
 	 		if ( !this.mollweideViewer )
 				this.mollweideViewer = new MollweideViewer({ globe : this.sky, navigation : this.navigation, mizarBaseUrl: mizarBaseUrl });
 
-			$(parentElement).find("#2dMapContainer").show();
+			skyContext.setComponentVisibility("2dMapContainer", true);
 	 	} else {
-	 		$(parentElement).find("#2dMapContainer").hide();
+	 		skyContext.setComponentVisibility("2dMapContainer", false);
 	 	}
 	}
 
@@ -642,9 +645,11 @@ define( [ "jquery", "underscore-min", "gw/EquatorialCoordinateSystem", "./Planet
 	 */
 	MizarWidget.prototype.setImageViewerGui = function(visible) {
 		if ( visible ) {
-	 		ImageViewer.init(this);
+			ImageViewer.init(this);
+			skyContext.setComponentVisibility("imageViewer", true);
 	 	} else {
 	 		ImageViewer.remove();
+	 		skyContext.setComponentVisibility("imageViewer", false);
 	 	}
 	}
 
@@ -705,15 +710,25 @@ define( [ "jquery", "underscore-min", "gw/EquatorialCoordinateSystem", "./Planet
 	MizarWidget.prototype.toggleMode = function(gwLayer) {
 		this.mode = (this.mode == "sky") ? "planet" : "sky";
 		if ( this.mode == "sky" ) {
-			planetContext.hide();
+			console.log("Change planet to sky context");
+			// Destroy planet context
+			this.planetContext.destroy();
+			this.planetContext = null;
+
+			// Show sky
+			PickingManager.activate();
 			skyContext.show();
-			this.sky = skyContext.sky;
-			this.navigation = skyContext.navigation;
+			this.sky.refresh();
+
 		} else {
+			console.log("Change sky to planet context");
+			// Hide sky
 			skyContext.hide();
-			planetContext.show();
-			this.sky = planetContext.globe;
-			this.navigation = planetContext.navigation;
+			PickingManager.deactivate();
+
+			// Create planet context
+			this.planetContext = new PlanetContext($(parentElement).find('#GlobWebCanvas')[0], parentElement, options);
+			this.planetContext.globe.refresh();
 		}
 		this.publish("mizarMode:toggle", gwLayer);
 	}
