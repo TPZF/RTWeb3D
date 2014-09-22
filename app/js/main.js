@@ -66,7 +66,7 @@ require.config({
  */
 require(["./MizarWidget"], function(MizarWidget) {
 	
-	var mizarWidget = new MizarWidget('#mizarWidget-div', {
+	var mizar = new MizarWidget('#mizarWidget-div', {
 		debug: true,
 		navigation: {
 			"initTarget": [0,0]
@@ -80,24 +80,26 @@ require(["./MizarWidget"], function(MizarWidget) {
 	});
 
 	// Set IRIS survey on load
-	mizarWidget.subscribe("backgroundSurveysReady", function() {
-		mizarWidget.setBackgroundSurvey("IRIS");
+	mizar.subscribe("backgroundSurveysReady", function() {
+		mizar.setBackgroundSurvey("IRIS");
 
 		// TODO : Wait till background survey is loaded
-		mizarWidget.goTo("Mizar");
+		mizar.goTo("Mizar");
 	});
 	
 	// Set different GUIs
-	mizarWidget.setAngleDistanceGui(true);
-	mizarWidget.setSampGui(true);
-	mizarWidget.setShortenerUrlGui(true);
-	mizarWidget.set2dMapGui(true);
-	mizarWidget.setReverseNameResolverGui(true);
-	mizarWidget.setNameResolverGui(true);
-	mizarWidget.setCategoryGui(true);
+	mizar.setAngleDistanceGui(true);
+	mizar.setSampGui(true);
+	mizar.setShortenerUrlGui(true);
+	mizar.set2dMapGui(true);
+	mizar.setReverseNameResolverGui(true);
+	mizar.setNameResolverGui(true);
+	mizar.setCategoryGui(true);
+	mizar.setCompassGui(true);
+	mizar.setImageViewerGui(true);
 
 	// Define callback in case of error on survey loading
-	mizarWidget.subscribe("backgroundSurveyError", function(thrownError) {
+	mizar.subscribe("backgroundSurveyError", function(thrownError) {
 		console.error(thrownError);
 	});
 });
