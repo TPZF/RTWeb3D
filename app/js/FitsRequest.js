@@ -112,9 +112,9 @@ ImageRequest.prototype.abort = function()
 	{
 		if ( this.abortCallback )
 		{
-			this.image.aborted = true;
 			this.abortCallback(this);
 		}
+		this.image.aborted = true;
 		this.image.src = '';
 	}
 }
