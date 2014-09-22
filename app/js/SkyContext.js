@@ -131,7 +131,8 @@ define( [ "jquery", "underscore-min", "gw/Sky", "gw/AstroNavigation", "gw/TouchN
 			"sampContainer": false,
 			"measureContainer": false,
 			"compassDiv": false,
-			"imageViewerDiv": false
+			"imageViewerDiv": false,
+			"posTracker": true
 		};
 		this.sky = null;
 		this.navigation = null;
@@ -169,7 +170,7 @@ define( [ "jquery", "underscore-min", "gw/Sky", "gw/AstroNavigation", "gw/TouchN
 		this.navigation = new AstroNavigation(this.sky, options.navigation);
 
 		// Eye position tracker initialization
-		PositionTracker.init({ element: "posTracker", globe: this.sky, navigation : this.navigation, isMobile: this.isMobile });
+		PositionTracker.init({ element: "posTracker", globe: this.sky, navigation : this.navigation, isMobile: this.isMobile, positionTracker: options.positionTracker });
 	}
 	
 	/**************************************************************************************************************/

@@ -74,6 +74,9 @@ require(["./MizarWidget"], function(MizarWidget) {
 		nameResolver: {
 			"zoomFov": 2
 		},
+		positionTracker: {
+			position: "bottom"
+		},
 		stats: {
 			visible: true
 		}

@@ -21,10 +21,10 @@
  * Mizar widget
  */
 define( [ "jquery", "underscore-min", "gw/EquatorialCoordinateSystem", "./PlanetContext", "./SkyContext", "gw/Stats", "gw/AttributionHandler", "gw/Event",  "gw/TouchNavigationHandler", "gw/MouseNavigationHandler", "gw/KeyboardNavigationHandler", "text!../templates/mizarCore.html", "text!../data/backgroundSurveys.json",
-	"./LayerManager", "./LayerManagerView", "./BackgroundLayersView", "./NameResolver", "./NameResolverView", "./ReverseNameResolver", "./Utils", "./PickingManager", "./FeaturePopup", "./IFrame", "./Compass", "./MollweideViewer", "./ErrorDialog", "./AboutDialog", "./Share", "./Samp", "./AdditionalLayersView", "./ImageManager", "./ImageViewer", "./UWSManager", "./PositionTracker", "./MeasureTool", "./StarProvider", "./ConstellationProvider", "./JsonProvider", "./OpenSearchProvider", "./PlanetProvider",
+	"./LayerManager", "./LayerManagerView", "./BackgroundLayersView", "./NameResolver", "./NameResolverView", "./ReverseNameResolver", "./Utils", "./PickingManager", "./FeaturePopup", "./IFrame", "./Compass", "./MollweideViewer", "./ErrorDialog", "./AboutDialog", "./Share", "./Samp", "./AdditionalLayersView", "./ImageManager", "./ImageViewer", "./UWSManager", "./MeasureTool", "./StarProvider", "./ConstellationProvider", "./JsonProvider", "./OpenSearchProvider", "./PlanetProvider",
 	"gw/ConvexPolygonRenderer", "gw/PointSpriteRenderer", "gw/PointRenderer", "jquery.ui"],
 	function($, _, CoordinateSystem, PlanetContext, SkyContext, Stats, AttributionHandler, Event, TouchNavigationHandler, MouseNavigationHandler, KeyboardNavigationHandler, mizarCoreHTML, backgroundSurveys,
-			LayerManager, LayerManagerView, BackgroundLayersView, NameResolver, NameResolverView, ReverseNameResolver, Utils, PickingManager, FeaturePopup, IFrame, Compass, MollweideViewer, ErrorDialog, AboutDialog, Share, Samp, AdditionalLayersView, ImageManager, ImageViewer, UWSManager, PositionTracker, MeasureTool) {
+			LayerManager, LayerManagerView, BackgroundLayersView, NameResolver, NameResolverView, ReverseNameResolver, Utils, PickingManager, FeaturePopup, IFrame, Compass, MollweideViewer, ErrorDialog, AboutDialog, Share, Samp, AdditionalLayersView, ImageManager, ImageViewer, UWSManager, MeasureTool) {
 
 	/**
 	 *	Private variables
@@ -243,10 +243,13 @@ define( [ "jquery", "underscore-min", "gw/EquatorialCoordinateSystem", "./Planet
 				"verbose": false,
 				"visible": false
 			},
+			"positionTracker": {
+				"position": "bottom"
+			},
 			"isMobile" : this.isMobile
 		};
 
-		var extendableOptions = [ "navigation", "nameResolver", "stats" ];
+		var extendableOptions = [ "navigation", "nameResolver", "stats", "positionTracker" ];
 		// Merge default options with user ones
 		for ( var i=0; i<extendableOptions.length; i++ ) {
 			var option = extendableOptions[i];
@@ -263,8 +266,6 @@ define( [ "jquery", "underscore-min", "gw/EquatorialCoordinateSystem", "./Planet
 		var confURL = _retrieveConfiguration();
 		_applySharedParameters(options);
 		
-		CoordinateSystem.radius = 2.;
-
 		// Initialize sky&globe contexts
 		skyContext = new SkyContext($(div).find('#GlobWebCanvas')[0], div, options);
 		
@@ -533,11 +534,10 @@ define( [ "jquery", "underscore-min", "gw/EquatorialCoordinateSystem", "./Planet
 				isMobile : options.isMobile,
 				mizarBaseUrl : options.mizarBaseUrl
 			});
-			skyContext.setComponentVisibility("compass", true);
 		} else {
 			this.compass.remove();
-			skyContext.setComponentVisibility("compass", false);
 		}
+		skyContext.setComponentVisibility("compass", visible);
 	}
 
 	/**************************************************************************************************************/
@@ -550,10 +550,8 @@ define( [ "jquery", "underscore-min", "gw/EquatorialCoordinateSystem", "./Planet
 	 		// Distance measure tool lazy initialization
 	 		if ( !this.measureTool )
 				this.measureTool = new MeasureTool({ globe: this.sky, navigation: this.navigation, isMobile: this.isMobile } );
-			skyContext.setComponentVisibility("measureContainer", true);
-	 	} else {
-	 		skyContext.setComponentVisibility("measureContainer", false);
 	 	}
+		skyContext.setComponentVisibility("measureContainer", visible);
 	}
 
 	 /**************************************************************************************************************/
@@ -562,11 +560,7 @@ define( [ "jquery", "underscore-min", "gw/EquatorialCoordinateSystem", "./Planet
 	 *	Add/remove samp GUI
 	 */
 	MizarWidget.prototype.setSampGui = function(visible) {
-	 	if ( visible ) {
-	 		skyContext.setComponentVisibility("sampContainer", true);
-	 	} else {
-	 		skyContext.setComponentVisibility("sampContainer", false);
-	 	}
+		skyContext.setComponentVisibility("sampContainer", visible);
 	}
 
 	 /**************************************************************************************************************/
@@ -575,11 +569,7 @@ define( [ "jquery", "underscore-min", "gw/EquatorialCoordinateSystem", "./Planet
 	 *	Add/remove shortener GUI
 	 */
 	MizarWidget.prototype.setShortenerUrlGui = function(visible) {
-	 	if ( visible ) {
-	 		skyContext.setComponentVisibility("shareContainer", true);
-	 	} else {
-	 		skyContext.setComponentVisibility("shareContainer", false);
-	 	}
+		skyContext.setComponentVisibility("shareContainer", visible);
 	}
 
 	/**************************************************************************************************************/
@@ -592,11 +582,9 @@ define( [ "jquery", "underscore-min", "gw/EquatorialCoordinateSystem", "./Planet
 	 		// Mollweide viewer lazy initialization
 	 		if ( !this.mollweideViewer )
 				this.mollweideViewer = new MollweideViewer({ globe : this.sky, navigation : this.navigation, mizarBaseUrl: mizarBaseUrl });
-
-			skyContext.setComponentVisibility("2dMapContainer", true);
-	 	} else {
-	 		skyContext.setComponentVisibility("2dMapContainer", false);
 	 	}
+	 	skyContext.setComponentVisibility("2dMapContainer", visible);
+	 	
 	}
 
 	/**************************************************************************************************************/
@@ -646,11 +634,19 @@ define( [ "jquery", "underscore-min", "gw/EquatorialCoordinateSystem", "./Planet
 	MizarWidget.prototype.setImageViewerGui = function(visible) {
 		if ( visible ) {
 			ImageViewer.init(this);
-			skyContext.setComponentVisibility("imageViewer", true);
 	 	} else {
 	 		ImageViewer.remove();
-	 		skyContext.setComponentVisibility("imageViewer", false);
 	 	}
+	 	skyContext.setComponentVisibility("imageViewer", visible);
+	}
+
+	/**************************************************************************************************************/
+
+	/**
+	 *	Add/remove position tracker GUI
+	 */
+	MizarWidget.prototype.setPositionTrackerGui = function(visible) {
+		skyContext.setComponentVisibility("posTracker", visible);
 	}
 
 	/**************************************************************************************************************/
