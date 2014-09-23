@@ -23,7 +23,7 @@
  *	Module processing feature collection
  *
  */
-define(["gw/HEALPixLayer", "gw/CoordinateSystem"], function(HEALPixLayer, CoordinateSystem) {
+define(["gw/HEALPixLayer"], function(HEALPixLayer) {
 
 var gid = 0;
 
@@ -107,7 +107,7 @@ return {
 					// Convert to EQUATORIAL coordinate system if needed
 					if ( 'EQ' != coordSystem )
 					{
-						currentFeature.geometry.coordinates = CoordinateSystem.convert(currentFeature.geometry.coordinates, coordSystem, 'EQ');
+						currentFeature.geometry.coordinates = gwLayer.globe.coordinateSystem.convert(currentFeature.geometry.coordinates, coordSystem, 'EQ');
 					}
 
 					// Convert to geographic representation
@@ -145,7 +145,7 @@ return {
 							// Convert to default coordinate system if needed
 							if ( 'EQ' != coordSystem )
 							{
-								coords[j] = CoordinateSystem.convert(coords[j], coordSystem, 'EQ');
+								coords[j] = gwLayer.globe.coordinateSystem.convert(coords[j], coordSystem, 'EQ');
 							}
 
 							// Convert to geographic representation

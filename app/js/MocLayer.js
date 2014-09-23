@@ -20,8 +20,8 @@
 /**
  * Moc renderer/layer module
  */
-define( [ "jquery", "gw/BaseLayer", 'gw/FeatureStyle', "gw/Utils", "gw/HEALPixBase", "gw/CoordinateSystem" ],
-		function($, BaseLayer, FeatureStyle, Utils, HEALPixBase, CoordinateSystem) {
+define( [ "jquery", "gw/BaseLayer", 'gw/FeatureStyle', "gw/Utils", "gw/HEALPixBase" ],
+		function($, BaseLayer, FeatureStyle, Utils, HEALPixBase) {
 
 /**
  * 	@constructor
@@ -240,7 +240,7 @@ MocLayer.prototype.handleDistribution = function(response)
 			for(var u = 0; u < 2; u++ ) {
 				for(var v = 0; v < size; v++){
 					vertice = HEALPixBase.fxyf((ix+u*(size-1)*step)/nside, (iy+v*step)/nside, face);
-					geo = CoordinateSystem.from3DToGeo( vertice );
+					geo = this.globe.coordinateSystem.from3DToGeo( vertice );
 					if ( u == 0 )
 					{
 						// Invert to clockwise sense
@@ -257,7 +257,7 @@ MocLayer.prototype.handleDistribution = function(response)
 			for(var v = 0; v < 2; v++ ) {
 				for(var u = 0; u < size; u++ ){
 					vertice = HEALPixBase.fxyf((ix+u*step)/nside, (iy+v*(size-1)*step)/nside, face);
-					geo = CoordinateSystem.from3DToGeo( vertice );
+					geo = this.globe.coordinateSystem.from3DToGeo( vertice );
 					if ( v==1 )
 					{
 						// Invert to clockwise sense

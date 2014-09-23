@@ -20,8 +20,8 @@
 /**
  * AdditionalLayersView module
  */
-define(["jquery", "gw/CoordinateSystem", "gw/FeatureStyle", "gw/OpenSearchLayer", "./LayerManager", "./HEALPixFITSLayer", "./MocLayer", "./PlanetLayer", "gw/VectorLayer", "./PickingManager", "./DynamicImageView", "./LayerServiceView", "./Samp", "./ErrorDialog", "./Utils", "underscore-min", "text!../templates/additionalLayers.html", "text!../templates/additionalLayer.html", "jquery.nicescroll.min", "jquery.ui"],
-		function($, CoordinateSystem, FeatureStyle, OpenSearchLayer, LayerManager, HEALPixFITSLayer, MocLayer, PlanetLayer, VectorLayer, PickingManager, DynamicImageView, LayerServiceView, Samp, ErrorDialog, Utils, _, additionalLayersHTML, additionalLayerHTMLTemplate){
+define(["jquery", "gw/FeatureStyle", "gw/OpenSearchLayer", "./LayerManager", "./HEALPixFITSLayer", "./MocLayer", "./PlanetLayer", "gw/VectorLayer", "./PickingManager", "./DynamicImageView", "./LayerServiceView", "./Samp", "./ErrorDialog", "./Utils", "underscore-min", "text!../templates/additionalLayers.html", "text!../templates/additionalLayer.html", "jquery.nicescroll.min", "jquery.ui"],
+		function($, FeatureStyle, OpenSearchLayer, LayerManager, HEALPixFITSLayer, MocLayer, PlanetLayer, VectorLayer, PickingManager, DynamicImageView, LayerServiceView, Samp, ErrorDialog, Utils, _, additionalLayersHTML, additionalLayerHTMLTemplate){
 
 var mizar;
 var sky;
@@ -567,7 +567,7 @@ function downloadAsVO()
 	var layer = $(this).closest(".addLayer").data("layer");
 	var url = buildVisibleTilesUrl(layer);
 	url+="&media=votable";
-	var posGeo = CoordinateSystem.from3DToGeo( navigation.center3d );
+	var posGeo = layer.globe.coordinateSystem.from3DToGeo( navigation.center3d );
 	var astro = Utils.formatCoordinates( posGeo );
 	$(this).parent().attr('href', url)
 					.attr('download', layer.name+"_"+astro[0]+'_'+astro[1]);

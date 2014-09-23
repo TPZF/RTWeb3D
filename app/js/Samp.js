@@ -20,8 +20,8 @@
 /**
  * Samp module : performing communication between applications using SAMP protocol
  */
-define(["jquery", "underscore-min", "gw/CoordinateSystem", "gw/FeatureStyle", "gw/VectorLayer", "./Utils", "./JsonProcessor", "samp", "jquery.ui"],
-	function($, _, CoordinateSystem, FeatureStyle, VectorLayer, Utils, JsonProcessor) {
+define(["jquery", "underscore-min", "gw/FeatureStyle", "gw/VectorLayer", "./Utils", "./JsonProcessor", "samp", "jquery.ui"],
+	function($, _, FeatureStyle, VectorLayer, Utils, JsonProcessor) {
 
 var mizar;
 var sky;
@@ -261,7 +261,7 @@ function createClientTracker()
 		// var proxyUrl = clientTracker.connection.translateUrl(origUrl);
 		var geoPick = [ra, dec];
 		var center3d = [];
-		CoordinateSystem.fromGeoTo3D( geoPick, center3d );
+		sky.coordinateSystem.fromGeoTo3D( geoPick, center3d );
 		navigation.center3d = center3d;
 		navigation.computeViewMatrix();
 		sky.renderContext.requestFrame();
@@ -364,7 +364,7 @@ function init(m, lm, im, configuration)
 			if ( !pointAtReceived )
 			{
 				// Mizar is connected to Hub
-				var geoPick = CoordinateSystem.from3DToGeo( navigation.center3d );
+				var geoPick = sky.coordinateSystem.from3DToGeo( navigation.center3d );
 				var message = new samp.Message("coord.pointAt.sky",
 												{"ra": geoPick[0].toString(), "dec": geoPick[1].toString()});
 				connector.connection.notifyAll([message]);

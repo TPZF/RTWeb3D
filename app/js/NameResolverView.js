@@ -20,8 +20,8 @@
 /**
  * Name resolver module : search object name and zoom to them
  */
-define(["jquery", "gw/CoordinateSystem", "./Utils", "./NameResolver", "underscore-min", "text!../templates/nameResolverResult.html", "jquery.ui"],
-	function($, CoordinateSystem, Utils, NameResolver, _, nameResolverResultHTMLTemplate) {
+define(["jquery", "./Utils", "./NameResolver", "underscore-min", "text!../templates/nameResolverResult.html", "jquery.ui"],
+	function($, Utils, NameResolver, _, nameResolverResultHTMLTemplate) {
 
 
 var nameResolverHTML = '<form id="searchForm">\
@@ -49,6 +49,7 @@ var $resolverSearchResult;
 // Name resolver globals
 var response;
 var animationDuration = 300;
+var sky;
 
 /**************************************************************************************************************/
 
@@ -140,7 +141,7 @@ function _showResults(data)
 	for ( var i=0; i<response.features.length; i++)
 	{
 		var astro = Utils.formatCoordinates([ response.features[i].geometry.coordinates[0], response.features[i].geometry.coordinates[1] ]);
-		var result = nameResolverResultTemplate( { properties: response.features[i].properties, lon: astro[0], lat: astro[1], type: CoordinateSystem.type } );
+		var result = nameResolverResultTemplate( { properties: response.features[i].properties, lon: astro[0], lat: astro[1], type: sky.coordinateSystem.type } );
 		output+=result;
 	}
 	
@@ -272,7 +273,14 @@ function removeTarget()
 /**************************************************************************************************************/
 
 return {
-	init: function() {
+	/**
+	 *	Init
+	 *
+	 *	@param s
+	 *		Sky
+	 */
+	init: function(s) {
+		sky = s;
 		if ( !$nameResolver ) {
 
 			// TODO : replace searchDiv by "parentElement"

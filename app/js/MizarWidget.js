@@ -20,10 +20,10 @@
 /**
  * Mizar widget
  */
-define( [ "jquery", "underscore-min", "gw/EquatorialCoordinateSystem", "./PlanetContext", "./SkyContext", "gw/Stats", "gw/AttributionHandler", "gw/Event",  "gw/TouchNavigationHandler", "gw/MouseNavigationHandler", "gw/KeyboardNavigationHandler", "text!../templates/mizarCore.html", "text!../data/backgroundSurveys.json",
+define( [ "jquery", "underscore-min", "./PlanetContext", "./SkyContext", "gw/Stats", "gw/AttributionHandler", "gw/Event",  "gw/TouchNavigationHandler", "gw/MouseNavigationHandler", "gw/KeyboardNavigationHandler", "text!../templates/mizarCore.html", "text!../data/backgroundSurveys.json",
 	"./LayerManager", "./LayerManagerView", "./BackgroundLayersView", "./NameResolver", "./NameResolverView", "./ReverseNameResolver", "./Utils", "./PickingManager", "./FeaturePopup", "./IFrame", "./Compass", "./MollweideViewer", "./ErrorDialog", "./AboutDialog", "./Share", "./Samp", "./AdditionalLayersView", "./ImageManager", "./ImageViewer", "./UWSManager", "./MeasureTool", "./StarProvider", "./ConstellationProvider", "./JsonProvider", "./OpenSearchProvider", "./PlanetProvider",
 	"gw/ConvexPolygonRenderer", "gw/PointSpriteRenderer", "gw/PointRenderer", "jquery.ui"],
-	function($, _, CoordinateSystem, PlanetContext, SkyContext, Stats, AttributionHandler, Event, TouchNavigationHandler, MouseNavigationHandler, KeyboardNavigationHandler, mizarCoreHTML, backgroundSurveys,
+	function($, _, PlanetContext, SkyContext, Stats, AttributionHandler, Event, TouchNavigationHandler, MouseNavigationHandler, KeyboardNavigationHandler, mizarCoreHTML, backgroundSurveys,
 			LayerManager, LayerManagerView, BackgroundLayersView, NameResolver, NameResolverView, ReverseNameResolver, Utils, PickingManager, FeaturePopup, IFrame, Compass, MollweideViewer, ErrorDialog, AboutDialog, Share, Samp, AdditionalLayersView, ImageManager, ImageViewer, UWSManager, MeasureTool) {
 
 	/**
@@ -289,7 +289,7 @@ define( [ "jquery", "underscore-min", "gw/EquatorialCoordinateSystem", "./Planet
 		// TODO : Extend GlobWeb base layer to be able to publish events by itself
 		// to avoid the following useless call
 		
-		CoordinateSystem.type = options.coordSystem;
+		this.sky.coordinateSystem.type = options.coordSystem;
 
 		// Add attribution handler
 		new AttributionHandler( this.sky, {element: 'attributions'});
@@ -515,7 +515,7 @@ define( [ "jquery", "underscore-min", "gw/EquatorialCoordinateSystem", "./Planet
 	 *	Set zoom(in other words fov)
 	 */
 	MizarWidget.prototype.setZoom = function(fovInDegrees) {
-		var geoPos = CoordinateSystem.from3DToGeo(this.navigation.center3d);
+		var geoPos = this.sky.coordinateSystem.from3DToGeo(this.navigation.center3d);
 		this.navigation.zoomTo(geoPos, fovInDegrees, 1000);
 	}
 
@@ -530,14 +530,14 @@ define( [ "jquery", "underscore-min", "gw/EquatorialCoordinateSystem", "./Planet
 				element : "compassDiv",
 				globe : this.sky,
 				navigation : this.navigation,
-				coordSystem : CoordinateSystem.type,
+				coordSystem : this.sky.coordinateSystem.type,
 				isMobile : options.isMobile,
 				mizarBaseUrl : options.mizarBaseUrl
 			});
 		} else {
 			this.compass.remove();
 		}
-		skyContext.setComponentVisibility("compass", visible);
+		skyContext.setComponentVisibility("compassDiv", visible);
 	}
 
 	/**************************************************************************************************************/
@@ -607,7 +607,7 @@ define( [ "jquery", "underscore-min", "gw/EquatorialCoordinateSystem", "./Planet
 	 */
 	MizarWidget.prototype.setNameResolverGui = function(visible) {
 	 	if ( visible ) {
-	 		NameResolverView.init();
+	 		NameResolverView.init(this.sky);
 	 	} else {
 	 		NameResolverView.remove();
 	 	}
@@ -637,7 +637,7 @@ define( [ "jquery", "underscore-min", "gw/EquatorialCoordinateSystem", "./Planet
 	 	} else {
 	 		ImageViewer.remove();
 	 	}
-	 	skyContext.setComponentVisibility("imageViewer", visible);
+	 	skyContext.setComponentVisibility("imageViewerDiv", visible);
 	}
 
 	/**************************************************************************************************************/
@@ -657,7 +657,7 @@ define( [ "jquery", "underscore-min", "gw/EquatorialCoordinateSystem", "./Planet
 	 *		"EQ" or "GAL"(respectively equatorial or galactic)
 	 */
 	MizarWidget.prototype.setCoordinateSystem = function(newCoordSystem) {
-		CoordinateSystem.type = newCoordSystem;
+		this.sky.coordinateSystem.type = newCoordSystem;
 
 		if (this.mollweideViewer)
 			this.mollweideViewer.setCoordSystem( newCoordSystem );

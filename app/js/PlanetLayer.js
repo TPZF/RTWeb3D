@@ -20,8 +20,8 @@
 /**
  * Planet renderer/layer module
  */
-define( [ "jquery", "gw/BaseLayer", "gw/WMSLayer", 'gw/FeatureStyle', "gw/Utils", "gw/CoordinateSystem" ],
-		function($, BaseLayer, WMSLayer, FeatureStyle, Utils, CoordinateSystem) {
+define( [ "jquery", "gw/BaseLayer", "gw/WMSLayer", "gw/Utils" ],
+		function($, BaseLayer, WMSLayer, Utils) {
 
 /**
  * 	@constructor

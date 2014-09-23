@@ -20,8 +20,8 @@
 /**
  * Name resolver module : search object name and zoom to them
  */
-define(["jquery", "gw/CoordinateSystem", "gw/Numeric", "./IFrame", "./Utils", "./ErrorDialog", "underscore-min", "text!../templates/featureDescription.html", "text!../templates/descriptionTable.html", "jquery.ui"],
-	function($, CoordinateSystem, Numeric, IFrame, Utils, ErrorDialog, _, featureDescriptionHTMLTemplate, descriptionTableHTMLTemplate) {
+define(["jquery", "gw/Numeric", "./IFrame", "./Utils", "./ErrorDialog", "underscore-min", "text!../templates/featureDescription.html", "text!../templates/descriptionTable.html", "jquery.ui"],
+	function($, Numeric, IFrame, Utils, ErrorDialog, _, featureDescriptionHTMLTemplate, descriptionTableHTMLTemplate) {
 
 var sky;
 var configuration = {};
@@ -109,10 +109,10 @@ function _handleMouseUp(event)
 		geoPick = sky.getLonLatFromPixel(event.clientX, event.clientY);
 		var astro = Utils.formatCoordinates([ geoPick[0], geoPick[1] ]);
 
-		if ( CoordinateSystem.type == "EQ" ) {
+		if ( sky.coordinateSystem.type == "EQ" ) {
 			$("#coordinatesInfo").html("<em>Right ascension:</em><br/>&nbsp;&nbsp;&nbsp;&nbsp;" + astro[0] +
 										"<br/><em>Declination :</em><br/>&nbsp;&nbsp;&nbsp;&nbsp;" + astro[1]);
-		} else if ( CoordinateSystem.type == "GAL" ) {
+		} else if ( sky.coordinateSystem.type == "GAL" ) {
 			$("#coordinatesInfo").html("<em>Longitude:</em><br/>&nbsp;&nbsp;&nbsp;&nbsp;" + astro[0] +
 										"<br/><em>Latitude:</em><br/>&nbsp;&nbsp;&nbsp;&nbsp;" + astro[1]);
 		}
@@ -212,14 +212,14 @@ return {
 				$('#reverseSearchField input[type="submit"]').attr('disabled', 'disabled');
 
 				var equatorialCoordinates = [];
-				CoordinateSystem.fromGeoToEquatorial( geoPick, equatorialCoordinates );
+				sky.coordinateSystem.fromGeoToEquatorial( geoPick, equatorialCoordinates );
 
 				// Format to equatorial coordinates
 				equatorialCoordinates[0] = equatorialCoordinates[0].replace("h ",":");
 				equatorialCoordinates[0] = equatorialCoordinates[0].replace("m ",":");
 				equatorialCoordinates[0] = equatorialCoordinates[0].replace("s","");
 				
-				equatorialCoordinates[1] = equatorialCoordinates[1].replace("° ",":");
+				equatorialCoordinates[1] = equatorialCoordinates[1].replace("Â° ",":");
 				equatorialCoordinates[1] = equatorialCoordinates[1].replace("' ",":");
 				equatorialCoordinates[1] = equatorialCoordinates[1].replace("\"","");
 

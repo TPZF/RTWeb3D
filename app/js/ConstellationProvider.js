@@ -24,10 +24,11 @@
  * @see http://vizier.cfa.harvard.edu/viz-bin/ftp-index?VI/49
  *
  */
-define( [ "jquery", "./LayerManager", "gw/CoordinateSystem", "gw/FeatureStyle" ], function($, LayerManager, CoordinateSystem, FeatureStyle) {
+define( [ "jquery", "./LayerManager", "gw/FeatureStyle" ], function($, LayerManager, FeatureStyle) {
 
 /**************************************************************************************************************/
 
+var gwLayer;
 var namesFile;
 var catalogueFile;
 
@@ -35,7 +36,9 @@ var constellations = {};
 
 /**
 *	Asynchronous request to load constellation data 
-*
+*	
+*	@param layer
+*		GlobWeb layer
 * 	@param configuration Configuration options
 * 		<ul>
 *			<li>nameUrl : Url providing the constellations name data(necessary option)</li>
@@ -43,8 +46,9 @@ var constellations = {};
 *		</ul>
 *	@see http://vizier.cfa.harvard.edu/viz-bin/ftp-index?VI/49
 */
-function loadFiles( gwLayer, configuration )
+function loadFiles( layer, configuration )
 {
+	gwLayer = layer;
 	if ( configuration.nameUrl && configuration.catalogueUrl )
 	{
 		// loadFiles( configuration.nameUrl, configuration.catalogueUrl );
@@ -137,7 +141,7 @@ function extractDatabase()
 		// Calculate the center of constillation
 		var pos3d = [];
 		// Need to convert to 3D because of 0h -> 24h notation
-		CoordinateSystem.fromGeoTo3D(posGeo, pos3d);
+		gwLayer.globe.coordinateSystem.fromGeoTo3D(posGeo, pos3d);
 		constellations[ currentAbb ].x+=pos3d[0];
 		constellations[ currentAbb ].y+=pos3d[1];
 		constellations[ currentAbb ].z+=pos3d[2];
@@ -152,7 +156,7 @@ function extractDatabase()
 /**
 * 	Create geoJson features
 */
-function handleFeatures(gwLayer)
+function handleFeatures()
 {
 	
 	var constellationNamesFeatures = [];
@@ -182,7 +186,7 @@ function handleFeatures(gwLayer)
 		// Compute mean value to show the constellation name in the center of constellation..
 		// .. sometimes out of constellation's perimeter because of the awkward constellation's shape(ex. "Hydra" or "Draco" constellations)
 		var geoPos = [];
-		CoordinateSystem.from3DToGeo([current.x/current.nbStars, current.y/current.nbStars, current.z/current.nbStars], geoPos);
+		gwLayer.globe.coordinateSystem.from3DToGeo([current.x/current.nbStars, current.y/current.nbStars, current.z/current.nbStars], geoPos);
 		
 		var constellationName = {
 			geometry: {

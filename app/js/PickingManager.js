@@ -20,8 +20,8 @@
 /**
  * PickingManager module
  */
-define( [ "jquery", "gw/FeatureStyle", "gw/CoordinateSystem", "gw/OpenSearchLayer", "./FeaturePopup", "./ImageManager", "./CutOutViewFactory", "./Utils" ],
-		function($, FeatureStyle, CoordinateSystem, OpenSearchLayer, FeaturePopup, ImageManager, CutOutViewFactory, Utils) {
+define( [ "jquery", "gw/FeatureStyle", "gw/OpenSearchLayer", "./FeaturePopup", "./ImageManager", "./CutOutViewFactory", "./Utils" ],
+		function($, FeatureStyle, OpenSearchLayer, FeaturePopup, ImageManager, CutOutViewFactory, Utils) {
 
 var sky;
 var navigation;
@@ -193,7 +193,8 @@ function blurSelection()
 				style.strokeColor = selectedData.layer.style.strokeColor;
 				break;
 			case "Point":
-				style.fillColor = selectedData.layer.style.fillColor;
+				// Use stroke color while reverting
+				style.fillColor = selectedData.feature.properties.style.strokeColor;
 				break;
 			default:
 				break;
@@ -333,7 +334,7 @@ function featureIsPicked( feature, pickPoint )
 		case "Point":
 			var point = feature['geometry']['coordinates'];
 			// Do not pick the labeled features
-			var isLabel = feature.properties.style.label;
+			var isLabel = feature.properties.style && feature.properties.style.label;
 			return Utils.pointInSphere( pickPoint, point, feature['geometry']._bucket.textureHeight ) && !isLabel;
 		default:
 			console.log("Picking for " + feature['geometry'].type + " is not implemented yet");
@@ -479,7 +480,8 @@ return {
 					style.strokeColor = selectedData.layer.style.strokeColor; 
 					break;
 				case "Point":
-					style.fillColor = selectedData.layer.style.fillColor; 
+					// Use stroke color while reverting
+					style.fillColor = selectedData.feature.properties.style.strokeColor; 
 					break;
 				default:
 					break;

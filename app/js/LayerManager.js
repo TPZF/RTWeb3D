@@ -156,13 +156,6 @@ function createLayerFromConf(layerDesc) {
 		case "GeoJSON":
 
 			gwLayer = new VectorLayer(layerDesc);
-
-			if ( dataProviders[layerDesc.data.type] )
-			{
-				var callback = dataProviders[layerDesc.data.type];
-				var data = callback(gwLayer, layerDesc.data);
-			}
-
 			gwLayer.dataType = layerDesc.dataType || "line";
 			gwLayer.pickable = layerDesc.hasOwnProperty('pickable') ? layerDesc.pickable : true;
 
@@ -317,6 +310,14 @@ return {
 
 					this.mizar.publish("additionalLayer:add", gwLayer);
 				}
+				
+				// Fill data-provider-type layer by features coming from data object
+				if ( layerDesc.data && dataProviders[layerDesc.data.type] )
+				{
+					var callback = dataProviders[layerDesc.data.type];
+					var data = callback(gwLayer, layerDesc.data);
+				}
+
 			}
 		}
 
@@ -425,6 +426,7 @@ return {
 		};
 
 		gwLayer.addFeature( feature );
+		PickingManager.addPickableLayer( gwLayer );
 
 		sky.addLayer(gwLayer);
 		gwLayers.push(gwLayer);
@@ -441,6 +443,7 @@ return {
 		// Add feature collection
 		JsonProcessor.handleFeatureCollection( gwLayer, geoJson );
 		gwLayer.addFeatureCollection( geoJson );
+		PickingManager.addPickableLayer( gwLayer );
 
 		sky.addLayer(gwLayer);
 		gwLayers.push(gwLayer);

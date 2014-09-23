@@ -20,8 +20,8 @@
 /**
  * Moc display & Moc xMatch services
  */
-define( [ "jquery", "gw/CoordinateSystem", "gw/Numeric", "./UWSManager", "./Samp", "./ErrorDialog", "./Utils", "underscore-min", "text!../templates/healpixCutService.html", "text!../templates/cutResultItem.html", "jquery.ui" ],
-		function($, CoordinateSystem, Numeric, UWSManager, Samp, ErrorDialog, Utils, _, healpixCutServiceHTMLTemplate, healpixCutServiceItemHTMLTemplate ) {
+define( [ "jquery", "gw/Numeric", "./UWSManager", "./Samp", "./ErrorDialog", "./Utils", "underscore-min", "text!../templates/healpixCutService.html", "text!../templates/cutResultItem.html", "jquery.ui" ],
+		function($, Numeric, UWSManager, Samp, ErrorDialog, Utils, _, healpixCutServiceHTMLTemplate, healpixCutServiceItemHTMLTemplate ) {
 
 var globe;
 var navigation;
@@ -104,10 +104,10 @@ return {
 
 			// Find angle between eye and north
 			var geoEye = [];
-			CoordinateSystem.from3DToGeo(navigation.center3d, geoEye);
+			globe.coordinateSystem.from3DToGeo(navigation.center3d, geoEye);
 
 			var LHV = [];
-			CoordinateSystem.getLHVTransform(geoEye, LHV);
+			globe.coordinateSystem.getLHVTransform(geoEye, LHV);
 
 			var astro = Utils.formatCoordinates([ geoEye[0], geoEye[1] ]);
 			

@@ -20,7 +20,7 @@
 /**
  * Mollweider viewer module : Sky representation in mollweide coordinate system
  */
-define(["jquery", "gw/CoordinateSystem", "./Utils", "gw/glMatrix"], function($, CoordinateSystem, Utils) {
+define(["jquery", "./Utils", "gw/glMatrix"], function($, Utils) {
 
 var mizarBaseUrl;
 
@@ -71,7 +71,7 @@ var MollweideViewer = function(options) {
     mizarBaseUrl = options.mizarBaseUrl;
 
     // Init options
-    var globe = options.globe;
+    this.globe = options.globe;
     var navigation = options.navigation;
     var halfPaddingX = 16;
     var halfPaddingY = 8;
@@ -102,7 +102,7 @@ var MollweideViewer = function(options) {
         updateMollweideFov();
     };
 
-    this.setCoordSystem( CoordinateSystem.type );
+    this.setCoordSystem( this.globe.coordinateSystem.type );
 
     /**********************************************************************************************/
 
@@ -111,11 +111,12 @@ var MollweideViewer = function(options) {
      */
     function computeMollweidePosition( pos )
     {
-        var geoPos = CoordinateSystem.from3DToGeo(pos);
+		var coordinateSystem = self.globe.coordinateSystem;
+        var geoPos = coordinateSystem.from3DToGeo(pos);
 
-        if ( CoordinateSystem.type != "EQ" )
+        if ( coordinateSystem.type != "EQ" )
         {
-            geoPos = CoordinateSystem.convert(geoPos, 'EQ', CoordinateSystem.type)
+            geoPos = coordinateSystem.convert(geoPos, 'EQ', coordinateSystem.type)
             // Convert to geographic
             if ( geoPos[0]>180 )
             {
@@ -161,13 +162,13 @@ var MollweideViewer = function(options) {
         var lambda = (Math.PI * center3d.x) / ( 2 * Math.sqrt(2) * Math.cos(auxTheta));
 
         var geo = [lambda*180/Math.PI, phi*180/Math.PI];
-        if ( CoordinateSystem.type != "EQ" )
+        if ( this.globe.coordinateSystem.type != "EQ" )
         {
-            geo = CoordinateSystem.convert(geo, CoordinateSystem.type, "EQ");
+            geo = this.globe.coordSystem.convert(geo, this.globe.coordinateSystem.type, "EQ");
         }
 
         // Update navigation
-        CoordinateSystem.fromGeoTo3D(geo, navigation.center3d);
+        this.globe.coordinateSystem.fromGeoTo3D(geo, navigation.center3d);
 
         navigation.computeViewMatrix();
     }
@@ -185,8 +186,8 @@ var MollweideViewer = function(options) {
 
         // Draw fov
         context.fillStyle = "rgb(255,0,0)";
-        var stepX = globe.renderContext.canvas.clientWidth/(tesselation - 1);
-        var stepY = globe.renderContext.canvas.clientHeight/(tesselation - 1);
+        var stepX = self.globe.renderContext.canvas.clientWidth/(tesselation - 1);
+        var stepY = self.globe.renderContext.canvas.clientHeight/(tesselation - 1);
 
         for ( var i=0; i<tesselation; i++ )
         {
@@ -194,7 +195,7 @@ var MollweideViewer = function(options) {
             for ( var j=0; j<tesselation; j++ )
             {
                 // Height
-                var pos3d = globe.renderContext.get3DFromPixel(i*stepX,j*stepY);
+                var pos3d = self.globe.renderContext.get3DFromPixel(i*stepX,j*stepY);
                 var mPos = computeMollweidePosition( pos3d );
 
                 // Draw on canvas 2d
@@ -214,9 +215,9 @@ var MollweideViewer = function(options) {
         // Update fov degrees
         var fov = navigation.getFov();
         var fovx = Utils.roundNumber( fov[0], 2 ) ;
-        fovx = CoordinateSystem.fromDegreesToDMS( fovx );
+        fovx = self.globe.coordinateSystem.fromDegreesToDMS( fovx );
         var fovy = Utils.roundNumber( fov[1], 2 ) ;
-        fovy = CoordinateSystem.fromDegreesToDMS( fovy );
+        fovy = self.globe.coordinateSystem.fromDegreesToDMS( fovy );
         $('#fov').html( "Fov : " + fovx + " x " + fovy );
     }
 

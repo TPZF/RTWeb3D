@@ -20,7 +20,7 @@
 /**
  * Utility module : contains various functions useful for differnt modules
  */
- define(["gw/CoordinateSystem", "wcs"], function( CoordinateSystem ) {
+ define(["wcs"], function() {
 
 var mizar;
 
@@ -111,13 +111,13 @@ return {
 	formatCoordinates : function(geo)
 	{
 		var astro = [];
-		if ( CoordinateSystem.type == "EQ" )
+		if ( mizar.sky.coordinateSystem.type == "EQ" )
 		{
-			CoordinateSystem.fromGeoToEquatorial([geo[0], geo[1]], astro);	
+			mizar.sky.coordinateSystem.fromGeoToEquatorial([geo[0], geo[1]], astro);	
 		}
 		else 
 		{
-			geo = CoordinateSystem.convert( geo, 'EQ', CoordinateSystem.type );
+			geo = mizar.sky.coordinateSystem.convert( geo, 'EQ', mizar.sky.coordinateSystem.type );
 
 			// convert longitude to positive [0..360]
 			if (geo[0] < 0)
@@ -246,8 +246,8 @@ return {
 		// Compute pixel size vector to offset the points from the earth
 		var pixelSizeVector = mizar.sky.renderContext.computePixelSizeVector();
 
-		CoordinateSystem.fromGeoTo3D( point, point3D );
-		CoordinateSystem.fromGeoTo3D( sphere, sphere3D );
+		mizar.sky.coordinateSystem.fromGeoTo3D( point, point3D );
+		mizar.sky.coordinateSystem.fromGeoTo3D( sphere, sphere3D );
 
 		var radius = pointTextureHeight * (pixelSizeVector[0] * sphere3D[0] + pixelSizeVector[1] * sphere3D[1] + pixelSizeVector[2] * sphere3D[2] + pixelSizeVector[3]);
 

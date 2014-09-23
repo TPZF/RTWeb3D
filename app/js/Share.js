@@ -20,9 +20,11 @@
 /**
  * Share url module : creating url with current navigation properties
  */
-define(["jquery", "gw/CoordinateSystem", "./LayerManager", "./ErrorDialog"],
-	function($, CoordinateSystem, LayerManager, ErrorDialog) {
+define(["jquery", "./LayerManager", "./ErrorDialog"],
+	function($, LayerManager, ErrorDialog) {
 
+// Globals
+var sky;
 var navigation;
 var baseUrl;
 
@@ -62,7 +64,7 @@ function generateURL()
 
 	// Get navigation parameters
 	var geo = [];
-	CoordinateSystem.from3DToGeo( navigation.center3d, geo );
+	sky.coordinateSystem.from3DToGeo( navigation.center3d, geo );
 
 	// Get layer visibility parameters
 	var currentLayers = LayerManager.getLayers();
@@ -110,6 +112,7 @@ function generateURL()
 
 function init(options)
 {
+	mizar = options.mizar;
 	navigation = options.navigation;
 	if ( options.configuration.hasOwnProperty('shortener') )
 	{

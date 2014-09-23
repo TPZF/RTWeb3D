@@ -21,8 +21,8 @@
  * Tool designed to select areas on globe
  */
 
-define( [ "jquery", "gw/VectorLayer", "gw/FeatureStyle", "gw/Numeric", "gw/CoordinateSystem", "./Utils", "gw/glMatrix" ],
-	function($, VectorLayer, FeatureStyle, Numeric, CoordinateSystem, Utils){
+define( [ "jquery", "gw/VectorLayer", "gw/FeatureStyle", "gw/Numeric", "./Utils", "gw/glMatrix" ],
+	function($, VectorLayer, FeatureStyle, Numeric, Utils){
 
 
 
@@ -45,6 +45,7 @@ var SelectionTool = function(options)
 
 	this.activated = false;
 	this.renderContext = globe.renderContext;
+	this.coordinateSystem = globe.coordinateSystem;
 
 	// Set style
 	var style;
@@ -171,7 +172,7 @@ var SelectionTool = function(options)
 SelectionTool.prototype.computeGeoRadius = function(pt)
 {
 	// Find angle between start and stop vectors which is in fact the radius
-	var dotProduct = vec3.dot( CoordinateSystem.fromGeoTo3D(pt), CoordinateSystem.fromGeoTo3D(this.geoPickPoint) );
+	var dotProduct = vec3.dot( this.coordinateSystem.fromGeoTo3D(pt), this.coordinateSystem.fromGeoTo3D(this.geoPickPoint) );
 	var theta = Math.acos(dotProduct);
 	this.geoRadius = Numeric.toDegree(theta);
 }
@@ -215,11 +216,11 @@ SelectionTool.prototype.computeSelection = function()
 		vec3.subtract(points[i], eye, points[i]);
 		vec3.normalize( points[i] );
 		
-		var t = Numeric.raySphereIntersection( eye, points[i], worldCenter, CoordinateSystem.radius);
+		var t = Numeric.raySphereIntersection( eye, points[i], worldCenter, this.coordinateSystem.radius);
 		if ( t < 0.0 )
 			return null;
 
-		points[i] = CoordinateSystem.from3DToGeo( Numeric.pointOnRay(eye, points[i], t, tmpPt) );
+		points[i] = this.coordinateSystem.from3DToGeo( Numeric.pointOnRay(eye, points[i], t, tmpPt) );
 	}
 
 	return points;

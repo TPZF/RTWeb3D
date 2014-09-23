@@ -17,8 +17,8 @@
 * along with SITools2. If not, see <http://www.gnu.org/licenses/>. 
 ******************************************************************************/ 
 
-define( [ "gw/FeatureStyle", "gw/Utils", "gw/OpenSearchLayer", "gw/HEALPixBase", "gw/CoordinateSystem", "gw/RendererTileData" ],
-		function(FeatureStyle, Utils, OpenSearchLayer, HEALPixBase, CoordinateSystem, RendererTileData) {
+define( [ "gw/FeatureStyle", "gw/Utils", "gw/OpenSearchLayer", "gw/HEALPixBase", "gw/RendererTileData" ],
+		function(FeatureStyle, Utils, OpenSearchLayer, HEALPixBase, RendererTileData) {
 
 /**************************************************************************************************************/
 
@@ -199,7 +199,7 @@ ClusterOpenSearchLayer.prototype.addCluster = function(pixelIndex, order, face, 
 	var iy = HEALPixBase.compress_bits(pix>>>1);
 	var center = HEALPixBase.fxyf((ix+0.5)/nside, (iy+0.5)/nside, face);
 
-	var geo = CoordinateSystem.from3DToGeo( center );
+	var geo = this.globe.coordinateSystem.from3DToGeo( center );
 	var pos3d = center;
 	var vertical = vec3.create();
 	vec3.normalize(pos3d, vertical);

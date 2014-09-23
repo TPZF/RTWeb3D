@@ -20,12 +20,13 @@
 /**
  * Compass module : map control with "north" composant
  */
-define(["jquery", "gw/CoordinateSystem", "gw/glMatrix"], function($, CoordinateSystem) {
+define(["jquery", "gw/glMatrix"], function($) {
 
 /**
  *	Private variables
  */
 var parentElement = null;
+var globe = null;
 var navigation = null;
 var svgDoc;
 
@@ -35,31 +36,32 @@ var svgDoc;
 var updateNorth = function() {
 
 	var geo = [];
-	CoordinateSystem.from3DToGeo(navigation.center3d, geo);
+	var coordinateSystem = globe.coordinateSystem;
+	coordinateSystem.from3DToGeo(navigation.center3d, geo);
 
-	if ( CoordinateSystem.type != "EQ" )
+	if ( coordinateSystem.type != "EQ" )
 	{
-		geo = CoordinateSystem.convert(geo, 'EQ', 'GAL');
+		geo = coordinateSystem.convert(geo, 'EQ', 'GAL');
 	}
 
 	var LHV = [];
-	CoordinateSystem.getLHVTransform(geo, LHV);
+	coordinateSystem.getLHVTransform(geo, LHV);
 
 	var temp = [];
 	var north = [LHV[4],LHV[5],LHV[6]];
 	var vertical = [LHV[8], LHV[9], LHV[10]];
 
-	if ( CoordinateSystem.type != "EQ" )
+	if ( coordinateSystem.type != "EQ" )
 	{
-		north = CoordinateSystem.transformVec( [LHV[4],LHV[5],LHV[6]] );
-		CoordinateSystem.from3DToGeo(north, temp);
-		temp = CoordinateSystem.convert(temp, 'EQ', 'GAL');
-		CoordinateSystem.fromGeoTo3D(temp, north);
+		north = coordinateSystem.transformVec( [LHV[4],LHV[5],LHV[6]] );
+		coordinateSystem.from3DToGeo(north, temp);
+		temp = coordinateSystem.convert(temp, 'EQ', 'GAL');
+		coordinateSystem.fromGeoTo3D(temp, north);
 
-		vertical = CoordinateSystem.transformVec( [LHV[8],LHV[9],LHV[10]] );
-		CoordinateSystem.from3DToGeo(vertical, temp);
-		temp = CoordinateSystem.convert(temp, 'EQ', 'GAL');
-		CoordinateSystem.fromGeoTo3D(temp, vertical);
+		vertical = coordinateSystem.transformVec( [LHV[8],LHV[9],LHV[10]] );
+		coordinateSystem.from3DToGeo(vertical, temp);
+		temp = coordinateSystem.convert(temp, 'EQ', 'GAL');
+		coordinateSystem.fromGeoTo3D(temp, vertical);
 	}
 
 	// Find angle between up and north
@@ -85,7 +87,7 @@ var updateNorth = function() {
 var Compass = function(options){
 
 	parentElement = options.element;
-	var globe = options.globe;
+	globe = options.globe;
 	navigation = options.navigation;
 
 	// Add compass object to parent element
@@ -206,13 +208,13 @@ var Compass = function(options){
 		var _alignWithNorth = function(event)
 		{
 			var up = [0,0,1];
-			
-			if ( CoordinateSystem.type != "EQ" )
+			var coordinateSystem = globe.coordinateSystem;
+			if ( coordinateSystem.type != "EQ" )
 			{
 				var temp = [];
-				CoordinateSystem.from3DToGeo(up, temp);
-				temp = CoordinateSystem.convert(temp, 'GAL', 'EQ');
-				CoordinateSystem.fromGeoTo3D(temp, up);
+				coordinateSystem.from3DToGeo(up, temp);
+				temp = coordinateSystem.convert(temp, 'GAL', 'EQ');
+				coordinateSystem.fromGeoTo3D(temp, up);
 			}
 			navigation.moveUpTo(up);
 		}

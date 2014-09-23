@@ -20,8 +20,8 @@
 /**
  * Name resolver module : API allowing to search object name and zoom to it
  */
-define(["jquery", "gw/FeatureStyle", "gw/VectorLayer", "gw/HEALPixBase", "gw/CoordinateSystem", "./Utils", "jquery.ui"],
-	function($, FeatureStyle, VectorLayer, HEALPixBase, CoordinateSystem, Utils) {
+define(["jquery", "gw/FeatureStyle", "gw/VectorLayer", "gw/HEALPixBase", "./Utils", "jquery.ui"],
+	function($, FeatureStyle, VectorLayer, HEALPixBase, Utils) {
 
 // Name resolver globals
 var mizar;
@@ -98,7 +98,7 @@ function search(objectName, onSuccess, onError, onComplete)
 		var j = 0.5;
 		var vert = HEALPixBase.fxyf( (ix+i)/nside, (iy+j)/nside, face);
 		var geoPos = [];
-		CoordinateSystem.from3DToGeo(vert, geoPos);
+		sky.coordinateSystem.from3DToGeo(vert, geoPos);
 		zoomTo(geoPos[0],geoPos[1]);
 	}
 	else if ( objectName.match( coordinatesExp ) )
@@ -113,11 +113,11 @@ function search(objectName, onSuccess, onError, onComplete)
 		
 		// Convert to geo and zoom
 		var geoPos = [];
-		CoordinateSystem.fromEquatorialToGeo([word[0], word[1]], geoPos);
+		sky.coordinateSystem.fromEquatorialToGeo([word[0], word[1]], geoPos);
 
-		if ( CoordinateSystem.type != "EQ" )
+		if ( sky.coordinateSystem.type != "EQ" )
 		{
-			geoPos = CoordinateSystem.convert(geoPos, CoordinateSystem.type, 'EQ');
+			geoPos = sky.coordinateSystem.convert(geoPos, sky.coordinateSystem.type, 'EQ');
 		}
 
 		zoomTo(geoPos[0], geoPos[1]);
@@ -127,9 +127,9 @@ function search(objectName, onSuccess, onError, onComplete)
 		var lat = parseFloat(matchDegree[3]);
 		var geo = [lon, lat];
 
-		if ( CoordinateSystem.type != "EQ" )
+		if ( sky.coordinateSystem.type != "EQ" )
 		{
-			geo = CoordinateSystem.convert(geo, CoordinateSystem.type,  'EQ');
+			geo = sky.coordinateSystem.convert(geo, sky.coordinateSystem.type,  'EQ');
 		}
 
 		zoomTo(geo[0], geo[1]);

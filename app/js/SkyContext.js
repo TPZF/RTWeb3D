@@ -148,7 +148,8 @@ define( [ "jquery", "underscore-min", "gw/Sky", "gw/AstroNavigation", "gw/TouchN
 			this.sky = new Sky( { 
 				canvas: canvas, 
 				tileErrorTreshold: 1.5,
-				continuousRendering: true
+				continuousRendering: true,
+				radius: 10.
 			} );
 		}
 		catch (err)
