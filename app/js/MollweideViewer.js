@@ -20,7 +20,7 @@
 /**
  * Mollweider viewer module : Sky representation in mollweide coordinate system
  */
-define(["jquery", "./Utils", "gw/glMatrix"], function($, Utils) {
+define(["jquery", "./Utils", "gw/Ray", "gw/glMatrix"], function($, Utils, Ray) {
 
 var mizarBaseUrl;
 
@@ -162,13 +162,13 @@ var MollweideViewer = function(options) {
         var lambda = (Math.PI * center3d.x) / ( 2 * Math.sqrt(2) * Math.cos(auxTheta));
 
         var geo = [lambda*180/Math.PI, phi*180/Math.PI];
-        if ( this.globe.coordinateSystem.type != "EQ" )
+        if ( self.globe.coordinateSystem.type != "EQ" )
         {
-            geo = this.globe.coordSystem.convert(geo, this.globe.coordinateSystem.type, "EQ");
+            geo = self.globe.coordSystem.convert(geo, self.globe.coordinateSystem.type, "EQ");
         }
 
         // Update navigation
-        this.globe.coordinateSystem.fromGeoTo3D(geo, navigation.center3d);
+        self.globe.coordinateSystem.fromGeoTo3D(geo, navigation.center3d);
 
         navigation.computeViewMatrix();
     }
@@ -195,7 +195,9 @@ var MollweideViewer = function(options) {
             for ( var j=0; j<tesselation; j++ )
             {
                 // Height
-                var pos3d = self.globe.renderContext.get3DFromPixel(i*stepX,j*stepY);
+                var ray = Ray.createFromPixel(self.globe.renderContext, i*stepX, j*stepY);
+                var pos3d = ray.computePoint( ray.sphereIntersect( [0,0,0], self.globe.coordinateSystem.radius ) );
+    
                 var mPos = computeMollweidePosition( pos3d );
 
                 // Draw on canvas 2d

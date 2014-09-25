@@ -21,8 +21,8 @@
  * Tool designed to select areas on globe
  */
 
-define( [ "jquery", "gw/VectorLayer", "gw/FeatureStyle", "gw/Numeric", "./Utils", "gw/glMatrix" ],
-	function($, VectorLayer, FeatureStyle, Numeric, Utils){
+define( [ "jquery", "gw/VectorLayer", "gw/FeatureStyle", "gw/Numeric", "gw/Ray", "./Utils", "gw/glMatrix" ],
+	function($, VectorLayer, FeatureStyle, Numeric, Ray, Utils){
 
 
 
@@ -172,7 +172,7 @@ var SelectionTool = function(options)
 SelectionTool.prototype.computeGeoRadius = function(pt)
 {
 	// Find angle between start and stop vectors which is in fact the radius
-	var dotProduct = vec3.dot( this.coordinateSystem.fromGeoTo3D(pt), this.coordinateSystem.fromGeoTo3D(this.geoPickPoint) );
+	var dotProduct = vec3.dot( vec3.normalize(this.coordinateSystem.fromGeoTo3D(pt)), vec3.normalize(this.coordinateSystem.fromGeoTo3D(this.geoPickPoint)) );
 	var theta = Math.acos(dotProduct);
 	this.geoRadius = Numeric.toDegree(theta);
 }
@@ -207,7 +207,6 @@ SelectionTool.prototype.computeSelection = function()
 
 	// Transform the four corners of selection shape into world space
 	// and then for each corner compute the intersection of ray starting from the eye with the sphere
-	var tmpPt = vec3.create();
 	var worldCenter = [ 0, 0, 0 ];
 	for ( var i = 0; i < 4; i++ )
 	{
@@ -216,11 +215,9 @@ SelectionTool.prototype.computeSelection = function()
 		vec3.subtract(points[i], eye, points[i]);
 		vec3.normalize( points[i] );
 		
-		var t = Numeric.raySphereIntersection( eye, points[i], worldCenter, this.coordinateSystem.radius);
-		if ( t < 0.0 )
-			return null;
-
-		points[i] = this.coordinateSystem.from3DToGeo( Numeric.pointOnRay(eye, points[i], t, tmpPt) );
+		var ray = new Ray( eye, points[i] );
+		var pos3d = ray.computePoint( ray.sphereIntersect( worldCenter, this.coordinateSystem.radius ) );
+		points[i] = this.coordinateSystem.from3DToGeo( pos3d );
 	}
 
 	return points;

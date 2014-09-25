@@ -148,8 +148,9 @@ define( [ "jquery", "underscore-min", "gw/Sky", "gw/AstroNavigation", "gw/TouchN
 			this.sky = new Sky( { 
 				canvas: canvas, 
 				tileErrorTreshold: 1.5,
-				continuousRendering: true,
-				radius: 10.
+				continuousRendering: options.continuousRendering,
+				radius: 10.,
+				minFar: 15		// Fix problem with far buffer, with planet rendering
 			} );
 		}
 		catch (err)
@@ -208,9 +209,6 @@ define( [ "jquery", "underscore-min", "gw/Sky", "gw/AstroNavigation", "gw/TouchN
 		}
 
 		this.navigation.start();
-		this.sky.tileManager.renderContext.activate();
-		// HACK
-		this.sky.tileManager.renderContext.frameRequested = false;
 	}
 
 	/**************************************************************************************************************/
@@ -229,7 +227,6 @@ define( [ "jquery", "underscore-min", "gw/Sky", "gw/AstroNavigation", "gw/TouchN
 		this.sky.tileManagers["GAL"].abortRequests();
 		this.navigation.stopAnimations();
 		this.navigation.stop();
-		this.sky.tileManager.renderContext.deactivate();
 	}
 
 	/**************************************************************************************************************/

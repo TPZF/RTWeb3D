@@ -705,28 +705,52 @@ define( [ "jquery", "underscore-min", "./PlanetContext", "./SkyContext", "gw/Sta
 	 */
 	MizarWidget.prototype.toggleMode = function(gwLayer) {
 		this.mode = (this.mode == "sky") ? "planet" : "sky";
+		var self = this;
 		if ( this.mode == "sky" ) {
 			console.log("Change planet to sky context");
-			// Destroy planet context
-			this.planetContext.destroy();
-			this.planetContext = null;
+			
+			// Add smooth animation from planet context to sky context
+			this.planetContext.navigation.toViewMatrix(this.oldVM, this.oldFov, 2000, function() {
 
-			// Show sky
-			PickingManager.activate();
-			skyContext.show();
-			this.sky.refresh();
+				// TODO: show all additional layers
+				
+				// Destroy planet context
+				self.planetContext.destroy();
+				self.planetContext = null;
+				// Show sky
+				PickingManager.activate();
+				skyContext.show();
+				self.sky.refresh();
+				self.publish("mizarMode:toggle", gwLayer);
+			});
 
 		} else {
 			console.log("Change sky to planet context");
 			// Hide sky
 			skyContext.hide();
+
+			// TODO: hide all additional layers
+
 			PickingManager.deactivate();
 
-			// Create planet context
-			this.planetContext = new PlanetContext($(parentElement).find('#GlobWebCanvas')[0], parentElement, options);
-			this.planetContext.globe.refresh();
+			// Create planet context( with existing sky render context )
+			this.planetContext = new PlanetContext(this.sky.renderContext,/*$(parentElement).find('#GlobWebCanvas')[0],*/ parentElement, options);
+
+			// Store old view matrix & fov to be able to rollback to sky context
+			this.oldVM = this.sky.renderContext.viewMatrix;
+			this.oldFov = this.sky.renderContext.fov;
+			
+			// Compute planet view matrix
+			var planetVM = mat4.create();
+			this.planetContext.navigation.computeInverseViewMatrix();
+			mat4.inverse( this.planetContext.navigation.inverseViewMatrix, planetVM );
+			
+			// Add smooth animation from sky context to planet context context
+			this.navigation.toViewMatrix(planetVM, 45, 2000, function() {
+				self.planetContext.globe.refresh();
+				self.publish("mizarMode:toggle", gwLayer);
+			});
 		}
-		this.publish("mizarMode:toggle", gwLayer);
 	}
 
 	return MizarWidget;

@@ -21,8 +21,8 @@
  * Tool designed to measure the distance between two points
  */
 
-define( [ "jquery", "gw/VectorLayer", "gw/Numeric", "gw/FeatureStyle", "gw/glMatrix", "jquery.ui" ],
-		function($, VectorLayer, Numeric, FeatureStyle){
+define( [ "jquery", "gw/VectorLayer", "gw/Ray", "gw/Numeric", "gw/FeatureStyle", "gw/glMatrix", "jquery.ui" ],
+		function($, VectorLayer, Ray, Numeric, FeatureStyle){
 
 var globe;
 
@@ -108,7 +108,7 @@ var MeasureTool = function(options)
 
 
 		// Find angle between start and stop vectors which is in fact the radius
-		var dotProduct = vec3.dot( globe.coordinateSystem.fromGeoTo3D(stopPickPoint), globe.coordinateSystem.fromGeoTo3D(self.geoPickPoint) );
+		var dotProduct = vec3.dot( vec3.normalize(globe.coordinateSystem.fromGeoTo3D(stopPickPoint)), vec3.normalize(globe.coordinateSystem.fromGeoTo3D(self.geoPickPoint)) );
 		var theta = Math.acos(dotProduct);
 		self.geoDistance = Numeric.toDegree(theta);
 
@@ -140,7 +140,7 @@ var MeasureTool = function(options)
 		self.secondGeoPickPoint = globe.getLonLatFromPixel(self.secondPickPoint[0], self.secondPickPoint[1]);
 		// Update radius
 		self.distance = Math.sqrt( Math.pow(self.secondPickPoint[0] - self.pickPoint[0], 2) + Math.pow(self.secondPickPoint[1] - self.pickPoint[1], 2) );
-		var dotProduct = vec3.dot( globe.coordinateSystem.fromGeoTo3D(self.secondGeoPickPoint), globe.coordinateSystem.fromGeoTo3D(self.geoPickPoint) );
+		var dotProduct = vec3.dot( vec3.normalize(globe.coordinateSystem.fromGeoTo3D(self.secondGeoPickPoint)), vec3.normalize(globe.coordinateSystem.fromGeoTo3D(self.geoPickPoint)) );
 		var theta = Math.acos(dotProduct);
 		self.geoDistance = Numeric.toDegree(theta);
 
@@ -183,7 +183,6 @@ MeasureTool.prototype.computeIntersection = function(points)
 
 	// Transform the four corners of measure shape into world space
 	// and then for each corner compute the intersection of ray starting from the eye with the sphere
-	var tmpPt = vec3.create();
 	var worldCenter = [ 0, 0, 0 ];
 	for ( var i = 0; i < points.length; i++ )
 	{
@@ -192,11 +191,9 @@ MeasureTool.prototype.computeIntersection = function(points)
 		vec3.subtract(points[i], eye, points[i]);
 		vec3.normalize( points[i] );
 		
-		var t = Numeric.raySphereIntersection( eye, points[i], worldCenter, globe.coordinateSystem.radius);
-		if ( t < 0.0 )
-			return null;
-
-		points[i] = globe.coordinateSystem.from3DToGeo( Numeric.pointOnRay(eye, points[i], t, tmpPt) );
+		var ray = new Ray ( eye, points[i] );
+		var pos3d = ray.computePoint( ray.sphereIntersect( worldCenter, globe.coordinateSystem.radius ) );		
+		points[i] = globe.coordinateSystem.from3DToGeo( pos3d );
 	}
 
 	return points;
@@ -307,7 +304,9 @@ MeasureTool.prototype.updateMeasure = function()
 	};
 
 	var center = [ (this.secondPickPoint[0] + this.pickPoint[0])/2, (this.secondPickPoint[1] + this.pickPoint[1])/2 ];
-	var center3d = this.renderContext.get3DFromPixel(center[0],center[1]);
+	var ray = Ray.createFromPixel(this.renderContext, center[0], center[1]);
+	var center3d = ray.computePoint( ray.sphereIntersect( [0,0,0], globe.coordinateSystem.radius ) );
+	
 	var geoCenter = globe.coordinateSystem.from3DToGeo(center3d);
 	this.measureLabel = {
 		geometry: {

@@ -124,23 +124,20 @@ define( [ "jquery", "underscore-min", "gw/Globe", "gw/Navigation", "gw/TouchNavi
 	/**
 	 *	PlanetContext constructor
 	 */
-	var PlanetContext = function(canvas, div, options) {
+	var PlanetContext = function(renderContext, div, options) {
 		
 		this.globe = null;
 		this.navigation = null;
-		this.canvas = canvas;
 		parentElement = div;
-
-		_initCanvas(canvas, div);
 		
 		// Initialize globe
 		try
 		{
 			this.globe = new Globe( {
-				canvas: canvas, 
 				lighting: false,
 				tileErrorTreshold: 3, 
-				continuousRendering: false
+				continuousRendering: false,
+				renderContext: renderContext
 			} );
 		}
 		catch (err)
@@ -166,8 +163,9 @@ define( [ "jquery", "underscore-min", "gw/Globe", "gw/Navigation", "gw/TouchNavi
 				self.globe.renderContext.requestFrame();
 			}, false);
 		}
+		// Don't update view matrix on creation, since we want to use animation
+		options.navigation.updateViewMatrix = false;
 		this.navigation = new Navigation(this.globe, options.navigation);
-		
 	}
 
 	/**************************************************************************************************************/
@@ -177,7 +175,6 @@ define( [ "jquery", "underscore-min", "gw/Globe", "gw/Navigation", "gw/TouchNavi
 	 */
 	PlanetContext.prototype.show = function() {
 		this.navigation.start();
-		this.globe.tileManager.renderContext.activate();
 	}
 
 	/**
@@ -186,7 +183,6 @@ define( [ "jquery", "underscore-min", "gw/Globe", "gw/Navigation", "gw/TouchNavi
 	PlanetContext.prototype.hide = function() {
 		this.navigation.stopAnimations();
 		this.navigation.stop();
-		this.globe.tileManager.renderContext.deactivate();
 	}
 
 	/**************************************************************************************************************/
@@ -196,7 +192,7 @@ define( [ "jquery", "underscore-min", "gw/Globe", "gw/Navigation", "gw/TouchNavi
 	 */
 	PlanetContext.prototype.destroy = function() {
 		this.hide();
-		this.globe.dispose();
+		this.globe.destroy();
 		this.globe = null;
 	}
 
