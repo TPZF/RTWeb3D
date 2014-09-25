@@ -21,9 +21,9 @@
  * Sky context
  */
 define( [ "jquery", "underscore-min", "gw/Sky", "gw/AstroNavigation", "gw/TouchNavigationHandler",
-	"./ErrorDialog", "./AboutDialog", "./PositionTracker", "jquery.ui"],
+	"./LayerManager", "./ErrorDialog", "./AboutDialog", "./PositionTracker", "jquery.ui"],
 	function($, _, Sky, AstroNavigation, TouchNavigationHandler,
-			ErrorDialog, AboutDialog, PositionTracker) {
+			LayerManager, ErrorDialog, AboutDialog, PositionTracker) {
 
 	/**
 	 *	Private variables
@@ -177,6 +177,40 @@ define( [ "jquery", "underscore-min", "gw/Sky", "gw/AstroNavigation", "gw/TouchN
 	
 	/**************************************************************************************************************/
 	
+	/**
+ 	 *	Show additional layers
+	 *	(used on context change)
+	 */
+	SkyContext.prototype.showAdditionalLayers = function()
+	{
+		_.each(this.visibleLayers, function(layer) {
+			layer.visible(true);
+		});
+	};	
+
+	/**************************************************************************************************************/
+	
+	/**
+	 *	Hide additional layers
+	 *	(used on context change)
+	 */
+	SkyContext.prototype.hideAdditionalLayers = function()
+	{
+		this.visibleLayers = [];
+		var gwLayers = LayerManager.getLayers();
+		var self = this;
+		_.each(gwLayers, function(layer){
+			if ( layer.category != "background" && layer.visible() )
+			{
+				layer.visible(false);
+				self.visibleLayers.push(layer);
+			}
+			
+		});
+	};
+
+	/**************************************************************************************************************/
+
 	/**
 	 *	Set UI component visibility
 	 */

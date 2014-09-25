@@ -712,8 +712,8 @@ define( [ "jquery", "underscore-min", "./PlanetContext", "./SkyContext", "gw/Sta
 			// Add smooth animation from planet context to sky context
 			this.planetContext.navigation.toViewMatrix(this.oldVM, this.oldFov, 2000, function() {
 
-				// TODO: show all additional layers
-				
+				// Show all additional layers
+				skyContext.showAdditionalLayers();
 				// Destroy planet context
 				self.planetContext.destroy();
 				self.planetContext = null;
@@ -729,7 +729,8 @@ define( [ "jquery", "underscore-min", "./PlanetContext", "./SkyContext", "gw/Sta
 			// Hide sky
 			skyContext.hide();
 
-			// TODO: hide all additional layers
+			// Hide all additional layers
+			skyContext.hideAdditionalLayers();
 
 			PickingManager.deactivate();
 
