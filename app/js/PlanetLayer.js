@@ -34,6 +34,7 @@ var PlanetLayer = function(options)
 	this.name = options.name;
 	this.layers = [];
 	this.category = "Planets";
+	this.nameResolverURL = options.nameResolverURL;
 
 	for ( var i=0; i<options.baseImageries.length; i++ )
 	{

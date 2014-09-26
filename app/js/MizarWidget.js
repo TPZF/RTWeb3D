@@ -295,7 +295,7 @@ define( [ "jquery", "underscore-min", "./PlanetContext", "./SkyContext", "gw/Sta
 		new AttributionHandler( this.sky, {element: 'attributions'});
 		
 		// Initialize name resolver
-		NameResolver.init(this, options);
+		NameResolver.init(this, this.sky, this.navigation, options);
 
 		// Create layers from configuration file
 		LayerManager.init(this, options);
@@ -711,6 +711,12 @@ define( [ "jquery", "underscore-min", "./PlanetContext", "./SkyContext", "gw/Sta
 			
 			// Add smooth animation from planet context to sky context
 			this.planetContext.navigation.toViewMatrix(this.oldVM, this.oldFov, 2000, function() {
+				// Reinit name resolver
+				// TODO: refactor it!!! To be able to just set the context
+				NameResolver.remove();
+				NameResolverView.remove();
+				NameResolver.init(self, self.sky, self.navigation, options)
+				NameResolverView.init(self.sky);
 
 				// Show all additional layers
 				skyContext.showAdditionalLayers();
@@ -736,6 +742,25 @@ define( [ "jquery", "underscore-min", "./PlanetContext", "./SkyContext", "gw/Sta
 
 			// Create planet context( with existing sky render context )
 			this.planetContext = new PlanetContext(this.sky.renderContext,/*$(parentElement).find('#GlobWebCanvas')[0],*/ parentElement, options);
+
+			// Reinit name resolver
+			// TODO: refactor to be able to just set the new context
+			NameResolver.remove();
+			if ( gwLayer.nameResolverURL )
+			{
+				var currentNROptions = {
+					"mizarBaseUrl": options.mizarBaseUrl,
+					"nameResolver" : {
+						"zoomFov": 90000, // in fact it must be distance, to be improved
+						"baseUrl": gwLayer.nameResolverURL
+					}
+				}
+				NameResolver.init(self, self.planetContext.globe, self.planetContext.navigation, currentNROptions);
+			}
+			else
+			{
+				NameResolverView.remove();
+			}
 
 			// Store old view matrix & fov to be able to rollback to sky context
 			this.oldVM = this.sky.renderContext.viewMatrix;

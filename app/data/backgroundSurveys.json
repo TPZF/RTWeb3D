@@ -606,6 +606,7 @@
 		"category": "Planets",
 		"type": "Planet",
 		"name": "Mars",
+		"nameResolverURL": "http://demonstrator.telespazio.com/mizar/data/mars_resolver.json",
 		"baseImageries": [
 			{
 				"type": "WMS",

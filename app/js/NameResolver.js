@@ -20,13 +20,14 @@
 /**
  * Name resolver module : API allowing to search object name and zoom to it
  */
-define(["jquery", "gw/FeatureStyle", "gw/VectorLayer", "gw/HEALPixBase", "./Utils", "jquery.ui"],
-	function($, FeatureStyle, VectorLayer, HEALPixBase, Utils) {
+define(["jquery", "gw/FeatureStyle", "gw/VectorLayer", "gw/HEALPixBase", "./Utils", "text!../data/mars_resolver.json", "jquery.ui"],
+	function($, FeatureStyle, VectorLayer, HEALPixBase, Utils, marsResolverJSON) {
 
 // Name resolver globals
 var mizar;
-var sky;
-var astroNavigator;
+var globe;
+var navigation;
+var dictionnary;
 var configuration = {
 	"nameResolver": {
 		zoomFov: 15.
@@ -75,7 +76,6 @@ function search(objectName, onSuccess, onError, onComplete)
 {
 	// regexp used only to distinct equatorial coordinates and objects
 	// TODO more accurate ( "x < 24h", "x < 60mn", etc.. )
-
 	objectName = objectName.replace(/\s{2,}/g, ' '); // Replace multiple spaces by a single one
 	var coordinatesExp = new RegExp("\\d{1,2}[h|:]\\d{1,2}[m|:]\\d{1,2}([\\.]\\d+)?s?\\s[-+]?[\\d]+[°|:]\\d{1,2}['|:]\\d{1,2}([\\.]\\d+)?\"?", "g");
 	var healpixRE = /^healpix\((\d)+,(\d+)\)/;
@@ -98,7 +98,7 @@ function search(objectName, onSuccess, onError, onComplete)
 		var j = 0.5;
 		var vert = HEALPixBase.fxyf( (ix+i)/nside, (iy+j)/nside, face);
 		var geoPos = [];
-		sky.coordinateSystem.from3DToGeo(vert, geoPos);
+		globe.coordinateSystem.from3DToGeo(vert, geoPos);
 		zoomTo(geoPos[0],geoPos[1]);
 	}
 	else if ( objectName.match( coordinatesExp ) )
@@ -113,11 +113,11 @@ function search(objectName, onSuccess, onError, onComplete)
 		
 		// Convert to geo and zoom
 		var geoPos = [];
-		sky.coordinateSystem.fromEquatorialToGeo([word[0], word[1]], geoPos);
+		globe.coordinateSystem.fromEquatorialToGeo([word[0], word[1]], geoPos);
 
-		if ( sky.coordinateSystem.type != "EQ" )
+		if ( globe.coordinateSystem.type != "EQ" )
 		{
-			geoPos = sky.coordinateSystem.convert(geoPos, sky.coordinateSystem.type, 'EQ');
+			geoPos = globe.coordinateSystem.convert(geoPos, globe.coordinateSystem.type, 'EQ');
 		}
 
 		zoomTo(geoPos[0], geoPos[1]);
@@ -127,45 +127,76 @@ function search(objectName, onSuccess, onError, onComplete)
 		var lat = parseFloat(matchDegree[3]);
 		var geo = [lon, lat];
 
-		if ( sky.coordinateSystem.type != "EQ" )
+		if ( globe.coordinateSystem.type != "EQ" )
 		{
-			geo = sky.coordinateSystem.convert(geo, sky.coordinateSystem.type,  'EQ');
+			geo = globe.coordinateSystem.convert(geo, globe.coordinateSystem.type,  'EQ');
 		}
 
 		zoomTo(geo[0], geo[1]);
 	}
 	else
 	{
-		// Name of the object which could be potentially found by name resolver
-		var url = configuration.baseUrl + "/" + objectName + "/EQUATORIAL";
+		if ( dictionnary )
+		{
+			// Planet resolver(Mars only currently)
+			var feature = _.find(dictionnary.features, function(f){
+				return f.properties.Name.toLowerCase() == objectName.toLowerCase();
+			});
 
-		$.ajax({
-			type: "GET",
-			url: url,
-			success: function(response){
-				// Check if response contains features
-				if(response.type == "FeatureCollection")
-				{
-					var firstFeature = response.features[0];
-					zoomTo(firstFeature.geometry.coordinates[0], firstFeature.geometry.coordinates[1]);
+			if ( feature )
+			{
+				var lon = parseFloat(feature.properties.center_lon);
+				var lat = parseFloat(feature.properties.center_lat);
+				mizar.planetContext.navigation.zoomTo( [lon, lat], configuration.zoomFov, 2000 );
+				setTimeout(function(){
+					addTarget(lon, lat);
+				}, 2040); // Very very veeery ugly hack to show target at the end of animation
+				// NB: can't use zoomTo method due to absence of callback in Navigation.zoomTo
+				//zoomTo([feature.properties.center_lon, feature.properties.center_lat]);
 
-					if ( onSuccess )
-						onSuccess(response);
-				} else {
-					onError();
-				}
-			},
-			error: function (xhr, ajaxOptions, thrownError) {
+				if ( onSuccess )
+					onSuccess({features: [feature]});
+			}
+			else
+			{
 				if( onError )
 					onError();
-				console.error( xhr.responseText );
-			},
-			complete: function(xhr)
-			{
-				if ( onComplete )
-					onComplete(xhr);
 			}
-		});
+		}
+		else
+		{
+			// Service
+			// Name of the object which could be potentially found by name resolver
+			var url = configuration.baseUrl + "/" + objectName + "/EQUATORIAL";
+
+			$.ajax({
+				type: "GET",
+				url: url,
+				success: function(response){
+					// Check if response contains features
+					if(response.type == "FeatureCollection")
+					{
+						var firstFeature = response.features[0];
+						zoomTo(firstFeature.geometry.coordinates[0], firstFeature.geometry.coordinates[1]);
+
+						if ( onSuccess )
+							onSuccess(response);
+					} else {
+						onError();
+					}
+				},
+				error: function (xhr, ajaxOptions, thrownError) {
+					if( onError )
+						onError();
+					console.error( xhr.responseText );
+				},
+				complete: function(xhr)
+				{
+					if ( onComplete )
+						onComplete(xhr);
+				}
+			});
+		}
 	}
 }
 
@@ -176,7 +207,7 @@ function search(objectName, onSuccess, onError, onComplete)
  */
 function zoomTo(lon, lat)
 {
-	astroNavigator.zoomTo([lon, lat], configuration.zoomFov, 3000, function() {
+	navigation.zoomTo([lon, lat], configuration.zoomFov, 3000, function() {
 		addTarget(lon,lat);
 		mizar.publish("goTo:finished");
 	} );
@@ -199,9 +230,27 @@ function removeTarget()
 /**************************************************************************************************************/
 
 return {
-	init: function(m, conf) {
+	init: function(m, g, nav, conf) {
 		mizar = m;
-		if ( !sky ) {
+
+		if ( conf.nameResolver.baseUrl.indexOf("json") >= 0 )
+		{
+			// Dictionnary as json
+			$.ajax({
+				type: "GET",
+				url: conf.nameResolver.baseUrl,
+				success: function(response)
+				{
+					dictionnary = response;
+				},
+				error: function(thrownError)
+				{
+					console.error(thrownError);
+				}
+			})
+		}
+
+		if ( !globe ) {
 			configuration = conf;
 			var style = new FeatureStyle({
 				iconUrl: configuration.mizarBaseUrl + "css/images/target.png",
@@ -209,12 +258,12 @@ return {
 			});
 			targetLayer = new VectorLayer({ style: style });
 
-			sky = mizar.sky;
-			astroNavigator = mizar.navigation;
+			globe = g;
+			navigation = nav;
 			configuration = $.extend(conf['nameResolver'], configuration['nameResolver']);
 
-			sky.addLayer( targetLayer );
-			astroNavigator.subscribe("modified", removeTarget);
+			globe.addLayer( targetLayer );
+			navigation.subscribe("modified", removeTarget);
 		} else {
 			console.error("Name resolver is already initialized");
 		}
@@ -224,11 +273,12 @@ return {
 	 *	Unregister all event handlers
 	 */
 	remove: function() {
-		if ( sky )
+		if ( globe )
 		{
-			sky.removeLayer( targetLayer );
-			astroNavigator.unsubscribe("modified", removeTarget);
-			sky = null;
+			globe.removeLayer( targetLayer );
+			navigation.unsubscribe("modified", removeTarget);
+			globe = null;
+			dictionnary = null;
 		}
 	},
 
