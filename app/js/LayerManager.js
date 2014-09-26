@@ -400,6 +400,7 @@ return {
 		 	var globe = this.mizar.planetContext.globe;
 			globe.setBaseImagery( gwLayer );
 			gwLayer.visible(true);
+			this.mizar.publish("backgroundLayer:change", gwLayer);
 	 	}
 
 	},
