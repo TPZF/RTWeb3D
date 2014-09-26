@@ -719,7 +719,7 @@ define( [ "jquery", "underscore-min", "./PlanetContext", "./SkyContext", "gw/Sta
 			this.planetContext.navigation.toViewMatrix(this.oldVM, this.oldFov, 2000, function() {
 				// Show all additional layers
 				skyContext.showAdditionalLayers();
-				
+
 				self.publish("mizarMode:toggle", gwLayer);
 				
 				// Destroy planet context
@@ -745,7 +745,7 @@ define( [ "jquery", "underscore-min", "./PlanetContext", "./SkyContext", "gw/Sta
 			var planetConfiguration = {
 				renderContext: this.sky.renderContext,
 				nameResolver: {
-					"zoomFov": 90000, // in fact it must be distance, to be improved
+					"zoomFov": 500000, // in fact it must be distance, to be improved
 					"baseUrl": gwLayer.nameResolverURL
 				}
 			};
@@ -753,6 +753,12 @@ define( [ "jquery", "underscore-min", "./PlanetContext", "./SkyContext", "gw/Sta
 			this.planetContext = new PlanetContext(parentElement, planetConfiguration);
 			this.planetContext.setComponentVisibility("categoryDiv", true);
 			this.planetContext.setComponentVisibility("searchDiv", true);
+
+			// Set elevation if exists
+			if ( gwLayer.elevationLayer )
+			{
+				this.planetContext.globe.setBaseElevation( gwLayer.elevationLayer );
+			}
 
 			this.activatedContext = this.planetContext;
 

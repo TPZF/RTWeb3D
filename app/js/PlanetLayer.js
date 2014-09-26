@@ -20,8 +20,8 @@
 /**
  * Planet renderer/layer module
  */
-define( [ "jquery", "gw/BaseLayer", "gw/WMSLayer", "gw/Utils" ],
-		function($, BaseLayer, WMSLayer, Utils) {
+define( [ "jquery", "gw/BaseLayer", "gw/WMSLayer", "gw/WCSElevationLayer", "gw/Utils" ],
+		function($, BaseLayer, WMSLayer, WCSElevationLayer, Utils) {
 
 /**
  * 	@constructor
@@ -45,22 +45,15 @@ var PlanetLayer = function(options)
 		gwLayer.category = "background";
 		this.layers.push(gwLayer);
 	}
+	if ( options.elevation )
+	{
+		this.elevationLayer = new WCSElevationLayer(options.elevation);
+	}
 }
 
 /**************************************************************************************************************/
 
 Utils.inherits( BaseLayer, PlanetLayer );
-
-
-/**************************************************************************************************************/
-
-/**
- *	Render
- */
-PlanetLayer.prototype.render = function()
-{
-	// No rendering
-}
 
 return PlanetLayer;
 

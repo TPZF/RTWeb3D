@@ -607,9 +607,14 @@
 		"type": "Planet",
 		"name": "Mars",
 		"nameResolverURL": "http://demonstrator.telespazio.com/mizar/data/mars_resolver.json",
+		"elevation": {
+			"baseUrl": "http://demonstrator.telespazio.com/wcspub",
+			"coverage": "MARSTOPO",
+			"version": "1.0.0",
+			"scale": 200
+		},
 		"baseImageries": [
 			{
-				"type": "WMS",
 				"name": "MOLA",
 				"baseUrl": "http://localhost/ms-mars",
 				"layers": "MOLA_Color",
@@ -621,7 +626,6 @@
 		        "attribution":"Color background provided by <a href=\"http://www.mars.asu.edu/data/\" target=\"_blank\">Mars Dataset</a>"
 			},
 			{
-				"type": "WMS",
 				"name": "MOC Atlas",
 				"baseUrl": "http://localhost/ms-mars",
 				"layers": "MOC_Atlas_256ppd",
@@ -633,7 +637,6 @@
 		        "attribution":"Color background provided by <a href=\"http://www.mars.asu.edu/data/\" target=\"_blank\">Mars Dataset</a>"
 			},
 			{
-				"type": "WMS",
 				"name": "pyroxene",
 				"baseUrl": "http://demonstrator.telespazio.com/mars",
 				"layers": "pyroxene",
@@ -644,7 +647,6 @@
 		        "attribution":"Color background provided by <a href=\"http://www.mars.asu.edu/data/\" target=\"_blank\">Mars Dataset</a>"
 			},
 			{
-				"type": "WMS",
 				"name": "THEMIS",
 				"baseUrl": "http://demonstrator.telespazio.com/mars",
 				"layers": "THEMIS",
@@ -661,6 +663,11 @@
 		"category": "Planets",
 		"type": "Planet",
 		"name": "Earth",
+		"elevation": {
+			"baseUrl":"http://demonstrator.telespazio.com/wcspub",
+			"coverage": "GTOPO",
+			"version": "1.0.0"
+		},
 		"baseImageries": [
 			{
 				"type": "WMS",
