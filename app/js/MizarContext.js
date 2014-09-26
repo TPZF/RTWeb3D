@@ -30,6 +30,20 @@ define( [ "jquery", "gw/TouchNavigationHandler", "./ErrorDialog", "./AboutDialog
 	 *	Mizar context constructor
 	 */
 	var MizarContext = function(div, options) {
+
+		this.components = {
+			"2dMapContainer": false,
+			"posTracker": false,
+			"shareContainer": false,
+			"sampContainer": false,
+			"measureContainer": false,
+			"compassDiv": false,
+			"imageViewerDiv": false,
+			"posTracker": true,
+			"categoryDiv": false,
+			"searchDiv": false
+		};
+
 		this.globe = null;	// Sky or globe
 		this.navigation = null;
 		this.parentElement = div;
@@ -137,6 +151,15 @@ define( [ "jquery", "gw/TouchNavigationHandler", "./ErrorDialog", "./AboutDialog
 	 */
 	MizarContext.prototype.show = function() {
 		this.navigation.start();
+
+		// Show UI components depending on its state
+		for ( var componentId in this.components )
+		{
+			if ( this.components[componentId] )
+			{
+				$(this.parentElement).find("#"+componentId).fadeIn(1000);
+			}
+		}
 	}
 
 	/**************************************************************************************************************/
@@ -147,6 +170,30 @@ define( [ "jquery", "gw/TouchNavigationHandler", "./ErrorDialog", "./AboutDialog
 	MizarContext.prototype.hide = function() {
 		this.navigation.stopAnimations();
 		this.navigation.stop();
+
+		// Hide all the UI components
+		for ( var componentId in this.components )
+		{
+			$(this.parentElement).find("#"+componentId).fadeOut();
+		}
+	}
+
+	/**************************************************************************************************************/
+
+	/**
+	 *	Set UI component visibility
+	 */
+	MizarContext.prototype.setComponentVisibility = function(componentId, isVisible)
+	{
+		if ( isVisible )
+		{
+			$(this.parentElement).find("#"+componentId).show();
+		}
+		else
+		{
+			$(this.parentElement).find("#"+componentId).hide();
+		}
+		this.components[componentId] = isVisible;
 	}
 
 	/**************************************************************************************************************/

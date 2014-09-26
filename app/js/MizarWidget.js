@@ -612,6 +612,7 @@ define( [ "jquery", "underscore-min", "./PlanetContext", "./SkyContext", "gw/Sta
 	 	} else {
 	 		NameResolverView.remove();
 	 	}
+	 	skyContext.setComponentVisibility("searchDiv", visible);
 	}
 
 	/**************************************************************************************************************/
@@ -621,10 +622,11 @@ define( [ "jquery", "underscore-min", "./PlanetContext", "./SkyContext", "gw/Sta
 	 */
 	MizarWidget.prototype.setCategoryGui = function(visible) {
 		if ( visible ) {
-	 		LayerManagerView.init(this, $.extend({element: $(parentElement).find(".sidebar")}, options));
+	 		LayerManagerView.init(this, $.extend({element: $(parentElement).find("#categoryDiv")}, options));
 	 	} else {
 	 		LayerManagerView.remove();
 	 	}
+	 	skyContext.setComponentVisibility("categoryDiv", visible);
 	}
 
 	/**************************************************************************************************************/
@@ -709,11 +711,12 @@ define( [ "jquery", "underscore-min", "./PlanetContext", "./SkyContext", "gw/Sta
 		var self = this;
 		if ( this.mode == "sky" ) {
 			console.log("Change planet to sky context");
-			
+			// Hide planet
+			this.planetContext.hide();
+
 			this.activatedContext = skyContext;
 			// Add smooth animation from planet context to sky context
 			this.planetContext.navigation.toViewMatrix(this.oldVM, this.oldFov, 2000, function() {
-				// Revert sky context to name resolver
 				self.publish("mizarMode:toggle", gwLayer);
 				
 				// Show all additional layers
@@ -747,6 +750,9 @@ define( [ "jquery", "underscore-min", "./PlanetContext", "./SkyContext", "gw/Sta
 			};
 			planetConfiguration = $.extend({}, options, planetConfiguration);
 			this.planetContext = new PlanetContext(parentElement, planetConfiguration);
+			this.planetContext.setComponentVisibility("categoryDiv", true);
+			this.planetContext.setComponentVisibility("searchDiv", true);
+
 			this.activatedContext = this.planetContext;
 
 			// Store old view matrix & fov to be able to rollback to sky context
@@ -760,6 +766,7 @@ define( [ "jquery", "underscore-min", "./PlanetContext", "./SkyContext", "gw/Sta
 			
 			// Add smooth animation from sky context to planet context context
 			this.navigation.toViewMatrix(planetVM, 45, 2000, function() {
+				self.planetContext.show();
 				self.planetContext.globe.refresh();
 				self.publish("mizarMode:toggle", gwLayer);
 			});

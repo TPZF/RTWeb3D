@@ -40,17 +40,6 @@ define( [ "jquery", "underscore-min", "gw/Sky", "gw/AstroNavigation", "gw/Utils"
 	var SkyContext = function(parentElement, options) {
 		MizarContext.prototype.constructor.call( this, parentElement, options );
 
-		this.components = {
-			"2dMapContainer": false,
-			"posTracker": false,
-			"shareContainer": false,
-			"sampContainer": false,
-			"measureContainer": false,
-			"compassDiv": false,
-			"imageViewerDiv": false,
-			"posTracker": true
-		};
-
 		this.initCanvas(options.canvas, parentElement);
 		
 		// Initialize sky
@@ -119,54 +108,11 @@ define( [ "jquery", "underscore-min", "gw/Sky", "gw/AstroNavigation", "gw/Utils"
 	/**************************************************************************************************************/
 
 	/**
-	 *	Set UI component visibility
-	 */
-	SkyContext.prototype.setComponentVisibility = function(componentId, isVisible)
-	{
-		if ( isVisible )
-		{
-			$(this.parentElement).find("#"+componentId).show();
-		}
-		else
-		{
-			$(this.parentElement).find("#"+componentId).hide();
-		}
-		this.components[componentId] = isVisible;
-	}
-
-	/**************************************************************************************************************/
-
-	/**
-	 *	"Show" sky context
-	 */
-	SkyContext.prototype.show = function() {
-
-		MizarContext.prototype.show.apply(this);
-
-		// Show UI components depending on its state
-		for ( var componentId in this.components )
-		{
-			if ( this.components[componentId] )
-			{
-				$(this.parentElement).find("#"+componentId).show();
-			}
-		}
-	}
-
-	/**************************************************************************************************************/
-
-	/**
 	 *	"Hide" sky component
 	 */
 	SkyContext.prototype.hide = function() {
 
 		MizarContext.prototype.hide.apply(this);
-
-		// Hide all the UI components
-		for ( var componentId in this.components )
-		{
-			$(this.parentElement).find("#"+componentId).hide();
-		}
 
 		this.globe.tileManagers["EQ"].abortRequests();
 		this.globe.tileManagers["GAL"].abortRequests();
