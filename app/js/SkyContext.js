@@ -20,110 +20,26 @@
 /**
  * Sky context
  */
-define( [ "jquery", "underscore-min", "gw/Sky", "gw/AstroNavigation", "gw/TouchNavigationHandler",
-	"./LayerManager", "./ErrorDialog", "./AboutDialog", "./PositionTracker", "jquery.ui"],
-	function($, _, Sky, AstroNavigation, TouchNavigationHandler,
-			LayerManager, ErrorDialog, AboutDialog, PositionTracker) {
-
-	/**
-	 *	Private variables
-	 */
-	var aboutShowed = false;
-	var parentElement;
-	var options;
-
-	/**************************************************************************************************************/
-
-	/**
-	 *	Hide loading and show about on first connection
-	 */
-	var _showAbout = function()
-	{
-		// Show about information only at the end of first loading
-		if ( localStorage.showAbout == undefined && !aboutShowed )
-		{
-			AboutDialog.show();
-			aboutShowed = true;
-		}
-
-		$(parentElement).find('#loading').hide(300);
-	}
-
-	/**************************************************************************************************************/
-
-	/**
-	 *	Init canvas width/height & context-lost event
-	 */
-	var _initCanvas = function(canvas, parentElement) {
-		// Set canvas dimensions from width/height attributes
-		var width = $(parentElement).attr("width");
-		if ( !width )
-		{
-			// Use window width by default if not defined
-			width = window.innerWidth;
-		}
-
-		var height = $(parentElement).attr("height");
-		if ( !height )
-		{
-			// Use window height if not defined
-			height = window.innerHeight;
-		}
-		canvas.width = width;
-		canvas.height = height;
-		
-		// Add some useful css properties to parent element
-		$(parentElement).css({
-			position: "relative",
-			width: canvas.width,
-			height: canvas.height,
-			overflow: "hidden"
-		});
-		
-		// Take into account window resize
-		$(window).resize(function() {
-			if ( canvas.width !=  window.innerWidth ) 
-				canvas.width = window.innerWidth;
-			if ( canvas.height != window.innerHeight )
-				canvas.height = window.innerHeight;
-		});
-
-		// Context lost listener
-		canvas.addEventListener("webglcontextlost", function(event) {
-			// TODO
-			event.preventDefault();
-			document.getElementById('loading').style.display = "none";
-			document.getElementById('webGLContextLost').style.display = "block";
-		}, false);
-	}
-
-	/**************************************************************************************************************/
-
-	/**
-	 *	Initialize globe events
-	 */
-	var _initGlobeEvents = function(globe) {
-		// When base layer is ready, hide loading
-		globe.subscribe("baseLayersReady", _showAbout);
-
-		// When base layer failed to load, open error dialog
-		globe.subscribe("baseLayersError", function(layer){
-
-			$(parentElement).find('#loading').hide();
-			// TODO : handle multiple errors !
-			var layerType = layer.id == 0 ? " background layer " : " additional layer ";
-			ErrorDialog.open("<p>The"+ layerType + "<span style='color: orange'>"+layer.name+"</span> can not be displayed.</p>\
-			 <p>First check if data source related to this layer is still accessible. Otherwise, check your Sitools2 configuration.</p>");
-		});
-	}
+define( [ "jquery", "underscore-min", "gw/Sky", "gw/AstroNavigation", "gw/Utils",
+	"./MizarContext","./LayerManager", "./PositionTracker", "jquery.ui"],
+	function($, _, Sky, AstroNavigation, Utils,
+			MizarContext, LayerManager, PositionTracker) {
 
 	/**************************************************************************************************************/
 
 	/**
 	 *	Sky context constructor
+	 *	@param parentElement
+	 *		Element containing the canvas
+	 *	@param options Configuration properties for the Globe
+	 *		<ul>
+	 *			<li>canvas : the canvas for WebGL, can be string (id) or a canvas element</li>
+	 *			<li>Same as Mizar options</li>
+	 *		</ul>
 	 */
-	var SkyContext = function(canvas, div, options) {
-		var self = this;
+	var SkyContext = function(parentElement, options) {
+		MizarContext.prototype.constructor.call( this, parentElement, options );
+
 		this.components = {
 			"2dMapContainer": false,
 			"posTracker": false,
@@ -134,19 +50,15 @@ define( [ "jquery", "underscore-min", "gw/Sky", "gw/AstroNavigation", "gw/TouchN
 			"imageViewerDiv": false,
 			"posTracker": true
 		};
-		this.sky = null;
-		this.navigation = null;
-		this.canvas = canvas;
-		parentElement = div;
 
-		_initCanvas(canvas, div);
+		this.initCanvas(options.canvas, parentElement);
 		
 		// Initialize sky
 		try
 		{
 			// Create the sky
-			this.sky = new Sky( { 
-				canvas: canvas, 
+			this.globe = new Sky( { 
+				canvas: options.canvas, 
 				tileErrorTreshold: 1.5,
 				continuousRendering: options.continuousRendering,
 				radius: 10.,
@@ -155,26 +67,21 @@ define( [ "jquery", "underscore-min", "gw/Sky", "gw/AstroNavigation", "gw/TouchN
 		}
 		catch (err)
 		{
-			document.getElementById('SkyCanvas').style.display = "none";
+			document.getElementById('GlobWebCanvas').style.display = "none";
 			document.getElementById('loading').style.display = "none";
 			document.getElementById('webGLNotAvailable').style.display = "block";
 		}
-		_initGlobeEvents(this.sky);
-		
-		// Add touch navigation handler if client supports touch events
-		if( this.isMobile ) {
-		    // Mobile
-			options.navigation.handlers = [ new TouchNavigationHandler({ inversed: true, zoomOnDblClick: true }) ];
-			window.addEventListener("orientationchange", function() {
-				self.sky.renderContext.requestFrame();
-			}, false);
-		}
-		this.navigation = new AstroNavigation(this.sky, options.navigation);
+		this.initGlobeEvents(this.globe);
+		this.navigation = new AstroNavigation(this.globe, options.navigation);
 
 		// Eye position tracker initialization
-		PositionTracker.init({ element: "posTracker", globe: this.sky, navigation : this.navigation, isMobile: this.isMobile, positionTracker: options.positionTracker });
+		PositionTracker.init({ element: "posTracker", globe: this.globe, navigation : this.navigation, isMobile: this.isMobile, positionTracker: options.positionTracker });
 	}
 	
+	/**************************************************************************************************************/
+
+	Utils.inherits( MizarContext, SkyContext );
+
 	/**************************************************************************************************************/
 	
 	/**
@@ -218,11 +125,11 @@ define( [ "jquery", "underscore-min", "gw/Sky", "gw/AstroNavigation", "gw/TouchN
 	{
 		if ( isVisible )
 		{
-			$(parentElement).find("#"+componentId).show();
+			$(this.parentElement).find("#"+componentId).show();
 		}
 		else
 		{
-			$(parentElement).find("#"+componentId).hide();
+			$(this.parentElement).find("#"+componentId).hide();
 		}
 		this.components[componentId] = isVisible;
 	}
@@ -233,16 +140,17 @@ define( [ "jquery", "underscore-min", "gw/Sky", "gw/AstroNavigation", "gw/TouchN
 	 *	"Show" sky context
 	 */
 	SkyContext.prototype.show = function() {
+
+		MizarContext.prototype.show.apply(this);
+
 		// Show UI components depending on its state
 		for ( var componentId in this.components )
 		{
 			if ( this.components[componentId] )
 			{
-				$(parentElement).find("#"+componentId).show();
+				$(this.parentElement).find("#"+componentId).show();
 			}
 		}
-
-		this.navigation.start();
 	}
 
 	/**************************************************************************************************************/
@@ -251,16 +159,17 @@ define( [ "jquery", "underscore-min", "gw/Sky", "gw/AstroNavigation", "gw/TouchN
 	 *	"Hide" sky component
 	 */
 	SkyContext.prototype.hide = function() {
+
+		MizarContext.prototype.hide.apply(this);
+
 		// Hide all the UI components
 		for ( var componentId in this.components )
 		{
-			$(parentElement).find("#"+componentId).hide();
+			$(this.parentElement).find("#"+componentId).hide();
 		}
 
-		this.sky.tileManagers["EQ"].abortRequests();
-		this.sky.tileManagers["GAL"].abortRequests();
-		this.navigation.stopAnimations();
-		this.navigation.stop();
+		this.globe.tileManagers["EQ"].abortRequests();
+		this.globe.tileManagers["GAL"].abortRequests();
 	}
 
 	/**************************************************************************************************************/

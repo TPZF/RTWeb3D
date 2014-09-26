@@ -267,16 +267,16 @@ define( [ "jquery", "underscore-min", "./PlanetContext", "./SkyContext", "gw/Sta
 		_applySharedParameters(options);
 		
 		// Initialize sky&globe contexts
-		skyContext = new SkyContext($(div).find('#GlobWebCanvas')[0], div, options);
+		skyContext = new SkyContext(div, $.extend({canvas: $(div).find('#GlobWebCanvas')[0]}, options));
 		
 		// TODO : Extend GlobWeb base layer to be able to publish events by itself
 		// to avoid the following useless call
 		var self = this;
-		skyContext.sky.subscribe("features:added", function(featureData) {
+		skyContext.globe.subscribe("features:added", function(featureData) {
 			self.publish("features:added", featureData);
 		});
 
-		this.sky = skyContext.sky;
+		this.sky = skyContext.globe;
 		this.navigation = skyContext.navigation;
 
 		// Add stats
@@ -741,7 +741,7 @@ define( [ "jquery", "underscore-min", "./PlanetContext", "./SkyContext", "gw/Sta
 			PickingManager.deactivate();
 
 			// Create planet context( with existing sky render context )
-			this.planetContext = new PlanetContext(this.sky.renderContext,/*$(parentElement).find('#GlobWebCanvas')[0],*/ parentElement, options);
+			this.planetContext = new PlanetContext(parentElement, $.extend({renderContext: this.sky.renderContext}, options));
 
 			// Reinit name resolver
 			// TODO: refactor to be able to just set the new context

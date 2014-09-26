@@ -19,125 +19,34 @@
 
 /**
  * Planet context
- * TODO: unify with SkyContext ?
  */
-define( [ "jquery", "underscore-min", "gw/Globe", "gw/Navigation", "gw/TouchNavigationHandler",
-	"./ErrorDialog", "./AboutDialog", "jquery.ui"],
-	function($, _, Globe, Navigation, TouchNavigationHandler,
-			ErrorDialog, AboutDialog) {
-
-	/**
-	 *	Private variables
-	 */
-	
-	var aboutShowed = false;
-	var parentElement;
-	var options;
-
-	/**************************************************************************************************************/
-
-	/**
-	 *	Hide loading and show about on first connection
-	 */
-	var _showAbout = function()
-	{
-		// Show about information only at the end of first loading
-		if ( localStorage.showAbout == undefined && !aboutShowed )
-		{
-			AboutDialog.show();
-			aboutShowed = true;
-		}
-
-		$(parentElement).find('#loading').hide(300);
-	}
-
-	/**************************************************************************************************************/
-
-	/**
-	 *	Init canvas width/height & context-lost event
-	 */
-	var _initCanvas = function(canvas, parentElement) {
-		// Set canvas dimensions from width/height attributes
-		var width = $(parentElement).attr("width");
-		if ( !width )
-		{
-			// Use window width by default if not defined
-			width = window.innerWidth;
-		}
-
-		var height = $(parentElement).attr("height");
-		if ( !height )
-		{
-			// Use window height if not defined
-			height = window.innerHeight;
-		}
-		canvas.width = width;
-		canvas.height = height;
-		
-		// Add some useful css properties to parent element
-		$(parentElement).css({
-			position: "relative",
-			width: canvas.width,
-			height: canvas.height,
-			overflow: "hidden"
-		});
-		
-		// Take into account window resize
-		$(window).resize(function() {
-			if ( canvas.width !=  window.innerWidth ) 
-				canvas.width = window.innerWidth;
-			if ( canvas.height != window.innerHeight )
-				canvas.height = window.innerHeight;
-		});
-
-		// Context lost listener
-		canvas.addEventListener("webglcontextlost", function(event) {
-			// TODO
-			event.preventDefault();
-			document.getElementById('loading').style.display = "none";
-			document.getElementById('webGLContextLost').style.display = "block";
-		}, false);
-	}
-
-	/**************************************************************************************************************/
-
-	/**
-	 *	Initialize globe events
-	 */
-	var _initGlobeEvents = function(globe) {
-		// When base layer is ready, hide loading
-		globe.subscribe("baseLayersReady", _showAbout);
-
-		// When base layer failed to load, open error dialog
-		globe.subscribe("baseLayersError", function(layer){
-
-			$(parentElement).find('#loading').hide();
-			// TODO : handle multiple errors !
-			var layerType = layer.id == 0 ? " background layer " : " additional layer ";
-			ErrorDialog.open("<p>The"+ layerType + "<span style='color: orange'>"+layer.name+"</span> can not be displayed.</p>\
-			 <p>First check if data source related to this layer is still accessible. Otherwise, check your Sitools2 configuration.</p>");
-		});
-	}
+define( [ "jquery", "gw/Globe", "gw/Navigation", "gw/Utils", "./MizarContext", "jquery.ui"],
+	function($, Globe, Navigation, Utils, MizarContext) {
 
 	/**************************************************************************************************************/
 
 	/**
 	 *	PlanetContext constructor
+	 *
+	 *	@param parentElement
+	 *		Element containing the canvas
+	 *	@param options Configuration properties for the Globe
+	 *		<ul>
+	 *			<li>renderContext : Sky <RenderContext> object</li>
+	 *			<li>Same as Mizar options</li>
+	 *		</ul>
 	 */
-	var PlanetContext = function(renderContext, div, options) {
-		
-		this.globe = null;
-		this.navigation = null;
-		parentElement = div;
-		
+	var PlanetContext = function(parentElement, options) {
+
+		MizarContext.prototype.constructor.call( this, parentElement, options );
+			
 		// Initialize globe
 		try
 		{
 			this.globe = new Globe( {
-				lighting: false,
 				tileErrorTreshold: 3, 
 				continuousRendering: false,
-				renderContext: renderContext
+				renderContext: options.renderContext
 			} );
 		}
 		catch (err)
@@ -146,44 +55,16 @@ define( [ "jquery", "underscore-min", "gw/Globe", "gw/Navigation", "gw/TouchNavi
 			document.getElementById('loading').style.display = "none";
 			document.getElementById('webGLNotAvailable').style.display = "block";
 		}
-		_initGlobeEvents(this.globe);
+		this.initGlobeEvents(this.globe);
 		
-		// TODO : Extend GlobWeb base layer to be able to publish events by itself
-		// to avoid the following useless call
-		this.globe.subscribe("features:added", function(featureData) {
-			self.publish("features:added", featureData);
-		});
-		
-		var self = this;
-		// Add touch navigation handler if client supports touch events
-		if( this.isMobile ) {
-		    // Mobile
-			options.navigation.handlers = [ new TouchNavigationHandler({ inversed: true, zoomOnDblClick: true }) ];
-			window.addEventListener("orientationchange", function() {
-				self.globe.renderContext.requestFrame();
-			}, false);
-		}
-		// Don't update view matrix on creation, since we want to use animation
+		// Don't update view matrix on creation, since we want to use animation on context change
 		options.navigation.updateViewMatrix = false;
 		this.navigation = new Navigation(this.globe, options.navigation);
 	}
 
 	/**************************************************************************************************************/
 
-	/**
-	 *	"Show" planet context
-	 */
-	PlanetContext.prototype.show = function() {
-		this.navigation.start();
-	}
-
-	/**
-	 *	"Hide" planet context
-	 */
-	PlanetContext.prototype.hide = function() {
-		this.navigation.stopAnimations();
-		this.navigation.stop();
-	}
+	Utils.inherits( MizarContext, PlanetContext );
 
 	/**************************************************************************************************************/
 
