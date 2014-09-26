@@ -717,10 +717,11 @@ define( [ "jquery", "underscore-min", "./PlanetContext", "./SkyContext", "gw/Sta
 			this.activatedContext = skyContext;
 			// Add smooth animation from planet context to sky context
 			this.planetContext.navigation.toViewMatrix(this.oldVM, this.oldFov, 2000, function() {
-				self.publish("mizarMode:toggle", gwLayer);
-				
 				// Show all additional layers
 				skyContext.showAdditionalLayers();
+				
+				self.publish("mizarMode:toggle", gwLayer);
+				
 				// Destroy planet context
 				self.planetContext.destroy();
 				self.planetContext = null;
