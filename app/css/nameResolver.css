@@ -4,6 +4,7 @@
 
 #searchDiv {
 	pointer-events: auto;
+	padding-bottom: 10px;
 }
 
 /*** Form for enter validating ***/
