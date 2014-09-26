@@ -268,6 +268,7 @@ define( [ "jquery", "underscore-min", "./PlanetContext", "./SkyContext", "gw/Sta
 		
 		// Initialize sky&globe contexts
 		skyContext = new SkyContext(div, $.extend({canvas: $(div).find('#GlobWebCanvas')[0]}, options));
+		this.activatedContext = skyContext;
 		
 		// TODO : Extend GlobWeb base layer to be able to publish events by itself
 		// to avoid the following useless call
@@ -607,7 +608,7 @@ define( [ "jquery", "underscore-min", "./PlanetContext", "./SkyContext", "gw/Sta
 	 */
 	MizarWidget.prototype.setNameResolverGui = function(visible) {
 	 	if ( visible ) {
-	 		NameResolverView.init(this.sky);
+	 		NameResolverView.init(this);
 	 	} else {
 	 		NameResolverView.remove();
 	 	}
@@ -709,11 +710,12 @@ define( [ "jquery", "underscore-min", "./PlanetContext", "./SkyContext", "gw/Sta
 		if ( this.mode == "sky" ) {
 			console.log("Change planet to sky context");
 			
+			this.activatedContext = skyContext;
 			// Add smooth animation from planet context to sky context
 			this.planetContext.navigation.toViewMatrix(this.oldVM, this.oldFov, 2000, function() {
 				// Revert sky context to name resolver
-				NameResolverView.setContext(skyContext);
-
+				self.publish("mizarMode:toggle", gwLayer);
+				
 				// Show all additional layers
 				skyContext.showAdditionalLayers();
 				// Destroy planet context
@@ -723,7 +725,6 @@ define( [ "jquery", "underscore-min", "./PlanetContext", "./SkyContext", "gw/Sta
 				PickingManager.activate();
 				skyContext.show();
 				self.sky.refresh();
-				self.publish("mizarMode:toggle", gwLayer);
 			});
 
 		} else {
@@ -746,17 +747,7 @@ define( [ "jquery", "underscore-min", "./PlanetContext", "./SkyContext", "gw/Sta
 			};
 			planetConfiguration = $.extend({}, options, planetConfiguration);
 			this.planetContext = new PlanetContext(parentElement, planetConfiguration);
-
-			// Set context to name resolver
-			if ( gwLayer.nameResolverURL )
-			{
-				// Set planet context to name resolver
-				NameResolverView.setContext(this.planetContext);
-			}
-			else
-			{
-				NameResolverView.remove();
-			}
+			this.activatedContext = this.planetContext;
 
 			// Store old view matrix & fov to be able to rollback to sky context
 			this.oldVM = this.sky.renderContext.viewMatrix;

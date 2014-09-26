@@ -49,7 +49,8 @@ var $resolverSearchResult;
 // Name resolver globals
 var response;
 var animationDuration = 300;
-var globe;
+var mizar;
+var self;
 
 /**************************************************************************************************************/
 
@@ -141,7 +142,7 @@ function _showResults(data)
 	for ( var i=0; i<response.features.length; i++)
 	{
 		var astro = Utils.formatCoordinates([ response.features[i].geometry.coordinates[0], response.features[i].geometry.coordinates[1] ]);
-		var result = nameResolverResultTemplate( { properties: response.features[i].properties, lon: astro[0], lat: astro[1], type: globe.coordinateSystem.type } );
+		var result = nameResolverResultTemplate( { properties: response.features[i].properties, lon: astro[0], lat: astro[1], type: mizar.activatedContext.globe.coordinateSystem.type } );
 		output+=result;
 	}
 	
@@ -276,12 +277,16 @@ return {
 	/**
 	 *	Init
 	 *
-	 *	@param g
-	 *		Globe
+	 *	@param m
+	 *		Mizar
 	 */
-	init: function(g) {
-		globe = g;
+	init: function(m) {
+		mizar = m;
+		self = this;
 		if ( !$nameResolver ) {
+			
+			// Update name resolver context when mizar mode has been toggled
+			mizar.subscribe("mizarMode:toggle", this.onModeToggle);
 
 			// TODO : replace searchDiv by "parentElement"
 			$nameResolver = $(nameResolverHTML).appendTo('#searchDiv');
@@ -309,10 +314,29 @@ return {
 			// Clear search result field when pan
 			$('canvas').off('click', _clearResults);
 			
-			$('#searchDiv').find('#resolverSearchResult').off("click", '.nameResolverResult', _zoomToResult);
+			$resolverSearchResult.off("click", '.nameResolverResult', _zoomToResult);
 			$nameResolver.find('#searchClear').off('click', _clearInput);
 			$nameResolver.remove();
 			$nameResolver = null;
+
+			mizar.unsubscribe("mizarMode:toggle", this.onModeToggle);
+			mizar = null;
+		}
+	},
+
+	/**
+	 *	Handler on mizar mode toggle
+	 */
+	onModeToggle: function(planetLayer)
+	{
+		if ( !planetLayer || planetLayer.nameResolverURL )
+		{
+			$nameResolver.show();
+			self.setContext(mizar.activatedContext);
+		}
+		else
+		{
+			$nameResolver.hide();		
 		}
 	},
 
@@ -321,8 +345,8 @@ return {
 	 */
 	 setContext: function(ctx) {
 	 	NameResolver.setContext(ctx);
-	 	globe = ctx.globe;
-	 	_clearResults();
+	 	_clearInput();
+		$resolverSearchResult.css("display", "none");
 	 }
 };
 

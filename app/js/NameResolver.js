@@ -281,6 +281,9 @@ return {
 	goTo: search,
 	zoomTo: zoomTo,
 
+	/**
+	 *	Set context
+	 */
 	setContext: function(ctx)
 	{
 		// Remove previous context
