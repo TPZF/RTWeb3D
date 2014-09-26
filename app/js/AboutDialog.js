@@ -80,8 +80,8 @@ return {
 							$(this).remove();
 						}
 					});
+			$about.dialog( "open" );
 		}
-		$about.dialog( "open" );
 	}
 };
 
