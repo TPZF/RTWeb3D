@@ -25,14 +25,8 @@ define(["jquery", "gw/FeatureStyle", "gw/VectorLayer", "gw/HEALPixBase", "./Util
 
 // Name resolver globals
 var mizar;
-var globe;
-var navigation;
-var dictionnary;
-var configuration = {
-	"nameResolver": {
-		zoomFov: 15.
-	}
-};
+var context;
+var dictionary;
 
 // Target layer
 var targetLayer;
@@ -74,6 +68,7 @@ function addTarget(lon, lat)
  */
 function search(objectName, onSuccess, onError, onComplete)
 {
+	var globe = context.globe;
 	// regexp used only to distinct equatorial coordinates and objects
 	// TODO more accurate ( "x < 24h", "x < 60mn", etc.. )
 	objectName = objectName.replace(/\s{2,}/g, ' '); // Replace multiple spaces by a single one
@@ -136,10 +131,10 @@ function search(objectName, onSuccess, onError, onComplete)
 	}
 	else
 	{
-		if ( dictionnary )
+		if ( dictionary )
 		{
 			// Planet resolver(Mars only currently)
-			var feature = _.find(dictionnary.features, function(f){
+			var feature = _.find(dictionary.features, function(f){
 				return f.properties.Name.toLowerCase() == objectName.toLowerCase();
 			});
 
@@ -147,7 +142,7 @@ function search(objectName, onSuccess, onError, onComplete)
 			{
 				var lon = parseFloat(feature.properties.center_lon);
 				var lat = parseFloat(feature.properties.center_lat);
-				mizar.planetContext.navigation.zoomTo( [lon, lat], configuration.zoomFov, 2000 );
+				context.navigation.zoomTo( [lon, lat], context.configuration.nameResolver.zoomFov, 2000 );
 				setTimeout(function(){
 					addTarget(lon, lat);
 				}, 2040); // Very very veeery ugly hack to show target at the end of animation
@@ -167,7 +162,7 @@ function search(objectName, onSuccess, onError, onComplete)
 		{
 			// Service
 			// Name of the object which could be potentially found by name resolver
-			var url = configuration.baseUrl + "/" + objectName + "/EQUATORIAL";
+			var url = context.configuration.nameResolver.baseUrl + "/" + objectName + "/EQUATORIAL";
 
 			$.ajax({
 				type: "GET",
@@ -207,7 +202,7 @@ function search(objectName, onSuccess, onError, onComplete)
  */
 function zoomTo(lon, lat)
 {
-	navigation.zoomTo([lon, lat], configuration.zoomFov, 3000, function() {
+	context.navigation.zoomTo([lon, lat], context.configuration.nameResolver.zoomFov, 3000, function() {
 		addTarget(lon,lat);
 		mizar.publish("goTo:finished");
 	} );
@@ -229,41 +224,42 @@ function removeTarget()
 
 /**************************************************************************************************************/
 
+/**
+ *	In case if base url isn't a service but a json containing all known places
+ *	this method allows to retrieve it
+ */
+var retrieveDictionary = function()
+{
+	var containsDictionary = context.configuration.nameResolver.baseUrl.indexOf("json") >= 0;
+	if ( containsDictionary )
+	{
+		// Dictionary as json
+		$.ajax({
+			type: "GET",
+			url: context.configuration.nameResolver.baseUrl,
+			success: function(response)
+			{
+				dictionary = response;
+			},
+			error: function(thrownError)
+			{
+				console.error(thrownError);
+			}
+		})
+	}
+	else
+	{
+		dictionary = null;
+	}
+}
+
+/**************************************************************************************************************/
+
 return {
-	init: function(m, g, nav, conf) {
-		mizar = m;
-
-		if ( conf.nameResolver.baseUrl.indexOf("json") >= 0 )
-		{
-			// Dictionnary as json
-			$.ajax({
-				type: "GET",
-				url: conf.nameResolver.baseUrl,
-				success: function(response)
-				{
-					dictionnary = response;
-				},
-				error: function(thrownError)
-				{
-					console.error(thrownError);
-				}
-			})
-		}
-
-		if ( !globe ) {
-			configuration = conf;
-			var style = new FeatureStyle({
-				iconUrl: configuration.mizarBaseUrl + "css/images/target.png",
-				fillColor: [1., 1., 1., 1.]
-			});
-			targetLayer = new VectorLayer({ style: style });
-
-			globe = g;
-			navigation = nav;
-			configuration = $.extend(conf['nameResolver'], configuration['nameResolver']);
-
-			globe.addLayer( targetLayer );
-			navigation.subscribe("modified", removeTarget);
+	init: function(m, ctx) {
+		if ( !context ) {
+			mizar = m;
+			this.setContext(ctx);
 		} else {
 			console.error("Name resolver is already initialized");
 		}
@@ -273,17 +269,34 @@ return {
 	 *	Unregister all event handlers
 	 */
 	remove: function() {
-		if ( globe )
+		if ( context )
 		{
-			globe.removeLayer( targetLayer );
-			navigation.unsubscribe("modified", removeTarget);
-			globe = null;
-			dictionnary = null;
+			context.globe.removeLayer( targetLayer );
+			context.navigation.unsubscribe("modified", removeTarget);
+			context = null;
+			dictionary = null;
 		}
 	},
 
 	goTo: search,
-	zoomTo: zoomTo
+	zoomTo: zoomTo,
+
+	setContext: function(ctx)
+	{
+		// Remove previous context
+		this.remove();
+		context = ctx;
+		
+		retrieveDictionary();
+		var style = new FeatureStyle({
+			iconUrl: ctx.configuration.mizarBaseUrl + "css/images/target.png",
+			fillColor: [1., 1., 1., 1.]
+		});
+		targetLayer = new VectorLayer({ style: style });
+
+		ctx.globe.addLayer( targetLayer );
+		ctx.navigation.subscribe("modified", removeTarget);
+	}
 };
 
 });

@@ -18,12 +18,11 @@
 ******************************************************************************/ 
 
 /**
- * Mizar context
+ *	Abstract class for mizar context
+ *	Implemented by SkyContext and PlanetContext
  */
-define( [ "jquery", "gw/TouchNavigationHandler",
-	"./ErrorDialog", "./AboutDialog", "jquery.ui"],
-	function($, TouchNavigationHandler,
-			ErrorDialog, AboutDialog) {
+define( [ "jquery", "gw/TouchNavigationHandler", "./ErrorDialog", "./AboutDialog", "jquery.ui"],
+	function($, TouchNavigationHandler,	ErrorDialog, AboutDialog) {
 
 	/**************************************************************************************************************/
 
@@ -35,6 +34,7 @@ define( [ "jquery", "gw/TouchNavigationHandler",
 		this.navigation = null;
 		this.parentElement = div;
 		this.aboutShown = false;
+		this.configuration = options;
 		
 		// Add touch navigation handler if client supports touch events
 		if( options.isMobile ) {

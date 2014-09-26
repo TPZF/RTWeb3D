@@ -49,7 +49,7 @@ var $resolverSearchResult;
 // Name resolver globals
 var response;
 var animationDuration = 300;
-var sky;
+var globe;
 
 /**************************************************************************************************************/
 
@@ -141,7 +141,7 @@ function _showResults(data)
 	for ( var i=0; i<response.features.length; i++)
 	{
 		var astro = Utils.formatCoordinates([ response.features[i].geometry.coordinates[0], response.features[i].geometry.coordinates[1] ]);
-		var result = nameResolverResultTemplate( { properties: response.features[i].properties, lon: astro[0], lat: astro[1], type: sky.coordinateSystem.type } );
+		var result = nameResolverResultTemplate( { properties: response.features[i].properties, lon: astro[0], lat: astro[1], type: globe.coordinateSystem.type } );
 		output+=result;
 	}
 	
@@ -276,11 +276,11 @@ return {
 	/**
 	 *	Init
 	 *
-	 *	@param s
-	 *		Sky
+	 *	@param g
+	 *		Globe
 	 */
-	init: function(s) {
-		sky = s;
+	init: function(g) {
+		globe = g;
 		if ( !$nameResolver ) {
 
 			// TODO : replace searchDiv by "parentElement"
@@ -314,7 +314,16 @@ return {
 			$nameResolver.remove();
 			$nameResolver = null;
 		}
-	}
+	},
+
+	/**
+	 *	Set new context
+	 */
+	 setContext: function(ctx) {
+	 	NameResolver.setContext(ctx);
+	 	globe = ctx.globe;
+	 	_clearResults();
+	 }
 };
 
 });

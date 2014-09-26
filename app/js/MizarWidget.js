@@ -295,7 +295,7 @@ define( [ "jquery", "underscore-min", "./PlanetContext", "./SkyContext", "gw/Sta
 		new AttributionHandler( this.sky, {element: 'attributions'});
 		
 		// Initialize name resolver
-		NameResolver.init(this, this.sky, this.navigation, options);
+		NameResolver.init(this, skyContext, options);
 
 		// Create layers from configuration file
 		LayerManager.init(this, options);
@@ -711,12 +711,8 @@ define( [ "jquery", "underscore-min", "./PlanetContext", "./SkyContext", "gw/Sta
 			
 			// Add smooth animation from planet context to sky context
 			this.planetContext.navigation.toViewMatrix(this.oldVM, this.oldFov, 2000, function() {
-				// Reinit name resolver
-				// TODO: refactor it!!! To be able to just set the context
-				NameResolver.remove();
-				NameResolverView.remove();
-				NameResolver.init(self, self.sky, self.navigation, options)
-				NameResolverView.init(self.sky);
+				// Revert sky context to name resolver
+				NameResolverView.setContext(skyContext);
 
 				// Show all additional layers
 				skyContext.showAdditionalLayers();
@@ -741,21 +737,21 @@ define( [ "jquery", "underscore-min", "./PlanetContext", "./SkyContext", "gw/Sta
 			PickingManager.deactivate();
 
 			// Create planet context( with existing sky render context )
-			this.planetContext = new PlanetContext(parentElement, $.extend({renderContext: this.sky.renderContext}, options));
+			var planetConfiguration = {
+				renderContext: this.sky.renderContext,
+				nameResolver: {
+					"zoomFov": 90000, // in fact it must be distance, to be improved
+					"baseUrl": gwLayer.nameResolverURL
+				}
+			};
+			planetConfiguration = $.extend({}, options, planetConfiguration);
+			this.planetContext = new PlanetContext(parentElement, planetConfiguration);
 
-			// Reinit name resolver
-			// TODO: refactor to be able to just set the new context
-			NameResolver.remove();
+			// Set context to name resolver
 			if ( gwLayer.nameResolverURL )
 			{
-				var currentNROptions = {
-					"mizarBaseUrl": options.mizarBaseUrl,
-					"nameResolver" : {
-						"zoomFov": 90000, // in fact it must be distance, to be improved
-						"baseUrl": gwLayer.nameResolverURL
-					}
-				}
-				NameResolver.init(self, self.planetContext.globe, self.planetContext.navigation, currentNROptions);
+				// Set planet context to name resolver
+				NameResolverView.setContext(this.planetContext);
 			}
 			else
 			{
