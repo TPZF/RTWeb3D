@@ -84,28 +84,14 @@ function handleDrop(evt) {
 		else
 		{
 			reader.onloadend = function(e) {
-
 				if ( this.result.search('<?xml') > 0 )
 				{
-					$.ajax({
-						type: "GET",
-						url: votable2geojsonBaseUrl,
-						data: {
-							url: proxyUrl,
-							coordSystem: "EQUATORIAL"
-						},
-						success: function(response)
-						{
-
-							var gwLayer = LayerManager.createLayerFromGeoJson(name, response);
-							AdditionalLayersView.addView( gwLayer );
-							$('#loading').hide();
-						},
-						error: function(thrownError)
-						{
-							console.error(thrownError);
-						}
-					});
+					// Handle xml votable
+					mizar.convertVotable2JsonFromXML( this.result, function(response){
+						var gwLayer = LayerManager.createLayerFromGeoJson(name, response);
+						AdditionalLayersView.addView( gwLayer );
+						$('#loading').hide();
+					} );
 				}
 				else
 				{

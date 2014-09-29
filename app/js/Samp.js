@@ -141,47 +141,11 @@ function createClientTracker()
 			var params = message["samp.params"];
 	        var origUrl = params["url"];
 	        var proxyUrl = clientTracker.connection.translateUrl(origUrl);
-	        var xhr = samp.XmlRpcClient.createXHR();
-	        var e;
-	        xhr.open("GET", proxyUrl);
-	        xhr.onload = function() {
-	            var xml = xhr.responseXML;
-	            if (xml) {
-	            	try {
-	                    // Send response of xml to SiTools2 to convert it to GeoJSON
-	                    $.ajax({
-	                    	type: "POST",
-	                    	url: votable2geojsonBaseUrl,
-	                    	data: {
-	                    		votable: xhr.responseText,
-								coordSystem: "EQUATORIAL"
-	                    	},
-	                    	success: function(response)
-	                    	{
-	                 			// Add feature collection
-								JsonProcessor.handleFeatureCollection( sampLayer, response );
-								sampLayer.addFeatureCollection( response );
-	                    	},
-	                    	error: function(thrownError)
-	                    	{
-	                    		console.error(thrownError);
-	                    	}
-	                    });
-	                }
-	                catch (e) {
-	                    console.log("Error displaying table:\n" +
-	                    e.toString());
-	                }
-	            }
-	            else {
-	                console.log("No XML response");
-	            }
-	        };
-	        xhr.onerror = function(err) {
-	            console.log("Error getting table " + origUrl + "\n" +
-	                            "(" + err + ")");
-	        };
-	        xhr.send(null);
+	        mizar.convertVotable2JsonFromURL( proxyUrl, function(response) {
+				// Add feature collection
+				JsonProcessor.handleFeatureCollection( sampLayer, response );
+				sampLayer.addFeatureCollection( response );
+	        } );
 		}
 		else
 		{

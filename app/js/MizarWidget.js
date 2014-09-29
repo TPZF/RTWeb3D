@@ -724,6 +724,63 @@ define( [ "jquery", "underscore-min", "./PlanetContext", "./SkyContext", "gw/Til
 	/**************************************************************************************************************/
 
 	/**
+	 *	Convert votable to json from url
+	 */
+	MizarWidget.prototype.convertVotable2JsonFromURL = function(url, callback) {
+		var xhr = new XMLHttpRequest();
+		xhr.open("GET", url);
+		var self = this;
+		xhr.onload = function() {
+		    var xml = xhr.responseXML;
+		    if (xml) {
+		    	self.convertVotable2JsonFromXML(xhr.responseText, callback);
+		    }
+		    else {
+		        console.log("No XML response");
+		    }
+		};
+		xhr.onerror = function(err) {
+		    console.log("Error getting table " + url + "\n" +
+		                    "(" + err + ")");
+		};
+		xhr.send(null);
+	};
+
+	/**************************************************************************************************************/
+
+	/**
+	 *	Convert votable to json from xml
+	 */
+	MizarWidget.prototype.convertVotable2JsonFromXML = function(xml, callback)
+	{
+		try {
+            // Send response of xml to SiTools2 to convert it to GeoJSON
+            $.ajax({
+            	type: "POST",
+            	url: options.votable2geojson.baseUrl,
+            	data: {
+            		votable: xml,
+					coordSystem: "EQUATORIAL"
+            	},
+            	success: function(response)
+            	{
+         			callback(response);
+            	},
+            	error: function(thrownError)
+            	{
+            		console.error(thrownError);
+            	}
+            });
+        }
+        catch (e) {
+            console.log("Error displaying table:\n" +
+            e.toString());
+        }
+	}
+
+	/**************************************************************************************************************/
+
+	/**
 	 *	Toggle between planet/sky mode
 	 */
 	MizarWidget.prototype.toggleMode = function(gwLayer) {
