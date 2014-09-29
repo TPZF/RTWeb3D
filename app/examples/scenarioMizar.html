@@ -19,7 +19,7 @@
 		var options = {
 			"debug": true,
 			"nameResolver": {
-				"zoomFov": 2
+				"zoomFov": 0.2
 			},
 			"navigation": {
 				"initTarget": [0,0]
@@ -79,21 +79,12 @@
 		};
 		var geoJsonLayer = mizar.addLayer(geoJsonDesc);
 
-		// Wait till survey is loaded
-		// TODO : replace it by event subscribing
-		window.setTimeout(function(){
-			// Go to point of interest
-			mizar.goTo("mizar");
+		// Go to point of interest
+		mizar.goTo("mizar", function(){
 
-			// Wait till animation is finished
-			window.setTimeout(function(){
-
-				// Adjust FOV
-				var fov = mizar.getCurrentFov();
-				if (fov[1] <= 2) {
-					mizar.setZoom(1);
-				} 
-
+			// Start search on open search layer
+			var startSearch = function()
+			{
 				// Make open search layer visible
 				myOpenSearchLayer.visible(true);
 
@@ -103,19 +94,41 @@
 					// Change opacity
 				    myOpenSearchLayer.opacity(0.3);
 				}, 10000);
-			}, 5000);
-		}, 5000);
+			}
 
-		/* TBD
-		// Browse metadata for a specific layer and highlight them for each record
-		var metadataList = mizar.getMetadata("myLayerID-0");
-		for(var metadata in metadataList["features"] ) {
-		    var identifier = metadata["properties"]["identifier"];
-		    sleep(10);
-		    mizar.setHighLight(["myLayerID-0:"+identifier]);
-		}
-		*/
+			// Adjust FOV
+			var fov = mizar.getCurrentFov();
+			if (fov[1] <= 2) {
+				// Since name resolver zoomFov is 0.2, we'll always pass here
+				mizar.setZoom(1, startSearch);
+			}
+			else
+			{
+				startSearch();
+			}
+		});
 
+		// Zoom to predefined feature when added
+		// Add its fits
+		mizar.subscribe("features:added", function(featureData){
+			if ( myOpenSearchLayer.name == featureData.layer.name )
+			{
+				var features = featureData.features;
+				// OpenSearch layer loading ended
+				// Show received features
+				for ( var i=0; i<featureData.features.length; i++ )
+				{
+				 	var feature = featureData.features[i];
+					if ( feature.properties.identifier == "HST_11130_0U_WFPC2_F814W_PC" )
+					{
+						// Go to the choosen observation and request fits
+						mizar.goTo(feature.properties.Ra + " " + feature.properties.Dec, function() {
+							mizar.requestFits( {feature:feature, layer: myOpenSearchLayer} );
+						});
+					}
+				}
+			}
+		});
 	}
 
 </script>

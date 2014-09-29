@@ -23,6 +23,7 @@ div#options
 	vertical-align: top;
 	text-align: center;
 	width: 680px;
+	margin: 20px;
 }
 
 #poiMenu
@@ -89,6 +90,13 @@ li.poi:hover
 	text-align: left;
 }
 
+#mizarWidget-div
+{
+	margin: 20px;
+	margin-left: 40px;
+	display: inline-block;
+}
+
 </style>
 
 <script type="text/javascript">
@@ -96,25 +104,90 @@ li.poi:hover
 	// window.onload = function(){
 	// 	var options = {
 	// 		"nameResolver": {
-	// 			zoomFov: 2
+	// 			zoomFov: 1
+	// 		},
+	// 		"positionTracker": {
+	// 			position: "top"
 	// 		}
 	// 	};
 	// 	var mizar = new MizarWidget("#mizarWidget-div", options);
-
+	// 	mizar.setImageViewerGui(true);
 	// 	var hstLayer = mizar.getLayer("HST");
 
-	// 	mizar.subscribe("goTo:finished", function(){
-	// 		console.log("show features");
-	// 		hstLayer.visibile(true);
-	// 	});
+	// 	var table = $('#featureResults').DataTable( {
+	// 		"dom": '<"toolbar">frtip',
+	// 		"scrollY": "600px",
+	// 		"scrollCollapse": true,
+	// 		paging: false
+	// 	} );
+	// 	$("div.toolbar").html('Observations');
+		
+	// 	// Highlight feature on hover
+	// 	$('#featureResults tbody')
+	//         .on( 'mouseover', 'tr', function () {
+	// 			var featureData = $(this).data("featureData");
+	// 			if ( featureData )
+	// 				mizar.highlightObservation(featureData);
+	//         } )
+	//         .on ( 'click', 'tr', function() {
+	//         	// Add/remove fits
+	//         	var featureData = $(this).data("featureData");
+	//         	if ( featureData )
+	//         	{
+	// 	        	if ( $(this).hasClass("selected") )
+	// 	        	{
+	// 	        		mizar.removeFits(featureData);
+	// 	        	}
+	// 	        	else
+	// 	        	{
+	// 	        		mizar.goTo( featureData.feature.properties.Ra +" "+ featureData.feature.properties.Dec );
+	// 	        		mizar.requestFits(featureData);
+	// 	        	}
+	//         		$(this).toggleClass('selected');
+	// 			}
+	//         });
+		
+	// 	// For debug:	
+	// 	// var grid = mizar.addLayer(	{
+	// 	// 	"category": "Other",
+	// 	// 	"type": "healpixGrid",
+	// 	// 	"name": "Healpix grid",
+	// 	// 	"outline": true
+	// 	// });
+	// 	// grid.visible(true);
 
-	// 	$('#poiTable tr td').click(function(event){
+	// 	// Update data table when features has been added on hstLayer
+	// 	mizar.subscribe("features:added", function(featureData){
+	// 		if ( hstLayer.name == featureData.layer.name )
+	// 		{
+	// 			// HST layer loading ended
+	// 			// Show received features
+	// 			console.log(featureData.features);
+	// 			var $tbody = $('#featureResults').find("tbody");
+
+	// 			for ( var i=0; i<featureData.features.length; i++ )
+	// 			{
+	// 				var feature = featureData.features[i];
+	// 				var row = table.row.add( [ feature.properties.identifier, feature.properties.Ra, feature.properties.Dec ] );
+	// 				$(row.node()).data("featureData",{feature: feature, layer: featureData.layer});
+	// 			}
+	// 			table.draw();
+	// 		}
+	// 	});
+			
+	// 	// Move to point of interest handler
+	// 	$('#poiTable tr').click(function(event){
+	// 		// Clear observation results and hide hstLayer before move to animation
 	// 		hstLayer.visible(false);
+	// 		table.clear().draw();
+	// 		// Retrive POI name and go for it
 	// 		var poiName = $(event.target).text();
-	// 		mizar.goTo(poiName);
-	// 	});
-
-	// };
+			
+	// 		// Make hstLayer visible once go-to animation finished to launch the search
+	// 		mizar.goTo(poiName, function() {
+	// 			hstLayer.visible(true);
+	// 		});
+	// 	};
 
 </script>
 
@@ -160,7 +233,7 @@ li.poi:hover
 			</tbody>
 			</table>
 	</div>
-    <div style="margin-left: 40px; display: inline-block" id="mizarWidget-div" style="border: none;" width="600" height="600"></div> 
+    <div id="mizarWidget-div" style="border: none;" width="600" height="600"></div> 
   	<br/>
 </body>
 

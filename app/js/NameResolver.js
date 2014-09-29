@@ -94,7 +94,7 @@ function search(objectName, onSuccess, onError, onComplete)
 		var vert = HEALPixBase.fxyf( (ix+i)/nside, (iy+j)/nside, face);
 		var geoPos = [];
 		globe.coordinateSystem.from3DToGeo(vert, geoPos);
-		zoomTo(geoPos[0],geoPos[1]);
+		zoomTo(geoPos[0],geoPos[1], onSuccess);
 	}
 	else if ( objectName.match( coordinatesExp ) )
 	{
@@ -115,7 +115,7 @@ function search(objectName, onSuccess, onError, onComplete)
 			geoPos = globe.coordinateSystem.convert(geoPos, globe.coordinateSystem.type, 'EQ');
 		}
 
-		zoomTo(geoPos[0], geoPos[1]);
+		zoomTo(geoPos[0], geoPos[1], onSuccess);
 	}
 	else if ( matchDegree ) {
 		var lon = parseFloat(matchDegree[1]);
@@ -127,7 +127,7 @@ function search(objectName, onSuccess, onError, onComplete)
 			geo = globe.coordinateSystem.convert(geo, globe.coordinateSystem.type,  'EQ');
 		}
 
-		zoomTo(geo[0], geo[1]);
+		zoomTo(geo[0], geo[1], onSuccess);
 	}
 	else
 	{
@@ -142,7 +142,7 @@ function search(objectName, onSuccess, onError, onComplete)
 			{
 				var lon = parseFloat(feature.properties.center_lon);
 				var lat = parseFloat(feature.properties.center_lat);
-				context.navigation.zoomTo( [lon, lat], context.configuration.nameResolver.zoomFov, 2000 );
+				context.navigation.zoomTo( [lon, lat], context.configuration.nameResolver.zoomFov, context.configuration.nameResolver.duration );
 				setTimeout(function(){
 					addTarget(lon, lat);
 				}, 2040); // Very very veeery ugly hack to show target at the end of animation
@@ -172,10 +172,8 @@ function search(objectName, onSuccess, onError, onComplete)
 					if(response.type == "FeatureCollection")
 					{
 						var firstFeature = response.features[0];
-						zoomTo(firstFeature.geometry.coordinates[0], firstFeature.geometry.coordinates[1]);
+						zoomTo(firstFeature.geometry.coordinates[0], firstFeature.geometry.coordinates[1], onSuccess, response);
 
-						if ( onSuccess )
-							onSuccess(response);
 					} else {
 						onError();
 					}
@@ -199,12 +197,17 @@ function search(objectName, onSuccess, onError, onComplete)
 
 /**
  *	Zoom to the given longitude/latitude and add target at the end
+ *	@param lon Longitude
+ *	@param lat Latitude
+ *	@param callback Callback once animation is over
+ *	@param args Callback arguments
  */
-function zoomTo(lon, lat)
+function zoomTo(lon, lat, callback, args)
 {
-	context.navigation.zoomTo([lon, lat], context.configuration.nameResolver.zoomFov, 3000, function() {
+	context.navigation.zoomTo([lon, lat], context.configuration.nameResolver.zoomFov, context.configuration.nameResolver.duration, function() {
 		addTarget(lon,lat);
-		mizar.publish("goTo:finished");
+		if ( callback )
+			callback.call(this, args);
 	} );
 }
 

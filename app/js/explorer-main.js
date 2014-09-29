@@ -121,19 +121,18 @@ require(["jquery", "./MizarWidget", "datatables"], function($, MizarWidget) {
 			table.draw();
 		}
 	});
-	
-	// Make hstLayer visible once go-to animation finished to launch the search
-	mizar.subscribe("goTo:finished", function(){
-		hstLayer.visible(true);
-	});
-	
+		
 	// Move to point of interest handler
-	$('#poiTable tr td').click(function(event){
+	$('#poiTable tr').click(function(event){
 		// Clear observation results and hide hstLayer before move to animation
 		hstLayer.visible(false);
 		table.clear().draw();
 		// Retrive POI name and go for it
 		var poiName = $(event.target).text();
-		mizar.goTo(poiName);
+		
+		// Make hstLayer visible once go-to animation finished to launch the search
+		mizar.goTo(poiName, function() {
+			hstLayer.visible(true);
+		});
 	});
 });

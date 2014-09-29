@@ -200,7 +200,8 @@ define( [ "jquery", "underscore-min", "./PlanetContext", "./SkyContext", "gw/Til
 			"debug" : userOptions.hasOwnProperty('debug') ? userOptions.debug : false,
 			"nameResolver" : {
 				"baseUrl" : sitoolsBaseUrl + '/project/mizar/plugin/nameResolver',
-				"zoomFov": 15
+				"zoomFov": 15,
+				"duration": 3000
 			},
 			"reverseNameResolver" : {
 				"baseUrl" : sitoolsBaseUrl + '/project/mizar/plugin/reverseNameResolver',
@@ -497,8 +498,8 @@ define( [ "jquery", "underscore-min", "./PlanetContext", "./SkyContext", "gw/Til
 	 *			2) Coordinates in decimal degree : "11.11 41.3"
 	 *			3) Astronomical object name : m31, Mars, Polaris
 	 */
-	MizarWidget.prototype.goTo = function(location) {
-		NameResolver.goTo(location);
+	MizarWidget.prototype.goTo = function(location, callback) {
+		NameResolver.goTo(location, callback);
 	}
 
 	/**************************************************************************************************************/
@@ -515,9 +516,9 @@ define( [ "jquery", "underscore-min", "./PlanetContext", "./SkyContext", "gw/Til
 	/**
 	 *	Set zoom(in other words fov)
 	 */
-	MizarWidget.prototype.setZoom = function(fovInDegrees) {
+	MizarWidget.prototype.setZoom = function(fovInDegrees, callback) {
 		var geoPos = this.sky.coordinateSystem.from3DToGeo(this.navigation.center3d);
-		this.navigation.zoomTo(geoPos, fovInDegrees, 1000);
+		this.navigation.zoomTo(geoPos, fovInDegrees, 1000, callback);
 	}
 
 	/**************************************************************************************************************/
