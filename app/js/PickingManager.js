@@ -533,6 +533,7 @@ return {
 		clearSelection();
 		selection = [selectedData];
 		this.focusFeatureByIndex(0);
+		sky.refresh();
 	},
 
 	/**************************************************************************************************************/

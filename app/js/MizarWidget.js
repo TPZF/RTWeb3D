@@ -20,10 +20,10 @@
 /**
  * Mizar widget
  */
-define( [ "jquery", "underscore-min", "./PlanetContext", "./SkyContext", "gw/Stats", "gw/AttributionHandler", "gw/Event",  "gw/TouchNavigationHandler", "gw/MouseNavigationHandler", "gw/KeyboardNavigationHandler", "text!../templates/mizarCore.html", "text!../data/backgroundSurveys.json",
+define( [ "jquery", "underscore-min", "./PlanetContext", "./SkyContext", "gw/TileWireframeLayer", "gw/Stats", "gw/AttributionHandler", "gw/Event",  "gw/TouchNavigationHandler", "gw/MouseNavigationHandler", "gw/KeyboardNavigationHandler", "text!../templates/mizarCore.html", "text!../data/backgroundSurveys.json",
 	"./LayerManager", "./LayerManagerView", "./BackgroundLayersView", "./NameResolver", "./NameResolverView", "./ReverseNameResolver", "./Utils", "./PickingManager", "./FeaturePopup", "./IFrame", "./Compass", "./MollweideViewer", "./ErrorDialog", "./AboutDialog", "./Share", "./Samp", "./AdditionalLayersView", "./ImageManager", "./ImageViewer", "./UWSManager", "./MeasureTool", "./StarProvider", "./ConstellationProvider", "./JsonProvider", "./OpenSearchProvider", "./PlanetProvider",
 	"gw/ConvexPolygonRenderer", "gw/PointSpriteRenderer", "gw/PointRenderer", "jquery.ui"],
-	function($, _, PlanetContext, SkyContext, Stats, AttributionHandler, Event, TouchNavigationHandler, MouseNavigationHandler, KeyboardNavigationHandler, mizarCoreHTML, backgroundSurveys,
+	function($, _, PlanetContext, SkyContext, TileWireframeLayer, Stats, AttributionHandler, Event, TouchNavigationHandler, MouseNavigationHandler, KeyboardNavigationHandler, mizarCoreHTML, backgroundSurveys,
 			LayerManager, LayerManagerView, BackgroundLayersView, NameResolver, NameResolverView, ReverseNameResolver, Utils, PickingManager, FeaturePopup, IFrame, Compass, MollweideViewer, ErrorDialog, AboutDialog, Share, Samp, AdditionalLayersView, ImageManager, ImageViewer, UWSManager, MeasureTool) {
 
 	/**
@@ -704,6 +704,25 @@ define( [ "jquery", "underscore-min", "./PlanetContext", "./SkyContext", "gw/Sta
 	/**************************************************************************************************************/
 
 	/**
+	 *	Add fits image to the given feature data
+	 */
+	MizarWidget.prototype.requestFits = function(featureData) {
+		featureData.isFits = true; // TODO: Refactor it
+		ImageManager.addImage(featureData);
+	}
+
+	/**************************************************************************************************************/
+
+	/**
+	 *	Remove fits image to the given feature data
+	 */
+	MizarWidget.prototype.removeFits = function(featureData) {
+		ImageManager.removeImage(featureData);
+	}
+
+	/**************************************************************************************************************/
+
+	/**
 	 *	Toggle between planet/sky mode
 	 */
 	MizarWidget.prototype.toggleMode = function(gwLayer) {
@@ -719,7 +738,7 @@ define( [ "jquery", "underscore-min", "./PlanetContext", "./SkyContext", "gw/Sta
 			this.planetContext.navigation.toViewMatrix(this.oldVM, this.oldFov, 2000, function() {
 				// Show all additional layers
 				skyContext.showAdditionalLayers();
-
+				self.sky.renderContext.tileErrorTreshold = 1.5;
 				self.publish("mizarMode:toggle", gwLayer);
 				
 				// Destroy planet context
@@ -745,7 +764,7 @@ define( [ "jquery", "underscore-min", "./PlanetContext", "./SkyContext", "gw/Sta
 			var planetConfiguration = {
 				renderContext: this.sky.renderContext,
 				nameResolver: {
-					"zoomFov": 500000, // in fact it must be distance, to be improved
+					"zoomFov": 200000, // in fact it must be distance, to be improved
 					"baseUrl": gwLayer.nameResolverURL
 				}
 			};
@@ -754,11 +773,16 @@ define( [ "jquery", "underscore-min", "./PlanetContext", "./SkyContext", "gw/Sta
 			this.planetContext.setComponentVisibility("categoryDiv", true);
 			this.planetContext.setComponentVisibility("searchDiv", true);
 
+			// Planet tile error treshold is less sensetive than sky's one
+			this.sky.renderContext.tileErrorTreshold = 3;
 			// Set elevation if exists
 			if ( gwLayer.elevationLayer )
 			{
 				this.planetContext.globe.setBaseElevation( gwLayer.elevationLayer );
 			}
+	
+			// Used for debug
+			//this.planetContext.globe.addLayer( new TileWireframeLayer({outline: true}) );
 
 			this.activatedContext = this.planetContext;
 

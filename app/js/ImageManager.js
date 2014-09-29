@@ -195,6 +195,7 @@ return {
 			featureData.layer.modifyFeatureStyle( featureData.feature, style );
 			$('#quicklook').removeClass('selected');
 		}
+		sky.refresh();
 	},
 
 	/**********************************************************************************************/
@@ -225,6 +226,7 @@ return {
 			$('#quicklook').addClass('selected');
 		}
 		featureData.layer.modifyFeatureStyle( feature, style );
+		sky.refresh();
 	},
 	
 	computeFits: computeFits,

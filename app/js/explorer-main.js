@@ -51,12 +51,16 @@ require(["jquery", "./MizarWidget", "datatables"], function($, MizarWidget) {
 
 	var options = {
 		"nameResolver": {
-			zoomFov: 2
+			zoomFov: 1
+		},
+		"positionTracker": {
+			position: "top"
 		}
 	};
 	var mizar = new MizarWidget("#mizarWidget-div", options);
-
+	mizar.setImageViewerGui(true);
 	var hstLayer = mizar.getLayer("HST");
+
 	var table = $('#featureResults').DataTable( {
 		"dom": '<"toolbar">frtip',
 		"scrollY": "600px",
@@ -67,12 +71,38 @@ require(["jquery", "./MizarWidget", "datatables"], function($, MizarWidget) {
 	
 	// Highlight feature on hover
 	$('#featureResults tbody')
-        .on( 'mouseover', 'td', function () {
-			var featureData = $(this).parent().data("featureData");
+        .on( 'mouseover', 'tr', function () {
+			var featureData = $(this).data("featureData");
 			if ( featureData )
 				mizar.highlightObservation(featureData);
-        } );
+        } )
+        .on ( 'click', 'tr', function() {
+        	// Add/remove fits
+        	var featureData = $(this).data("featureData");
+        	if ( featureData )
+        	{
+	        	if ( $(this).hasClass("selected") )
+	        	{
+	        		mizar.removeFits(featureData);
+	        	}
+	        	else
+	        	{
+	        		mizar.goTo( featureData.feature.properties.Ra +" "+ featureData.feature.properties.Dec );
+	        		mizar.requestFits(featureData);
+	        	}
+        		$(this).toggleClass('selected');
+			}
+        });
 	
+	// For debug:	
+	// var grid = mizar.addLayer(	{
+	// 	"category": "Other",
+	// 	"type": "healpixGrid",
+	// 	"name": "Healpix grid",
+	// 	"outline": true
+	// });
+	// grid.visible(true);
+
 	// Update data table when features has been added on hstLayer
 	mizar.subscribe("features:added", function(featureData){
 		if ( hstLayer.name == featureData.layer.name )
@@ -92,7 +122,7 @@ require(["jquery", "./MizarWidget", "datatables"], function($, MizarWidget) {
 		}
 	});
 	
-	// Make hstLayer visible once go to animation finished to launch the search
+	// Make hstLayer visible once go-to animation finished to launch the search
 	mizar.subscribe("goTo:finished", function(){
 		hstLayer.visible(true);
 	});
@@ -101,7 +131,7 @@ require(["jquery", "./MizarWidget", "datatables"], function($, MizarWidget) {
 	$('#poiTable tr td').click(function(event){
 		// Clear observation results and hide hstLayer before move to animation
 		hstLayer.visible(false);
-		table.clear();
+		table.clear().draw();
 		// Retrive POI name and go for it
 		var poiName = $(event.target).text();
 		mizar.goTo(poiName);
