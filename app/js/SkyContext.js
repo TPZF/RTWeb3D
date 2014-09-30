@@ -107,19 +107,6 @@ define( [ "jquery", "underscore-min", "gw/Sky", "gw/AstroNavigation", "gw/Utils"
 
 	/**************************************************************************************************************/
 
-	/**
-	 *	"Hide" sky component
-	 */
-	SkyContext.prototype.hide = function() {
-
-		MizarContext.prototype.hide.apply(this);
-
-		this.globe.tileManagers["EQ"].abortRequests();
-		this.globe.tileManagers["GAL"].abortRequests();
-	}
-
-	/**************************************************************************************************************/
-
 	return SkyContext;
 
 });
