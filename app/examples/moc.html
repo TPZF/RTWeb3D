@@ -1,0 +1,308 @@
+<html>
+
+<head>
+<title>Moc example</title>
+<meta http-equiv="content-type" content="text/html; charset=ISO-8859-1">
+<link rel="stylesheet" href="../css/style.css" />
+<link rel="stylesheet" href="http://cdn.datatables.net/1.10.1/css/jquery.dataTables.css" />
+
+<!-- Dev -->
+<!-- <script type="text/javascript" data-main="../js/moc-main" src="../js/require.min.js"></script> -->
+
+<!-- <script type="text/javascript" charset="UTF-8" src="http://cdn.datatables.net/1.10.1/js/jquery.dataTables.min.js"></script> -->
+
+<!-- Prod -->
+<script type="text/javascript" charset="UTF-8" src="../MizarWidget.min.js"></script>
+<!-- <script type="text/javascript" charset="UTF-8" src="http://demonstrator.telespazio.com/mizar/MizarWidget.min.js"></script> -->
+
+<style>
+
+div#mizarWidget-div
+{
+	display: inline-block;
+	margin: 30px;
+}
+
+div#options
+{
+	display: inline-block;
+	vertical-align: top;
+	width: 300px;
+	margin: 20px;
+}
+
+.coverage
+{
+	border-radius: 5px;
+}
+
+#xMatch
+{
+	width: 100%;
+	height: 40px;
+	border-radius: 6px;
+	cursor: pointer;
+}
+
+.white {
+	text-shadow: 1px 1px 0px #f8f8f8;
+	color: #717171;
+	border: 1px solid #d3d3d3;	
+    background: #ededed; /*fallback for non-CSS3 browsers*/
+    background: -webkit-gradient(linear, 0 0, 0 100%, from(#f9f9f9) to(#ededed)); /*old webkit*/
+    background: -webkit-linear-gradient(#f9f9f9, #ededed); /*new webkit*/
+    background: -moz-linear-gradient(#f9f9f9, #ededed); /*gecko*/
+    background: -ms-linear-gradient(#f9f9f9, #ededed); /*IE10*/
+    background: -o-linear-gradient(#f9f9f9, #ededed); /*opera 11.10+*/
+    background: linear-gradient(#f9f9f9, #ededed); /*future CSS3 browsers*/
+    -pie-background: linear-gradient(#f9f9f9, #ededed); /*PIE*/
+	
+	
+}
+.white:hover {
+	color: #717171;
+	border: 1px solid #d3d3d3;	
+    background: #ededed; /*fallback for non-CSS3 browsers*/
+    background: -webkit-gradient(linear, 0 0, 0 100%, from(#ededed) to(#f9f9f9)); /*old webkit*/
+    background: -webkit-linear-gradient(#ededed, #f9f9f9); /*new webkit*/
+    background: -moz-linear-gradient(#ededed, #f9f9f9); /*gecko*/
+    background: -ms-linear-gradient(#ededed, #f9f9f9); /*IE10*/
+    background: -o-linear-gradient(#ededed, #f9f9f9); /*opera 11.10+*/
+    background: linear-gradient(#ededed, #f9f9f9); /*future CSS3 browsers*/
+    -pie-background: linear-gradient(#ededed, #f9f9f9); /*PIE*/	
+}
+
+.flatRoundedCheckbox
+{
+	width: 30px;
+	height: 15px;
+	margin: 20px 20px;
+	position: relative;
+	display: inline-block;
+	vertical-align: middle;
+}
+.flatRoundedCheckbox div
+{
+    width: 100%;
+    height:100%;
+    background: #d3d3d3;
+    border-radius: 50px;
+    position: relative;
+}
+.flatRoundedCheckbox label
+{
+	display: block;
+	width: 9px;
+	height: 9px;
+	border-radius: 50px;
+	-webkit-transition: all .5s ease;
+	-moz-transition: all .5s ease;
+	-o-transition: all .5s ease;
+	-ms-transition: all .5s ease;
+	transition: all .5s ease;
+	cursor: pointer;
+	position: absolute;
+	top: 3px;
+	z-index: 1;
+	left: 3px;
+	background: #FFF;
+}
+
+.flatRoundedCheckbox input
+{
+	visibility: hidden;
+    position: absolute;
+}
+
+.flatRoundedCheckbox input[type=checkbox]:checked ~ div
+{
+    background: #4fbe79;
+}
+.flatRoundedCheckbox input.notAvailable[type=checkbox]:checked ~ div
+{
+    background: #BE4F4F;
+}
+
+.flatRoundedCheckbox input[type=checkbox]:checked ~ label {
+    left: 18px;
+}
+
+</style>
+
+<script type="text/javascript">
+		
+	window.onload = function(){
+		/**
+		 *	Function to set coverage into the given HTML tag
+		 */
+		var setCoverage = function(layer, elementId)
+		{
+			mizar.requestSkyCoverage( layer, function(skyCoverage) {
+				$('#'+elementId).html(skyCoverage);
+			} );
+		}
+
+		/**
+		 *	Function to find and attach the moc layer for the given HTML tag
+		 */
+		var setMocLayer = function(layer, elementId) {
+			mizar.requestMoc( layer, function(mocLayer) {
+				if ( mocLayer )
+				{
+					$('#'+elementId).data('mocLayer', mocLayer);
+				}
+				// else
+				// {
+				// 	$('#'+elementId).attr('disabled', 'disabled');
+				// }
+			});
+		}
+
+		// Change moc layers visibility handler
+		$('body').on('click', '.flatRoundedCheckbox > input[type="checkbox"]', function(){
+			var mocLayer = $(this).data('mocLayer');
+			if ( !mocLayer )
+			{
+				$(this).toggleClass('notAvailable');
+				if ( $(this).is(":checked") ) {
+					$(this).parent().siblings(".coverage").animate({backgroundColor: "rgba(255,0,0,0.5)"}, function() {
+						$(this).animate({backgroundColor: "transparent"});
+					});
+				}
+			} else {
+				if ( mocLayer.visible() )
+				{
+					mocLayer.visible(false);
+				}
+				else
+				{
+					mocLayer.visible(true);
+				}
+			}
+		});
+
+		// Initialize mizar
+		var options = {
+			"nameResolver": {
+				zoomFov: 1
+			},
+			"positionTracker": {
+				position: "top"
+			}
+		};
+		var mizar = new MizarWidget("#mizarWidget-div", options);
+
+		// On base layers ready get moc layers
+		mizar.sky.subscribe("baseLayersReady", function() {
+
+			var xMatchLayer;
+			// xMatch Iso with SPM4(hardcoded for now..)
+			$('#xMatch').click(function(){
+
+				if ( xMatchLayer )
+				{
+					mizar.removeLayer(xMatchLayer);
+					$('#xMatchContent').remove();
+				}
+
+				if ( isoLayer.describeUrl && corot.describeUrl )
+				{
+					xMatchLayer = mizar.xMatch( [isoLayer, corot] );
+
+					// Add xMatch HTML
+					var html = '<div id="xMatchContent">\
+				       	<div class="flatRoundedCheckbox">\
+				            <input type="checkbox" value="1" id="xMatchLayer" name="">\
+				            <label for="xMatchLayer"></label>\
+				            <div></div>\
+				        </div>\
+				        <span>xMatch: </span>\
+				        <span id="xMatchCoverage">Loading...</span>\
+				    </div>';
+				    $(html)
+				    	.appendTo("#mocLayers")
+				    	.find('#xMatchLayer').data('mocLayer', xMatchLayer).end();
+
+				    setCoverage(xMatchLayer, "xMatchCoverage");
+
+				    // Show layer
+				    $('#xMatchLayer').trigger("click");
+				}
+			});
+
+			// Get moc for HST layer(must be "not available")
+			var hstLayer = mizar.getLayer("HST");
+			setCoverage(hstLayer, "hstCoverage");
+			setMocLayer(hstLayer, 'hst');
+
+			// Get moc for ISO layer
+			var isoLayer = mizar.getLayer("Iso");
+			setCoverage(isoLayer, "isoCoverage");
+			setMocLayer(isoLayer, "iso");
+
+			// Get moc for SPM4 layer
+			var spm4 = mizar.getLayer("SPM4");
+			setCoverage(spm4, "spm4Coverage");
+			setMocLayer(spm4, "spm4");
+
+			// Get moc for Corot exo layer
+			var corot = mizar.getLayer("Corot exo");
+			setCoverage(corot, "corotCoverage");
+			setMocLayer(corot, "corot");
+		});
+	};
+
+</script>
+
+</head>
+
+
+<body style="background-color:white;">
+	<div id="options">
+		<h2 style="text-align: center">Layers</h2>
+		<div id="mocLayers">
+			<div>
+				<div class="flatRoundedCheckbox">
+		            <input type="checkbox" value="1" id="iso">
+		            <label for="iso"></label>
+		            <div></div>
+		        </div>
+		        <span>Iso: </span>
+		        <span class="coverage" id="isoCoverage"> Loading...</span>
+			</div>
+			<div>
+		       	<div class="flatRoundedCheckbox">
+		            <input type="checkbox" value="1" id="spm4">
+		            <label for="spm4"></label>
+		            <div></div>
+		        </div>
+	            <span>SPM4: </span>
+	            <span class="coverage" id="spm4Coverage">Loading...</span>
+	        </div>
+	        <div>
+		       	<div class="flatRoundedCheckbox">
+		            <input type="checkbox" value="1" id="hst">
+		            <label for="hst"></label>
+		            <div></div>
+		        </div>
+		        <span>HST: </span>
+		        <span class="coverage" id="hstCoverage">Loading...</span>
+		    </div>
+			<div>
+		       	<div class="flatRoundedCheckbox">
+		            <input type="checkbox" value="1" id="corot">
+		            <label for="corot"></label>
+		            <div></div>
+		        </div>
+		        <span>Corot exo: </span>
+		        <span class="coverage" id="corotCoverage">Loading...</span>
+		    </div>
+		</div>
+
+	    <button class="white" id="xMatch">xMatch(Corot x Iso)</button>
+	</div>
+    <div id="mizarWidget-div" style="border: none;" width="600" height="600"></div> 
+</body>
+
+</html>
+

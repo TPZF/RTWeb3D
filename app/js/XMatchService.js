@@ -117,39 +117,12 @@ function addIntersectionLayer(layersToIntersect)
 {
 	if ( coverageServiceUrl )
 	{
-		// Construct url & layerNames
-		var url = coverageServiceUrl;
-		var layerNames = "";
-		for ( var i=0; i<layersToIntersect.length; i++ )
-		{
-			var layer = layersToIntersect[i];
-
-			layerNames += layer.name;
-			url += layer.describeUrl;
-			if ( i != layersToIntersect.length-1 )
-			{
-				url += ';'
-				layerNames += ' x ';
-			}
-		}
-
 		if ( intersectionLayer )
 			sky.removeLayer(intersectionLayer);
 
-		// Create intersection MOC layer
-		intersectionLayer = new MocLayer({
-				name: "Intersection( "+layerNames+" )",
-				serviceUrl: url + "&media=json",
-				style: new FeatureStyle({
-					rendererHint: "Basic",
-					fill: true,
-					fillColor: [1.,0.,0.,0.3]
-				}),
-				visible: false
-			});
-		sky.addLayer(intersectionLayer);
+		intersectionLayer = MocBase.intersectLayers( layersToIntersect );
 
-		MocBase.requestSkyCoverage( intersectionLayer, url + "&media=txt", function(layer){
+		MocBase.requestSkyCoverage( intersectionLayer, intersectionLayer.describeUrl + "&media=txt", function(layer){
 			$("#xMatchService #mocLayer_"+layer.id).find('.mocCoverage').html("Sky coverage: "+layer.coverage);
 		} );
 		addHTMLIntersectionLayer();

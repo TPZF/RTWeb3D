@@ -21,10 +21,10 @@
  * Mizar widget
  */
 define( [ "jquery", "underscore-min", "./PlanetContext", "./SkyContext", "gw/TileWireframeLayer", "gw/Stats", "gw/AttributionHandler", "gw/Event",  "gw/TouchNavigationHandler", "gw/MouseNavigationHandler", "gw/KeyboardNavigationHandler", "text!../templates/mizarCore.html", "text!../data/backgroundSurveys.json",
-	"./LayerManager", "./LayerManagerView", "./BackgroundLayersView", "./NameResolver", "./NameResolverView", "./ReverseNameResolver", "./Utils", "./PickingManager", "./FeaturePopup", "./IFrame", "./Compass", "./MollweideViewer", "./ErrorDialog", "./AboutDialog", "./Share", "./Samp", "./AdditionalLayersView", "./ImageManager", "./ImageViewer", "./UWSManager", "./MeasureTool", "./StarProvider", "./ConstellationProvider", "./JsonProvider", "./OpenSearchProvider", "./PlanetProvider",
+	"./LayerManager", "./LayerManagerView", "./BackgroundLayersView", "./NameResolver", "./NameResolverView", "./ReverseNameResolver", "./MocBase", "./Utils", "./PickingManager", "./FeaturePopup", "./IFrame", "./Compass", "./MollweideViewer", "./ErrorDialog", "./AboutDialog", "./Share", "./Samp", "./AdditionalLayersView", "./ImageManager", "./ImageViewer", "./UWSManager", "./MeasureTool", "./StarProvider", "./ConstellationProvider", "./JsonProvider", "./OpenSearchProvider", "./PlanetProvider",
 	"gw/ConvexPolygonRenderer", "gw/PointSpriteRenderer", "gw/PointRenderer", "jquery.ui"],
 	function($, _, PlanetContext, SkyContext, TileWireframeLayer, Stats, AttributionHandler, Event, TouchNavigationHandler, MouseNavigationHandler, KeyboardNavigationHandler, mizarCoreHTML, backgroundSurveys,
-			LayerManager, LayerManagerView, BackgroundLayersView, NameResolver, NameResolverView, ReverseNameResolver, Utils, PickingManager, FeaturePopup, IFrame, Compass, MollweideViewer, ErrorDialog, AboutDialog, Share, Samp, AdditionalLayersView, ImageManager, ImageViewer, UWSManager, MeasureTool) {
+			LayerManager, LayerManagerView, BackgroundLayersView, NameResolver, NameResolverView, ReverseNameResolver, MocBase, Utils, PickingManager, FeaturePopup, IFrame, Compass, MollweideViewer, ErrorDialog, AboutDialog, Share, Samp, AdditionalLayersView, ImageManager, ImageViewer, UWSManager, MeasureTool) {
 
 	/**
 	 *	Private variables
@@ -318,6 +318,9 @@ define( [ "jquery", "underscore-min", "./PlanetContext", "./SkyContext", "gw/Til
 
 		// Initialization of tools useful for different modules
 		Utils.init(this);
+
+		// Initialize moc base
+		MocBase.init(this, options);
 		
 		// Get background surveys only
 		// Currently in background surveys there are not only background layers but also catalog ones
@@ -776,6 +779,56 @@ define( [ "jquery", "underscore-min", "./PlanetContext", "./SkyContext", "gw/Til
             console.log("Error displaying table:\n" +
             e.toString());
         }
+	}
+
+	/**************************************************************************************************************/
+
+	/**
+	 *	Request moc layer for the given layer
+	 *	TODO: Refactor MocBase !
+	 */
+	MizarWidget.prototype.requestMoc = function(layer, callback)
+	{
+		var mocLayer = MocBase.findMocSublayer(layer);
+
+		// Create if doesn't exist
+		if ( !mocLayer )
+		{
+			MocBase.createMocSublayer( layer, function(layer){
+				callback( MocBase.findMocSublayer(layer) );
+			}, function(layer){
+				callback( MocBase.findMocSublayer(layer) );
+			} );
+		}
+		else
+		{
+			callback(mocLayer);
+		}
+	}
+
+	/**************************************************************************************************************/
+
+	/**
+	 *	Request sky coverage based on moc
+	 *	TODO: Refactor MocBase !
+	 */
+	MizarWidget.prototype.requestSkyCoverage = function(layer, callback)
+	{
+		MocBase.getSkyCoverage(layer, function(layer) {
+			callback(layer.coverage);
+		}, function(layer) {
+			callback(layer.coverage);
+		});
+	}
+
+	/**************************************************************************************************************/
+
+	/**
+	 *	Intersect the given layers
+	 */
+	MizarWidget.prototype.xMatch = function( layers )
+	{
+		return MocBase.intersectLayers(layers);
 	}
 
 	/**************************************************************************************************************/

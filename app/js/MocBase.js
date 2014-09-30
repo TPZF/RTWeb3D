@@ -20,8 +20,11 @@
 /**
  *	Moc base module
  */
-define( [ "jquery", "./MocLayer", "./Utils" ],
-		function($, MocLayer, Utils) {
+define( [ "jquery", "gw/FeatureStyle", "./MocLayer", "./Utils" ],
+		function($, FeatureStyle, MocLayer, Utils) {
+
+var mizar;
+var coverageServiceUrl;
 
 /**************************************************************************************************************/
 
@@ -77,15 +80,20 @@ function getSkyCoverage(layer, successCallback, errorCallback)
 {
 	if ( layer.coverage != "Not available" )
 	{
+		var media = "?media=txt";
 		if ( !layer.describeUrl )
 		{
 			requestMocDesc( layer, function(layer){
-				requestSkyCoverage( layer, layer.describeUrl+"?media=txt", successCallback );
+				if ( layer.describeUrl.lastIndexOf("?") > 0 )
+					media = "&media=txt";
+				requestSkyCoverage( layer, layer.describeUrl+media, successCallback );
 			}, errorCallback );
 		}
 		else
 		{
-			requestSkyCoverage( layer, layer.describeUrl+"?media=txt", successCallback );
+			if ( layer.describeUrl.lastIndexOf("?") > 0 )
+					media = "&media=txt";
+			requestSkyCoverage( layer, layer.describeUrl+media, successCallback );
 		}
 	}
 	else
@@ -169,11 +177,12 @@ function handleMocLayer(layer, mocServiceUrl)
 
 	serviceLayer.style.fill = true;
 	serviceLayer.style.fillColor[3] = 0.3;
-	if ( layer.globe && layer.visible() )
-	{
+	// TODO: think about attachement of moc layer
+	// if ( layer.globe && layer.visible() )
+	// {
 		// Add sublayer to engine
 		layer.globe.addLayer( serviceLayer );
-	}
+	// }
 
 	if ( !layer.subLayers )
 		layer.subLayers = [];
@@ -204,11 +213,57 @@ function findMocSublayer(layer)
 
 /**************************************************************************************************************/
 
+/**
+ *	Intersect layers
+ */
+function intersectLayers( layersToIntersect )
+{
+	// Construct url & layerNames
+	var url = coverageServiceUrl;
+	var layerNames = "";
+	for ( var i=0; i<layersToIntersect.length; i++ )
+	{
+		var layer = layersToIntersect[i];
+
+		layerNames += layer.name;
+		url += layer.describeUrl;
+		if ( i != layersToIntersect.length-1 )
+		{
+			url += ';'
+			layerNames += ' x ';
+		}
+	}
+
+	// Create intersection MOC layer
+	intersectionLayer = new MocLayer({
+			name: "Intersection( "+layerNames+" )",
+			serviceUrl: url + "&media=json",
+			style: new FeatureStyle({
+				rendererHint: "Basic",
+				fill: true,
+				fillColor: [1.,0.,0.,0.3]
+			}),
+			visible: false
+		});
+	mizar.sky.addLayer(intersectionLayer);
+
+	intersectionLayer.describeUrl = url;
+
+	return intersectionLayer;
+}
+
+/**************************************************************************************************************/
+
 return {
+	init: function(m, options) {
+		mizar = m;
+		coverageServiceUrl = options.coverageService.baseUrl;
+	},
 	createMocSublayer: createMocSublayer,
 	findMocSublayer: findMocSublayer,
 	getSkyCoverage: getSkyCoverage,
-	requestSkyCoverage: requestSkyCoverage
+	requestSkyCoverage: requestSkyCoverage,
+	intersectLayers: intersectLayers
 }
 
 });
