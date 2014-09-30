@@ -60,6 +60,9 @@ require(["jquery", "./MizarWidget", "datatables"], function($, MizarWidget) {
 	var mizar = new MizarWidget("#mizarWidget-div", options);
 	mizar.setImageViewerGui(true);
 	var hstLayer = mizar.getLayer("HST");
+	// Need to set min order to 6 since we want to display only the features
+	// which are not far of final camera destination fov
+	hstLayer.minOrder = 6;
 
 	var table = $('#featureResults').DataTable( {
 		"dom": '<"toolbar">frtip',
