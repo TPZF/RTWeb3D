@@ -79,8 +79,8 @@ var SelectionTool = function(options)
 	
 	this.renderContext.canvas.addEventListener("mousedown", function(event){
 
-		var pickPoint = [event.clientX, event.clientY];
-		var geoPickPoint = globe.getLonLatFromPixel(event.clientX, event.clientY);
+		var pickPoint = [event.layerX, event.layerY];
+		var geoPickPoint = globe.getLonLatFromPixel(event.layerX, event.layerY);
 
 		if ( !self.activated && !self.selectionFeature )
 			return;
@@ -128,18 +128,18 @@ var SelectionTool = function(options)
 		if ( !dragging )
 			return;
 
-		var geoPickPoint = globe.getLonLatFromPixel( event.clientX, event.clientY );
+		var geoPickPoint = globe.getLonLatFromPixel( event.layerX, event.layerY );
 		if ( state == "resize" )
 		{
 			// Update radius
-			self.radius = Math.sqrt( Math.pow(event.clientX - self.pickPoint[0], 2) + Math.pow(event.clientY - self.pickPoint[1], 2) );
+			self.radius = Math.sqrt( Math.pow(event.layerX - self.pickPoint[0], 2) + Math.pow(event.layerY - self.pickPoint[1], 2) );
 			self.computeGeoRadius( geoPickPoint );
 		}
 		else if ( state == "move" )
 		{
 			// Update pick point position
-			self.pickPoint = [event.clientX, event.clientY];
-			self.geoPickPoint = globe.getLonLatFromPixel(event.clientX, event.clientY);
+			self.pickPoint = [event.layerX, event.layerY];
+			self.geoPickPoint = globe.getLonLatFromPixel(event.layerX, event.layerY);
 
 			// TODO: scale radius of selection shape if fov has been changed(or not?)
 		}
@@ -151,7 +151,7 @@ var SelectionTool = function(options)
 			return;
 
 		// Compute geo radius
-		var stopPickPoint = globe.getLonLatFromPixel(event.clientX, event.clientY);
+		var stopPickPoint = globe.getLonLatFromPixel(event.layerX, event.layerY);
 
 		if ( self.activated && onselect )
 		{
