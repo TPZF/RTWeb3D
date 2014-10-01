@@ -247,7 +247,7 @@ return {
 					for ( var i=0; i<sky.tileManager.tilesToRender.length; i++ )
 					{
 						var tile = sky.tileManager.tilesToRender[i];
-						var url = window.location.origin + healpixLayer.getUrl( tile );
+						var url = healpixLayer.getUrl( tile );
 						Samp.sendImage(url);
 					}
 				}
