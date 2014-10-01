@@ -337,15 +337,14 @@ MeasureTool.prototype.toggle = function()
 	this.activated = !this.activated;
 	if ( this.activated )
 	{
-		$('#measureInvoker').css('background-image', 'url(css/images/measure_on.png)');
 		// TODO : Find more sexy image for cursor
 		$(this.renderContext.canvas).css('cursor', 'url(css/images/selectionCursor.png)');
 	}
 	else
 	{
-		$('#measureInvoker').css('background-image', 'url(css/images/measure_off.png)');
 		$(this.renderContext.canvas).css('cursor', 'default');
 	}
+	$('#measureInvoker').toggleClass('selected');
 }
 
 /**************************************************************************************************************/

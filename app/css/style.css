@@ -212,6 +212,11 @@ body
 	pointer-events: auto;
 }
 
+#measureInvoker.selected
+{
+	background: url(./images/measure_on.png) no-repeat;
+}
+
 #measureInvoker:hover
 {
 	cursor: pointer;

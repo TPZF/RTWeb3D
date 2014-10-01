@@ -95,7 +95,7 @@ function initUI()
 			// Update jQuery UI buttons
 			$('#registerSamp').removeAttr('disabled').button("refresh");
 			$(this).attr('disabled','disabled').button("refresh");
-			$('#sampInvoker').css('background-image', 'url(css/images/samp_off.png)');
+			$('#sampInvoker').toggleClass('selected');
 		}).end()
 	.find('#sendVOTable').button()
 		.click(function(){
@@ -235,7 +235,7 @@ function createClientTracker()
 		// Update jQuery UI buttons
 		$('#registerSamp').removeAttr('disabled').button("refresh");
 		$("#unregisterSamp").attr('disabled','disabled').button("refresh");
-		$('#sampInvoker').css('background-image', 'url(css/images/samp_off.png)');
+		$('#sampInvoker').toggleClass('selected');
 	}
 
 	return clientTracker;
@@ -259,7 +259,7 @@ function initSamp()
 		    	// Update jQuery UI buttons
 				$('#unregisterSamp').removeAttr('disabled').button("refresh");
 				$('#registerSamp').attr('disabled','disabled').button("refresh");
-				$('#sampInvoker').css('background-image', 'url(css/images/samp_on.png)');
+				$('#sampInvoker').addClass('selected');
 		    }
 		},
 		receiveCall: function(senderId, msgId, message) {
