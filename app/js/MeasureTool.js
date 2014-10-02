@@ -82,7 +82,7 @@ var MeasureTool = function(options)
 		}
 		else
 		{
-			self.pickPoint = [ event.clientX, event.clientY ];
+			self.pickPoint = [ event.layerX, event.layerY ];
 		}
 
 		self.geoPickPoint = globe.getLonLatFromPixel(self.pickPoint[0], self.pickPoint[1]);
@@ -103,7 +103,7 @@ var MeasureTool = function(options)
 		else
 		{
 
-			var stopPickPoint = globe.getLonLatFromPixel(event.clientX, event.clientY);
+			var stopPickPoint = globe.getLonLatFromPixel(event.layerX, event.layerY);
 		}
 
 
@@ -134,7 +134,7 @@ var MeasureTool = function(options)
 		}
 		else
 		{
-			self.secondPickPoint = [ event.clientX, event.clientY ];
+			self.secondPickPoint = [ event.layerX, event.layerY ];
 		}
 
 		self.secondGeoPickPoint = globe.getLonLatFromPixel(self.secondPickPoint[0], self.secondPickPoint[1]);
