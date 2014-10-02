@@ -1,15 +1,16 @@
 <html>
 
 <head>
-<title>AstroWeb example</title>
+<title>Explorer example</title>
 <meta http-equiv="content-type" content="text/html; charset=ISO-8859-1">
-<link rel="stylesheet" href="../css/style.css" />
 <link rel="stylesheet" href="http://cdn.datatables.net/1.10.1/css/jquery.dataTables.css" />
 
 <!-- Dev -->
 <!-- <script type="text/javascript" data-main="../js/explorer-main" src="../js/require.min.js"></script> -->
+<!-- <link rel="stylesheet" href="../css/style.css" /> -->
 
 <!-- Prod -->
+<link rel="stylesheet" href="../css/style.min.css" />
 <script type="text/javascript" charset="UTF-8" src="../MizarWidget.min.js"></script>
 <!-- <script type="text/javascript" charset="UTF-8" src="http://demonstrator.telespazio.com/mizar/MizarWidget.min.js"></script> -->
 <script type="text/javascript" charset="UTF-8" src="http://cdn.datatables.net/1.10.1/js/jquery.dataTables.min.js"></script>
@@ -93,6 +94,7 @@ li.poi:hover
 {
 	margin: 20px;
 	margin-left: 40px;
+	margin-top: 300px;
 	display: inline-block;
 }
 
@@ -103,7 +105,8 @@ li.poi:hover
 	window.onload = function(){
 		var options = {
 			"nameResolver": {
-				zoomFov: 1
+				zoomFov: 1,
+				duration: 2000
 			},
 			"positionTracker": {
 				position: "top"
@@ -129,7 +132,7 @@ li.poi:hover
 	        .on( 'mouseover', 'tr', function () {
 				var featureData = $(this).data("featureData");
 				if ( featureData )
-					mizar.highlightObservation(featureData);
+					mizar.highlightObservation(featureData, true);
 	        } )
 	        .on ( 'click', 'tr', function() {
 	        	// Add/remove fits
@@ -159,22 +162,19 @@ li.poi:hover
 		// grid.visible(true);
 
 		// Update data table when features has been added on hstLayer
-		mizar.subscribe("features:added", function(featureData){
-			if ( hstLayer.name == featureData.layer.name )
-			{
-				// HST layer loading ended
-				// Show received features
-				console.log(featureData.features);
-				var $tbody = $('#featureResults').find("tbody");
+		hstLayer.subscribe("features:added", function(featureData){
+			// HST layer loading ended
+			// Show received features
+			console.log(featureData.features);
+			var $tbody = $('#featureResults').find("tbody");
 
-				for ( var i=0; i<featureData.features.length; i++ )
-				{
-					var feature = featureData.features[i];
-					var row = table.row.add( [ feature.properties.identifier, feature.properties.Ra, feature.properties.Dec ] );
-					$(row.node()).data("featureData",{feature: feature, layer: featureData.layer});
-				}
-				table.draw();
+			for ( var i=0; i<featureData.features.length; i++ )
+			{
+				var feature = featureData.features[i];
+				var row = table.row.add( [ feature.properties.identifier, feature.properties.Ra, feature.properties.Dec ] );
+				$(row.node()).data("featureData",{feature: feature, layer: featureData.layer});
 			}
+			table.draw();
 		});
 			
 		// Move to point of interest handler

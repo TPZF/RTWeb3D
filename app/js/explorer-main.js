@@ -77,7 +77,7 @@ require(["jquery", "./MizarWidget", "datatables"], function($, MizarWidget) {
         .on( 'mouseover', 'tr', function () {
 			var featureData = $(this).data("featureData");
 			if ( featureData )
-				mizar.highlightObservation(featureData);
+				mizar.highlightObservation(featureData, true);
         } )
         .on ( 'click', 'tr', function() {
         	// Add/remove fits
@@ -107,22 +107,19 @@ require(["jquery", "./MizarWidget", "datatables"], function($, MizarWidget) {
 	// grid.visible(true);
 
 	// Update data table when features has been added on hstLayer
-	mizar.subscribe("features:added", function(featureData){
-		if ( hstLayer.name == featureData.layer.name )
-		{
-			// HST layer loading ended
-			// Show received features
-			console.log(featureData.features);
-			var $tbody = $('#featureResults').find("tbody");
+	hstLayer.subscribe("features:added", function(featureData){
+		// HST layer loading ended
+		// Show received features
+		console.log(featureData.features);
+		var $tbody = $('#featureResults').find("tbody");
 
-			for ( var i=0; i<featureData.features.length; i++ )
-			{
-				var feature = featureData.features[i];
-				var row = table.row.add( [ feature.properties.identifier, feature.properties.Ra, feature.properties.Dec ] );
-				$(row.node()).data("featureData",{feature: feature, layer: featureData.layer});
-			}
-			table.draw();
+		for ( var i=0; i<featureData.features.length; i++ )
+		{
+			var feature = featureData.features[i];
+			var row = table.row.add( [ feature.properties.identifier, feature.properties.Ra, feature.properties.Dec ] );
+			$(row.node()).data("featureData",{feature: feature, layer: featureData.layer});
 		}
+		table.draw();
 	});
 		
 	// Move to point of interest handler

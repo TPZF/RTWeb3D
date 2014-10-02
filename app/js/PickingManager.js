@@ -531,11 +531,10 @@ return {
 	/**
 	 *	Apply selected style to the given feature
 	 */
-	focusFeature: function(selectedData)
+	focusFeature: function(selectedData, isExclusive)
 	{
-		//clearSelection();
 		selection.push(selectedData);
-		this.focusFeatureByIndex(selection.length - 1);
+		this.focusFeatureByIndex(selection.length - 1, isExclusive);
 		sky.refresh();
 	},
 
@@ -554,6 +553,7 @@ return {
 	},
 
 	computePickSelection: computePickSelection,
+	blurSelection: blurSelection,
 	activate: activate,
 	deactivate: deactivate
 };
