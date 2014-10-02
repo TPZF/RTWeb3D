@@ -484,7 +484,7 @@ return {
 			$('#featureList div.selected').removeClass('selected');
 			
 			var featureIndexToFocus = $(this).index();
-			pickingManager.focusFeatureByIndex( featureIndexToFocus );
+			pickingManager.focusFeatureByIndex( featureIndexToFocus, true );
 			var selectedData = pickingManager.getSelectedData();
 			
 			$('#featureList div:eq('+featureIndexToFocus+')').addClass('selected');

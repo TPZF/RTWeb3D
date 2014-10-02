@@ -114,7 +114,7 @@ function _handleMouseUp(event)
 					else
 					{
 						// only one layer, no pile needed, create feature dialogue
-						self.focusFeatureByIndex( 0 );
+						self.focusFeatureByIndex( 0, true );
 						$('#featureList div:eq(0)').addClass('selected');
 						FeaturePopup.showFeatureInformation( selection[stackSelectionIndex].layer, selection[stackSelectionIndex].feature )
 					}
@@ -497,10 +497,13 @@ return {
 	 * 	Apply selected style to the feature by the given index in selection array
 	 * 
 	 * 	@param index Index of feature in selection array
+	 *	@param isExclusive Boolean indicating if the focus is exclusive
 	 */
-	focusFeatureByIndex: function(index)
+	focusFeatureByIndex: function(index, isExclusive)
 	{
-		blurSelection();
+		if ( isExclusive )
+			blurSelection();
+		
 		var selectedData = selection[index];
 		if ( selectedData )
 		{
@@ -530,9 +533,9 @@ return {
 	 */
 	focusFeature: function(selectedData)
 	{
-		clearSelection();
-		selection = [selectedData];
-		this.focusFeatureByIndex(0);
+		//clearSelection();
+		selection.push(selectedData);
+		this.focusFeatureByIndex(selection.length - 1);
 		sky.refresh();
 	},
 

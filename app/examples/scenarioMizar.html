@@ -2,7 +2,7 @@
 <html>
 
 <head>
-<title>Mizar</title>
+<title>Scenario Mizar</title>
 <meta http-equiv="content-type" content="text/html; charset=ISO-8859-1" />
 <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, maximum-scale=1, user-scalable=no" />
 
@@ -30,104 +30,91 @@
 		};
 		var mizar = new MizarWidget("#mizarWidget-div", options);
 
-		mizar.setCompassGui(true);
-		mizar.setImageViewerGui(true);
+		mizar.sky.subscribe("baseLayersReady", function(){
 
-		// Add custom survey
-	    var customSurvey = {
-			"type": "healpix",
-			"name": "IRIS",
-			"baseUrl": "http://demonstrator.telespazio.com/Alasky/IRISColor",
-			"description": "IRIS color",
-			"icon": "css/images/star_icon.png",
-			"visible": false,
-			"background": true,
-			"coordSystem": "GAL",
-	        "attribution": "IRIS background from <img width='24' height='16' src=\"http://demonstrator.telespazio.com/mizar/css/images/cds.svg\" />",
-			"numberOfLevels": 1
-		};
+			// Find something better than this...
+			mizar.sky.unsubscribe("baseLayersReady", this[1]);
 
-		mizar.setCustomBackgroundSurvey(customSurvey);
-		mizar.setCategoryGui(true);
+			mizar.setCompassGui(true);
+			mizar.setImageViewerGui(true);
 
-		// Add custom opensearch layer
-		var openSearchDesc = 	{
-			"type": "DynamicOpenSearch",
-			"category": "Image",
-			"name": "HST",
-			"serviceUrl": "http://demonstrator.telespazio.com/sitools/hst",
-			"dataType": "line",
-	        "description":"Hubble Space Telescope (HST) is an orbiting astronomical observatory operating from the near-infrared into the ultraviolet. Launched in 1990 and scheduled to operate through 2010, HST carries and has carried a wide variety of instruments producing imaging, spectrographic, astrometric, and photometric data through both pointed and parallel observing programs. MAST is the primary archive and distribution center for HST data, distributing science, calibration, and engineering data to HST users and the astronomical community at large. Over 100 000 observations of more than 20 000 targets are available for retrieval from the Archive.",
-			"visible": false,
-			"minOrder": 4,
-	        "attribution":"HST data provided by <a href=\"http://hst.esac.esa.int\" target=\"_blank\"><img src=\"http://demonstrator.telespazio.com/sitools/upload/esa.svg\" width='28' height='16'/></a>"
-		};
-		var myOpenSearchLayer = mizar.addLayer(openSearchDesc);
+			// Add custom survey
+		    var customSurvey = {
+				"type": "healpix",
+				"name": "IRIS",
+				"baseUrl": "http://demonstrator.telespazio.com/Alasky/IRISColor",
+				"description": "IRIS color",
+				"icon": "css/images/star_icon.png",
+				"visible": false,
+				"background": true,
+				"coordSystem": "GAL",
+		        "attribution": "IRIS background from <img width='24' height='16' src=\"http://demonstrator.telespazio.com/mizar/css/images/cds.svg\" />",
+				"numberOfLevels": 1
+			};
 
-		// Add custom GeoJSON layer
-		var geoJsonDesc = {
-			"category": "Other",
-			"type": "GeoJSON",
-			"name": "Herschel",
-			"description": "Herschel response used for testing",
-			"data": {
-				"type": "JSON",
-				"url": "http://demonstrator.telespazio.com/mizar/data/responseHerschel.json",
-			},
-			"visible": true,
-			"pickable" : true
-		};
-		var geoJsonLayer = mizar.addLayer(geoJsonDesc);
+			mizar.setCustomBackgroundSurvey(customSurvey);
+			mizar.setCategoryGui(true);
 
-		// Go to point of interest
-		mizar.goTo("mizar", function(){
+			// Add custom opensearch layer
+			var openSearchDesc = 	{
+				"type": "DynamicOpenSearch",
+				"category": "Image",
+				"name": "HST",
+				"serviceUrl": "http://demonstrator.telespazio.com/sitools/hst",
+				"dataType": "line",
+		        "description":"Hubble Space Telescope (HST) is an orbiting astronomical observatory operating from the near-infrared into the ultraviolet. Launched in 1990 and scheduled to operate through 2010, HST carries and has carried a wide variety of instruments producing imaging, spectrographic, astrometric, and photometric data through both pointed and parallel observing programs. MAST is the primary archive and distribution center for HST data, distributing science, calibration, and engineering data to HST users and the astronomical community at large. Over 100 000 observations of more than 20 000 targets are available for retrieval from the Archive.",
+				"visible": false,
+				"minOrder": 4,
+		        "attribution":"HST data provided by <a href=\"http://hst.esac.esa.int\" target=\"_blank\"><img src=\"http://demonstrator.telespazio.com/sitools/upload/esa.svg\" width='28' height='16'/></a>"
+			};
+			var myOpenSearchLayer = mizar.addLayer(openSearchDesc);
 
-			// Start search on open search layer
-			var startSearch = function()
-			{
-				// Make open search layer visible
-				myOpenSearchLayer.visible(true);
+			// Add custom GeoJSON layer
+			var geoJsonDesc = {
+				"category": "Other",
+				"type": "GeoJSON",
+				"name": "Herschel",
+				"description": "Herschel response used for testing",
+				"data": {
+					"type": "JSON",
+					"url": "http://demonstrator.telespazio.com/mizar/data/responseHerschel.json",
+				},
+				"visible": true,
+				"pickable" : true
+			};
+			var geoJsonLayer = mizar.addLayer(geoJsonDesc);
 
-				// Wait while searching results arrive
-				window.setTimeout(function(){
-					console.log("Opacity changed");
-					// Change opacity
-				    myOpenSearchLayer.opacity(0.3);
-				}, 10000);
-			}
+			// Go to point of interest
+			mizar.goTo("m31", function(){
 
-			// Adjust FOV
-			var fov = mizar.getCurrentFov();
-			if (fov[1] <= 2) {
-				// Since name resolver zoomFov is 0.2, we'll always pass here
-				mizar.setZoom(1, startSearch);
-			}
-			else
-			{
-				startSearch();
-			}
-		});
-
-		// Zoom to predefined feature when added
-		// Add its fits
-		mizar.subscribe("features:added", function(featureData){
-			if ( myOpenSearchLayer.name == featureData.layer.name )
-			{
-				var features = featureData.features;
-				// OpenSearch layer loading ended
-				// Show received features
-				for ( var i=0; i<featureData.features.length; i++ )
+				// Start search on open search layer
+				var startSearch = function()
 				{
-				 	var feature = featureData.features[i];
-					if ( feature.properties.identifier == "HST_11130_0U_WFPC2_F814W_PC" )
-					{
-						// Go to the choosen observation and request fits
-						mizar.goTo(feature.properties.Ra + " " + feature.properties.Dec, function() {
-							mizar.requestFits( {feature:feature, layer: myOpenSearchLayer} );
-						});
-					}
+
+					myOpenSearchLayer.subscribe("features:added", function(featureData){
+						var features = featureData.features;
+						// OpenSearch layer loading ended
+						// Show received features
+						for ( var i=0; i<featureData.features.length; i++ )
+						{
+							mizar.highlightObservation({feature:featureData.features[i], layer: myOpenSearchLayer});
+						}
+					});
+					// Make open search layer visible
+					myOpenSearchLayer.visible(true);
 				}
-			}
+
+				// Adjust FOV
+				var fov = mizar.getCurrentFov();
+				if (fov[1] <= 2) {
+					// Since name resolver zoomFov is 0.2, we'll always pass here
+					mizar.setZoom(1, startSearch);
+				}
+				else
+				{
+					startSearch();
+				}
+			});
 		});
 	}
 
