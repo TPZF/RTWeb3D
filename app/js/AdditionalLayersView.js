@@ -298,6 +298,46 @@ function createDynamicImageDialog( gwLayer )
 /**************************************************************************************************************/
 
 /**
+ *	Handler managing BaseLayer "visibility:changed" event
+ *	TODO: create view object
+ */
+function onVisibilityChange(gwLayer)
+{
+	var isOn = gwLayer.visible();
+	var shortName = Utils.formatId( gwLayer.name );
+	// Manage 'custom' checkbox
+	// jQuery UI button is not sexy enough :)
+	// Toggle some classes when the user clicks on the visibility checkbox
+	if ( gwLayer.subLayers )
+	{
+		setSublayersVisibility(gwLayer, isOn);
+	}
+
+	var toolsDiv = $("#addLayer_"+shortName).find('.layerTools');
+	$("#addLayer_"+gwLayer.shortName).find('.slider').slider( isOn ? "enable" : "disable" );
+	if ( isOn )
+	{
+		$('.layerTools').slideUp();
+		toolsDiv.slideDown();
+
+		// Change button's state
+		$('#visible_'+shortName).addClass('ui-state-active').removeClass('ui-state-default')
+			.find('span').addClass('ui-icon-check').removeClass('ui-icon-empty')
+	}
+	else
+	{
+		toolsDiv.slideUp();	
+		// Change button's state
+		$('#visible_'+shortName).removeClass('ui-state-active').addClass('ui-state-default')
+			.find('span').removeClass('ui-icon-check').addClass('ui-icon-empty')
+	}
+
+	sky.refresh();
+}
+
+/**************************************************************************************************************/
+
+/**
  *	Show/hide layer tools depending on layer visibility
  *	Set visibility event handlers
  */
@@ -323,41 +363,8 @@ function manageLayerVisibility($layerDiv, gwLayer, categoryId)
 			// TODO: change button, 
 			mizar.toggleMode(gwLayer);
 		} else {
-			// Manage 'custom' checkbox
-			// jQuery UI button is not sexy enough :)
-			// Toggle some classes when the user clicks on the visibility checkbox
 			var isOn = !$(this).hasClass('ui-state-active');
 			gwLayer.visible( isOn );
-			if ( gwLayer.subLayers )
-			{
-				setSublayersVisibility(gwLayer, isOn);
-			}
-
-			$layerDiv.find('.slider').slider( isOn ? "enable" : "disable" );
-			if ( isOn )
-			{
-				$('.layerTools').slideUp();
-				toolsDiv.slideDown();
-			}
-			else
-			{
-				toolsDiv.slideUp();	
-			}
-			
-			// Change button's state
-			$('#visible_'+shortName).toggleClass('ui-state-active')
-				   .toggleClass('ui-state-default')
-				   .find('span')
-				   	  .toggleClass('ui-icon-check')
-				   	  .toggleClass('ui-icon-empty');
-
-			// Synchronize with visibility button of ImageViewer if needed
-			var $imageViewerBtn = $('#layerVisibility_'+gwLayer.id);
-			if ( ($imageViewerBtn.button('option', 'icons').primary == "ui-icon-check") != isOn )
-			{
-				$imageViewerBtn.trigger('click');
-			}
-			sky.refresh();
 		}
 	});
 }
@@ -459,6 +466,8 @@ function addView ( gwLayer )
 
 	// Add HTML
 	createHtmlForAdditionalLayer( gwLayer, categoryId );
+
+	gwLayer.subscribe("visibility:changed", onVisibilityChange);
 }
 
 /**************************************************************************************************************/
@@ -482,6 +491,8 @@ function removeView ( gwLayer ) {
 		$('#addFitsView_'+gwLayer.div.id).dialog("destroy").remove();
 		gwLayer.div = null;
 	}
+
+	gwLayer.unsubscribe("visibility:changed", onVisibilityChange);
 }
 
 /**************************************************************************************************************/
@@ -700,6 +711,10 @@ return {
 	 */
 	remove: function()
 	{
+		var self = this;
+		$(parentElement).find(".addLayer").each(function(){
+			self.removeView($(this).data("layer"));
+		})
 		$(parentElement).find(".category").remove();
 
 		sky.unsubscribe("startLoad", onLoadStart);

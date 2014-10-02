@@ -68,6 +68,32 @@ function enableImageUI(layer)
 /**************************************************************************************************************/
 
 /**
+ *	Handler to manage BaseLayer "visibility:change" event
+ */
+function onVisibilityChange(layer)
+{
+	var $layerVisibility = $layer.find('#layerVisibility_'+layer.id);
+	$layerVisibility.button("option", {
+		icons: {
+			primary: layer.visible() ? "ui-icon-check" : ""
+		},
+	}).button('refresh');
+
+	// TODO: still tiny bug with label "ui-state-active" class toggling
+
+	if ( layer.visible() )
+	{
+		enableImageUI(layer);
+	}
+	else
+	{
+		disableImageUI(layer);
+	}
+}
+
+/**************************************************************************************************************/
+
+/**
  *	Create layer view
  *	This view will contain all the loaded images for the given layer
  */
@@ -92,29 +118,7 @@ function createLayerView(layer)
       	}
 	}).click(function(){
 		var isChecked = !($layerVisibility.button('option', 'icons').primary == "ui-icon-check");
-		var shortName = Utils.formatId( layer.name );
-		$layerVisibility.button("option", {
-			icons: {
-				primary: isChecked ? "ui-icon-check" : ""
-			},
-		}).button('refresh');
-
-		if ( isChecked )
-		{
-			enableImageUI(layer);
-		}
-		else
-		{
-			disableImageUI(layer);
-		}
-		
-		// Synchronize with visibility button of LayerManager if needed
-		var $layerManagerBtn = $('#visible_'+shortName );
-		if ( $layerManagerBtn.hasClass('ui-state-active') != isChecked )
-		{
-			// Trigger event on LayerManager visibility button
-			$layerManagerBtn.trigger("click");
-		}
+		layer.visible(isChecked);
 	});
 
 	if ( layers.length == 0 )
@@ -129,6 +133,7 @@ function createLayerView(layer)
 	}
 
 	layers.push(layer);
+	layer.subscribe("visibility:changed", onVisibilityChange);
 
 	return $layer;
 }
@@ -197,6 +202,11 @@ return {
 	 */
 	remove: function()
 	{
+		for ( var i=0; i<layer.length; i++ )
+		{
+			layer.unsubscribe("visibility:changed", onVisibilityChange);
+		}
+
 		mizar.unsubscribe("image:add", this.addView );
 		mizar.unsubscribe("image:remove", this.removeView);
 		mizar.unsubscribe("image:download", this.addProgressBar);
