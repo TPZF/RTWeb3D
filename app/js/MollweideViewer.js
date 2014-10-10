@@ -31,17 +31,19 @@ var mizarBaseUrl;
 function _findTheta( lat )
 {
     // Avoid divide by zero
-    if ( lat == Math.PI || lat == -Math.PI )
+    if ( Math.abs(lat) == Math.PI/2 )
         return lat;
 
     var epsilon = 0.001;
-    var thetaN = lat;  // n
-    var thetaN1;       // n+1
+    var thetaN;  // n
+    var thetaN1; // n+1
 
     do
     {
-        var twoThetaN = 2*thetaN;
         thetaN = thetaN1;
+        if (!thetaN)
+            thetaN = lat;
+        var twoThetaN = 2*thetaN;
         thetaN1 = twoThetaN/2 - (twoThetaN + Math.sin(twoThetaN) - Math.PI*Math.sin(lat)) / (2 + 2*Math.cos(twoThetaN));
     } while( Math.abs( thetaN1 - thetaN ) >= epsilon );
 
@@ -164,7 +166,7 @@ var MollweideViewer = function(options) {
         var geo = [lambda*180/Math.PI, phi*180/Math.PI];
         if ( self.globe.coordinateSystem.type != "EQ" )
         {
-            geo = self.globe.coordSystem.convert(geo, self.globe.coordinateSystem.type, "EQ");
+            geo = self.globe.coordinateSystem.convert(geo, self.globe.coordinateSystem.type, "EQ");
         }
 
         // Update navigation
