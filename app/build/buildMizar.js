@@ -6,7 +6,7 @@
 	wrap: {
  	    start: "(function (root, factory) {\
 		    if (typeof define === 'function' && define.amd) {\
-			define(['jquery', 'underscore'], factory);\
+			define(['jquery', 'underscore-min'], factory);\
 		    } else {\
 			root.MizarWidget = factory(root.$, root._);\
 		    }\
