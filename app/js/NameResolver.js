@@ -20,18 +20,21 @@
 /**
  * Name resolver module : API allowing to search object name and zoom to it
  */
-define(["jquery", "gw/FeatureStyle", "gw/VectorLayer", "gw/HEALPixBase", "./Utils", "text!../data/mars_resolver.json", "jquery.ui"],
-	function($, FeatureStyle, VectorLayer, HEALPixBase, Utils, marsResolverJSON) {
+define(["jquery", "underscore-min", "gw/FeatureStyle", "gw/VectorLayer", "gw/HEALPixBase", "./Utils", "text!../data/mars_resolver.json", "jquery.ui"],
+	function($, _, FeatureStyle, VectorLayer, HEALPixBase, Utils, marsResolverJSON) {
 
 // Name resolver globals
 var mizar;
 var context;
 var dictionary;
 
-// Target layer
-var targetLayer;
-// Zooming destination feature
-var targetFeature;
+// Name resolver properties
+var duration;
+var zoomFov;
+
+var nameResolverLayer = null; // Layer containing labels from dictionary
+var targetLayer; 			  // Layer containing target feature(cross) on zoom
+var targetFeature;			  // Zooming destination feature
 
 /**************************************************************************************************************/
 
@@ -142,10 +145,10 @@ function search(objectName, onSuccess, onError, onComplete)
 			{
 				var lon = parseFloat(feature.properties.center_lon);
 				var lat = parseFloat(feature.properties.center_lat);
-				context.navigation.zoomTo( [lon, lat], context.configuration.nameResolver.zoomFov, context.configuration.nameResolver.duration );
+				context.navigation.zoomTo( [lon, lat], zoomFov, duration );
 				setTimeout(function(){
 					addTarget(lon, lat);
-				}, 2040); // Very very veeery ugly hack to show target at the end of animation
+				}, duration + 40); // Very very veeery ugly hack to show target at the end of animation
 				// NB: can't use zoomTo method due to absence of callback in Navigation.zoomTo
 				//zoomTo([feature.properties.center_lon, feature.properties.center_lat]);
 
@@ -204,7 +207,7 @@ function search(objectName, onSuccess, onError, onComplete)
  */
 function zoomTo(lon, lat, callback, args)
 {
-	context.navigation.zoomTo([lon, lat], context.configuration.nameResolver.zoomFov, context.configuration.nameResolver.duration, function() {
+	context.navigation.zoomTo([lon, lat], zoomFov, duration, function() {
 		addTarget(lon,lat);
 		if ( callback )
 			callback.call(this, args);
@@ -243,6 +246,17 @@ var retrieveDictionary = function()
 			success: function(response)
 			{
 				dictionary = response;
+				nameResolverLayer = new VectorLayer();
+				for ( var i=0; i<response.features.length; i++ )
+				{
+					var feature = response.features[i];
+					feature.properties.style = new FeatureStyle({
+						label : feature.properties.Name,
+						fillColor: [1.,0.7,0.,1.]
+					});
+				}
+				nameResolverLayer.addFeatureCollection(response);
+				context.globe.addLayer(nameResolverLayer);
 			},
 			error: function(thrownError)
 			{
@@ -275,6 +289,8 @@ return {
 		if ( context )
 		{
 			context.globe.removeLayer( targetLayer );
+			if ( nameResolverLayer )
+				context.globe.removeLayer( nameResolverLayer );
 			context.navigation.unsubscribe("modified", removeTarget);
 			context = null;
 			dictionary = null;
@@ -301,6 +317,11 @@ return {
 		targetLayer = new VectorLayer({ style: style });
 
 		ctx.globe.addLayer( targetLayer );
+
+		// Update name resolver properties
+		duration = ctx.configuration.nameResolver.duration ? context.configuration.nameResolver.duration : 3000;
+		zoomFov = ctx.configuration.nameResolver.zoomFov ? context.configuration.nameResolver.zoomFov : 15;
+
 		ctx.navigation.subscribe("modified", removeTarget);
 	}
 };
