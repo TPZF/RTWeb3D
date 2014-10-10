@@ -24,7 +24,7 @@ define(["jquery", "./LayerManager", "./ErrorDialog"],
 	function($, LayerManager, ErrorDialog) {
 
 // Globals
-var sky;
+var mizar;
 var navigation;
 var baseUrl;
 
@@ -64,7 +64,7 @@ function generateURL()
 
 	// Get navigation parameters
 	var geo = [];
-	sky.coordinateSystem.from3DToGeo( navigation.center3d, geo );
+	mizar.sky.coordinateSystem.from3DToGeo( navigation.center3d, geo );
 
 	// Get layer visibility parameters
 	var currentLayers = LayerManager.getLayers();

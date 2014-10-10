@@ -306,7 +306,7 @@ define( [ "jquery", "underscore-min", "./PlanetContext", "./SkyContext", "gw/Til
 		PickingManager.init(this, options);
 
 		// Share configuration module init
-		Share.init({navigation : this.navigation, configuration: options});
+		Share.init({mizar: this, navigation : this.navigation, configuration: options});
 
 		// Initialize SAMP component
 		// TODO : Bear in mind that a website may already implement specific SAMP logics, so check that
