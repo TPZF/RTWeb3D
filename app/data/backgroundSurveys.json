@@ -609,9 +609,8 @@
 		"nameResolverURL": "http://demonstrator.telespazio.com/mizar/data/mars_resolver.json",
 		"elevation": {
 			"baseUrl": "http://demonstrator.telespazio.com/wcspub",
-			"coverage": "MARSTOPO",
-			"version": "1.0.0",
-			"scale": 200
+			"coverage": "MARSTOPO_16",
+			"version": "1.0.0"
 		},
 		"baseImageries": [
 			{
