@@ -614,24 +614,24 @@
 		},
 		"baseImageries": [
 			{
+				"name": "THEMIS",
+				"baseUrl": "http://demonstrator.telespazio.com/mars",
+				"layers": "THEMIS",
+				"description": "Thermis",
+		        "attribution":"Color background provided by <a href=\"http://www.mars.asu.edu/data/\" target=\"_blank\">Mars Dataset</a>"
+			},
+			{
 				"name": "MOLA",
-				"baseUrl": "http://localhost/ms-mars",
+				"baseUrl": "http://demonstrator.telespazio.com/ms-mars",
 				"layers": "MOLA_Color",
-				"description": "MOLA color",
-				"visible": false,
-				"background": true,	
-				"coordSystem": "EQ",
 				"format": "image/png",
 		        "attribution":"Color background provided by <a href=\"http://www.mars.asu.edu/data/\" target=\"_blank\">Mars Dataset</a>"
 			},
 			{
 				"name": "MOC Atlas",
-				"baseUrl": "http://localhost/ms-mars",
+				"baseUrl": "http://demonstrator.telespazio.com/ms-mars",
 				"layers": "MOC_Atlas_256ppd",
 				"description": "MOC Atlas",
-				"visible": false,
-				"background": true,	
-				"coordSystem": "EQ",
 				"format": "image/png",
 		        "attribution":"Color background provided by <a href=\"http://www.mars.asu.edu/data/\" target=\"_blank\">Mars Dataset</a>"
 			},
@@ -640,19 +640,6 @@
 				"baseUrl": "http://demonstrator.telespazio.com/mars",
 				"layers": "pyroxene",
 				"description": "Pyroxene",
-				"visible": false,
-				"background": true,
-				"coordSystem": "EQ",
-		        "attribution":"Color background provided by <a href=\"http://www.mars.asu.edu/data/\" target=\"_blank\">Mars Dataset</a>"
-			},
-			{
-				"name": "THEMIS",
-				"baseUrl": "http://demonstrator.telespazio.com/mars",
-				"layers": "THEMIS",
-				"description": "Thermis",
-				"visible": true,
-				"background": true,
-				"coordSystem": "EQ",
 		        "attribution":"Color background provided by <a href=\"http://www.mars.asu.edu/data/\" target=\"_blank\">Mars Dataset</a>"
 			}
 		],
@@ -672,12 +659,7 @@
 				"type": "WMS",
 				"name": "Blue Marble",
 				"baseUrl": "http://demonstrator.telespazio.com/wmspub",
-				"layers": "BlueMarble",
-				"description": "BlueMarble",
-				"visible": true,
-				"background": true,
-				"coordSystem": "EQ",
-		        "attribution":"BlueMarble"
+				"layers": "BlueMarble"
 			}
 		],
 		"visible": false

@@ -32,6 +32,7 @@ define( [ "jquery", "gw/Globe", "gw/Navigation", "gw/Utils", "./MizarContext", "
 	 *		Element containing the canvas
 	 *	@param options Configuration properties for the Globe
 	 *		<ul>
+	 *			<li>planetLayer : Planet layer to set</li>
 	 *			<li>renderContext : Sky <RenderContext> object</li>
 	 *			<li>Same as Mizar options</li>
 	 *		</ul>
@@ -56,6 +57,19 @@ define( [ "jquery", "gw/Globe", "gw/Navigation", "gw/Utils", "./MizarContext", "
 			document.getElementById('webGLNotAvailable').style.display = "block";
 		}
 		this.initGlobeEvents(this.globe);
+
+		// Initialize planet context
+		var planetLayer = options.planetLayer
+		if ( planetLayer )
+		{
+			// Set first WMS layer as base imagery
+			this.globe.setBaseImagery(planetLayer.layers[0]);
+			// Set elevation if exists
+			if ( planetLayer.elevationLayer )
+			{
+				this.globe.setBaseElevation( planetLayer.elevationLayer );
+			}
+		}
 		
 		// Don't update view matrix on creation, since we want to use animation on context change
 		options.navigation.updateViewMatrix = false;

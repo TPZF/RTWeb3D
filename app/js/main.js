@@ -81,14 +81,6 @@ require(["./MizarWidget"], function(MizarWidget) {
 			visible: true
 		}
 	});
-
-	// Set IRIS survey on load
-	mizar.subscribe("backgroundSurveysReady", function() {
-		mizar.setBackgroundSurvey("IRIS");
-
-		// TODO : Wait till background survey is loaded
-		mizar.goTo("Mizar");
-	});
 	
 	// Set different GUIs
 	mizar.setAngleDistanceGui(true);
@@ -100,9 +92,4 @@ require(["./MizarWidget"], function(MizarWidget) {
 	mizar.setCategoryGui(true);
 	mizar.setCompassGui(true);
 	mizar.setImageViewerGui(true);
-
-	// Define callback in case of error on survey loading
-	mizar.subscribe("backgroundSurveyError", function(thrownError) {
-		console.error(thrownError);
-	});
 });

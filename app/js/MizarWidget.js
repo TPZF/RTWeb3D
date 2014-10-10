@@ -895,6 +895,7 @@ define( [ "jquery", "underscore-min", "./PlanetContext", "./SkyContext", "gw/Til
 
 			// Create planet context( with existing sky render context )
 			var planetConfiguration = {
+				planetLayer: gwLayer,
 				renderContext: this.sky.renderContext,
 				nameResolver: {
 					"zoomFov": 200000, // in fact it must be distance, to be improved
@@ -908,11 +909,6 @@ define( [ "jquery", "underscore-min", "./PlanetContext", "./SkyContext", "gw/Til
 
 			// Planet tile error treshold is less sensetive than sky's one
 			this.sky.renderContext.tileErrorTreshold = 3;
-			// Set elevation if exists
-			if ( gwLayer.elevationLayer )
-			{
-				this.planetContext.globe.setBaseElevation( gwLayer.elevationLayer );
-			}
 	
 			// Used for debug
 			//this.planetContext.globe.addLayer( new TileWireframeLayer({outline: true}) );
@@ -928,7 +924,7 @@ define( [ "jquery", "underscore-min", "./PlanetContext", "./SkyContext", "gw/Til
 			this.planetContext.navigation.computeInverseViewMatrix();
 			mat4.inverse( this.planetContext.navigation.inverseViewMatrix, planetVM );
 			
-			// Add smooth animation from sky context to planet context context
+			// Add smooth animation from sky context to planet context
 			this.navigation.toViewMatrix(planetVM, 45, 2000, function() {
 				self.planetContext.show();
 				self.planetContext.globe.refresh();
