@@ -290,7 +290,10 @@ return {
 		{
 			context.globe.removeLayer( targetLayer );
 			if ( nameResolverLayer )
+			{
 				context.globe.removeLayer( nameResolverLayer );
+				nameResolverLayer = null;
+			}
 			context.navigation.unsubscribe("modified", removeTarget);
 			context = null;
 			dictionary = null;

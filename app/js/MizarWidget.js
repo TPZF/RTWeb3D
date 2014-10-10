@@ -834,6 +834,28 @@ define( [ "jquery", "underscore-min", "./PlanetContext", "./SkyContext", "gw/Til
 	/**************************************************************************************************************/
 
 	/**
+	 *	View planet with the given name
+	 */
+	MizarWidget.prototype.viewPlanet = function( planetName )
+	{
+		var planetLayer = this.getLayer( planetName );
+		if ( planetLayer )
+		{
+			// HACK : mizar must be in sky mode to be toggled to earth mode
+			// TODO: think about better mode management..
+			this.mode = "sky";
+			this.toggleMode(planetLayer);
+		}
+		else
+		{
+			console.error("No planet with name : " + planetName + " has been found");
+		}
+			
+	}
+
+	/**************************************************************************************************************/
+
+	/**
 	 *	Toggle between planet/sky mode
 	 */
 	MizarWidget.prototype.toggleMode = function(gwLayer) {
