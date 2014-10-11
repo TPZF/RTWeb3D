@@ -68,11 +68,15 @@ Build
 ---
 Pour générer une version minifiée, il est nécessaire d'avoir installé [NodeJS](http://nodejs.org/download/).
 
-Une fois installé, lancez `app/build/build.bat` pour les utilisateurs de Windows ou `cd app/build` suivi de `node r.js -o build.js` pour les utilisateurs d'OS de type Unix.
-Le script va générer les fichiers minifiés dans le répertoire "generated".
+Une fois installé, lancez `app/build/build.bat` pour les utilisateurs de Windows ou `cd app/build` suivi de `node r.js -o buildMizar.js` pour les utilisateurs d'OS de type Unix.
+Le script va générer un fichier minifié "MizarWidget.min.js" dans le répertoire parent.
+Pour générer la feuille de style minifié utilisez la commande:
+`node r.js -o cssIn=../css/style.css out=../css/style.min.css`
+
+TODO: découpage en modules:
+Pour générer tout, utilisez: `node r.js -o buildMizar.js`
 Les fichiers intéressants à récupérer sont:
   * css
-  * externals/*.js (sans GlobWeb)
   * js
   * index.html
 
