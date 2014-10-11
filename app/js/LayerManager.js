@@ -110,7 +110,7 @@ function createLayerFromConf(layerDesc) {
 		layerDesc.color = rgb.concat([1]);
 	}
 
-	// HACK: it seems to be a little incoherence between opacity property on layerDesc and FeatureStyle opacity, to explore.. 
+	// Layer opacity must be in range [0, 1] 
 	layerDesc.opacity /= 100;
 
 	// Create style if needed
