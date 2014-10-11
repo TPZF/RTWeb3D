@@ -230,6 +230,7 @@ return {
 
 		mizar.unsubscribe("backgroundLayer:add", BackgroundLayersView.addView);
 		mizar.unsubscribe("additionalLayer:add", AdditionalLayersView.addView);
+		mizar.unsubscribe("mizarMode:toggle", this.toggleMode);
 		$('canvas').off('dragover', handleDragOver);
 		$('canvas').off('drop', handleDrop);
 	},

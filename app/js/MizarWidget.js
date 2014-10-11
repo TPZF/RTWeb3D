@@ -701,8 +701,8 @@ define( [ "jquery", "underscore-min", "./PlanetContext", "./SkyContext", "gw/Til
 	 *		Feature data is an object composed by feature and its layer
 	 *	// TODO : maybe it's more intelligent to store layer reference on feature ?
 	 */
-	MizarWidget.prototype.highlightObservation = function(featureData) {
-		PickingManager.focusFeature(featureData);
+	MizarWidget.prototype.highlightObservation = function(featureData, isExclusive) {
+		PickingManager.focusFeature(featureData, isExclusive);
 	}
 
 	/**************************************************************************************************************/

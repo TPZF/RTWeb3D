@@ -314,7 +314,7 @@ function onVisibilityChange(gwLayer)
 	}
 
 	var toolsDiv = $("#addLayer_"+shortName).find('.layerTools');
-	$("#addLayer_"+gwLayer.shortName).find('.slider').slider( isOn ? "enable" : "disable" );
+	$("#addLayer_"+shortName).find('.slider').slider( isOn ? "enable" : "disable" );
 	if ( isOn )
 	{
 		$('.layerTools').slideUp();
