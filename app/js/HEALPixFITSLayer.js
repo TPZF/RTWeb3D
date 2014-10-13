@@ -35,7 +35,7 @@ var HEALPixFITSLayer = function(options)
 	this.numberOfLevels = options.numberOfLevels || 10;
 	this.type = "ImageryRaster";
 	this.baseUrl = options['baseUrl'];
-	this.dataType = options.dataType || "fits";
+	this.format = options.format || "fits";
 	this.coordSystem = options.coordSystem || "EQ";
 	this._ready = false;
 	this.fitsSupported = true;
@@ -114,7 +114,7 @@ var HEALPixFITSLayer = function(options)
 
 			self._ready = true;
 
-			if ( self.dataType == "fits" )
+			if ( self.format == "fits" )
 			{
 				// Unzip if g-zipped
 				try {
@@ -247,7 +247,7 @@ HEALPixFITSLayer.prototype.getUrl = function(tile)
 	
 	url += "/Npix";
 	url += tile.pixelIndex;
-	url += "."+this.dataType;
+	url += "."+this.format;
 	
 	return url;
 }
@@ -287,7 +287,7 @@ HEALPixFITSLayer.prototype.extractFitsData = function( pi, fitsPixel, sx, sy )
  */
 HEALPixFITSLayer.prototype.generateLevel0Textures = function(tiles,tilePool)
 {
-	if ( this.dataType != "fits" )
+	if ( this.format != "fits" )
 	{
 		// Create a canvas to build the texture
 		var canvas = document.createElement("canvas");
@@ -435,12 +435,12 @@ HEALPixFITSLayer.prototype.requestLevelZeroImage = function()
 	// Set dataType always to jpg if fits isn't supported by graphic card
 	if ( !this.fitsSupported )
 	{
-		this.dataType = 'jpg';
+		this.format = 'jpg';
 	}
 
 	// Revert to raw rendering
 	this.customShader.fragmentCode = this.rawFragShader;
-	if ( this.dataType == "fits" )
+	if ( this.format == "fits" )
 	{
 		this.inversed = 1.;
 	}
@@ -449,7 +449,7 @@ HEALPixFITSLayer.prototype.requestLevelZeroImage = function()
 		this.inversed = 0.;
 	}
 
-	var url = this.baseUrl + "/Norder3/Allsky."+this.dataType;
+	var url = this.baseUrl + "/Norder3/Allsky."+this.format;
 	this.imageRequest.send(url);
 }
 
@@ -473,19 +473,22 @@ HEALPixFITSLayer.prototype.disposeResources = function()
 /**************************************************************************************************************/
 
 /**
- *	Set datatype
+ *	Set format
+ *	(currently never used)
+ *	TODO: store basic format(could be 'png' or 'jpg'), to be
+ *	able to revert from fits
  */
-HEALPixFITSLayer.prototype.setDatatype = function(isFits)
+HEALPixFITSLayer.prototype.setFormat = function(format)
 {
 	// Abort image request if in progress
-	if ( !this._ready )
-	{
-		this.imageRequest.abort();
-	}
-	this._ready = false;
+	// if ( !this._ready )
+	// {
+	// 	this.imageRequest.abort();
+	// }
+	// this._ready = false;
 	//this.disposeResources();
 
-	this.dataType = (isFits) ? 'fits' : 'jpg';
+	this.format = (isFits) ? 'fits' : 'jpg';
 	//this.requestLevelZeroImage();
 }
 

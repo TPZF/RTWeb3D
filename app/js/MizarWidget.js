@@ -454,7 +454,7 @@ define( [ "jquery", "underscore-min", "./PlanetContext", "./SkyContext", "gw/Til
 		if ( layerDesc.fitsSupported ) {
 			// TODO : Move it..
 			layerDesc.onready = function( fitsLayer ) {
-				if ( fitsLayer.dataType == "fits" && fitsLayer.levelZeroImage )
+				if ( fitsLayer.format == "fits" && fitsLayer.levelZeroImage )
 				{
 					if ( fitsLayer.div )
 					{

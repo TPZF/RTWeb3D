@@ -617,14 +617,14 @@ function toggleFits()
 {
 	var isFits = $(this).is(':checked');
 	var layer = $(this).closest(".addLayer").data("layer");
-	layer.dataType = isFits ? 'fits' : 'jpg';
+	layer.format = isFits ? 'fits' : 'jpg';
 	if ( !isFits )
 	{
 		$(this).nextAll('.addFitsView').button('disable');
 	}
 
 	// TODO: make reset function ?
-	// layer.setDatatype( dataType );
+	// layer.setFormat( format );
 
 	var prevId = layer.id;
 	sky.removeLayer(layer);

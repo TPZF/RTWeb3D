@@ -45,7 +45,7 @@ function updateBackgroundOptions(layer)
 		{
 			$el.find("#fitsType").removeAttr('disabled').removeAttr('checked').button("refresh");
 			// Dynamic image view button visibility
-			if ( layer.dataType == 'jpeg' )
+			if ( layer.format == 'jpeg' )
 			{
 				$el.find('#fitsView').button("disable");
 			}
@@ -307,7 +307,7 @@ return {
 
 				isFits = $(this).is(':checked');
 
-				selectedLayer.dataType = isFits ? 'fits' : 'jpg';
+				selectedLayer.format = isFits ? 'fits' : 'jpg';
 				if ( !isFits )
 				{
 					$('#fitsView').button('disable');

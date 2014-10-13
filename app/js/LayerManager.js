@@ -93,7 +93,8 @@ function createLayerFromConf(layerDesc) {
 		opacity: 100,
 		visible: false,
 		coordSystem: "EQ",
-		dataType: (layerDesc.type == "healpix") ? "jpg" : "line"
+		format: "jpg",
+		dataType : "line"
 	};
 	// Merge layer options with default options
 	layerDesc = $.extend( {}, defaultOptions, layerDesc );
@@ -156,7 +157,6 @@ function createLayerFromConf(layerDesc) {
 		case "GeoJSON":
 
 			gwLayer = new VectorLayer(layerDesc);
-			gwLayer.dataType = layerDesc.dataType || "line";
 			gwLayer.pickable = layerDesc.hasOwnProperty('pickable') ? layerDesc.pickable : true;
 
 			break;
@@ -174,7 +174,6 @@ function createLayerFromConf(layerDesc) {
 
 			if (layerDesc.displayProperties)
 				gwLayer.displayProperties = layerDesc.displayProperties;
-			gwLayer.dataType = layerDesc.dataType;
 			gwLayer.pickable = layerDesc.hasOwnProperty('pickable') ? layer.pickable : true;
 			gwLayer.availableServices = layerDesc.availableServices;
 			break;
@@ -187,7 +186,6 @@ function createLayerFromConf(layerDesc) {
 			break;
 		case "Vector":
 			gwLayer = createSimpleLayer(layerDesc.name);
-			gwLayer.dataType = layerDesc.dataType;
 			gwLayer.pickable = layerDesc.hasOwnProperty('pickable') ? layerDesc.pickable : true;
 			gwLayer.deletable = false;
 			break;
