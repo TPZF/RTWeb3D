@@ -89,12 +89,13 @@ define( [ "jquery", "gw/TouchNavigationHandler", "./ErrorDialog", "./AboutDialog
 			overflow: "hidden"
 		});
 		
+		var self = this;
 		// Take into account window resize
 		$(window).resize(function() {
 			if ( canvas.width !=  window.innerWidth ) 
-				canvas.width = window.innerWidth;
+				canvas.width = $(self.parentElement).attr("width");
 			if ( canvas.height != window.innerHeight )
-				canvas.height = window.innerHeight;
+				canvas.height = $(self.parentElement).attr("height");
 		});
 
 		// Context lost listener
