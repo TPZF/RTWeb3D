@@ -40,7 +40,7 @@ var PlanetLayer = function(options)
 	{
 		var planetDesc = options.baseImageries[i];
 		planetDesc = $.extend( {}, options, planetDesc );
-		gwLayer = new WMSLayer( planetDesc );
+		var gwLayer = new WMSLayer( planetDesc );
 		gwLayer.background = true;
 		gwLayer.category = "background";
 		this.layers.push(gwLayer);
