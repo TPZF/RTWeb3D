@@ -84,8 +84,11 @@ var loadFits = function(url, successCallback, failCallback, onprogressCallback)
 		}
 	};
 
-	xhr.onprogress = onprogressCallback;
 	
+	// Define default on progress function, otherwise
+	// Firefox won't take Content-length header into account
+	// so evt.lengthComputable will be always set to false..
+	xhr.onprogress = function(evt){};
 	xhr.open("GET", url);
 	xhr.responseType = 'arraybuffer';
 	xhr.send();
