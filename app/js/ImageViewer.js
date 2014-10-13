@@ -72,6 +72,7 @@ function enableImageUI(layer)
  */
 function onVisibilityChange(layer)
 {
+	var $layer = $imageViewer.find('.imageLayers div[id="imageLayer_'+layer.id+'"]');
 	var $layerVisibility = $layer.find('#layerVisibility_'+layer.id);
 	$layerVisibility.button("option", {
 		icons: {
@@ -100,7 +101,7 @@ function onVisibilityChange(layer)
 function createLayerView(layer)
 {
 	var imageViewerLayerItemContent = imageViewerLayerItemTemplate( { id: layer.id, name: layer.name });
-	$layer = $(imageViewerLayerItemContent)
+	var $layer = $(imageViewerLayerItemContent)
 		.appendTo($imageViewer.find('.imageLayers'));
 
 	// Slide loaded images for current layer onclick
@@ -447,6 +448,8 @@ return {
 
 		var featureIndex = featuresWithImages.indexOf(selectedData);
 		featuresWithImages.splice(featureIndex, 1);
+
+		selectedData.layer.unsubscribe("visibility:changed", onVisibilityChange);
 	},
 
 	/**
