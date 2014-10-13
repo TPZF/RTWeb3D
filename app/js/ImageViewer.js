@@ -281,7 +281,7 @@ return {
 					var barycenter = Utils.computeGeometryBarycenter( feature.geometry );
 					navigation.zoomTo([barycenter[0], barycenter[1]], 0.1, 2000, function(){
 						// Update selection
-						PickingManager.focusFeature(selectedData, true);
+						PickingManager.focusFeature(selectedData, {isExclusive: true});
 					});
 
 				}).end()

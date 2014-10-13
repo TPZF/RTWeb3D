@@ -22,7 +22,7 @@ div#options
 	display: inline-block;
 	vertical-align: top;
 	text-align: center;
-	width: 680px;
+	width: 580px;
 	margin: 20px;
 }
 
@@ -102,11 +102,10 @@ li.poi:hover
 
 <script type="text/javascript">
 	
-	window.onload = function(){
+	window.onload = function() {
 		var options = {
 			"nameResolver": {
-				zoomFov: 1,
-				duration: 2000
+				zoomFov: 1
 			},
 			"positionTracker": {
 				position: "top"
@@ -132,7 +131,12 @@ li.poi:hover
 	        .on( 'mouseover', 'tr', function () {
 				var featureData = $(this).data("featureData");
 				if ( featureData )
-					mizar.highlightObservation(featureData, true);
+				{
+					mizar.highlightObservation(featureData, {
+						isExclusive: true,
+						color: 'red'
+					});
+				}
 	        } )
 	        .on ( 'click', 'tr', function() {
 	        	// Add/remove fits
@@ -236,7 +240,7 @@ li.poi:hover
 			</tbody>
 			</table>
 	</div>
-    <div id="mizarWidget-div" style="border: none;" width="600" height="600"></div> 
+    <div id="mizarWidget-div" style="border: none;" width="500" height="500"></div> 
   	<br/>
 </body>
 

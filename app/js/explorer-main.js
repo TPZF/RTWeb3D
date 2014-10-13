@@ -77,7 +77,12 @@ require(["jquery", "./MizarWidget", "datatables"], function($, MizarWidget) {
         .on( 'mouseover', 'tr', function () {
 			var featureData = $(this).data("featureData");
 			if ( featureData )
-				mizar.highlightObservation(featureData, true);
+			{
+				mizar.highlightObservation(featureData, {
+					isExclusive: true,
+					color: 'red'
+				});
+			}
         } )
         .on ( 'click', 'tr', function() {
         	// Add/remove fits

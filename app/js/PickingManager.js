@@ -114,7 +114,7 @@ function _handleMouseUp(event)
 					else
 					{
 						// only one layer, no pile needed, create feature dialogue
-						self.focusFeatureByIndex( 0, true );
+						self.focusFeatureByIndex( 0, {isExclusive: true} );
 						$('#featureList div:eq(0)').addClass('selected');
 						FeaturePopup.showFeatureInformation( selection[stackSelectionIndex].layer, selection[stackSelectionIndex].feature )
 					}
@@ -497,13 +497,19 @@ return {
 	 * 	Apply selected style to the feature by the given index in selection array
 	 * 
 	 * 	@param index Index of feature in selection array
-	 *	@param isExclusive Boolean indicating if the focus is exclusive
+	 *	@param options
+	 *		<li>isExclusive : Boolean indicating if the focus is exclusive</li>
+	 *		<li>color : Highlight color</li>
 	 */
-	focusFeatureByIndex: function(index, isExclusive)
+	focusFeatureByIndex: function(index, options)
 	{
-		if ( isExclusive )
+		if ( options.isExclusive )
 			blurSelection();
 		
+		// Update highlight color
+		var strokeColor = options.color ? FeatureStyle.fromStringToColor(options.color) : selectedStyle.strokeColor;
+		var fillColor = options.color ? FeatureStyle.fromStringToColor(options.color) : selectedStyle.fillColor;
+
 		var selectedData = selection[index];
 		if ( selectedData )
 		{
@@ -513,10 +519,10 @@ return {
 			{
 				case "Polygon":
 				case "MultiPolygon":
-					style.strokeColor = selectedStyle.strokeColor;
+					style.strokeColor = strokeColor;
 					break;
 				case "Point":
-					style.fillColor = selectedStyle.fillColor;
+					style.fillColor = fillColor;
 					break;
 				default:
 					break;
@@ -524,6 +530,7 @@ return {
 			style.zIndex = selectedStyle.zIndex;
 			selectedData.layer.modifyFeatureStyle( selectedData.feature, style );
 		}
+		sky.refresh();
 	},
 
 	/**************************************************************************************************************/
@@ -531,11 +538,10 @@ return {
 	/**
 	 *	Apply selected style to the given feature
 	 */
-	focusFeature: function(selectedData, isExclusive)
+	focusFeature: function(selectedData, options)
 	{
 		selection.push(selectedData);
-		this.focusFeatureByIndex(selection.length - 1, isExclusive);
-		sky.refresh();
+		this.focusFeatureByIndex(selection.length - 1, options);
 	},
 
 	/**************************************************************************************************************/
