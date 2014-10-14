@@ -18,282 +18,82 @@
 ******************************************************************************/ 
 
 /**
- * Name resolver module : search object name and zoom to them
+ * Name resolver module : search object name from its coordinates
+ * TODO : move _handleMouseDown&Up to View ?
  */
-define(["jquery", "gw/Numeric", "./IFrame", "./Utils", "./ErrorDialog", "underscore-min", "text!../templates/featureDescription.html", "text!../templates/descriptionTable.html", "jquery.ui"],
-	function($, Numeric, IFrame, Utils, ErrorDialog, _, featureDescriptionHTMLTemplate, descriptionTableHTMLTemplate) {
+define(["jquery"], function($) {
 
-var sky;
-var configuration = {};
-var geoPick = [];
-var navigation = null;
-var isMobile = false;
-
-// Template generating the detailed description of choosen feature
-var featureDescriptionTemplate = _.template(featureDescriptionHTMLTemplate);
-
-// Template generating the table of properties of choosen feature
-var descriptionTableTemplate = _.template(descriptionTableHTMLTemplate);
-
-var timeStart;
-var mouseXStart;
-var mouseYStart;
-
-var reverseNameResolverHTML =
-	'<div id="reverseNameResolver" class="contentBox ui-widget-content" style="display: none;">\
-		<div id="reverseSearchField">\
-			<input type="submit" value="Find Object Name" />\
-			<div id="coordinatesInfo"></div>\
-			<div id="healpixInfo"></div>\
-		</div>\
-		<div id="reverseSearchResult"></div>\
-		<div class="closeBtn">\
-			<span class="defaultImg"></span>\
-			<span style="opacity: 0" class="hoverImg"></span>\
-		</div>\
-	</div>';
-
-var $reverseNameResolver;
-
-/**************************************************************************************************************/
-
-/**
- *	Mouse down handler
- *	Registers the position of the mouse and time of click
- */
-function _handleMouseDown(event)
-{
-	$reverseNameResolver.fadeOut();
-	timeStart = new Date();
-
-	if ( event.type.search("touch") >= 0 )
-	{
-		event.clientX = event.changedTouches[0].clientX;
-		event.clientY = event.changedTouches[0].clientY;
-	}
-
-	mouseXStart = event.clientX;
-	mouseYStart = event.clientY;
-}
-
-/**************************************************************************************************************/
-
-/**
- *	Mouse up handler
- *	Opens reverse name resolver popup if mouse has been clicked at least 0.5s and hasn't been moved
- */
-function _handleMouseUp(event)
-{
-	var epsilon = 5;
-
-	var timeEnd = new Date();
-	var diff = timeEnd - timeStart;
-	var padding = 15;
-
-	if ( event.type.search("touch") >= 0 )
-	{
-		event.clientX = event.changedTouches[0].clientX;
-		event.clientY = event.changedTouches[0].clientY;
-	}
-
-	var mHeight = window.innerHeight - event.clientY - padding*2;
-	$('#reverseSearchField').css('max-height', mHeight);
-	$('#reverseSearchResult').css('max-height', mHeight);
-
-	// More than 0.5 second and the mouse position is approximatively the same
-	if ( diff > 500 && Math.abs(mouseXStart - event.clientX) < epsilon && Math.abs(mouseYStart - event.clientY) < epsilon )
-	{
-		$('#reverseSearchResult').css("display","none");
-
-		var equatorial = [];
-		geoPick = sky.getLonLatFromPixel(event.clientX, event.clientY);
-		var astro = Utils.formatCoordinates([ geoPick[0], geoPick[1] ]);
-
-		if ( sky.coordinateSystem.type == "EQ" ) {
-			$("#coordinatesInfo").html("<em>Right ascension:</em><br/>&nbsp;&nbsp;&nbsp;&nbsp;" + astro[0] +
-										"<br/><em>Declination :</em><br/>&nbsp;&nbsp;&nbsp;&nbsp;" + astro[1]);
-		} else if ( sky.coordinateSystem.type == "GAL" ) {
-			$("#coordinatesInfo").html("<em>Longitude:</em><br/>&nbsp;&nbsp;&nbsp;&nbsp;" + astro[0] +
-										"<br/><em>Latitude:</em><br/>&nbsp;&nbsp;&nbsp;&nbsp;" + astro[1]);
-		}
-
-		var selectedTile = sky.tileManager.getVisibleTile(geoPick[0], geoPick[1]);
-		if ( configuration.debug )
-			$('#reverseSearchField #healpixInfo').html('<em>Healpix index/order: </em>&nbsp;&nbsp;&nbsp;&nbsp;'+selectedTile.pixelIndex + '/' + selectedTile.order);
-
-
-		$('#reverseSearchField').css("display","block");
-		$reverseNameResolver.css({
-				position: 'absolute',
-				left: event.clientX + 'px',
-				top: event.clientY + 'px'
-		}).fadeIn(100);
-	}
-}
-
-/**************************************************************************************************************/
-
-/**
- *	Initialize events for reverse name resolver
- */
-function setBehavior()
-{
-	sky.renderContext.canvas.addEventListener("mousedown", _handleMouseDown);
-	sky.renderContext.canvas.addEventListener("mouseup", _handleMouseUp);
-
-	if ( isMobile )
-	{
-		sky.renderContext.canvas.addEventListener("touchstart", _handleMouseDown);
-		sky.renderContext.canvas.addEventListener("touchend", _handleMouseUp);
-	}
-
-	// External link event
-	$reverseNameResolver.on("click", '.propertiesTable a', _showIFrame);
-
-	navigation.subscribe("modified", _hidePopup);
-}
-
-/**************************************************************************************************************/
-
-/**
- *	Show feature information in popup
- */
-function showFeature( feature )
-{
-	var output = featureDescriptionTemplate( { dictionary: {}, services: feature.services, properties: feature.properties, descriptionTableTemplate: descriptionTableTemplate } );
-	var title = ( feature.properties.title ) ? feature.properties.title : feature.properties.identifier;
-	output = '<div class="title">'+ title +'</div><div class="credit">Found in CDS database</div>' + output;
-	$('#reverseSearchResult')
-		.html( output )
-		.find('#sendViewport').button();
-	$('#reverseSearchField').fadeOut(300 , function(){
-		$('#reverseSearchResult').fadeIn(300);
-	});
-}
-
-/**************************************************************************************************************/
-
-/**
- *	External link event handler
- */
-function _showIFrame(event)
-{
-	event.preventDefault();
-	IFrame.show(event.target.innerHTML);
-}
-
-/**************************************************************************************************************/
-
-/**
- *	Hide reverse name resolver popup handler
- */
-function _hidePopup(event)
-{
-	if ($reverseNameResolver.css('display') != 'none')
-	{
-		$reverseNameResolver.fadeOut(300);
-	}
-}
+var mizar;
+var context;
 
 /**************************************************************************************************************/
 
 return {
-	init: function(mizar, conf) {
-		if ( !$reverseNameResolver ) {
-			sky = mizar.sky;
-			navigation = mizar.navigation;
-			$reverseNameResolver = $(reverseNameResolverHTML).appendTo('body');
+	init: function(m, context) {
+		mizar = m;
+		this.setContext(context);
+	},
 
-			$( "#reverseNameResolver input[type=submit]")
-			.button()
-			.click(function( event ) {
-				event.preventDefault();
+	/**************************************************************************************************************/
 
-				$('#reverseSearchField input[type="submit"]').attr('disabled', 'disabled');
+	/**
+	 *	Send request to reverse name resolver service for the given point
+	 *	@param geoPick	Geographic position of point of interest
+	 *	@param options
+	 *		<li>success: Function called on success with the response of server as argument</li>
+	 *		<li>error: Function called on error with the xhr object as argument</li>	
+	 */
+	sendRequest : function(geoPick, options) {
+		// TODO: depending on context, send the request
+		// Currently only sky context is handled
+		if ( mizar.mode == "sky" )
+		{
+			var equatorialCoordinates = [];
+			context.globe.coordinateSystem.fromGeoToEquatorial( geoPick, equatorialCoordinates );
 
-				var equatorialCoordinates = [];
-				sky.coordinateSystem.fromGeoToEquatorial( geoPick, equatorialCoordinates );
+			// Format to equatorial coordinates
+			equatorialCoordinates[0] = equatorialCoordinates[0].replace("h ",":");
+			equatorialCoordinates[0] = equatorialCoordinates[0].replace("m ",":");
+			equatorialCoordinates[0] = equatorialCoordinates[0].replace("s","");
+			
+			equatorialCoordinates[1] = equatorialCoordinates[1].replace("° ",":");
+			equatorialCoordinates[1] = equatorialCoordinates[1].replace("' ",":");
+			equatorialCoordinates[1] = equatorialCoordinates[1].replace("\"","");
 
-				// Format to equatorial coordinates
-				equatorialCoordinates[0] = equatorialCoordinates[0].replace("h ",":");
-				equatorialCoordinates[0] = equatorialCoordinates[0].replace("m ",":");
-				equatorialCoordinates[0] = equatorialCoordinates[0].replace("s","");
-				
-				equatorialCoordinates[1] = equatorialCoordinates[1].replace("° ",":");
-				equatorialCoordinates[1] = equatorialCoordinates[1].replace("' ",":");
-				equatorialCoordinates[1] = equatorialCoordinates[1].replace("\"","");
+			// Find max order
+			var maxOrder = 3;
+			context.globe.tileManager.visitTiles( function( tile ){ if ( maxOrder < tile.order ) maxOrder = tile.order} );
 
-				// Find max order
-				var maxOrder = 3;
-				sky.tileManager.visitTiles( function( tile ){ if ( maxOrder < tile.order ) maxOrder = tile.order} );
+			var requestUrl = context.configuration.reverseNameResolver.baseUrl + '/EQUATORIAL/' + equatorialCoordinates[0] + " " + equatorialCoordinates[1] + ";" + maxOrder;
 
-				var requestUrl = configuration.baseUrl + '/EQUATORIAL/' + equatorialCoordinates[0] + " " + equatorialCoordinates[1] + ";" + maxOrder;
-
-				$.ajax({
-					type: "GET",
-					url: requestUrl,
-					success: function(response){
-						// Only one feature for the moment
-						showFeature( response.features[0] );
-					},
-					error: function (xhr, ajaxOptions, thrownError) {
-						switch (xhr.status)
-						{
-							case 503: 
-								ErrorDialog.open("Please wait at least 6 seconds between each request to reverse name resolver");
-								break;
-							case 500:
-								ErrorDialog.open("Internal server error");
-								break;
-							case 404:
-								ErrorDialog.open("Object not found");
-								break;
-							case 400:
-								ErrorDialog.open("Bad input");
-							default:
-								break;
-						}
-					},
-					complete: function(xhr)
-					{
-						$('#reverseSearchField input[type="submit"]').removeAttr('disabled');
-					}
-				});
+			$.ajax({
+				type: "GET",
+				url: requestUrl,
+				success: function(response){
+					if ( options && options.success )
+						options.success(response);
+				},
+				error: function (xhr, ajaxOptions, thrownError) {
+					if ( options && options.error )
+						options.error(xhr);
+				}
 			});
-
-			for( var x in conf.reverseNameResolver )
-			{
-				configuration[x] = conf.reverseNameResolver[x];
-			}
-			configuration.debug = conf.debug;
-			isMobile = mizar.isMobile;
-			setBehavior();
-		} else {
-			console.error("Reverse name resolver is already initialized");
+		}
+		else
+		{
+			console.error("Not implemented yet");
+			if ( options && options.error )
+				options.error();
 		}
 	},
 
+	/**************************************************************************************************************/
+
 	/**
-	 *	Unregister all event handlers
+	 *	Set new context
 	 */
-	remove : function() {
-		if ( $reverseNameResolver ) {
-			sky.renderContext.canvas.removeEventListener("mousedown", _handleMouseDown);
-			sky.renderContext.canvas.removeEventListener("mouseup", _handleMouseUp);
-
-			if ( isMobile )
-			{
-				sky.renderContext.canvas.removeEventListener("touchstart", _handleMouseDown);
-				sky.renderContext.canvas.removeEventListener("touchend", _handleMouseUp);
-			}
-
-			// External link event
-			$reverseNameResolver.off("click", '.propertiesTable a', _showIFrame);
-
-			navigation.unsubscribe("modified", _hidePopup);
-			$reverseNameResolver.remove();
-			$reverseNameResolver = null;
-		}
+	setContext : function(ctx) {
+		context = ctx;
 	}
 };
 

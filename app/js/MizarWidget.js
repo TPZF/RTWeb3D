@@ -21,10 +21,10 @@
  * Mizar widget
  */
 define( [ "jquery", "underscore-min", "./PlanetContext", "./SkyContext", "gw/TileWireframeLayer", "gw/Stats", "gw/AttributionHandler", "gw/Event",  "gw/TouchNavigationHandler", "gw/MouseNavigationHandler", "gw/KeyboardNavigationHandler", "text!../templates/mizarCore.html", "text!../data/backgroundSurveys.json",
-	"./LayerManager", "./LayerManagerView", "./BackgroundLayersView", "./NameResolver", "./NameResolverView", "./ReverseNameResolver", "./MocBase", "./Utils", "./PickingManager", "./FeaturePopup", "./IFrame", "./Compass", "./MollweideViewer", "./ErrorDialog", "./AboutDialog", "./Share", "./Samp", "./AdditionalLayersView", "./ImageManager", "./ImageViewer", "./UWSManager", "./MeasureTool", "./StarProvider", "./ConstellationProvider", "./JsonProvider", "./OpenSearchProvider", "./PlanetProvider",
+	"./LayerManager", "./LayerManagerView", "./BackgroundLayersView", "./NameResolver", "./NameResolverView", "./ReverseNameResolver", "./ReverseNameResolverView", "./MocBase", "./Utils", "./PickingManager", "./FeaturePopup", "./IFrame", "./Compass", "./MollweideViewer", "./ErrorDialog", "./AboutDialog", "./Share", "./Samp", "./AdditionalLayersView", "./ImageManager", "./ImageViewer", "./UWSManager", "./MeasureTool", "./StarProvider", "./ConstellationProvider", "./JsonProvider", "./OpenSearchProvider", "./PlanetProvider",
 	"gw/ConvexPolygonRenderer", "gw/PointSpriteRenderer", "gw/PointRenderer", "jquery.ui"],
 	function($, _, PlanetContext, SkyContext, TileWireframeLayer, Stats, AttributionHandler, Event, TouchNavigationHandler, MouseNavigationHandler, KeyboardNavigationHandler, mizarCoreHTML, backgroundSurveys,
-			LayerManager, LayerManagerView, BackgroundLayersView, NameResolver, NameResolverView, ReverseNameResolver, MocBase, Utils, PickingManager, FeaturePopup, IFrame, Compass, MollweideViewer, ErrorDialog, AboutDialog, Share, Samp, AdditionalLayersView, ImageManager, ImageViewer, UWSManager, MeasureTool) {
+			LayerManager, LayerManagerView, BackgroundLayersView, NameResolver, NameResolverView, ReverseNameResolver, ReverseNameResolverView, MocBase, Utils, PickingManager, FeaturePopup, IFrame, Compass, MollweideViewer, ErrorDialog, AboutDialog, Share, Samp, AdditionalLayersView, ImageManager, ImageViewer, UWSManager, MeasureTool) {
 
 	/**
 	 *	Private variables
@@ -298,6 +298,9 @@ define( [ "jquery", "underscore-min", "./PlanetContext", "./SkyContext", "gw/Til
 		
 		// Initialize name resolver
 		NameResolver.init(this, skyContext, options);
+
+		// Initialize reverse name resolver
+		ReverseNameResolver.init(this, skyContext);
 
 		// Create layers from configuration file
 		LayerManager.init(this, options);
@@ -599,9 +602,9 @@ define( [ "jquery", "underscore-min", "./PlanetContext", "./SkyContext", "gw/Til
 	 */
 	MizarWidget.prototype.setReverseNameResolverGui = function(visible) {
 	 	if ( visible ) {
-	 		ReverseNameResolver.init(this, options);
+	 		ReverseNameResolverView.init(this, skyContext);
 	 	} else {
-	 		ReverseNameResolver.remove();
+	 		ReverseNameResolverView.remove();
 	 	}
 	}
 
@@ -903,6 +906,9 @@ define( [ "jquery", "underscore-min", "./PlanetContext", "./SkyContext", "gw/Til
 				nameResolver: {
 					"zoomFov": 200000, // in fact it must be distance, to be improved
 					"baseUrl": gwLayer.nameResolverURL
+				},
+				reverseNameResolver: {
+					"baseUrl": gwLayer.revereseNameResolverURL	// TODO: define protocol for reverse name resolver
 				}
 			};
 			planetConfiguration = $.extend({}, options, planetConfiguration);
