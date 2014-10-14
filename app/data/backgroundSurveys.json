@@ -16,7 +16,8 @@
 		},
 		"visible": false,
 		"pickable" : false,
-		"color": "rgb(8, 59, 167)"
+		"color": "rgb(8, 59, 167)",
+		"dataType": "line"
 	},
 	{
 		"category": "Other",

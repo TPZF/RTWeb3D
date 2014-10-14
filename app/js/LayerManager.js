@@ -87,17 +87,6 @@ function createLayerFromConf(layerDesc) {
 	{
 		layerDesc.attribution = layerDesc.attribution.replace(' ', ' target=_blank ');
 	}
-
-	// Default options
-	var defaultOptions = {
-		opacity: 100,
-		visible: false,
-		coordSystem: "EQ",
-		format: "jpg",
-		dataType : "line"
-	};
-	// Merge layer options with default options
-	layerDesc = $.extend( {}, defaultOptions, layerDesc );
 	
 	// Update layer color
 	if ( layerDesc.color )
@@ -112,7 +101,11 @@ function createLayerFromConf(layerDesc) {
 	}
 
 	// Layer opacity must be in range [0, 1] 
-	layerDesc.opacity /= 100;
+	if ( layerDesc.opacity )
+		layerDesc.opacity /= 100;
+	// Layers are not visible by default
+	if ( !layerDesc.visible )
+		layerDesc.visible = false;
 
 	// Create style if needed
 	if ( !layerDesc.style ) {
