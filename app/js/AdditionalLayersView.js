@@ -462,6 +462,11 @@ function addView ( gwLayer )
 	else
 	{
 		categoryId = categories[category];
+		// If it's the first added layer, show the category
+		if ( $('#'+categoryId + " .addLayer").length == 0 )
+		{
+			$('#'+categoryId).closest(".category").show();	
+		}
 	}
 
 	// Add HTML
