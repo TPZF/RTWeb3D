@@ -135,23 +135,24 @@ function _toggleClear()
  */
 function _showResults(data)
 {
-	response = data;
+	if (data) {
+		response = data;
+		// Fill search result field
+		var output = "";
+		for ( var i=0; i<response.features.length; i++)
+		{
+			var astro = Utils.formatCoordinates([ response.features[i].geometry.coordinates[0], response.features[i].geometry.coordinates[1] ]);
+			var result = nameResolverResultTemplate( { properties: response.features[i].properties, lon: astro[0], lat: astro[1], type: mizar.activatedContext.globe.coordinateSystem.type } );
+			output+=result;
+		}
+		
+		// Show it
+		$resolverSearchResult.html(output).fadeIn(animationDuration);
+		$resolverSearchResult.find('div:first-child').addClass('selected');
 
-	// Fill search result field
-	var output = "";
-	for ( var i=0; i<response.features.length; i++)
-	{
-		var astro = Utils.formatCoordinates([ response.features[i].geometry.coordinates[0], response.features[i].geometry.coordinates[1] ]);
-		var result = nameResolverResultTemplate( { properties: response.features[i].properties, lon: astro[0], lat: astro[1], type: mizar.activatedContext.globe.coordinateSystem.type } );
-		output+=result;
+		$nameResolver.find("#searchSpinner").fadeOut(animationDuration);
+		$clear.fadeIn(animationDuration);
 	}
-	
-	// Show it
-	$resolverSearchResult.html(output).fadeIn(animationDuration);
-	$resolverSearchResult.find('div:first-child').addClass('selected');
-
-	$nameResolver.find("#searchSpinner").fadeOut(animationDuration);
-	$clear.fadeIn(animationDuration);
 }
 
 /**************************************************************************************************************/

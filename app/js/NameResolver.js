@@ -125,7 +125,7 @@ function search(objectName, onSuccess, onError, onComplete)
 		var lat = parseFloat(matchDegree[3]);
 		var geo = [lon, lat];
 
-		if ( globe.coordinateSystem.type != "EQ" )
+		if ( globe.coordinateSystem.type != "EQ" && mizar.mode == "sky" )
 		{
 			geo = globe.coordinateSystem.convert(geo, globe.coordinateSystem.type,  'EQ');
 		}
@@ -145,15 +145,7 @@ function search(objectName, onSuccess, onError, onComplete)
 			{
 				var lon = parseFloat(feature.properties.center_lon);
 				var lat = parseFloat(feature.properties.center_lat);
-				context.navigation.zoomTo( [lon, lat], zoomFov, duration );
-				setTimeout(function(){
-					addTarget(lon, lat);
-				}, duration + 40); // Very very veeery ugly hack to show target at the end of animation
-				// NB: can't use zoomTo method due to absence of callback in Navigation.zoomTo
-				//zoomTo([feature.properties.center_lon, feature.properties.center_lat]);
-
-				if ( onSuccess )
-					onSuccess({features: [feature]});
+				zoomTo([feature.properties.center_lon, feature.properties.center_lat], onSuccess, {features: [feature]});
 			}
 			else
 			{
@@ -207,11 +199,21 @@ function search(objectName, onSuccess, onError, onComplete)
  */
 function zoomTo(lon, lat, callback, args)
 {
-	context.navigation.zoomTo([lon, lat], zoomFov, duration, function() {
+	// Add target feature on animation stop
+	var addTargetCallback = function() {
 		addTarget(lon,lat);
 		if ( callback )
 			callback.call(this, args);
-	} );
+	}
+
+	if ( mizar.mode == "sky" )
+	{
+		context.navigation.zoomTo([lon, lat], zoomFov, duration, addTargetCallback);
+	}
+	else
+	{
+		context.navigation.zoomTo([lon, lat], zoomFov, duration, null, addTargetCallback);
+	}
 }
 
 /**************************************************************************************************************/

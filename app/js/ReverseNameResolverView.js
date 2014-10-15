@@ -262,6 +262,8 @@ return {
 		// Activate reverese name resolver if base url is defined for the given layer
 		if ( mizar.activatedContext.configuration.reverseNameResolver.baseUrl ) 
 		{
+			if ( context )
+				self.deactivate();
 			context = mizar.activatedContext;
 			self.activate();
 			ReverseNameResolver.setContext(context);
