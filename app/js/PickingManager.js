@@ -23,8 +23,9 @@
 define( [ "jquery", "gw/FeatureStyle", "gw/OpenSearchLayer", "./FeaturePopup", "./ImageManager", "./CutOutViewFactory", "./Utils" ],
 		function($, FeatureStyle, OpenSearchLayer, FeaturePopup, ImageManager, CutOutViewFactory, Utils) {
 
-var sky;
-var navigation;
+var mizar;
+var context;
+var sky; // TODO: refactor it to use always the context
 var self;
 
 var selection = [];
@@ -35,7 +36,6 @@ var selectedStyle = new FeatureStyle( {
 	zIndex: 1
 } );
 var pickableLayers = [];
-var selectedTile = null;
 
 var mouseXStart;
 var mouseYStart;
@@ -79,10 +79,11 @@ function _handleMouseUp(event)
 		event.layerY = event.changedTouches[0].clientY;
 	}
 
+	var globe = mizar.activatedContext.globe;
 	// If not pan and not reverse name resolver call
 	if ( diff < 500 && Math.abs(mouseXStart - event.layerX) < epsilon && Math.abs(mouseYStart - event.layerY) < epsilon )
 	{
-		var pickPoint = sky.getLonLatFromPixel(event.layerX, event.layerY);
+		var pickPoint = globe.getLonLatFromPixel(event.layerX, event.layerY);
 
 		// Remove selected style for previous selection
 		clearSelection();
@@ -91,6 +92,7 @@ function _handleMouseUp(event)
 		
 		if ( newSelection.length > 0 )
 		{
+			var navigation = context.navigation;
 			// Hide previous popup if any
 			FeaturePopup.hide( function() {
 				// View on center
@@ -98,12 +100,12 @@ function _handleMouseUp(event)
 				{
 					navigation.inertia.stop();
 				}
-				navigation.moveTo( pickPoint, 800, function(){
+
+				var showPopup = function() {
 					selection = newSelection;
 					
 					// Add selected style for new selection
 					focusSelection(selection);
-					selection.selectedTile = selectedTile;
 					FeaturePopup.createFeatureList( selection );
 					if ( selection.length > 1 )
 					{
@@ -118,15 +120,25 @@ function _handleMouseUp(event)
 						$('#featureList div:eq(0)').addClass('selected');
 						FeaturePopup.showFeatureInformation( selection[stackSelectionIndex].layer, selection[stackSelectionIndex].feature )
 					}
-					var offset = $(sky.renderContext.canvas).offset();
-					FeaturePopup.show(offset.left + sky.renderContext.canvas.width/2, offset.top + sky.renderContext.canvas.height/2);
-					}
-				);
+					var offset = $(globe.renderContext.canvas).offset();
+					FeaturePopup.show(offset.left + globe.renderContext.canvas.width/2, offset.top + globe.renderContext.canvas.height/2);
+				}
+
+				// TODO: harmonize astro&globe navigations
+				if ( navigation.moveTo )
+				{
+					// Astro
+					navigation.moveTo( pickPoint, 800, showPopup );
+				}
+				else
+				{
+					navigation.zoomTo( pickPoint, 18000, 3000, null, showPopup );
+				}
 			});
 		} else {
 			FeaturePopup.hide();
 		}
-		sky.refresh();
+		globe.refresh();
 	}
 }
 
@@ -137,17 +149,17 @@ function _handleMouseUp(event)
  */
 function activate()
 {
-	sky.renderContext.canvas.addEventListener("mousedown", _handleMouseDown);
-	sky.renderContext.canvas.addEventListener("mouseup", _handleMouseUp);
+	context.globe.renderContext.canvas.addEventListener("mousedown", _handleMouseDown);
+	context.globe.renderContext.canvas.addEventListener("mouseup", _handleMouseUp);
 
 	if ( isMobile )
 	{
-		sky.renderContext.canvas.addEventListener("touchstart", _handleMouseDown);
-		sky.renderContext.canvas.addEventListener("touchend", _handleMouseUp);
+		context.globe.renderContext.canvas.addEventListener("touchstart", _handleMouseDown);
+		context.globe.renderContext.canvas.addEventListener("touchend", _handleMouseUp);
 	}
 
 	// Hide popup and blur selection when pan/zoom or animation
-	navigation.subscribe("modified", function() { 
+	context.navigation.subscribe("modified", function() { 
 		clearSelection();
 		FeaturePopup.hide();
 	});
@@ -160,17 +172,17 @@ function activate()
  */
 function deactivate()
 {
-	sky.renderContext.canvas.removeEventListener("mousedown", _handleMouseDown);
-	sky.renderContext.canvas.removeEventListener("mouseup", _handleMouseUp);
+	context.globe.renderContext.canvas.removeEventListener("mousedown", _handleMouseDown);
+	context.globe.renderContext.canvas.removeEventListener("mouseup", _handleMouseUp);
 
 	if ( isMobile )
 	{
-		sky.renderContext.canvas.removeEventListener("touchstart", _handleMouseDown);
-		sky.renderContext.canvas.removeEventListener("touchend", _handleMouseUp);
+		context.globe.renderContext.canvas.removeEventListener("touchstart", _handleMouseDown);
+		context.globe.renderContext.canvas.removeEventListener("touchend", _handleMouseUp);
 	}
 	
 	// Hide popup and blur selection when pan/zoom or animation
-	navigation.unsubscribe("modified", function() { 
+	context.navigation.unsubscribe("modified", function() { 
 		clearSelection();
 		FeaturePopup.hide();
 	});
@@ -349,13 +361,12 @@ function featureIsPicked( feature, pickPoint )
  */
 function computePickSelection( pickPoint )
 {
-	selectedTile = sky.tileManager.getVisibleTile(pickPoint[0], pickPoint[1]);
 	var newSelection = [];
-	
 	for ( var i=0; i<pickableLayers.length; i++ )
 	{
+		var selectedTile = sky.tileManager.getVisibleTile(pickPoint[0], pickPoint[1]);
 		var pickableLayer = pickableLayers[i];
-		if ( pickableLayer.visible() )
+		if ( pickableLayer.visible() && pickableLayer.globe === mizar.activatedContext.globe )
 		{
 			if ( pickableLayer instanceof OpenSearchLayer )
 			{
@@ -391,7 +402,7 @@ function computePickSelection( pickPoint )
 				// Search for picked features
 				for ( var j=0; j<pickableLayer.features.length; j++ )
 				{
-					var feature =  pickableLayer.features[j];
+					var feature = pickableLayer.features[j];
 					if ( featureIsPicked(feature, pickPoint) )
 					{
 						newSelection.push( { feature: feature, layer: pickableLayer } );
@@ -410,15 +421,17 @@ return {
 	/**
 	 *	Init picking manager
 	 */
-	init: function( mizar, configuration ) 
+	init: function( m, configuration ) 
 	{
+		mizar = m;
 		// Store the sky in the global module variable
 		sky = mizar.sky;
-		navigation = mizar.navigation;
 		self = this;
 		isMobile = configuration.isMobile;
-
+		this.updateContext();
 		activate();
+
+		mizar.subscribe("mizarMode:toggle", this.updateContext);
 	
 		// Initialize the fits manager
 		ImageManager.init(mizar, this, configuration);
@@ -426,9 +439,22 @@ return {
 		if ( configuration.cutOut )
 		{
 			// CutOutView factory ... TODO : move it/refactor it/do something with it...
-			CutOutViewFactory.init(sky, navigation, this);
+			CutOutViewFactory.init(sky, context.navigation, this);
 		}
 		FeaturePopup.init(this, ImageManager, sky, configuration);
+	},
+
+	/**************************************************************************************************************/
+	
+	/**
+ 	 *	Update picking context
+	 */
+	updateContext: function()
+	{
+		if ( context )
+			deactivate();
+		context = mizar.activatedContext;
+		activate();
 	},
 
 	/**************************************************************************************************************/

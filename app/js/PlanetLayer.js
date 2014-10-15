@@ -32,6 +32,7 @@ var PlanetLayer = function(options)
 {
 	BaseLayer.prototype.constructor.call( this, options );
 	this.name = options.name;
+	this.baseImageries = [];
 	this.layers = [];
 	this.category = "Planets";
 	this.nameResolverURL = options.nameResolverURL;
@@ -43,7 +44,7 @@ var PlanetLayer = function(options)
 		var gwLayer = new WMSLayer( planetDesc );
 		gwLayer.background = true;
 		gwLayer.category = "background";
-		this.layers.push(gwLayer);
+		this.baseImageries.push(gwLayer);
 	}
 	if ( options.elevation )
 	{

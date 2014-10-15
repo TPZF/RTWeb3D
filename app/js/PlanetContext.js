@@ -59,16 +59,17 @@ define( [ "jquery", "gw/Globe", "gw/Navigation", "gw/Utils", "./MizarContext", "
 		this.initGlobeEvents(this.globe);
 
 		// Initialize planet context
-		var planetLayer = options.planetLayer
-		if ( planetLayer )
+		this.planetLayer = options.planetLayer;
+		if ( this.planetLayer )
 		{
 			// Set first WMS layer as base imagery
-			this.globe.setBaseImagery(planetLayer.layers[0]);
+			this.globe.setBaseImagery(this.planetLayer.baseImageries[0]);
 			// Set elevation if exists
-			if ( planetLayer.elevationLayer )
+			if ( this.planetLayer.elevationLayer )
 			{
-				this.globe.setBaseElevation( planetLayer.elevationLayer );
+				this.globe.setBaseElevation( this.planetLayer.elevationLayer );
 			}
+			this.globe.addLayer(this.planetLayer);
 		}
 		
 		// Don't update view matrix on creation, since we want to use animation on context change
@@ -89,6 +90,9 @@ define( [ "jquery", "gw/Globe", "gw/Navigation", "gw/Utils", "./MizarContext", "
 	 *	Destroy method
 	 */
 	PlanetContext.prototype.destroy = function() {
+
+		// TODO: detach layers
+
 		this.hide();
 		this.globe.destroy();
 		this.globe = null;

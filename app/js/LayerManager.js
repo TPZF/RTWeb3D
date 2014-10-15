@@ -191,6 +191,8 @@ function createLayerFromConf(layerDesc) {
 	}
 	gwLayer.type = layerDesc.type;
 	gwLayer.dataType = layerDesc.dataType;
+	// Store category name on GlobWeb layer object to be able to restore it later
+	gwLayer.category = layerDesc.background ? "background" : layerDesc.category;
 
 	return gwLayer;
 }
@@ -204,7 +206,7 @@ function initLayers(layers)
 {
 	for (var i=0; i<layers.length; i++) {
 		var layer = layers[i];
-		this.addLayer(layer);
+		this.addLayerFromDescription(layer);
 	}
 }
 
@@ -249,71 +251,112 @@ return {
 	 },
 
 	 /**
-	  *	Create layer from layer description and add it to corresponding LayersView
+	  *	Add layer to activated globe(could be globe or sky)
+	  *	Triggers events createion events
 	  *
-	  *	@param layer
+	  *	@param gwLayer
+	  *		GlobWeb layer to add
+	  */
+	 addLayerToGlobe: function(gwLayer)
+	 {
+	 	var globe = this.mizar.activatedContext.globe;
+	 	if( gwLayer.category == "background" )
+		{
+			// Add to engine
+			if ( gwLayer.visible() )
+			{
+				// Change visibility's of previous layer(maybe GlobWeb should do it ?)
+				if ( globe.tileManager.imageryProvider )
+				{
+					globe.tileManager.imageryProvider.visible(false);
+				}
+
+				globe.setBaseImagery( gwLayer );
+				gwLayer.visible(true);
+			}
+
+			// Publish the event
+			this.mizar.publish("backgroundLayer:add", gwLayer);
+		}
+		else
+		{
+			// Add to engine
+			if ( !(gwLayer instanceof PlanetLayer) )
+				globe.addLayer( gwLayer );
+
+			// Publish the event
+			this.mizar.publish("additionalLayer:add", gwLayer);
+		}
+	 },
+
+	 /**
+	  *	Add layer to glbe depending on Mizar's mode
+	  *
+	  *	@param gwLayer
+	  *		GlobWeb layer
+	  *	@param planetLayer
+	  *		Planet layer, if described layer must be added to planet (optional)
+	  */
+	 addLayer: function(gwLayer, planetLayer)
+	 {
+		if ( planetLayer )
+		{
+			// Add layer to planet
+			planetLayer.layers.push(gwLayer);
+		 	if ( this.mizar.mode == "planet" )
+		 	{
+		 		this.addLayerToGlobe( gwLayer );
+		 	}
+		}
+		else
+		{
+			// Store planet base imageries to be able to set background from name
+			if ( gwLayer instanceof PlanetLayer ) {
+				for (var i=0; i<gwLayer.baseImageries.length; i++) {
+					planetLayers.push( gwLayer.baseImageries[i] );
+				}
+			};
+
+			// Add layer to sky
+			gwLayers.push(gwLayer);
+		 	if ( this.mizar.mode == "sky" )
+		 	{
+		 		this.addLayerToGlobe( gwLayer );
+		 	}
+		}
+	 },
+
+	 /**
+	  *	Create layer from layer description and add it engine
+	  *
+	  *	@param layerDesc
 	  *		Layer description
+	  *	@param planetLayer
+	  *		Planet layer, if described layer must be added to planet (optional)
 	  *	@return
 	  *		Created layer if doesn't already exist, existing layer otherwise
 	  */
-	 addLayer: function(layerDesc) {
+	 addLayerFromDescription: function(layerDesc, planetLayer) {
 
 		var gwLayer = _.findWhere(gwLayers, {name: layerDesc.name});
 		if ( !gwLayer )
 		{
 			gwLayer = createLayerFromConf(layerDesc);
 			if ( gwLayer )
-			{	
-				// Store planet layers to be able to set background from name
-				if ( gwLayer instanceof PlanetLayer ) {
-					for (var i=0; i<gwLayer.layers.length; i++) {
-						planetLayers.push( gwLayer.layers[i] );
-					}
-				};
-				if( layerDesc.background )
-				{
-					// Add to engine
-					if ( gwLayer.visible() )
-					{
-						// Change visibility's of previous layer(maybe GlobWeb should do it ?)
-						if ( sky.tileManager.imageryProvider )
-						{
-							sky.tileManager.imageryProvider.visible(false);
-						}
-
-						sky.setBaseImagery( gwLayer );
-						gwLayer.visible(true);
-					}
-					gwLayers.push(gwLayer);
-					this.mizar.publish("backgroundLayer:add", gwLayer);
-
-					// Store category name on GlobWeb layer object
-					gwLayer.category = "background";
-				}
-				else
-				{
-					// Add to engine
-					sky.addLayer( gwLayer );
-					gwLayers.push(gwLayer);
-
-					// Store category name on GlobWeb layer object
-					gwLayer.category = layerDesc.category;
-
-					this.mizar.publish("additionalLayer:add", gwLayer);
-				}
-				
-				// Fill data-provider-type layer by features coming from data object
-				if ( layerDesc.data && dataProviders[layerDesc.data.type] )
-				{
-					var callback = dataProviders[layerDesc.data.type];
-					var data = callback(gwLayer, layerDesc.data);
-				}
-
+			{
+				this.addLayer(gwLayer, planetLayer);
 			}
-		}
 
-		if ( gwLayer.pickable )
-			PickingManager.addPickableLayer(gwLayer);
+			// Fill data-provider-type layer by features coming from data object
+			if ( layerDesc.data && dataProviders[layerDesc.data.type] )
+			{
+				var callback = dataProviders[layerDesc.data.type];
+				var data = callback(gwLayer, layerDesc.data);
+			}
+
+			if ( gwLayer.pickable )
+				PickingManager.addPickableLayer(gwLayer);
+		}
 
 		return gwLayer;
 	 },
@@ -419,9 +462,7 @@ return {
 
 		gwLayer.addFeature( feature );
 		PickingManager.addPickableLayer( gwLayer );
-
-		sky.addLayer(gwLayer);
-		gwLayers.push(gwLayer);
+		this.addLayer( gwLayer, mizar.activatedContext.planetLayer );
 		return gwLayer;
 	},
 
@@ -437,8 +478,7 @@ return {
 		gwLayer.addFeatureCollection( geoJson );
 		PickingManager.addPickableLayer( gwLayer );
 
-		sky.addLayer(gwLayer);
-		gwLayers.push(gwLayer);
+		this.addLayer( gwLayer, mizar.activatedContext.planetLayer );
 		return gwLayer;
 	 },
 

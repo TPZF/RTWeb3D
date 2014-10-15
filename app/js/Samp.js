@@ -347,7 +347,7 @@ function init(m, lm, im, configuration)
 		dataType: "line"
 	};
 
-	sampLayer = layerManager.addLayer(sampDesc);
+	sampLayer = layerManager.addLayerFromDescription(sampDesc);
 	
 	window.onbeforeunload = function() {
 		// Doesn't work onrefresh actually

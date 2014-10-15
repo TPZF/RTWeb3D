@@ -22,7 +22,7 @@
  */
 define( [ "jquery", "underscore-min", "./PlanetContext", "./SkyContext", "gw/TileWireframeLayer", "gw/Stats", "gw/AttributionHandler", "gw/Event",  "gw/TouchNavigationHandler", "gw/MouseNavigationHandler", "gw/KeyboardNavigationHandler", "text!../templates/mizarCore.html", "text!../data/backgroundSurveys.json",
 	"./LayerManager", "./LayerManagerView", "./BackgroundLayersView", "./NameResolver", "./NameResolverView", "./ReverseNameResolver", "./ReverseNameResolverView", "./MocBase", "./Utils", "./PickingManager", "./FeaturePopup", "./IFrame", "./Compass", "./MollweideViewer", "./ErrorDialog", "./AboutDialog", "./Share", "./Samp", "./AdditionalLayersView", "./ImageManager", "./ImageViewer", "./UWSManager", "./MeasureTool", "./StarProvider", "./ConstellationProvider", "./JsonProvider", "./OpenSearchProvider", "./PlanetProvider",
-	"gw/ConvexPolygonRenderer", "gw/PointSpriteRenderer", "gw/PointRenderer", "jquery.ui"],
+	"gw/ConvexPolygonRenderer", "gw/PointSpriteRenderer", "gw/LineStringRenderable", "gw/PointRenderer", "jquery.ui"],
 	function($, _, PlanetContext, SkyContext, TileWireframeLayer, Stats, AttributionHandler, Event, TouchNavigationHandler, MouseNavigationHandler, KeyboardNavigationHandler, mizarCoreHTML, backgroundSurveys,
 			LayerManager, LayerManagerView, BackgroundLayersView, NameResolver, NameResolverView, ReverseNameResolver, ReverseNameResolverView, MocBase, Utils, PickingManager, FeaturePopup, IFrame, Compass, MollweideViewer, ErrorDialog, AboutDialog, Share, Samp, AdditionalLayersView, ImageManager, ImageViewer, UWSManager, MeasureTool) {
 
@@ -195,7 +195,7 @@ define( [ "jquery", "underscore-min", "./PlanetContext", "./SkyContext", "gw/Til
 		options = {
 			"sitoolsBaseUrl" : sitoolsBaseUrl,
 			"mizarBaseUrl": mizarBaseUrl,
-			"continuousRendering" : userOptions.hasOwnProperty('continuousRendering') ? userOptions.continuousRendering : false,
+			"continuousRendering" : userOptions.hasOwnProperty('continuousRendering') ? userOptions.continuousRendering : !this.isMobile,
 			"coordSystem" : userOptions.hasOwnProperty('coordSystem') ? userOptions.coordSystem : "EQ",
 			"debug" : userOptions.hasOwnProperty('debug') ? userOptions.debug : false,
 			"nameResolver" : {
@@ -438,7 +438,7 @@ define( [ "jquery", "underscore-min", "./PlanetContext", "./SkyContext", "gw/Til
 	 */
 	MizarWidget.prototype.setCustomBackgroundSurvey = function(layerDesc) {
 		layerDesc.background = true; // Ensure that background option is set to true
-		var layer = LayerManager.addLayer(layerDesc);
+		var layer = LayerManager.addLayerFromDescription(layerDesc);
 		LayerManager.setBackgroundSurvey(layerDesc.name);
 		return layer;
 	}
@@ -449,10 +449,12 @@ define( [ "jquery", "underscore-min", "./PlanetContext", "./SkyContext", "gw/Til
 	 *	Add additional layer(OpenSearch, GeoJSON, HIPS, grid coordinates)
 	 *	@param layerDesc
 	 *		Layer description
+	 *	@param planetLayer
+	 *		Planet layer, if described layer must be added to planet (optional)
 	 *	@return
 	 *		The created layer
 	 */
-	MizarWidget.prototype.addLayer = function(layerDesc) {
+	MizarWidget.prototype.addLayer = function(layerDesc, planetLayer) {
 
 		if ( layerDesc.fitsSupported ) {
 			// TODO : Move it..
@@ -479,7 +481,7 @@ define( [ "jquery", "underscore-min", "./PlanetContext", "./SkyContext", "gw/Til
 			}
 		}
 
-		return LayerManager.addLayer(layerDesc);
+		return LayerManager.addLayerFromDescription(layerDesc, planetLayer);
 	}
 
 	/**************************************************************************************************************/
@@ -884,7 +886,6 @@ define( [ "jquery", "underscore-min", "./PlanetContext", "./SkyContext", "gw/Til
 				self.planetContext.destroy();
 				self.planetContext = null;
 				// Show sky
-				PickingManager.activate();
 				skyContext.show();
 				self.sky.refresh();
 			});
@@ -896,8 +897,6 @@ define( [ "jquery", "underscore-min", "./PlanetContext", "./SkyContext", "gw/Til
 
 			// Hide all additional layers
 			skyContext.hideAdditionalLayers();
-
-			PickingManager.deactivate();
 
 			// Create planet context( with existing sky render context )
 			var planetConfiguration = {

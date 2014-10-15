@@ -65,7 +65,6 @@ function handleDrop(evt) {
 				var fits = FitsLoader.parseFits(arrayBuffer);
 
 				var gwLayer = LayerManager.createLayerFromFits(name, fits);
-				AdditionalLayersView.addView( gwLayer );
 
 				// Add fits texture
 				var featureData = {
@@ -89,7 +88,6 @@ function handleDrop(evt) {
 					// Handle xml votable
 					mizar.convertVotable2JsonFromXML( this.result, function(response){
 						var gwLayer = LayerManager.createLayerFromGeoJson(name, response);
-						AdditionalLayersView.addView( gwLayer );
 						$('#loading').hide();
 					} );
 				}
@@ -105,7 +103,6 @@ function handleDrop(evt) {
 					}
 
 					var gwLayer = LayerManager.createLayerFromGeoJson(name, response);
-					AdditionalLayersView.addView( gwLayer );
 					$('#loading').hide();
 				}
 				
@@ -159,12 +156,20 @@ function initLayers()
  */
 function initPlanetLayer(planetLayer)
 {
-	// Add planet WMS layers only
+	// Add planet WMS background layers
+	for ( var i=0; i<planetLayer.baseImageries.length; i++ )
+	{
+		var layer = planetLayer.baseImageries[i];
+		BackgroundLayersView.addView( layer );
+	}
+	
+	// Add additional layers stored on the given planet layer
 	for ( var i=0; i<planetLayer.layers.length; i++ )
 	{
 		var layer = planetLayer.layers[i];
-		BackgroundLayersView.addView( layer );
-	}	
+		mizar.activatedContext.globe.addLayer(layer);
+		AdditionalLayersView.addView(layer);
+	}
 }
 
 /**************************************************************************************************************/
@@ -245,6 +250,7 @@ return {
 		if ( mizar.mode == "sky" ) {
 			// Reinit background&additional views
 			BackgroundLayersView.remove();
+			AdditionalLayersView.remove();
 			BackgroundLayersView.init( { mizar: mizar, configuration: configuration } );
 			AdditionalLayersView.init({ mizar: mizar, configuration: configuration });
 			initLayers();
@@ -255,6 +261,7 @@ return {
 			BackgroundLayersView.remove();
 			AdditionalLayersView.remove();
 			BackgroundLayersView.init( { mizar: mizar, configuration: configuration } );
+			AdditionalLayersView.init({ mizar: mizar, configuration: configuration });
 			initPlanetLayer(planetLayer);
 		}
 		$el.accordion("option", "active", 0 ).accordion("refresh");
