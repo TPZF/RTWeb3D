@@ -187,6 +187,8 @@ return {
 		mizar = m;
 		configuration = conf;
 		parentElement = configuration.element;
+		// Add invoker
+		$('<input type="button" class="selected" id="lmInvoker" />').appendTo(parentElement);
 		$el = $('<div id="accordion" style="display: none;"></div>').appendTo(parentElement);
 		configuration.element = $el;
 
@@ -216,6 +218,22 @@ return {
 		// Setup the drag & drop listeners.
 		$('canvas').on('dragover', handleDragOver);
 		$('canvas').on('drop', handleDrop);
+
+		// Layer manager invoker onclick animations
+		$('#lmInvoker').click(function(){
+			if ( parseFloat($(this).siblings('#accordion').css('left')) < 0 )
+        	{
+        		// Show layer manager
+        		$(this).animate({left: '-10px'}, 300).addClass('selected');
+        		$(this).siblings('#accordion').animate({left: '15px'}, 300);
+        	}
+        	else
+        	{
+        		// Hide layer manager
+        		$(this).animate({left: '0px'}, 300).removeClass('selected');
+        		$(this).siblings('#accordion').animate({left: '-255px'}, 300);
+        	}
+		});
 
 		if ( configuration.votable2geojson )
 		{
