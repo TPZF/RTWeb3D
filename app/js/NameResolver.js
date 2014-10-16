@@ -145,7 +145,7 @@ function search(objectName, onSuccess, onError, onComplete)
 			{
 				var lon = parseFloat(feature.properties.center_lon);
 				var lat = parseFloat(feature.properties.center_lat);
-				zoomTo([feature.properties.center_lon, feature.properties.center_lat], onSuccess, {features: [feature]});
+				zoomTo(lon, lat, onSuccess, {features: [feature]});
 			}
 			else
 			{
