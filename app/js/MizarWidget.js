@@ -191,7 +191,7 @@ define( [ "jquery", "underscore-min", "./PlanetContext", "./SkyContext", "gw/Til
 
 		parentElement = div;
 		var sitoolsBaseUrl = userOptions.sitoolsBaseUrl ? userOptions.sitoolsBaseUrl : "http://demonstrator.telespazio.com/sitools";
-		this.isMobile = (('ontouchstart' in window && window.ontouchstart != null) || window.DocumentTouch && document instanceof DocumentTouch);
+		this.isMobile = ('ontouchstart' in window || (window.DocumentTouch && document instanceof DocumentTouch));
 		options = {
 			"sitoolsBaseUrl" : sitoolsBaseUrl,
 			"mizarBaseUrl": mizarBaseUrl,
