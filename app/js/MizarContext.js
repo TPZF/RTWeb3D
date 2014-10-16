@@ -84,18 +84,25 @@ define( [ "jquery", "gw/TouchNavigationHandler", "./ErrorDialog", "./AboutDialog
 		// Add some useful css properties to parent element
 		$(this.parentElement).css({
 			position: "relative",
-			width: canvas.width,
-			height: canvas.height,
 			overflow: "hidden"
 		});
 		
 		var self = this;
-		// Take into account window resize
-		$(window).resize(function() {
+
+		// Define on resize function
+		var onResize = function() {
 			if ( canvas.width !=  window.innerWidth ) 
-				canvas.width = $(self.parentElement).attr("width");
+				canvas.width = $(self.parentElement).width();
 			if ( canvas.height != window.innerHeight )
-				canvas.height = $(self.parentElement).attr("height");
+				canvas.height = $(self.parentElement).height();
+		}
+
+		// Take into account window resize 1s after resizing stopped
+		var timer;
+		$(window).resize(function(){
+			if ( timer )
+				clearTimeout(timer);
+		   timer = setTimeout(onResize, 1000);
 		});
 
 		// Context lost listener
