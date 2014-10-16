@@ -74,34 +74,11 @@ define( [ "jquery", "underscore-min", "gw/Sky", "gw/AstroNavigation", "gw/Utils"
 	/**************************************************************************************************************/
 	
 	/**
- 	 *	Show additional layers
-	 *	(used on context change)
+	 *	Get additional layers of sky context
 	 */
-	SkyContext.prototype.showAdditionalLayers = function()
-	{
-		_.each(this.visibleLayers, function(layer) {
-			layer.visible(true);
-		});
-	};	
-
-	/**************************************************************************************************************/
-	
-	/**
-	 *	Hide additional layers
-	 *	(used on context change)
-	 */
-	SkyContext.prototype.hideAdditionalLayers = function()
-	{
-		this.visibleLayers = [];
-		var gwLayers = LayerManager.getLayers();
-		var self = this;
-		_.each(gwLayers, function(layer){
-			if ( layer.category != "background" && layer.visible() )
-			{
-				layer.visible(false);
-				self.visibleLayers.push(layer);
-			}
-			
+	SkyContext.prototype.getAdditionalLayers = function() {
+		return _.filter(LayerManager.getLayers(), function(layer) {
+			return layer.category != "background";
 		});
 	};
 

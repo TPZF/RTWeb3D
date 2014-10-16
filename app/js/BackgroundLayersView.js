@@ -24,7 +24,7 @@ define(["jquery", "underscore-min", "./LayerManager", "./DynamicImageView", "./P
 		function($, _, LayerManager, DynamicImageView, PickingManager, HEALPixFITSLayer, LayerServiceView, Samp, ErrorDialog, backgroundLayersHTML){
 
 var nbBackgroundLayers = 0; // required because background id is always equal to 0
-var sky;
+var sky; // TODO: remove sky parameter, use activatedContext instead..
 var layerManager;
 var parentElement;
 var $el;
@@ -97,7 +97,7 @@ function createHtmlForBackgroundLayer( gwLayer )
 		// Update background options layout
 		updateBackgroundOptions(gwLayer);
 		selectedLayer = gwLayer;
-		if ( gwLayer != sky.baseImagery ) {
+		if ( gwLayer != this.mizar.activatedContext.globe.baseImagery ) {
 			LayerManager.setBackgroundSurvey(gwLayer.name);
 		}
 	}
@@ -213,8 +213,8 @@ return {
 		});
 		
 		// Back to sky button if in planet mode
+		var self = this;
 		if ( this.mizar.mode == "planet" ) {
-			var self = this;
 			$el.find('.backToSky').button().click(function(event) {
 				self.mizar.toggleMode();
 			});
@@ -243,7 +243,7 @@ return {
 			}).click(function(event){
 				if ( Samp.isConnected() )
 				{
-					var healpixLayer = sky.tileManager.imageryProvider;
+					var healpixLayer = sky.baseImagery;
 					for ( var i=0; i<sky.tileManager.tilesToRender.length; i++ )
 					{
 						var tile = sky.tileManager.tilesToRender[i];
@@ -324,7 +324,7 @@ return {
 			{
 				var index = ui.item.index;
 				var layer = $(this).children().eq(index).data("layer");
-				if ( layer != sky.baseImagery ) {
+				if ( layer != self.mizar.activatedContext.globe.baseImagery ) {
 					LayerManager.setBackgroundSurvey(layer.name);
 				}
 			}

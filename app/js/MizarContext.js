@@ -206,6 +206,41 @@ define( [ "jquery", "gw/TouchNavigationHandler", "./ErrorDialog", "./AboutDialog
 
 	/**************************************************************************************************************/
 
+	/**
+ 	 *	Show additional layers
+	 *	(used on context change)
+	 */
+	MizarContext.prototype.showAdditionalLayers = function()
+	{
+		_.each(this.visibleLayers, function(layer) {
+			layer.visible(true);
+		});
+	};	
+
+	/**************************************************************************************************************/
+	
+	/**
+	 *	Hide additional layers
+	 *	(used on context change)
+	 */
+	MizarContext.prototype.hideAdditionalLayers = function()
+	{
+		this.visibleLayers = [];
+		var gwLayers = this.getAdditionalLayers();
+		var self = this;
+		_.each(gwLayers, function(layer){
+			if ( layer.visible() )
+			{
+				layer.visible(false);
+				self.visibleLayers.push(layer);
+			}
+			
+		});
+	};
+
+	/**************************************************************************************************************/
+
+
 	return MizarContext;
 
 });

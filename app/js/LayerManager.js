@@ -266,9 +266,9 @@ return {
 			if ( gwLayer.visible() )
 			{
 				// Change visibility's of previous layer(maybe GlobWeb should do it ?)
-				if ( globe.tileManager.imageryProvider )
+				if ( globe.baseImagery )
 				{
-					globe.tileManager.imageryProvider.visible(false);
+					globe.baseImagery.visible(false);
 				}
 
 				globe.setBaseImagery( gwLayer );
@@ -384,6 +384,7 @@ return {
 	  */
 	 setBackgroundSurvey: function(survey) {
 		
+		var globe = this.mizar.activatedContext.globe;
 	 	if ( this.mizar.mode == "sky" )
 	 	{
 			// Find the layer by name among all the layers
@@ -391,13 +392,12 @@ return {
 		 	if ( gwLayer )
 		 	{
 				// Check if is not already set
-			 	if ( gwLayer != this.mizar.sky.baseImagery )
+			 	if ( gwLayer != globe.baseImagery )
 			 	{
 				 	// Change visibility's of previous layer, because visibility is used to know the active background layer in the layers list (layers can be shared)
-				 	if ( this.mizar.sky.baseImagery )
-						this.mizar.sky.baseImagery.visible(false);
-					this.mizar.sky.setBaseImagery( gwLayer );
-					this.mizar.sky.baseImagery = gwLayer;
+				 	if ( globe.baseImagery )
+						globe.baseImagery.visible(false);
+					globe.setBaseImagery( gwLayer );
 					gwLayer.visible(true);
 
 					// Clear selection
@@ -415,14 +415,14 @@ return {
 								if (subLayer.name == "SolarObjectsSublayer" )
 								{
 									PickingManager.removePickableLayer( subLayer );
-									this.mizar.sky.removeLayer( subLayer );
+									globe.removeLayer( subLayer );
 									currentLayer.subLayers.splice(j,1);
 								}
 							}
 						}
 					}
+					this.mizar.publish("backgroundLayer:change", gwLayer);
 				}
-				this.mizar.publish("backgroundLayer:change", gwLayer);
 		 	} else {
 		 		this.mizar.publish("backgroundSurveyError", "Survey " + survey + " hasn't been found");
 		 	}
@@ -431,7 +431,8 @@ return {
 	 	{
 	 		// Planet mode
 		 	var gwLayer = _.findWhere(planetLayers, {name: survey});
-		 	var globe = this.mizar.planetContext.globe;
+		 	if ( globe.baseImagery )
+				globe.baseImagery.visible(false);
 			globe.setBaseImagery( gwLayer );
 			gwLayer.visible(true);
 			this.mizar.publish("backgroundLayer:change", gwLayer);

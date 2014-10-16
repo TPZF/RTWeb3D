@@ -20,8 +20,8 @@
 /**
  * Planet context
  */
-define( [ "jquery", "gw/Globe", "gw/Navigation", "gw/Utils", "./MizarContext", "jquery.ui"],
-	function($, Globe, Navigation, Utils, MizarContext) {
+define( [ "jquery", "gw/Globe", "gw/AttributionHandler", "gw/Navigation", "gw/Utils", "./MizarContext", "jquery.ui"],
+	function($, Globe, AttributionHandler, Navigation, Utils, MizarContext) {
 
 	/**************************************************************************************************************/
 
@@ -58,17 +58,13 @@ define( [ "jquery", "gw/Globe", "gw/Navigation", "gw/Utils", "./MizarContext", "
 		}
 		this.initGlobeEvents(this.globe);
 
+		// Add attribution handler
+		new AttributionHandler( this.globe, {element: 'globeAttributions'});
+
 		// Initialize planet context
 		this.planetLayer = options.planetLayer;
 		if ( this.planetLayer )
 		{
-			// Set first WMS layer as base imagery
-			this.globe.setBaseImagery(this.planetLayer.baseImageries[0]);
-			// Set elevation if exists
-			if ( this.planetLayer.elevationLayer )
-			{
-				this.globe.setBaseElevation( this.planetLayer.elevationLayer );
-			}
 			this.globe.addLayer(this.planetLayer);
 		}
 		
@@ -87,12 +83,18 @@ define( [ "jquery", "gw/Globe", "gw/Navigation", "gw/Utils", "./MizarContext", "
 	/**************************************************************************************************************/
 
 	/**
+	 *	Get additional layers of planet context
+	 */
+	PlanetContext.prototype.getAdditionalLayers = function() {
+		return this.planetLayer.layers;
+	};
+
+	/**************************************************************************************************************/
+	/**
 	 *	Destroy method
 	 */
 	PlanetContext.prototype.destroy = function() {
-
-		// TODO: detach layers
-
+		this.globe.removeLayer(this.planetLayer);
 		this.hide();
 		this.globe.destroy();
 		this.globe = null;

@@ -167,7 +167,6 @@ function initPlanetLayer(planetLayer)
 	for ( var i=0; i<planetLayer.layers.length; i++ )
 	{
 		var layer = planetLayer.layers[i];
-		mizar.activatedContext.globe.addLayer(layer);
 		AdditionalLayersView.addView(layer);
 	}
 }

@@ -50,11 +50,49 @@ var PlanetLayer = function(options)
 	{
 		this.elevationLayer = new WCSElevationLayer(options.elevation);
 	}
-}
+};
 
 /**************************************************************************************************************/
 
 Utils.inherits( BaseLayer, PlanetLayer );
+
+/**************************************************************************************************************/
+
+PlanetLayer.prototype._attach = function( g )
+{
+	BaseLayer.prototype._attach.call( this, g );
+	var baseImagery = _.findWhere(this.baseImageries, {_visible: true});
+	// Set first WMS layer as base imagery
+	if ( !baseImagery )
+	{
+		baseImagery = this.baseImageries[0];
+	}
+	this.globe.setBaseImagery(baseImagery);
+	// Set elevation if exists
+	if ( this.elevationLayer )
+	{
+		this.globe.setBaseElevation( this.elevationLayer );
+	}
+	baseImagery.visible(true)
+
+	for ( var i=0; i<this.layers.length; i++ )
+	{
+		this.globe.addLayer(this.layers[i]);
+	}
+};
+
+/**************************************************************************************************************/
+
+PlanetLayer.prototype._detach = function() {
+	this.globe.setBaseImagery(null);
+	for ( var i=0; i<this.layers.length; i++ )
+	{
+		this.globe.removeLayer(this.layers[i]);
+	}
+	BaseLayer.prototype._detach.call(this);
+};
+
+/**************************************************************************************************************/
 
 return PlanetLayer;
 

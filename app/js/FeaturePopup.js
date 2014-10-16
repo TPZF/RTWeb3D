@@ -374,7 +374,7 @@ return {
 				pickingManager.addPickableLayer(solarObjectsLayer);
 
 				var url = configuration.solarObjects.baseUrl;
-				if ( globe.tileManager.imageryProvider.tiling.coordSystem == "EQ" )
+				if ( globe.baseImagery.tiling.coordSystem == "EQ" )
             	{
             		url += "EQUATORIAL";
             	}
