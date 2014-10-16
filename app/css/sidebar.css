@@ -25,6 +25,7 @@
 	position: relative;
 	left: 15px;
 	width: 250px;
+	pointer-events: auto;
 }
 
 #accordion > div
@@ -34,6 +35,7 @@
 
 #categoryDiv
 {
+	pointer-events: none;
 	position: absolute;
 	z-index: 1;
 	top: 10px;
