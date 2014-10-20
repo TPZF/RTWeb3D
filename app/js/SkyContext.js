@@ -50,6 +50,7 @@ define( [ "jquery", "underscore-min", "gw/Sky", "gw/AstroNavigation", "gw/Utils"
 				canvas: options.canvas, 
 				tileErrorTreshold: 1.5,
 				continuousRendering: options.continuousRendering,
+				renderTileWithoutTexture: false,
 				radius: 10.,
 				minFar: 15		// Fix problem with far buffer, with planet rendering
 			} );
@@ -61,6 +62,11 @@ define( [ "jquery", "underscore-min", "gw/Sky", "gw/AstroNavigation", "gw/Utils"
 			document.getElementById('webGLNotAvailable').style.display = "block";
 		}
 		this.initGlobeEvents(this.globe);
+
+		if ( options.isMobile )
+		{
+			this.initTouchNavigation(options);
+		}
 		this.navigation = new AstroNavigation(this.globe, options.navigation);
 
 		// Eye position tracker initialization

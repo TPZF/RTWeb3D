@@ -49,17 +49,22 @@ define( [ "jquery", "gw/TouchNavigationHandler", "./ErrorDialog", "./AboutDialog
 		this.parentElement = div;
 		this.aboutShown = false;
 		this.configuration = options;
-		
-		// Add touch navigation handler if client supports touch events
-		if( options.isMobile ) {
-		    var self = this;
-			options.navigation.handlers = [ new TouchNavigationHandler({ inversed: true, zoomOnDblClick: true }) ];
-			window.addEventListener("orientationchange", function() {
-				self.sky.renderContext.requestFrame();
-			}, false);
-		}
 	}
 	
+	/**************************************************************************************************************/
+
+	/**
+	 *	Initialize touch navigation handler
+	 */
+	MizarContext.prototype.initTouchNavigation = function(options)
+	{
+	    var self = this;
+		options.navigation.handlers = [ new TouchNavigationHandler({ inversed: (this.globe.isSky ? true : false), zoomOnDblClick: true }) ];
+		window.addEventListener("orientationchange", function() {				
+			self.globe.refresh();
+		}, false);
+	}
+
 	/**************************************************************************************************************/
 
 	MizarContext.prototype.initCanvas = function(canvas)
@@ -91,10 +96,18 @@ define( [ "jquery", "gw/TouchNavigationHandler", "./ErrorDialog", "./AboutDialog
 
 		// Define on resize function
 		var onResize = function() {
-			if ( canvas.width !=  window.innerWidth ) 
+			if ( $(self.parentElement).attr("height") && $(self.parentElement).attr("width") ) {
+				// Embedded
 				canvas.width = $(self.parentElement).width();
-			if ( canvas.height != window.innerHeight )
 				canvas.height = $(self.parentElement).height();
+			}
+			else
+			{
+				// Fullscreen
+				canvas.width = window.innerWidth;
+				canvas.height = window.innerHeight;
+			}
+			self.globe.refresh();
 		}
 
 		// Take into account window resize 1s after resizing stopped
@@ -102,7 +115,7 @@ define( [ "jquery", "gw/TouchNavigationHandler", "./ErrorDialog", "./AboutDialog
 		$(window).resize(function(){
 			if ( timer )
 				clearTimeout(timer);
-		   timer = setTimeout(onResize, 1000);
+		   timer = setTimeout(onResize, 500);
 		});
 
 		// Context lost listener

@@ -68,6 +68,10 @@ define( [ "jquery", "gw/Globe", "gw/AttributionHandler", "gw/Navigation", "gw/Ut
 			this.globe.addLayer(this.planetLayer);
 		}
 		
+		if ( options.isMobile )
+		{
+			this.initTouchNavigation(options);
+		}
 		// Don't update view matrix on creation, since we want to use animation on context change
 		options.navigation.updateViewMatrix = false;
 		this.navigation = new Navigation(this.globe, options.navigation);
