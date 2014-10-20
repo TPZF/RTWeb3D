@@ -23,7 +23,7 @@
 #accordion
 {
 	position: relative;
-	left: 15px;
+	left: -255px;
 	width: 250px;
 	pointer-events: auto;
 }

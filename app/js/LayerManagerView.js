@@ -188,7 +188,7 @@ return {
 		configuration = conf;
 		parentElement = configuration.element;
 		// Add invoker
-		$('<input type="button" class="selected" id="lmInvoker" />').appendTo(parentElement);
+		$('<input type="button" id="lmInvoker" />').appendTo(parentElement);
 		$el = $('<div id="accordion" style="display: none;"></div>').appendTo(parentElement);
 		configuration.element = $el;
 
@@ -234,6 +234,11 @@ return {
         		$(this).siblings('#accordion').animate({left: '-255px'}, 300);
         	}
 		});
+
+		if ( !configuration.isMobile )
+		{
+			$('#lmInvoker').trigger("click");
+		}
 
 		if ( configuration.votable2geojson )
 		{

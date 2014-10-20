@@ -314,7 +314,10 @@ define( [ "jquery", "underscore-min", "./PlanetContext", "./SkyContext", "gw/Til
 		// Initialize SAMP component
 		// TODO : Bear in mind that a website may already implement specific SAMP logics, so check that
 		// current samp component doesn't break existing SAMP functionality
-		Samp.init(this, LayerManager, ImageManager, options);
+		if ( !this.isMobile )
+		{
+			Samp.init(this, LayerManager, ImageManager, options);
+		}
 
 		// UWS services initialization
 		UWSManager.init(options);
@@ -533,21 +536,25 @@ define( [ "jquery", "underscore-min", "./PlanetContext", "./SkyContext", "gw/Til
 
 	/**
 	 *	Add/remove compass GUI
+	 *	Only on desktop due performance issues
 	 */
 	MizarWidget.prototype.setCompassGui = function(visible) {
-		if ( visible ) {
-			this.compass = new Compass({
-				element : "compassDiv",
-				globe : this.sky,
-				navigation : this.navigation,
-				coordSystem : this.sky.coordinateSystem.type,
-				isMobile : options.isMobile,
-				mizarBaseUrl : options.mizarBaseUrl
-			});
-		} else {
-			this.compass.remove();
+		if ( !options.isMobile )
+		{
+			if ( visible ) {
+				this.compass = new Compass({
+					element : "compassDiv",
+					globe : this.sky,
+					navigation : this.navigation,
+					coordSystem : this.sky.coordinateSystem.type,
+					isMobile : options.isMobile,
+					mizarBaseUrl : options.mizarBaseUrl
+				});
+			} else {
+				this.compass.remove();
+			}
+			skyContext.setComponentVisibility("compassDiv", visible);
 		}
-		skyContext.setComponentVisibility("compassDiv", visible);
 	}
 
 	/**************************************************************************************************************/
@@ -568,9 +575,13 @@ define( [ "jquery", "underscore-min", "./PlanetContext", "./SkyContext", "gw/Til
 
 	/**
 	 *	Add/remove samp GUI
+	 *	Only on desktop
 	 */
 	MizarWidget.prototype.setSampGui = function(visible) {
-		skyContext.setComponentVisibility("sampContainer", visible);
+		if ( !options.isMobile )
+		{
+			skyContext.setComponentVisibility("sampContainer", visible);
+		}
 	}
 
 	 /**************************************************************************************************************/
@@ -644,12 +655,15 @@ define( [ "jquery", "underscore-min", "./PlanetContext", "./SkyContext", "gw/Til
 	 *	Add/remove jQueryUI image viewer GUI
 	 */
 	MizarWidget.prototype.setImageViewerGui = function(visible) {
-		if ( visible ) {
-			ImageViewer.init(this);
-	 	} else {
-	 		ImageViewer.remove();
-	 	}
-	 	skyContext.setComponentVisibility("imageViewerDiv", visible);
+		if ( !options.isMobile )
+		{
+			if ( visible ) {
+				ImageViewer.init(this);
+		 	} else {
+		 		ImageViewer.remove();
+		 	}
+		 	skyContext.setComponentVisibility("imageViewerDiv", visible);
+		 }
 	}
 
 	/**************************************************************************************************************/
