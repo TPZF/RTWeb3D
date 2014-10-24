@@ -20,8 +20,8 @@
 /**
  * Planet renderer/layer module
  */
-define( [ "jquery", "gw/BaseLayer", "gw/WMSLayer", "gw/WCSElevationLayer", "gw/Utils" ],
-		function($, BaseLayer, WMSLayer, WCSElevationLayer, Utils) {
+define( [ "jquery", "underscore-min", "gw/BaseLayer", "gw/WMSLayer", "gw/WCSElevationLayer", "gw/Utils" ],
+		function($, _, BaseLayer, WMSLayer, WCSElevationLayer, Utils) {
 
 /**
  * 	@constructor

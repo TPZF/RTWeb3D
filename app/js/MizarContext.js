@@ -21,8 +21,8 @@
  *	Abstract class for mizar context
  *	Implemented by SkyContext and PlanetContext
  */
-define( [ "jquery", "gw/TouchNavigationHandler", "./ErrorDialog", "./AboutDialog", "jquery.ui"],
-	function($, TouchNavigationHandler,	ErrorDialog, AboutDialog) {
+define( [ "jquery", "underscore-min", "gw/TouchNavigationHandler", "./ErrorDialog", "./AboutDialog", "jquery.ui"],
+	function($, _, TouchNavigationHandler,	ErrorDialog, AboutDialog) {
 
 	/**************************************************************************************************************/
 
