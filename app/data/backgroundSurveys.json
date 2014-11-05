@@ -643,6 +643,14 @@
 				"layers": "pyroxene",
 				"description": "Pyroxene",
 		        "attribution":"Color background provided by <a href=\"http://www.mars.asu.edu/data/\" target=\"_blank\">Mars Dataset</a>"
+			},
+			{
+				"name": "MOLA roughness",
+				"baseUrl": "http://demonstrator.telespazio.com/ms-mars",
+				"layers": "mola_roughness",
+				"description": "MOLA roughness",
+				"format": "image/png",
+		        "attribution":"Color background provided by <a href=\"http://www.mars.asu.edu/data/\" target=\"_blank\">Mars Dataset</a>"
 			}
 		],
 		"visible": false
