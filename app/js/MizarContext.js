@@ -21,8 +21,8 @@
  *	Abstract class for mizar context
  *	Implemented by SkyContext and PlanetContext
  */
-define( [ "jquery", "underscore-min", "gw/TouchNavigationHandler", "./ErrorDialog", "./AboutDialog", "jquery.ui"],
-	function($, _, TouchNavigationHandler,	ErrorDialog, AboutDialog) {
+define( [ "jquery", "underscore-min", "./ErrorDialog", "./AboutDialog", "jquery.ui"],
+	function($, _,	ErrorDialog, AboutDialog) {
 
 	/**************************************************************************************************************/
 
@@ -58,8 +58,12 @@ define( [ "jquery", "underscore-min", "gw/TouchNavigationHandler", "./ErrorDialo
 	 */
 	MizarContext.prototype.initTouchNavigation = function(options)
 	{
+		options.navigation.touch = {
+			inversed: (this.globe.isSky ? true : false),
+			zoomOnDblClick: true
+		};
+
 	    var self = this;
-		options.navigation.handlers = [ new TouchNavigationHandler({ inversed: (this.globe.isSky ? true : false), zoomOnDblClick: true }) ];
 		window.addEventListener("orientationchange", function() {				
 			self.globe.refresh();
 		}, false);

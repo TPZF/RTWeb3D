@@ -233,12 +233,10 @@ define( [ "jquery", "underscore-min", "./PlanetContext", "./SkyContext", "gw/Til
 				"inertia": true,
 				"minFov": 0.001,
 				"zoomFactor": 0,
-				"handlers": [
-					new MouseNavigationHandler({
-						zoomOnDblClick: true
-					}),
-					new KeyboardNavigationHandler()
-				]
+				"isMobile" : this.isMobile,
+				"mouse" : {
+					"zoomOnDblClick" : true
+				}
 			},
 			"stats": {
 				"verbose": false,
@@ -327,59 +325,57 @@ define( [ "jquery", "underscore-min", "./PlanetContext", "./SkyContext", "gw/Til
 
 		// Initialize moc base
 		MocBase.init(this, options);
-		
+
 		// Get background surveys only
 		// Currently in background surveys there are not only background layers but also catalog ones
 		// TODO : Refactor it !
-		if ( userOptions.backgroundSurveys ) {
+		var layers = [];
+		if ( userOptions.backgroundSurveys )
+		{
 			// Use user defined background surveys
-			var layers = userOptions.backgroundSurveys;
-		} else {
-			// Use built-in background surveys
-			backgroundSurveys = _removeComments(backgroundSurveys);
-			try
-			{
-				var layers = $.parseJSON(backgroundSurveys);
-			}
-			catch (e) {
-				ErrorDialog.open("Background surveys parsing error<br/> For more details see http://jsonlint.com/.");
-				console.error(e.message);
-				return false;
-			}
+			layers = userOptions.backgroundSurveys;
+		}
+		else
+		{
+			// // Use built-in background surveys
+			// backgroundSurveys = _removeComments(backgroundSurveys);
+			// try
+			// {
+			// 	layers = $.parseJSON(backgroundSurveys);
+			// }
+			// catch (e) {
+			// 	ErrorDialog.open("Background surveys parsing error<br/> For more details see http://jsonlint.com/.");
+			// 	console.error(e.message);
+			// 	return false;
+			// }
+			$.ajax({
+				type: "GET",
+				async: false, // Deal with it..
+				url: mizarBaseUrl + "data/backgroundSurveys.json",
+				dataType: "text",
+				success: function(response) {
+					response = _removeComments(response);
+					try
+					{
+						layers = $.parseJSON(response);
+					}
+					catch (e) {
+						ErrorDialog.open("Background surveys parsing error<br/> For more details see http://jsonlint.com/.");
+						console.error(e.message);
+						return false;
+					}
+				},
+				error: function(thrownError) {
+					console.error(thrownError);
+				}
+			});
 		}
 
 		// Add surveys
 		for( var i=0; i<layers.length; i++ ) {
 			self.addLayer( layers[i] );
+			self.publish("backgroundSurveysReady");
 		}
-
-		// Ajax request to retrieve background 
-		// $.ajax({
-		// 	type: "GET",
-		// 	url: mizarBaseUrl + "data/backgroundSurveys.json",
-		// 	dataType: "text",
-		// 	success: function(response) {
-		// 		response = _removeComments(response);
-		// 		try
-		// 		{
-		// 			var layers = $.parseJSON(response);
-		// 		}
-		// 		catch (e) {
-		// 			ErrorDialog.open("Background surveys parsing error<br/> For more details see http://jsonlint.com/.");
-		// 			console.error(e.message);
-		// 			return false;
-		// 		}
-
-		// 		// Add surveys
-		// 		for( var i=0; i<layers.length; i++ ) {
-		// 			self.addLayer( layers[i] );
-		// 		}
-		// 		self.publish("backgroundSurveysReady");
-		// 	},
-		// 	error: function(thrownError) {
-		// 		console.error(thrownError);
-		// 	}
-		// });
 		
 		// Fullscreen mode
 		document.addEventListener("keydown", function(event){
