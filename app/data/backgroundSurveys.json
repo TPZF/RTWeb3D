@@ -612,9 +612,17 @@
 			"baseUrl": "http://demonstrator.telespazio.com/wcspub",
 			"coverage": "MARSTOPO_16",
 			"version": "1.0.0",
-			"minElevation": -32000
+			"minElevation": -32000,
+			"scale": 2 // Enhance a little bit the elevation of Mars
 		},
 		"baseImageries": [
+			{
+				"name": "Viking",
+				"baseUrl": "http://demonstrator.telespazio.com/mars",
+				"layers": "Viking",
+				"description": "Red planet",
+		        "attribution":"Color background provided by <a href=\"http://www.mars.asu.edu/data/\" target=\"_blank\">Mars Dataset</a>"
+			},
 			{
 				"name": "THEMIS",
 				"baseUrl": "http://demonstrator.telespazio.com/mars",
