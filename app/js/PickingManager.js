@@ -529,7 +529,7 @@ return {
 	 */
 	focusFeatureByIndex: function(index, options)
 	{
-		if ( options.isExclusive )
+		if ( options && options.isExclusive )
 			blurSelection();
 		
 		// Update highlight color

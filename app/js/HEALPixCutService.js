@@ -130,7 +130,7 @@ return {
 		    var cdelt2 = parseFloat( $('#cdelt2').val() );
 
 		    // Get choosen layer
-		    var healpixLayer = globe.tileManager.imageryProvider;
+		    var healpixLayer = globe.baseImagery;
 
 		    if ( !context.fileName )
 		    {
