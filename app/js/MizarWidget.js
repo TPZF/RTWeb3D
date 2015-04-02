@@ -40,7 +40,7 @@ define( [ "jquery", "underscore-min", "./PlanetContext", "./SkyContext", "gw/Til
 	/**
 	 *	Apply shared parameters to options if exist
 	 */
-	var _applySharedParameters = function(options) {
+	var _applySharedParameters = function() {
 		var documentURI =  window.document.documentURI;
 		// Retrieve shared parameters
 		var sharedParametersIndex = documentURI.indexOf( "sharedParameters=" );
@@ -56,7 +56,7 @@ define( [ "jquery", "underscore-min", "./PlanetContext", "./SkyContext", "gw/Til
 					async: false, // TODO: create callback
 					success: function(sharedConf)
 					{
-						_setSharedParameters(options, sharedConf);
+						_mergeWithOptions(sharedConf);
 					},
 					error: function(thrownError)
 					{
@@ -68,7 +68,7 @@ define( [ "jquery", "underscore-min", "./PlanetContext", "./SkyContext", "gw/Til
 			{
 				console.log("Shortener plugin isn't defined, try to extract as a string");
 				var sharedParameters = JSON.parse( unescape(sharedString) );
-				_setSharedParameters(options, sharedParameters);
+				_mergeWithOptions(sharedParameters);
 			}
 		}
 	}
@@ -121,31 +121,17 @@ define( [ "jquery", "underscore-min", "./PlanetContext", "./SkyContext", "gw/Til
 	/**************************************************************************************************************/
 
 	/**
-	 *	Modify data according to shared parameters
+	 *	Merge retrieved shared parameters with Mizar configuration
 	 */
-	var _setSharedParameters = function(data, sharedParameters)
+	var _mergeWithOptions = function(sharedParameters)
 	{
-		// Init navigation parameters
-		data.navigation.initTarget = sharedParameters.initTarget;
-		data.navigation.initFov = sharedParameters.fov;
-		data.navigation.up = sharedParameters.up;
+		// Navigation
+		options.navigation.initTarget = sharedParameters.initTarget;
+		options.navigation.initFov = sharedParameters.fov;
+		options.navigation.up = sharedParameters.up;
 
-		// Set visibility of layers
-		if ( data.layers ) {
-			for ( var x in sharedParameters.visibility )
-			{
-				var name = x;
-				for ( var i=0; i<data.layers.length; i++ )
-				{
-					var currentLayer = data.layers[i];
-					if ( name == currentLayer.name )
-					{
-						currentLayer.visible = sharedParameters.visibility[name];
-						continue;
-					}
-				}
-			}
-		}
+		// Layer visibility
+		options.layerVisibility = sharedParameters.visibility;
 	}
 
 	/**************************************************************************************************************/
@@ -263,7 +249,7 @@ define( [ "jquery", "underscore-min", "./PlanetContext", "./SkyContext", "gw/Til
 		this.navigation = null;
 
 		var confURL = _retrieveConfiguration();
-		_applySharedParameters(options);
+		_applySharedParameters();
 		
 		// Initialize sky&globe contexts
 		skyContext = new SkyContext(div, $.extend({canvas: $(div).find('#GlobWebCanvas')[0]}, options));
@@ -373,7 +359,15 @@ define( [ "jquery", "underscore-min", "./PlanetContext", "./SkyContext", "gw/Til
 
 		// Add surveys
 		for( var i=0; i<layers.length; i++ ) {
-			self.addLayer( layers[i] );
+			var layer = layers[i];
+			var gwLayer = self.addLayer( layer );
+			
+			// Update layer visibility according to options
+			if ( options.layerVisibility.hasOwnProperty(layer.name) )
+			{
+				gwLayer.visible( options.layerVisibility[layer.name] );
+			}
+
 			self.publish("backgroundSurveysReady");
 		}
 		
