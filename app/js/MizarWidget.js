@@ -30,6 +30,7 @@ define( [ "jquery", "underscore-min", "./PlanetContext", "./SkyContext", "gw/Til
 	 *	Private variables
 	 */
 	var aboutShowed = false;
+	var showCredits = true;
 	var parentElement;
 	var options;
 	var planetContext;
@@ -363,7 +364,7 @@ define( [ "jquery", "underscore-min", "./PlanetContext", "./SkyContext", "gw/Til
 			var gwLayer = self.addLayer( layer );
 			
 			// Update layer visibility according to options
-			if ( options.layerVisibility.hasOwnProperty(layer.name) )
+			if ( options.layerVisibility && options.layerVisibility.hasOwnProperty(layer.name) )
 			{
 				gwLayer.visible( options.layerVisibility[layer.name] );
 			}
@@ -520,6 +521,15 @@ define( [ "jquery", "underscore-min", "./PlanetContext", "./SkyContext", "gw/Til
 	MizarWidget.prototype.setZoom = function(fovInDegrees, callback) {
 		var geoPos = this.sky.coordinateSystem.from3DToGeo(this.navigation.center3d);
 		this.navigation.zoomTo(geoPos, fovInDegrees, 1000, callback);
+	}
+
+	/**************************************************************************************************************/
+
+	/**
+	 *	Set zoom(in other words fov)
+	 */
+	MizarWidget.prototype.setShowCredits = function(visible) {
+		skyContext.showCredits(visible);
 	}
 
 	/**************************************************************************************************************/
