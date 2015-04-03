@@ -48,6 +48,7 @@ define( [ "jquery", "underscore-min", "./ErrorDialog", "./AboutDialog", "jquery.
 		this.navigation = null;
 		this.parentElement = div;
 		this.aboutShown = false;
+		this.credits = true;
 		this.configuration = options;
 	}
 	
@@ -134,12 +135,21 @@ define( [ "jquery", "underscore-min", "./ErrorDialog", "./AboutDialog", "jquery.
 	/**************************************************************************************************************/
 
 	/**
+	 *	Handles credits window
+	 */
+
+	MizarContext.prototype.showCredits = function(visible) {
+		this.credits = visible;
+	}
+	/**************************************************************************************************************/
+
+	/**
 	 *	Hide loading and show about on first connection
 	 */
 	MizarContext.prototype.showAbout = function()
 	{
 		// Show about information only at the end of first loading
-		if ( localStorage.showAbout == undefined && !this.aboutShowed )
+		if ( this.credits && localStorage.showAbout == undefined && !this.aboutShowed )
 		{
 			AboutDialog.show();
 			this.aboutShowed = true;

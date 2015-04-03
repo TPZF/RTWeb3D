@@ -91,5 +91,6 @@ require(["./MizarWidget"], function(MizarWidget) {
 	mizar.setNameResolverGui(true);
 	mizar.setCategoryGui(true);
 	mizar.setCompassGui(true);
+	mizar.setShowCredits(true);
 	mizar.setImageViewerGui(true);
 });

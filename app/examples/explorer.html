@@ -10,13 +10,13 @@
 <!-- <link rel="stylesheet" href="../css/style.css" /> -->
 
 <!-- Prod -->
-<link rel="stylesheet" href="../css/style.min.css" />
-<script type="text/javascript" charset="UTF-8" src="../MizarWidget.min.js"></script>
-<!-- <script type="text/javascript" charset="UTF-8" src="http://demonstrator.telespazio.com/mizar/MizarWidget.min.js"></script> -->
+<!--<link rel="stylesheet" href="../css/style.min.css" />-->
+<!--<script type="text/javascript" charset="UTF-8" src="../MizarWidget.min.js"></script>-->
+<link rel="stylesheet" href="http://demonstrator.telespazio.com/mizar/css/style.min.css" />
+<script type="text/javascript" charset="UTF-8" src="http://demonstrator.telespazio.com/mizar/MizarWidget.min.js"></script>
 <script type="text/javascript" charset="UTF-8" src="http://cdn.datatables.net/1.10.1/js/jquery.dataTables.min.js"></script>
 
 <style>
-
 div#options
 {
 	display: inline-block;
@@ -25,12 +25,10 @@ div#options
 	width: 580px;
 	margin: 20px;
 }
-
 #poiMenu
 {
 	padding: 0px 0px;
 }
-
 li.poi
 {
 	text-align: center;
@@ -46,7 +44,6 @@ li.poi:hover
 	background: grey;
 	cursor: pointer;
 }
-
 .stylizedTable
 {
 	font-family: "Lucida Sans Unicode", "Lucida Grande", Sans-Serif;
@@ -58,12 +55,10 @@ li.poi:hover
 	text-align: left;
 	cursor: pointer;
 }
-
 #featureResults
 {
 	width: 600px;
 }
-
 .stylizedTable th, .toolbar
 {
 	font-size: 14px;
@@ -82,14 +77,12 @@ li.poi:hover
 	color: #009;
 	cursor: pointer;
 }
-
 .toolbar
 {
 	width: 100px;
 	margin-left: 50px;
 	text-align: left;
 }
-
 #mizarWidget-div
 {
 	margin: 20px;
@@ -97,7 +90,6 @@ li.poi:hover
 	margin-top: 300px;
 	display: inline-block;
 }
-
 </style>
 
 <script type="text/javascript">
@@ -117,7 +109,6 @@ li.poi:hover
 		// Need to set min order to 6 since we want to display only the features
 		// which are not far of final camera destination fov
 		hstLayer.minOrder = 6;
-
 		var table = $('#featureResults').DataTable( {
 			"dom": '<"toolbar">frtip',
 			"scrollY": "600px",
@@ -164,14 +155,12 @@ li.poi:hover
 		// 	"outline": true
 		// });
 		// grid.visible(true);
-
 		// Update data table when features has been added on hstLayer
 		hstLayer.subscribe("features:added", function(featureData){
 			// HST layer loading ended
 			// Show received features
 			console.log(featureData.features);
 			var $tbody = $('#featureResults').find("tbody");
-
 			for ( var i=0; i<featureData.features.length; i++ )
 			{
 				var feature = featureData.features[i];
@@ -195,7 +184,6 @@ li.poi:hover
 			});
 		});
 	};
-
 </script>
 
 </head>
@@ -245,4 +233,3 @@ li.poi:hover
 </body>
 
 </html>
-
