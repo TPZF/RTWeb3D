@@ -526,10 +526,12 @@ define( [ "jquery", "underscore-min", "./PlanetContext", "./SkyContext", "gw/Til
 	/**************************************************************************************************************/
 
 	/**
-	 *	Set zoom(in other words fov)
+	 *	Set the credits popup
 	 */
 	MizarWidget.prototype.setShowCredits = function(visible) {
 		skyContext.showCredits(visible);
+		planetContext.showCredits(visible);
+		
 	}
 
 	/**************************************************************************************************************/
