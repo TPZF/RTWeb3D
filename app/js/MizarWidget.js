@@ -529,7 +529,9 @@ define( [ "jquery", "underscore-min", "./PlanetContext", "./SkyContext", "gw/Til
 	 *	Set the credits popup
 	 */
 	MizarWidget.prototype.setShowCredits = function(visible) {
-		skyContext.showCredits(visible);	
+		skyContext.showCredits(visible);
+		if(this.planetContext)
+			this.planetContext.showCredits(visible);	
 	}
 
 	/**************************************************************************************************************/
@@ -928,6 +930,8 @@ define( [ "jquery", "underscore-min", "./PlanetContext", "./SkyContext", "gw/Til
 			this.planetContext = new PlanetContext(parentElement, planetConfiguration);
 			this.planetContext.setComponentVisibility("categoryDiv", true);
 			this.planetContext.setComponentVisibility("searchDiv", true);
+			// Propagate user-defined wish for displaying credits window			
+			this.planetContext.credits = skyContext.credits;
 
 			// Planet tile error treshold is less sensetive than sky's one
 			this.sky.renderContext.tileErrorTreshold = 3;
