@@ -469,6 +469,6 @@ return {
 	{
 		return featuresWithImages;
 	}
-}
+};
 
 });

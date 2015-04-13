@@ -272,7 +272,7 @@ function ha2str( x )
 // converts declination angle in degrees into string
 function dec2str( x )
 {
-    if ((x < -90)||(+90 < x)) window.alert("function dec2str() range error!");
+    if ((x < -90)||(+90 < x)) {window.alert("function dec2str() range error!");}
     
     var dec = Math.abs(x);
     var sgn = (x < 0) ? "-" : " ";
@@ -353,8 +353,8 @@ function mean_sidereal_time( d, lon )
 function dms2real( deg, min, sec )
 {
     var rv;
-    if (deg < 0) rv = deg - min/60 - sec/3600;
-    else         rv = deg + min/60 + sec/3600;
+    if (deg < 0) {rv = deg - min/60 - sec/3600;}
+    else         {rv = deg + min/60 + sec/3600;}
     return rv;
 }
 
@@ -366,12 +366,12 @@ function cintstr( num, width )
     var intgr = "";
     var i;
 
-    for (i = 0; i < width - len; i++)    // append leading spaces
+    for (i = 0; i < width - len; i++) {    // append leading spaces
         intgr += ' ';
-
-    for (i = 0; i < len; i++)            // append digits
+    }
+    for (i = 0; i < len; i++) {           // append digits
         intgr += str.charAt(i);
-
+    }
     return intgr;
 }
 
@@ -409,7 +409,7 @@ function lon2str( x )
 // format two digits with leading zero if needed
 function d2( n )
 {
-    if ((n < 0)||(99 < n)) return "xx";
+    if ((n < 0)||(99 < n)) {return "xx";}
     return (n < 10) ? ("0" + n) : n;
 }
 
@@ -511,7 +511,7 @@ var computePositions = function(gwLayer)
     };
 
     gwLayer.addFeatureCollection(poiFeatureCollection);
-}
+};
 
 /**************************************************************************************************************/
 

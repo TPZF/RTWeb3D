@@ -170,13 +170,13 @@ function initializeSlider( $layerDiv, gwLayer )
 		step: 20,
 		slide: function( event, ui ) {
 			$( "#percentInput_"+shortName ).val( ui.value + "%" );
-			gwLayer.opacity( ui.value/100. );
+			gwLayer.opacity( ui.value/100 );
 
 			if ( gwLayer.subLayers )
 			{
 				for ( var i=0; i<gwLayer.subLayers.length; i++ )
 				{
-					gwLayer.subLayers[i].opacity( ui.value/100.);
+					gwLayer.subLayers[i].opacity( ui.value/100);
 				}
 			}
 		}
@@ -718,7 +718,7 @@ return {
 		var self = this;
 		$(parentElement).find(".addLayer").each(function(){
 			self.removeView($(this).data("layer"));
-		})
+		});
 		$(parentElement).find(".category").remove();
 
 		sky.unsubscribe("startLoad", onLoadStart);
