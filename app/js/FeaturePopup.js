@@ -32,6 +32,7 @@ var configuration;
 var isMobile;
 
 // Create selected feature div
+/*jshint multistr: true */
 var selectedFeatureDiv = '<div id="selectedFeatureDiv" class="contentBox ui-widget-content" style="display: none">\
 				<div id="leftDiv"></div>\
 				<div id="rightDiv"></div>\
@@ -282,7 +283,7 @@ return {
 			}
 
 			selectedData.isFits = false;
-			if ( selectedData.feature.properties.style.fill == true )
+			if ( selectedData.feature.properties.style.fill === true )
 			{
 				imageManager.removeImage(selectedData);
 			} 
@@ -303,7 +304,7 @@ return {
 			}
 
 			selectedData.isFits = true;
-			if ( selectedData.feature.properties.style.fill == true )
+			if ( selectedData.feature.properties.style.fill === true )
 			{
 				imageManager.removeImage(selectedData);
 			} 
@@ -374,7 +375,7 @@ return {
 				pickingManager.addPickableLayer(solarObjectsLayer);
 
 				var url = configuration.solarObjects.baseUrl;
-				if ( globe.baseImagery.tiling.coordSystem == "EQ" )
+				if ( globe.baseImagery.tiling.coordSystem === "EQ" )
             	{
             		url += "EQUATORIAL";
             	}

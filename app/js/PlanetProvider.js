@@ -87,8 +87,8 @@ function get_coord( obj, p, d )
     mean_elements(earth, 2, d);
     var ae = earth.a;
     var ee = earth.e;
-    var ie = earth.i;
-    var oe = earth.O;
+    //var ie = earth.i;
+    //var oe = earth.O;
     var pe = earth.w;
     var le = earth.L; 
     
@@ -259,27 +259,27 @@ function true_anomaly( M, e )
 }
 
 // converts hour angle in degrees into hour angle string
-function ha2str( x )
-{
-    if ((x < 0)||(360 < x)) { window.alert("function ha2str() range error!"); }
-    
-    var ra = x/15;                       // degrees to hours
-    var h = Math.floor(ra);
-    var m = 60*(ra - h);
-    return cintstr(h, 3) + "h " + frealstr( m, 4, 1 ) + "m";
-}
+//function ha2str( x )
+//{
+//    if ((x < 0)||(360 < x)) { window.alert("function ha2str() range error!"); }
+//    
+//    var ra = x/15;                       // degrees to hours
+//    var h = Math.floor(ra);
+//    var m = 60*(ra - h);
+//    return cintstr(h, 3) + "h " + frealstr( m, 4, 1 ) + "m";
+//}
 
 // converts declination angle in degrees into string
-function dec2str( x )
-{
-    if ((x < -90)||(+90 < x)) {window.alert("function dec2str() range error!");}
-    
-    var dec = Math.abs(x);
-    var sgn = (x < 0) ? "-" : " ";
-    var d = Math.floor(dec);
-    var m = 60*(dec - d);
-    return sgn + cintstr(d, 2) + "° " + frealstr(m, 4, 1) + "'";
-}
+//function dec2str( x )
+//{
+//    if ((x < -90)||(+90 < x)) {window.alert("function dec2str() range error!");}
+//    
+//    var dec = Math.abs(x);
+//    var sgn = (x < 0) ? "-" : " ";
+//    var d = Math.floor(dec);
+//    var m = 60*(dec - d);
+//    return sgn + cintstr(d, 2) + " " + frealstr(m, 4, 1) + "'";
+//}
 
 // return the integer part of a number
 function abs_floor( x )
@@ -306,57 +306,55 @@ function mod2pi( x )
 //
 // returns: time in degrees
 //
-function mean_sidereal_time( d, lon )
-{
-    var year   = d.getUTCFullYear();
-    var month  = d.getUTCMonth() + 1;
-    var day    = d.getUTCDate(); 
-    var hour   = d.getUTCHours(); 
-    var minute = d.getUTCMinutes();
-    var second = d.getUTCSeconds();    
-
-    if ((month === 1)||(month === 2))
-    {
-        year  = year - 1;
-        month = month + 12;
-    }
-
-    var a = Math.floor(year/100);
-    var b = 2 - a + Math.floor(a/4);
-    var c = Math.floor(365.25*year);
-    var d = Math.floor(30.6001*(month + 1));
-
+//function mean_sidereal_time( d, lon )
+//{
+//    var year   = d.getUTCFullYear();
+//    var month  = d.getUTCMonth() + 1;
+//    var day    = d.getUTCDate(); 
+//    var hour   = d.getUTCHours(); 
+//    var minute = d.getUTCMinutes();
+//    var second = d.getUTCSeconds();    
+//
+//    if ((month === 1)||(month === 2))
+//    {
+//        year  = year - 1;
+//        month = month + 12;
+//    }
+//
+//    var a = Math.floor(year/100);
+//    var b = 2 - a + Math.floor(a/4);
+//    var c = Math.floor(365.25*year);
+//    d = Math.floor(30.6001*(month + 1));
+//
     // days since J2000.0   
-    var jd = b + c + d - 730550.5 + day 
-           + (hour + minute/60.0 + second/3600.0)/24.0;
-    
+//    var jd = b + c + d - 730550.5 + day + (hour + minute/60.0 + second/3600.0)/24.0;
+//    
     // julian centuries since J2000.0
-    var jt = jd/36525.0;
-
+//    var jt = jd/36525.0;
+//
     // mean sidereal time
-    var mst = 280.46061837 + 360.98564736629*jd 
-            + 0.000387933*jt*jt - jt*jt*jt/38710000 + lon;
-
-    if (mst > 0.0)
-    {
-        while (mst > 360.0) {mst = mst - 360.0;}
-    }
-    else
-    {
-        while (mst < 0.0) {mst = mst + 360.0;}
-    }
-        
-    return mst;
-}
+//    var mst = 280.46061837 + 360.98564736629*jd + 0.000387933*jt*jt - jt*jt*jt/38710000 + lon;
+//
+//    if (mst > 0.0)
+//    {
+//        while (mst > 360.0) {mst = mst - 360.0;}
+//    }
+//    else
+//    {
+//        while (mst < 0.0) {mst = mst + 360.0;}
+//    }
+//        
+//    return mst;
+//}
 
 // convert angle (deg, min, sec) to degrees as real
-function dms2real( deg, min, sec )
-{
-    var rv;
-    if (deg < 0) {rv = deg - min/60 - sec/3600;}
-    else         {rv = deg + min/60 + sec/3600;}
-    return rv;
-}
+//function dms2real( deg, min, sec )
+//{
+//    var rv;
+//    if (deg < 0) {rv = deg - min/60 - sec/3600;}
+//    else         {rv = deg + min/60 + sec/3600;}
+//    return rv;
+//}
 
 // format an integer
 function cintstr( num, width )
@@ -377,41 +375,41 @@ function cintstr( num, width )
 
 
 // converts angle in degrees into string
-function degr2str( x )
-{   
-    var dec = Math.abs(x);
-    var sgn = (x < 0) ? "-" : " ";
-    var d = Math.floor(dec);
-    var m = 60*(dec - d);
-    return sgn + cintstr(d, 3) + "° " + frealstr(m, 4, 1) + "'";
-}
+//function degr2str( x )
+//{   
+//    var dec = Math.abs(x);
+//    var sgn = (x < 0) ? "-" : " ";
+//    var d = Math.floor(dec);
+//    var m = 60*(dec - d);
+//    return sgn + cintstr(d, 3) + "&deg; " + frealstr(m, 4, 1) + "'";
+//}
 
 // converts latitude in signed degrees into string
-function lat2str( x )
-{   
-    var dec = Math.abs(x);
-    var sgn = (x < 0) ? " S" : " N";
-    var d = Math.floor(dec);
-    var m = 60*(dec - d);
-    return cintstr(d, 3) + "° " + frealstr(m, 4, 1) + "'" + sgn;
-}
+//function lat2str( x )
+//{   
+//    var dec = Math.abs(x);
+//    var sgn = (x < 0) ? " S" : " N";
+//    var d = Math.floor(dec);
+//    var m = 60*(dec - d);
+//    return cintstr(d, 3) + "&deg; " + frealstr(m, 4, 1) + "'" + sgn;
+//}
 
 // converts longitude in signed degrees into string
-function lon2str( x )
-{   
-    var dec = Math.abs(x);
-    var sgn = (x < 0) ? " W" : " E";
-    var d = Math.floor(dec);
-    var m = 60*(dec - d);
-    return cintstr(d, 3) + "° " + frealstr(m, 4, 1) + "'" + sgn;
-}
+//function lon2str( x )
+//{   
+//    var dec = Math.abs(x);
+//    var sgn = (x < 0) ? " W" : " E";
+//    var d = Math.floor(dec);
+//    var m = 60*(dec - d);
+//    return cintstr(d, 3) + "&deg; " + frealstr(m, 4, 1) + "'" + sgn;
+//}
 
 // format two digits with leading zero if needed
-function d2( n )
-{
-    if ((n < 0)||(99 < n)) {return "xx";}
-    return (n < 10) ? ("0" + n) : n;
-}
+//function d2( n )
+//{
+//    if ((n < 0)||(99 < n)) {return "xx";}
+//    return (n < 10) ? ("0" + n) : n;
+//}
 
 function frealstr( num, width, fract )
 {
@@ -456,7 +454,7 @@ var computePositions = function(gwLayer)
     var secs  = now.getUTCSeconds();
 
     // compute day number for date/time
-    var dn = day_number( year, month, day, hour, mins );
+    var dn = day_number( year, month, day, hour, mins+secs/60 );
     var p;
     var obj = new Coord();
     // compute location of objects
