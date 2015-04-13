@@ -135,11 +135,11 @@ function addLegend($layerDiv, gwLayer)
 
 	if ( gwLayer instanceof OpenSearchLayer || gwLayer instanceof MocLayer || gwLayer instanceof VectorLayer )
 	{
-		if ( gwLayer.dataType == "point")
+		if ( gwLayer.dataType === "point")
 		{
 			generatePointLegend(gwLayer, canvas, gwLayer.style.iconUrl);
 		} 
-		else if ( gwLayer.dataType == "line")
+		else if ( gwLayer.dataType === "line")
 		{
 			generateLineLegend( gwLayer, canvas );
 		} 
@@ -283,7 +283,7 @@ function createDynamicImageDialog( gwLayer )
 		id : shortName,
 		changeShaderCallback: function(contrast)
 		{
-			if ( contrast == "raw" )
+			if ( contrast === "raw" )
 			{
 				gwLayer.customShader.fragmentCode = gwLayer.rawFragShader;
 			}
@@ -322,14 +322,14 @@ function onVisibilityChange(gwLayer)
 
 		// Change button's state
 		$('#visible_'+shortName).addClass('ui-state-active').removeClass('ui-state-default')
-			.find('span').addClass('ui-icon-check').removeClass('ui-icon-empty')
+			.find('span').addClass('ui-icon-check').removeClass('ui-icon-empty');
 	}
 	else
 	{
 		toolsDiv.slideUp();	
 		// Change button's state
 		$('#visible_'+shortName).removeClass('ui-state-active').addClass('ui-state-default')
-			.find('span').removeClass('ui-icon-check').addClass('ui-icon-empty')
+			.find('span').removeClass('ui-icon-check').addClass('ui-icon-empty');
 	}
 
 	sky.refresh();
@@ -463,7 +463,7 @@ function addView ( gwLayer )
 	{
 		categoryId = categories[category];
 		// If it's the first added layer, show the category
-		if ( $('#'+categoryId + " .addLayer").length == 0 )
+		if ( $('#'+categoryId + " .addLayer").length === 0 )
 		{
 			$('#'+categoryId).closest(".category").show();	
 		}
@@ -484,7 +484,7 @@ function addView ( gwLayer )
 function removeView ( gwLayer ) {
 	var shortName = Utils.formatId( gwLayer.name );
 	var addLayerDiv = $(parentElement).find('#addLayer_'+shortName);
-	if ( addLayerDiv.parent().children().length == 1 ) {
+	if ( addLayerDiv.parent().children().length === 1 ) {
 		// Last child to remove -> remove the category
 		addLayerDiv.closest('.category').remove();
 	} else {
@@ -513,8 +513,7 @@ function buildVisibleTilesUrl(layer)
 	for ( var i=0; i<sky.tileManager.visibleTiles.length; i++ )
 	{
 		var tile = sky.tileManager.visibleTiles[i];
-		if ( maxOrder < tile.order )
-			maxOrder = tile.order;
+		if ( maxOrder < tile.order ) {maxOrder = tile.order;}
 
 		pixelIndices+=tile.pixelIndex;
 		if ( i < sky.tileManager.visibleTiles.length - 1 )

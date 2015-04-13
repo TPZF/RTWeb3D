@@ -37,23 +37,23 @@ var RADS = Math.PI/180;                  // convert degrees to radians
 var EPS  = 1.0e-12;                      // machine error constant
 
 // right ascension, declination coordinate structure
-function coord()
+function Coord()
 {
-    ra   = parseFloat("0");              // right ascension [deg]
-    dec  = parseFloat("0");              // declination [deg]
-    rvec = parseFloat("0");              // distance [AU]
+    var ra   = parseFloat("0");              // right ascension [deg]
+    var dec  = parseFloat("0");              // declination [deg]
+    var rvec = parseFloat("0");              // distance [AU]
 }
 
 // orbital element structure
-function elem()
+function Elem()
 {
-    color = "";				 // color of the planet
-    a = parseFloat("0");                 // semi-major axis [AU]
-    e = parseFloat("0");                 // eccentricity of orbit
-    i = parseFloat("0");                 // inclination of orbit [deg]
-    O = parseFloat("0");                 // longitude of the ascending node [deg]
-    w = parseFloat("0");                 // longitude of perihelion [deg]
-    L = parseFloat("0");                 // mean longitude [deg]
+    var color = "";				 // color of the planet
+    var a = parseFloat("0");                 // semi-major axis [AU]
+    var e = parseFloat("0");                 // eccentricity of orbit
+    var i = parseFloat("0");                 // inclination of orbit [deg]
+    var O = parseFloat("0");                 // longitude of the ascending node [deg]
+    var w = parseFloat("0");                 // longitude of perihelion [deg]
+    var L = parseFloat("0");                 // mean longitude [deg]
 }
 
 var pname = new Array("Mercury", "Venus", "Sun", 
@@ -65,9 +65,7 @@ var pname = new Array("Mercury", "Venus", "Sun",
 function day_number( y, m, d, hour, mins )
 {
     var h = hour + mins/60;
-    var rv = 367*y 
-           - Math.floor(7*(y + Math.floor((m + 9)/12))/4) 
-           + Math.floor(275*m/9) + d - 730531.5 + h/24;
+    var rv = 367*y - Math.floor(7*(y + Math.floor((m + 9)/12))/4) + Math.floor(275*m/9) + d - 730531.5 + h/24;
     return rv;
 }
 
@@ -76,7 +74,7 @@ function day_number( y, m, d, hour, mins )
 // result returned in structure obj in degrees and astronomical units
 function get_coord( obj, p, d )
 {
-    var planet = new elem();
+    var planet = new Elem();
     mean_elements(planet, p, d);
     var ap = planet.a;
     var ep = planet.e;
@@ -85,7 +83,7 @@ function get_coord( obj, p, d )
     var pp = planet.w;
     var lp = planet.L;
 
-    var earth = new elem();
+    var earth = new Elem();
     mean_elements(earth, 2, d);
     var ae = earth.a;
     var ee = earth.e;
@@ -114,7 +112,7 @@ function get_coord( obj, p, d )
     var yh = rp*(Math.sin(op)*Math.cos(vp + pp - op) + Math.cos(op)*Math.sin(vp + pp - op)*Math.cos(ip));
     var zh = rp*(Math.sin(vp + pp - op)*Math.sin(ip));
 
-    if (p == 2)                          // earth --> compute sun
+    if (p === 2)                          // earth --> compute sun
     {
         xh = 0;
         yh = 0;
@@ -255,7 +253,7 @@ function true_anomaly( M, e )
     // convert eccentric anomaly to true anomaly
     V = 2*Math.atan(Math.sqrt((1 + e)/(1 - e))*Math.tan(0.5*E));
 
-    if (V < 0) V = V + (2*Math.PI);      // modulo 2pi
+    if (V < 0) { V = V + (2*Math.PI);}      // modulo 2pi
     
     return V;
 }
@@ -263,7 +261,7 @@ function true_anomaly( M, e )
 // converts hour angle in degrees into hour angle string
 function ha2str( x )
 {
-    if ((x < 0)||(360 < x)) window.alert("function ha2str() range error!");
+    if ((x < 0)||(360 < x)) { window.alert("function ha2str() range error!"); }
     
     var ra = x/15;                       // degrees to hours
     var h = Math.floor(ra);
@@ -287,8 +285,8 @@ function dec2str( x )
 function abs_floor( x )
 {
     var r;
-    if (x >= 0.0) r = Math.floor(x);
-    else          r = Math.ceil(x);
+    if (x >= 0.0) {r = Math.floor(x);}
+    else { r = Math.ceil(x); }
     return r;
 }
 
@@ -297,7 +295,7 @@ function mod2pi( x )
 {
     var b = x/(2*Math.PI);
     var a = (2*Math.PI)*(b - abs_floor(b));  
-    if (a < 0) a = (2*Math.PI) + a;
+    if (a < 0) {a = (2*Math.PI) + a;}
     return a;
 }
 
@@ -317,7 +315,7 @@ function mean_sidereal_time( d, lon )
     var minute = d.getUTCMinutes();
     var second = d.getUTCSeconds();    
 
-    if ((month == 1)||(month == 2))
+    if ((month === 1)||(month === 2))
     {
         year  = year - 1;
         month = month + 12;
@@ -341,13 +339,11 @@ function mean_sidereal_time( d, lon )
 
     if (mst > 0.0)
     {
-        while (mst > 360.0)
-            mst = mst - 360.0;
+        while (mst > 360.0) {mst = mst - 360.0;}
     }
     else
     {
-        while (mst < 0.0)
-            mst = mst + 360.0;
+        while (mst < 0.0) {mst = mst + 360.0;}
     }
         
     return mst;
@@ -361,6 +357,24 @@ function dms2real( deg, min, sec )
     else         rv = deg + min/60 + sec/3600;
     return rv;
 }
+
+// format an integer
+function cintstr( num, width )
+{
+    var str = num.toString(10);
+    var len = str.length;
+    var intgr = "";
+    var i;
+
+    for (i = 0; i < width - len; i++)    // append leading spaces
+        intgr += ' ';
+
+    for (i = 0; i < len; i++)            // append digits
+        intgr += str.charAt(i);
+
+    return intgr;
+}
+
 
 // converts angle in degrees into string
 function degr2str( x )
@@ -406,11 +420,13 @@ function frealstr( num, width, fract )
     var real = "";
     var i;
 
-    for (i = 0; i < width - len; i++)    // append leading spaces
+    for (i = 0; i < width - len; i++) {   // append leading spaces
         real += ' ';
+    }
 
-    for (i = 0; i < len; i++)            // append digits
+    for (i = 0; i < len; i++) {            // append digits
         real += str.charAt(i);
+    }
 
     return real;
 }
@@ -432,17 +448,17 @@ var computePositions = function(gwLayer)
 {
     var pois = [];
     var now   = new Date();
-    year  = now.getUTCFullYear();
-    month = now.getUTCMonth() + 1;
-    day   = now.getUTCDate();
-    hour  = now.getUTCHours();
-    mins  = now.getUTCMinutes();
-    secs  = now.getUTCSeconds();
+    var year  = now.getUTCFullYear();
+    var month = now.getUTCMonth() + 1;
+    var day   = now.getUTCDate();
+    var hour  = now.getUTCHours();
+    var mins  = now.getUTCMinutes();
+    var secs  = now.getUTCSeconds();
 
     // compute day number for date/time
     var dn = day_number( year, month, day, hour, mins );
     var p;
-    var obj = new coord();
+    var obj = new Coord();
     // compute location of objects
     for (p = 0; p < 9; p++)  
     {

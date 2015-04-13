@@ -107,7 +107,7 @@ function buildProperties(properties, displayProperties)
 {
 	if( displayProperties )
 	{
-		handledProperties = {}
+		var handledProperties = {};
 
 		handledProperties.identifier = properties.identifier;
 		handledProperties.title = properties.title ? properties.title : "";
@@ -190,9 +190,9 @@ function createDictionary( layer, properties )
 			{
 				// Cut unused part
 				var splitIndex = describeUrl.indexOf( "{" );
-				if ( splitIndex != -1 )
+				if ( splitIndex !== -1 ){
 					describeUrl = describeUrl.substring( 0, splitIndex );
-
+				}
 				for ( var key in properties )
 				{
 					addPropertyDescription(describeUrl, key, layer.dictionary);
@@ -413,7 +413,7 @@ return {
 				}
 				selectedData.feature.services.solarObjects = {
 					layer: solarObjectsLayer
-				}
+				};
 				layer.subLayers.push(solarObjectsLayer);
 			}
 
@@ -466,7 +466,7 @@ return {
 			$(this).siblings('table').fadeToggle("slow", "linear", function(){
 				$selectedFeatureDiv.find('.featureProperties').getNiceScroll().show();
 				$selectedFeatureDiv.find('.featureProperties').getNiceScroll().resize();
-			});/*slideToggle(300)*/;
+			});/*slideToggle(300)*/
 			if ( $(this).siblings('#arrow').is('.arrow-right') )
 			{
 				$(this).siblings('#arrow').removeClass('arrow-right').addClass('arrow-bottom');
@@ -519,14 +519,13 @@ return {
 	 *	@param callback Callback 
 	 */
 	hide: function(callback){
-		if ( $selectedFeatureDiv.css('display') != 'none') {
+		if ( $selectedFeatureDiv.css('display') !== 'none') {
 			$selectedFeatureDiv.find('.featureProperties').getNiceScroll().hide();
 			 
 			$selectedFeatureDiv.fadeOut(300, function(){
 				$selectedFeatureDiv.find('.featureProperties').getNiceScroll().remove();
 
-				if ( callback )
-					callback();
+				if ( callback ) {callback();}
 			});
 		}
 		else if ( callback )
@@ -548,7 +547,7 @@ return {
 		computeDivPosition(x,y);
 		$selectedFeatureDiv.fadeIn(500, function() {
 			$selectedFeatureDiv.find('.featureProperties').getNiceScroll().resize();
-			if (callback) callback();
+			if (callback) {callback();}
 		});
 		var maxHeight = computeHeight();
 		var popupMaxHeight = maxHeight - 60;

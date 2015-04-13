@@ -68,7 +68,7 @@ define( [ "jquery", "underscore-min", "./PlanetContext", "./SkyContext", "gw/Til
 			else
 			{
 				console.log("Shortener plugin isn't defined, try to extract as a string");
-				var sharedParameters = JSON.parse( unescape(sharedString) );
+				var sharedParameters = JSON.parse( decodeURI(sharedString) );
 				_mergeWithOptions(sharedParameters);
 			}
 		}
@@ -596,7 +596,7 @@ define( [ "jquery", "underscore-min", "./PlanetContext", "./SkyContext", "gw/Til
 	 */
 	MizarWidget.prototype.setShortenerUrlGui = function(visible) {
 		skyContext.setComponentVisibility("shareContainer", visible);
-	}
+	};
 
 	/**************************************************************************************************************/
 
@@ -888,9 +888,9 @@ define( [ "jquery", "underscore-min", "./PlanetContext", "./SkyContext", "gw/Til
 	 *	Toggle between planet/sky mode
 	 */
 	MizarWidget.prototype.toggleMode = function(gwLayer) {
-		this.mode = (this.mode == "sky") ? "planet" : "sky";
+		this.mode = (this.mode === "sky") ? "planet" : "sky";
 		var self = this;
-		if ( this.mode == "sky" ) {
+		if ( this.mode === "sky" ) {
 			console.log("Change planet to sky context");
 			// Hide planet
 			this.planetContext.hide();
@@ -962,7 +962,7 @@ define( [ "jquery", "underscore-min", "./PlanetContext", "./SkyContext", "gw/Til
 				self.publish("mizarMode:toggle", gwLayer);
 			});
 		}
-	}
+	};
 
 	return MizarWidget;
 
