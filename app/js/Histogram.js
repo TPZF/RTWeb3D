@@ -69,7 +69,7 @@ var Triangle = function(a,b,c)
 	this.dragging = false;
 	this.hover = false;
 	this.halfWidth = Math.abs( (c[0] - b[0])/2 );
-}
+};
 
 /**************************************************************************************************************/
 
@@ -81,7 +81,7 @@ Triangle.prototype.reset = function()
 	this.a = this.initA.slice(0);
 	this.b = this.initB.slice(0);
 	this.c = this.initC.slice(0);
-}
+};
 
 /**************************************************************************************************************/
 
@@ -91,7 +91,7 @@ Triangle.prototype.reset = function()
 Triangle.prototype.contains = function(p)
 {
 	return _pointInTriangle(p,this.a,this.b,this.c);
-}
+};
 
 /**************************************************************************************************************/
 
@@ -121,7 +121,7 @@ Triangle.prototype.draw = function(ctx)
     	ctx.strokeStyle = "#FF0";
     	ctx.stroke();
     }
-}
+};
 
 /**************************************************************************************************************/
 
@@ -134,7 +134,7 @@ Triangle.prototype.modifyPosition = function(point)
 	this.a[0] = point[0];
 	this.b[0] = point[0]-this.halfWidth;
 	this.c[0] = point[0]+this.halfWidth;
-}
+};
 
 /**************************************************************************************************************/
 
@@ -158,7 +158,7 @@ function _sameSide(p1,p2,a,b)
 	{
 		return false;
 	}
-}
+};
 
 /**************************************************************************************************************/
 
@@ -305,7 +305,7 @@ var Histogram = function(options)
 
 
 	});
-}
+};
 
 /**************************************************************************************************************/
 
@@ -326,7 +326,7 @@ Histogram.prototype.drawThresholdControls = function()
 {
 	this.minThreshold.draw(this.ctx);
     this.maxThreshold.draw(this.ctx);
-}
+};
 
 /**************************************************************************************************************/
 
@@ -341,7 +341,7 @@ Histogram.prototype.drawHistogram = function() {
 		var rectHeight = (hist[i]/hmax)*originY;
 		this.ctx.fillRect( originX + i, originY, 1, -rectHeight );
 	}
-}
+};
 
 /**************************************************************************************************************/
 
@@ -366,7 +366,7 @@ Histogram.prototype.drawAxes = function() {
 	this.ctx.closePath();
 	this.ctx.strokeStyle = "#fff";
 	this.ctx.stroke();
-}
+};
 
 /**************************************************************************************************************/
 
@@ -412,7 +412,7 @@ Histogram.prototype.drawTransferFunction = function()
 
 		this.ctx.fillRect( posX, scaledValue, 1, 1);
 	}
-}
+};
 
 /**************************************************************************************************************/
 
@@ -426,7 +426,7 @@ Histogram.prototype.draw = function()
 	this.drawTransferFunction();
 	this.drawAxes();
 	this.drawThresholdControls();
-}
+};
 
 /**************************************************************************************************************/
 
@@ -476,7 +476,7 @@ Histogram.prototype.compute = function()
 		hist[i] = Math.log(1 + hist[i]);
 	}
 	hmax = Math.log(1 + hmax);
-}
+};
 
 /**************************************************************************************************************/
 
@@ -486,7 +486,7 @@ Histogram.prototype.compute = function()
 Histogram.prototype.setImage = function(image)
 {
 	this.image = image;
-}
+};
 
 /**************************************************************************************************************/
 

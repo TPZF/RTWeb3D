@@ -77,9 +77,9 @@ var DynamicImageView = function(element, options)
 					}
 
 					self.image.updateColormap(selectedContrast, selectedColormap, isInversed);
-					if ( self.changeShaderCallback )
+					if ( self.changeShaderCallback ) {
 						self.changeShaderCallback(selectedContrast);
-
+					}
 					self.render();
 				});
 			});
@@ -199,7 +199,7 @@ var DynamicImageView = function(element, options)
 		options.image.colormap = "grey";
 		this.setImage(options.image);
 	}
-}
+};
 
 /**************************************************************************************************************/
 
@@ -215,7 +215,7 @@ DynamicImageView.prototype.enableUI = function()
 	this.$element.find('.thresholdInputs input').each(function(i){
 		$(this).removeAttr('disabled');
 	});
-}
+};
 
 /**************************************************************************************************************/
 
@@ -231,7 +231,7 @@ DynamicImageView.prototype.disableUI = function()
 	this.$element.find('.thresholdInputs input').each(function(i){
 		$(this).attr('disabled', 'disabled');
 	});
-}
+};
 
 /**************************************************************************************************************/
 
@@ -253,7 +253,7 @@ DynamicImageView.prototype.updateThreshold = function(min, max)
 
 	this.histogram.compute();
 	this.render();
-}
+};
 
 /**************************************************************************************************************/
 
@@ -285,7 +285,7 @@ DynamicImageView.prototype.setImage = function(image)
 				 .buttonset("refresh").end()
 				 .find('.colormap').val(image.colormap).selectmenu();
 
-	if( image.transferFn == "raw" )
+	if( image.transferFn === "raw" )
 	{
 		this.disableUI();
 	}
@@ -297,7 +297,7 @@ DynamicImageView.prototype.setImage = function(image)
 	this.image = image;
 	this.updateThreshold(image.tmin, image.tmax);
 	this.render();
-}
+};
 
 /**************************************************************************************************************/
 
@@ -307,7 +307,7 @@ DynamicImageView.prototype.setImage = function(image)
 DynamicImageView.prototype.remove = function()
 {
 	this.image.dispose();
-}
+};
 
 /**************************************************************************************************************/
 
@@ -318,7 +318,7 @@ DynamicImageView.prototype.render = function()
 {
 	this.histogram.draw();
 	this.image.renderContext.requestFrame();
-}
+};
 
 /**************************************************************************************************************/
 

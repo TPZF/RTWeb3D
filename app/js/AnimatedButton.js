@@ -30,7 +30,7 @@ var AnimatedButton = function(element, options)
 	{
 		this.$element.on('click', $.proxy( options.onclick, this ));
 	}
-}
+};
 
 /**************************************************************************************************************/
 
@@ -41,7 +41,7 @@ AnimatedButton.prototype.startAnimation = function()
 {
 	this.stopped = false;
 	this.iterateAnimation();
-}
+};
 
 /**************************************************************************************************************/
 
@@ -51,7 +51,7 @@ AnimatedButton.prototype.startAnimation = function()
 AnimatedButton.prototype.stopAnimation = function()
 {
 	this.stopped = true;
-}
+};
 
 /**************************************************************************************************************/
 
@@ -69,7 +69,7 @@ AnimatedButton.prototype.iterateAnimation = function()
 			}
 		});
 	});
-}
+};
 
 /**************************************************************************************************************/
 

@@ -33,9 +33,9 @@ ImageRequest.prototype.send = function(url)
 		var xhr = new XMLHttpRequest();
 		xhr.onreadystatechange = function(e)
 		{
-			if ( xhr && xhr.readyState == 4 )
+			if ( xhr && xhr.readyState === 4 )
 			{
-				if ( xhr.status == 200 )
+				if ( xhr.status === 200 )
 				{
 					if ( xhr.response )
 					{
@@ -48,7 +48,7 @@ ImageRequest.prototype.send = function(url)
 				}
 				else
 				{
-					if ( xhr.status != 0 )
+					if ( xhr.status !== 0 )
 					{
 						// Fail
 	                    console.log( "Error while loading " + url );
@@ -83,7 +83,7 @@ ImageRequest.prototype.send = function(url)
 		this.image.crossOrigin = '';
 		this.image.dataType = "byte";
 		this.image.onload = function(){
-			var isComplete = self.image.naturalWidth != 0 && self.image.complete;
+			var isComplete = self.image.naturalWidth !== 0 && self.image.complete;
 			if ( isComplete && !this.aborted )
 			{
 				self.successCallback.call(self);
@@ -95,7 +95,7 @@ ImageRequest.prototype.send = function(url)
 		};
 		this.image.src = url;
 	}
-}
+};
 
 /**************************************************************************************************************/
 
@@ -117,7 +117,7 @@ ImageRequest.prototype.abort = function()
 		this.image.aborted = true;
 		this.image.src = '';
 	}
-}
+};
 
 /**************************************************************************************************************/
 

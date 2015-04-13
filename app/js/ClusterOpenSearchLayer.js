@@ -55,7 +55,7 @@ var ClusterOpenSearchLayer = function(options){
 	this.clusterStyle = new FeatureStyle(this.style);
 	this.clusterStyle.iconUrl = options.clusterIconUrl || "css/images/cluster.png";
 	this.clusterBucket = null;
-}
+};
 
 /**************************************************************************************************************/
 
@@ -70,7 +70,7 @@ ClusterOpenSearchLayer.prototype._detach = function()
 {
 	OpenSearchLayer.prototype._detach.call( this );
 	this.clusterBucket = null;
-}
+};
 
 /**************************************************************************************************************/
 
@@ -83,9 +83,9 @@ ClusterOpenSearchLayer.prototype.handleClusterService = function()
 	var self = this;
 	xhr.onreadystatechange = function(e)
 	{
-		if ( xhr.readyState == 4 ) 
+		if ( xhr.readyState === 4 ) 
 		{
-			if ( xhr.status == 200 )
+			if ( xhr.status === 200 )
 			{
 				var urls = xhr.responseXML.getElementsByTagName("Url");
 				// Find rel=clusterdesc url
@@ -100,7 +100,7 @@ ClusterOpenSearchLayer.prototype.handleClusterService = function()
 						{
 							// Cut unused data
 							var splitIndex = describeUrl.indexOf( "q=" );
-							if ( splitIndex != -1 )
+							if ( splitIndex !== -1 )
 							{
 								self.clusterServiceUrl = describeUrl.substring( 0, splitIndex );
 							}
@@ -113,7 +113,7 @@ ClusterOpenSearchLayer.prototype.handleClusterService = function()
 						break;
 					}
 				}
-				if ( i == urls.length )
+				if ( i === urls.length )
 				{
 					// Cluster description doesn't exist, use open search without clusters
 					self.prototype = OpenSearchLayer.prototype;
@@ -128,7 +128,7 @@ ClusterOpenSearchLayer.prototype.handleClusterService = function()
 	};
 	xhr.open("GET", this.serviceUrl );
 	xhr.send();
-}
+};
 
 /**************************************************************************************************************/
 
@@ -141,9 +141,9 @@ ClusterOpenSearchLayer.prototype.updateDistributions = function(layer)
 	var url = layer.clusterServiceUrl + layer.requestProperties;
 	xhr.onreadystatechange = function(e)
 	{
-		if ( xhr.readyState == 4 ) 
+		if ( xhr.readyState === 4 ) 
 		{
-			if ( xhr.status == 200 )
+			if ( xhr.status === 200 )
 			{
 				var response = JSON.parse(xhr.response);
 				layer.handleDistribution(response);
@@ -177,7 +177,7 @@ ClusterOpenSearchLayer.prototype.handleDistribution = function(response)
 		order++;
 	}
 	this.distributions = distributions;
-}
+};
 
 /**************************************************************************************************************/
 
@@ -194,8 +194,10 @@ ClusterOpenSearchLayer.prototype.addCluster = function(pixelIndex, order, face, 
 	
 	// Create geometry
 	var nside = Math.pow(2, order);
+	/*jslint bitwise: true */
 	var pix=pixelIndex&(nside*nside-1);
 	var ix = HEALPixBase.compress_bits(pix);
+	/*jslint bitwise: true */
 	var iy = HEALPixBase.compress_bits(pix>>>1);
 	var center = HEALPixBase.fxyf((ix+0.5)/nside, (iy+0.5)/nside, face);
 
@@ -225,7 +227,7 @@ ClusterOpenSearchLayer.prototype.addCluster = function(pixelIndex, order, face, 
 	};
 	tile.extension[this.extId].containsCluster = true;
 	this.addFeature( feature, tile );
-}
+};
 
 /**************************************************************************************************************/
 
@@ -237,7 +239,7 @@ ClusterOpenSearchLayer.prototype.launchRequest = function(tile, url)
 	var tileData = tile.extension[this.extId];
 	var index = null;
 	
-	if ( this.freeRequests.length == 0 )
+	if ( this.freeRequests.length === 0 )
 	{
 		return;
 	}
@@ -246,13 +248,13 @@ ClusterOpenSearchLayer.prototype.launchRequest = function(tile, url)
 	tileData.state = OpenSearchLayer.TileState.LOADING;
 
 	// Add request properties to length
-	if ( this.requestProperties != "" )
+	if ( this.requestProperties !== "" )
 	{
 		url += '&' + this.requestProperties;
 	}
 		
 	// Publish the start load event, only if there is no pending requests
-	if ( this.maxRequests == this.freeRequests.length )
+	if ( this.maxRequests === this.freeRequests.length )
 	{
 		this.globe.publish("startLoad",this);
 	}
@@ -262,15 +264,15 @@ ClusterOpenSearchLayer.prototype.launchRequest = function(tile, url)
 	var self = this;
 	xhr.onreadystatechange = function(e)
 	{
-		if ( xhr.readyState == 4 ) 
+		if ( xhr.readyState === 4 ) 
 		{
-			if ( xhr.status == 200 )
+			if ( xhr.status === 200 )
 			{
 				var response = JSON.parse(xhr.response);
 
 				if ( !tileData.containsCluster )
 				{
-					tileData.complete = (response.totalResults == response.features.length);
+					tileData.complete = (response.totalResults === response.features.length);
 				}
 
 				self.updateFeatures(response.features);
@@ -292,7 +294,7 @@ ClusterOpenSearchLayer.prototype.launchRequest = function(tile, url)
 			self.freeRequests.push( xhr );
 			
 			// Publish the end load event, only if there is no pending requests
-			if ( self.maxRequests == self.freeRequests.length )
+			if ( self.maxRequests === self.freeRequests.length )
 			{
 				self.globe.publish("endLoad",self);
 			}
@@ -300,7 +302,7 @@ ClusterOpenSearchLayer.prototype.launchRequest = function(tile, url)
 	};
 	xhr.open("GET", url );
 	xhr.send();
-}
+};
 
 /**************************************************************************************************************/
 
@@ -362,7 +364,7 @@ ClusterOpenSearchLayer.prototype.buildUrl = function( tile )
 	{
 		return OpenSearchLayer.prototype.buildUrl.call( this, tile );
 	}
-}
+};
 
 /**************************************************************************************************************/
 
@@ -375,7 +377,7 @@ ClusterOpenSearchLayer.prototype.setRequestProperties = function(properties)
 	// Reset distributions
 	this.distributions = null;
 	this.updateDistributions(this);
-}
+};
 
 return ClusterOpenSearchLayer;
 

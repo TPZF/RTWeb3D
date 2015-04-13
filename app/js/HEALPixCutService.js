@@ -83,7 +83,7 @@ return {
 					// Fade out anyway
 					$job.fadeOut(function(){
 						$(this).remove();
-					})
+					});
 				}
 			} );
 		});
@@ -163,7 +163,7 @@ return {
 				cdelt2: cdelt2,
 				filename: context.fileName,
 				PHASE: "RUN"
-			}
+			};
 
 			$('#HEALPixCut').find('.status').html('Healpix cut is in progress, be patient, it may take some time.').fadeIn().css('display: inline-block');
 			UWSManager.post( 'healpixcut', parameters, {
@@ -204,6 +204,6 @@ return {
 		var index = $(this).index();
 		tabs.tabs("remove",index);
 	}
-}
+};
 
 });

@@ -31,7 +31,6 @@ var cutResultTemplate = _.template(cutResultHTMLTemplate);
  */
 var CutOutView = function(element, selectionTool, pickingManager)
 {
-	this.url;
 	this.pickingManager = pickingManager;
 	// Initialize selection tool
 	this.selectionTool = selectionTool;
@@ -96,7 +95,7 @@ var CutOutView = function(element, selectionTool, pickingManager)
 			}
 		} );
 	});
-}
+};
 
 /**************************************************************************************************************/
 
@@ -169,21 +168,21 @@ CutOutView.prototype.runJob = function()
 	{
 		this.showMessage('Please, select area to cut');
 	}
-}
+};
 
 /**************************************************************************************************************/
 
 CutOutView.prototype.showMessage = function(message)
 {
 	this.$content.find('.jobStatus').html(message).stop().slideDown(300).delay(2000).slideUp();
-}
+};
 
 /**************************************************************************************************************/
 
 CutOutView.prototype.setUrl = function(url)
 {
 	this.url = url;
-}
+};
 
 /**************************************************************************************************************/
 

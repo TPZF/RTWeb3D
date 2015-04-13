@@ -60,9 +60,9 @@ var loadFits = function(url, successCallback, failCallback, onprogressCallback)
 	var xhr = new XMLHttpRequest();
 	xhr.onreadystatechange = function(e)
 	{
-		if ( xhr.readyState == 4 )
+		if ( xhr.readyState === 4 )
 		{
-			if ( xhr.status == 200 )
+			if ( xhr.status === 200 )
 			{
 				if ( xhr.response )
 				{
@@ -93,7 +93,7 @@ var loadFits = function(url, successCallback, failCallback, onprogressCallback)
 	xhr.responseType = 'arraybuffer';
 	xhr.send();
 	return xhr;
-}
+};
 
 return {
 	loadFits: loadFits,

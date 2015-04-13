@@ -22,6 +22,7 @@
  */
 define(["jquery", "jquery.ui"], function($) {
 
+/*jshint multistr: true */
 var aboutContent =
 	'<div id="about" title="About">\
 		<p>MIZAR has been developed and is maintained by the CENTRE NATIONAL d\'ETUDES SPATIALES (CNES).</p>\

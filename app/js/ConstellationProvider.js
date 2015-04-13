@@ -112,11 +112,11 @@ function extractDatabase()
 		// If abbreviation doesn't exist
 		if ( !constellations[ currentAbb ] ){
 			// Find constellation name
-			for( j=0; j<constellationNamesTab.length; j++ ){
-				var word = constellationNamesTab[j].split(";"); // word[0] = abbreviation, word[1] = name;
+			for( var j=0; j<constellationNamesTab.length; j++ ){
+				word = constellationNamesTab[j].split(";"); // word[0] = abbreviation, word[1] = name;
 				var abb = word[0];
 				
-				if( abb == currentAbb ){
+				if( abb === currentAbb ){
 					var name = word[1];
 					
 					// Add new constellation as a property
@@ -129,7 +129,7 @@ function extractDatabase()
 						y : 0.,
 						z : 0.,
 						nbStars : 0
-					}
+					};
 					break;
 				}
 			}

@@ -45,7 +45,7 @@ function updateBackgroundOptions(layer)
 		{
 			$el.find("#fitsType").removeAttr('disabled').removeAttr('checked').button("refresh");
 			// Dynamic image view button visibility
-			if ( layer.format == 'jpeg' )
+			if ( layer.format === 'jpeg' )
 			{
 				$el.find('#fitsView').button("disable");
 			}
@@ -97,7 +97,7 @@ function createHtmlForBackgroundLayer( gwLayer )
 		// Update background options layout
 		updateBackgroundOptions(gwLayer);
 		selectedLayer = gwLayer;
-		if ( gwLayer != this.mizar.activatedContext.globe.baseImagery ) {
+		if ( gwLayer !== this.mizar.activatedContext.globe.baseImagery ) {
 			LayerManager.setBackgroundSurvey(gwLayer.name);
 		}
 	}
@@ -164,7 +164,7 @@ return {
 		// Update selectmenu ui by choosen layer(if called programmatically)
 		$el.children().removeAttr("selected");
 		var option = _.find($el.children(), function(item) {
-			return item.text == layer.name;
+			return item.text === layer.name;
 		});
 		$(option).attr("selected","selected");
 
@@ -175,7 +175,7 @@ return {
 
 		// Set shader callback for choosen layer
 		backgroundDiv.changeShaderCallback = function(contrast){
-			if ( contrast == "raw" )
+			if ( contrast === "raw" )
 			{
 				layer.customShader.fragmentCode = layer.rawFragShader;
 			} else {
@@ -214,7 +214,7 @@ return {
 		
 		// Back to sky button if in planet mode
 		var self = this;
-		if ( this.mizar.mode == "planet" ) {
+		if ( this.mizar.mode === "planet" ) {
 			$el.find('.backToSky').button().click(function(event) {
 				self.mizar.toggleMode();
 			});
@@ -305,7 +305,7 @@ return {
 				.button()
 				.click(function(){
 
-				isFits = $(this).is(':checked');
+				var isFits = $(this).is(':checked');
 
 				selectedLayer.format = isFits ? 'fits' : 'jpg';
 				if ( !isFits )
@@ -324,7 +324,7 @@ return {
 			{
 				var index = ui.item.index;
 				var layer = $(this).children().eq(index).data("layer");
-				if ( layer != self.mizar.activatedContext.globe.baseImagery ) {
+				if ( layer !== self.mizar.activatedContext.globe.baseImagery ) {
 					LayerManager.setBackgroundSurvey(layer.name);
 				}
 			}
@@ -334,6 +334,6 @@ return {
 	getDiv : function() {
 		return backgroundDiv;
 	}
-}
+};
 
 });

@@ -39,21 +39,21 @@ var EPS  = 1.0e-12;                      // machine error constant
 // right ascension, declination coordinate structure
 function Coord()
 {
-    var ra   = parseFloat("0");              // right ascension [deg]
-    var dec  = parseFloat("0");              // declination [deg]
-    var rvec = parseFloat("0");              // distance [AU]
+    this.ra   = parseFloat("0");              // right ascension [deg]
+    this.dec  = parseFloat("0");              // declination [deg]
+    this.rvec = parseFloat("0");              // distance [AU]
 }
 
 // orbital element structure
 function Elem()
 {
-    var color = "";				 // color of the planet
-    var a = parseFloat("0");                 // semi-major axis [AU]
-    var e = parseFloat("0");                 // eccentricity of orbit
-    var i = parseFloat("0");                 // inclination of orbit [deg]
-    var O = parseFloat("0");                 // longitude of the ascending node [deg]
-    var w = parseFloat("0");                 // longitude of perihelion [deg]
-    var L = parseFloat("0");                 // mean longitude [deg]
+    this.color = "";				 // color of the planet
+    this.a = parseFloat("0");                 // semi-major axis [AU]
+    this.e = parseFloat("0");                 // eccentricity of orbit
+    this.i = parseFloat("0");                 // inclination of orbit [deg]
+    this.O = parseFloat("0");                 // longitude of the ascending node [deg]
+    this.w = parseFloat("0");                 // longitude of perihelion [deg]
+    this.L = parseFloat("0");                 // mean longitude [deg]
 }
 
 var pname = new Array("Mercury", "Venus", "Sun", 
@@ -455,49 +455,17 @@ var computePositions = function(gwLayer)
 
     // compute day number for date/time
     var dn = day_number( year, month, day, hour, mins+secs/60 );
-    var p;
     var obj = new Coord();
     // compute location of objects
-    for (p = 0; p < 9; p++)  
+    for (var p = 0; p < 9; p++)  
     {
         get_coord(obj, p, dn);  
 	// Add label
-	var poi = {
-		geometry: {
-			type: "Point",
-			gid: "planetLabel_"+pname[p],
-			coordinates: [obj.ra,obj.dec]
-		},
-		properties: {
-			name: pname[p],
-			distance : frealstr(obj.rvec, 9, 6)+" AU",			
-			style: new FeatureStyle({
-				label: pname[p],
-				strokeColor: FeatureStyle.fromStringToColor(obj.color),
-				fillColor: FeatureStyle.fromStringToColor(obj.color)
-			})
-		}
-	};
+	var poi = poiDesc(gwLayer, "Label", pname[p], obj);
 	pois.push(poi);
 
 	// Add point itself
-	poi = {
-		geometry: {
-			type: "Point",
-			gid: "planetPoint_"+pname[p],
-			coordinates: [obj.ra,obj.dec]
-		},
-		properties: {
-			name: pname[p],
-			distance : frealstr(obj.rvec, 9, 6)+" AU",
-			style: new FeatureStyle({
-				iconUrl: gwLayer.style.iconUrl,
-				strokeColor: FeatureStyle.fromStringToColor(obj.color),
-				fillColor: FeatureStyle.fromStringToColor(obj.color)
-			})
-		}
-	};
-	
+	poi = poiDesc(gwLayer, "Point", pname[p], obj);
 	pois.push(poi);	
 
     }		
@@ -510,6 +478,41 @@ var computePositions = function(gwLayer)
 
     gwLayer.addFeatureCollection(poiFeatureCollection);
 };
+/**************************************************************************************************************/
+/*
+* Json template for a point
+*/
+function poiDesc(gwLayer, type, name, obj) {
+	var style;
+	if (type === "Point") {
+		style = new FeatureStyle({
+				label: name,
+				strokeColor: FeatureStyle.fromStringToColor(obj.color),
+				fillColor: FeatureStyle.fromStringToColor(obj.color)
+			});		
+	} else {
+		style = new FeatureStyle({
+				iconUrl: gwLayer.style.iconUrl,
+				strokeColor: FeatureStyle.fromStringToColor(obj.color),
+				fillColor: FeatureStyle.fromStringToColor(obj.color)
+			});
+	}
+	var poi = {
+		geometry: {
+			type: "Point",
+			gid: "planet"+type+"_"+name,
+			coordinates: [obj.ra,obj.dec]
+		},
+		properties: {
+			name: name,
+			distance : frealstr(obj.rvec, 9, 6)+" AU",
+			style: style
+		}
+	};
+	return poi;
+}
+
+
 
 /**************************************************************************************************************/
 
