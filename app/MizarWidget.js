@@ -45,7 +45,7 @@ define( [ "jquery", "underscore-min", "./PlanetContext", "./SkyContext", "gw/Til
 		var documentURI =  window.document.documentURI;
 		// Retrieve shared parameters
 		var sharedParametersIndex = documentURI.indexOf( "sharedParameters=" );
-		if ( sharedParametersIndex != -1 )
+		if ( sharedParametersIndex !== -1 )
 		{
 			var startIndex = sharedParametersIndex + "sharedParameters=".length;
 			var sharedString = documentURI.substr(startIndex);
@@ -72,7 +72,7 @@ define( [ "jquery", "underscore-min", "./PlanetContext", "./SkyContext", "gw/Til
 				_mergeWithOptions(sharedParameters);
 			}
 		}
-	}
+	};
 
 	/**************************************************************************************************************/
 
@@ -86,23 +86,25 @@ define( [ "jquery", "underscore-min", "./PlanetContext", "./SkyContext", "gw/Til
 
 		// If configuration is defined by SiTools2
 		var splitStartIndex = documentURI.indexOf( "?conf=" );
-		if ( splitStartIndex != -1 )
+		if ( splitStartIndex !== -1 )
 		{
 			// Shared url exist
 			var splitEndIndex = documentURI.search( /[&|?]sharedParameters=/ );
-			if ( splitEndIndex != -1 )
+			var url;
+			if ( splitEndIndex !== -1 )
 			{
 				// Compute length of configuration url
 				var confURLLength = splitEndIndex - splitStartIndex - "?conf=".length;
+				url = documentURI.substr( splitStartIndex + "?conf=".length, confURLLength );
 			}
 
-			var url = documentURI.substr( splitStartIndex + "?conf=".length, confURLLength );
-			if ( url != 'undefined' && url != '' ) {
+			
+			if ( url !== 'undefined' && url !== '' ) {
 				confURL = url;
 			}
 		}
 		return confURL;
-	}
+	};
 
 	/**************************************************************************************************************/
 
@@ -117,7 +119,7 @@ define( [ "jquery", "underscore-min", "./PlanetContext", "./SkyContext", "gw/Til
 		string = string.replace(starCommentRe, "");
 
 		return string;
-	}
+	};
 
 	/**************************************************************************************************************/
 
@@ -133,7 +135,7 @@ define( [ "jquery", "underscore-min", "./PlanetContext", "./SkyContext", "gw/Til
 
 		// Layer visibility
 		options.layerVisibility = sharedParameters.visibility;
-	}
+	};
 
 	/**************************************************************************************************************/
 
@@ -146,7 +148,7 @@ define( [ "jquery", "underscore-min", "./PlanetContext", "./SkyContext", "gw/Til
 	// Search throught all the loaded scripts for minified version
 	var scripts= document.getElementsByTagName('script');
 	var mizarSrc = _.find(scripts, function(script){
-		return script.src.indexOf("MizarWidget.min") != -1;
+		return script.src.indexOf("MizarWidget.min") !== -1;
 	});
 	
 	// Depending on its presence decide if Mizar is used on prod or on dev
@@ -162,7 +164,7 @@ define( [ "jquery", "underscore-min", "./PlanetContext", "./SkyContext", "gw/Til
 		// Dev
 		// Basically use the relative path from index page
 		mizarSrc = _.find(scripts, function(script){
-			return script.src.indexOf("MizarWidget") != -1;
+			return script.src.indexOf("MizarWidget") !== -1;
 		});
 		mizarBaseUrl = mizarSrc.src.split('/').slice(0, -1).join('/')+'/../';
 	}
@@ -267,7 +269,6 @@ define( [ "jquery", "underscore-min", "./PlanetContext", "./SkyContext", "gw/Til
 		this.navigation = skyContext.navigation;
 
 		// Add stats
-		var self = this;
 		if ( options.stats.visible ) {
 			new Stats( this.sky.renderContext, { element: "fps", verbose: options.stats.verbose });
 			$("#fps").show();
@@ -375,7 +376,7 @@ define( [ "jquery", "underscore-min", "./PlanetContext", "./SkyContext", "gw/Til
 		// Fullscreen mode
 		document.addEventListener("keydown", function(event){
 			// Ctrl + Space
-			if ( event.ctrlKey == true && event.keyCode == 32 )
+			if ( event.ctrlKey === true && event.keyCode === 32 )
 			{
 				$('.canvas > canvas').siblings(":not(canvas)").each(function(){
 					$(this).fadeToggle();
@@ -410,7 +411,7 @@ define( [ "jquery", "underscore-min", "./PlanetContext", "./SkyContext", "gw/Til
 					$(this).parent().fadeOut(300);	
 			}
 		});
-	}
+	};
 
 	/**************************************************************************************************************/
 
@@ -423,7 +424,7 @@ define( [ "jquery", "underscore-min", "./PlanetContext", "./SkyContext", "gw/Til
 	 */
 	MizarWidget.prototype.setBackgroundSurvey = function(survey) {
 		LayerManager.setBackgroundSurvey(survey);
-	}
+	};
 
 	/**************************************************************************************************************/
 
@@ -435,7 +436,7 @@ define( [ "jquery", "underscore-min", "./PlanetContext", "./SkyContext", "gw/Til
 		var layer = LayerManager.addLayerFromDescription(layerDesc);
 		LayerManager.setBackgroundSurvey(layerDesc.name);
 		return layer;
-	}
+	};
 
 	/**************************************************************************************************************/
 
@@ -453,7 +454,7 @@ define( [ "jquery", "underscore-min", "./PlanetContext", "./SkyContext", "gw/Til
 		if ( layerDesc.fitsSupported ) {
 			// TODO : Move it..
 			layerDesc.onready = function( fitsLayer ) {
-				if ( fitsLayer.format == "fits" && fitsLayer.levelZeroImage )
+				if ( fitsLayer.format === "fits" && fitsLayer.levelZeroImage )
 				{
 					if ( fitsLayer.div )
 					{
@@ -472,11 +473,11 @@ define( [ "jquery", "underscore-min", "./PlanetContext", "./SkyContext", "gw/Til
 						backgroundDiv.setImage(fitsLayer.levelZeroImage);
 					}
 				}
-			}
+			};
 		}
 
 		return LayerManager.addLayerFromDescription(layerDesc, planetLayer);
-	}
+	};
 
 	/**************************************************************************************************************/
 
@@ -487,7 +488,7 @@ define( [ "jquery", "underscore-min", "./PlanetContext", "./SkyContext", "gw/Til
 	 */
 	MizarWidget.prototype.removeLayer = function(layer) {
 		LayerManager.removeLayer(layer);
-	}
+	};
 
 	/**************************************************************************************************************/
 
@@ -502,7 +503,7 @@ define( [ "jquery", "underscore-min", "./PlanetContext", "./SkyContext", "gw/Til
 	 */
 	MizarWidget.prototype.goTo = function(location, callback) {
 		NameResolver.goTo(location, callback);
-	}
+	};
 
 	/**************************************************************************************************************/
 
@@ -511,7 +512,7 @@ define( [ "jquery", "underscore-min", "./PlanetContext", "./SkyContext", "gw/Til
 	 */
 	MizarWidget.prototype.getCurrentFov = function() {
 		return this.navigation.getFov();
-	}
+	};
 
 	/**************************************************************************************************************/
 
@@ -521,7 +522,7 @@ define( [ "jquery", "underscore-min", "./PlanetContext", "./SkyContext", "gw/Til
 	MizarWidget.prototype.setZoom = function(fovInDegrees, callback) {
 		var geoPos = this.sky.coordinateSystem.from3DToGeo(this.navigation.center3d);
 		this.navigation.zoomTo(geoPos, fovInDegrees, 1000, callback);
-	}
+	};
 
 	/**************************************************************************************************************/
 
@@ -530,9 +531,10 @@ define( [ "jquery", "underscore-min", "./PlanetContext", "./SkyContext", "gw/Til
 	 */
 	MizarWidget.prototype.setShowCredits = function(visible) {
 		skyContext.showCredits(visible);
-		if(this.planetContext)
-			this.planetContext.showCredits(visible);	
-	}
+		if(this.planetContext) {
+ 			this.planetContext.showCredits(visible);
+		}	
+	};
 
 	/**************************************************************************************************************/
 
@@ -557,7 +559,7 @@ define( [ "jquery", "underscore-min", "./PlanetContext", "./SkyContext", "gw/Til
 			}
 			skyContext.setComponentVisibility("compassDiv", visible);
 		}
-	}
+	};
 
 	/**************************************************************************************************************/
 
@@ -567,11 +569,12 @@ define( [ "jquery", "underscore-min", "./PlanetContext", "./SkyContext", "gw/Til
 	MizarWidget.prototype.setAngleDistanceGui = function(visible) {
 	 	if ( visible ) {
 	 		// Distance measure tool lazy initialization
-	 		if ( !this.measureTool )
+	 		if ( !this.measureTool ) {
 				this.measureTool = new MeasureTool({ globe: this.sky, navigation: this.navigation, isMobile: this.isMobile } );
+			}
 	 	}
 		skyContext.setComponentVisibility("measureContainer", visible);
-	}
+	};
 
 	 /**************************************************************************************************************/
 
@@ -584,7 +587,7 @@ define( [ "jquery", "underscore-min", "./PlanetContext", "./SkyContext", "gw/Til
 		{
 			skyContext.setComponentVisibility("sampContainer", visible);
 		}
-	}
+	};
 
 	 /**************************************************************************************************************/
 	 
@@ -603,12 +606,13 @@ define( [ "jquery", "underscore-min", "./PlanetContext", "./SkyContext", "gw/Til
 	MizarWidget.prototype.set2dMapGui = function(visible) {
 	 	if ( visible ) {
 	 		// Mollweide viewer lazy initialization
-	 		if ( !this.mollweideViewer )
+	 		if ( !this.mollweideViewer ) {
 				this.mollweideViewer = new MollweideViewer({ globe : this.sky, navigation : this.navigation, mizarBaseUrl: mizarBaseUrl });
+			}
 	 	}
 	 	skyContext.setComponentVisibility("2dMapContainer", visible);
 	 	
-	}
+	};
 
 	/**************************************************************************************************************/
 
@@ -621,7 +625,7 @@ define( [ "jquery", "underscore-min", "./PlanetContext", "./SkyContext", "gw/Til
 	 	} else {
 	 		ReverseNameResolverView.remove();
 	 	}
-	}
+	};
 
 	/**************************************************************************************************************/
 
@@ -635,7 +639,7 @@ define( [ "jquery", "underscore-min", "./PlanetContext", "./SkyContext", "gw/Til
 	 		NameResolverView.remove();
 	 	}
 	 	skyContext.setComponentVisibility("searchDiv", visible);
-	}
+	};
 
 	/**************************************************************************************************************/
 
@@ -649,7 +653,7 @@ define( [ "jquery", "underscore-min", "./PlanetContext", "./SkyContext", "gw/Til
 	 		LayerManagerView.remove();
 	 	}
 	 	skyContext.setComponentVisibility("categoryDiv", visible);
-	}
+	};
 
 	/**************************************************************************************************************/
 
@@ -666,7 +670,7 @@ define( [ "jquery", "underscore-min", "./PlanetContext", "./SkyContext", "gw/Til
 		 	}
 		 	skyContext.setComponentVisibility("imageViewerDiv", visible);
 		 }
-	}
+	};
 
 	/**************************************************************************************************************/
 
@@ -675,7 +679,7 @@ define( [ "jquery", "underscore-min", "./PlanetContext", "./SkyContext", "gw/Til
 	 */
 	MizarWidget.prototype.setPositionTrackerGui = function(visible) {
 		skyContext.setComponentVisibility("posTracker", visible);
-	}
+	};
 
 	/**************************************************************************************************************/
 	
@@ -687,12 +691,13 @@ define( [ "jquery", "underscore-min", "./PlanetContext", "./SkyContext", "gw/Til
 	MizarWidget.prototype.setCoordinateSystem = function(newCoordSystem) {
 		this.sky.coordinateSystem.type = newCoordSystem;
 
-		if (this.mollweideViewer)
+		if (this.mollweideViewer) {
 			this.mollweideViewer.setCoordSystem( newCoordSystem );
+		}
 
 		// Publish modified event to update compass north
 		this.navigation.publish('modified');
-	}
+	};
 	
 	/**************************************************************************************************************/
 	
@@ -701,7 +706,7 @@ define( [ "jquery", "underscore-min", "./PlanetContext", "./SkyContext", "gw/Til
 	 */
 	MizarWidget.prototype.getLayers = function() {
 		return LayerManager.getLayers();
-	}
+	};
 	
 	/**************************************************************************************************************/
 	
@@ -711,7 +716,7 @@ define( [ "jquery", "underscore-min", "./PlanetContext", "./SkyContext", "gw/Til
 	MizarWidget.prototype.getLayer = function(layerName) {
 		var layers = this.getLayers();
 		return _.findWhere(layers, {name: layerName});
-	}
+	};
 	
 	/**************************************************************************************************************/
 	
@@ -727,7 +732,7 @@ define( [ "jquery", "underscore-min", "./PlanetContext", "./SkyContext", "gw/Til
 	 */
 	MizarWidget.prototype.highlightObservation = function(featureData, options) {
 		PickingManager.focusFeature(featureData, options);
-	}
+	};
 
 	/**************************************************************************************************************/
 
@@ -737,7 +742,7 @@ define( [ "jquery", "underscore-min", "./PlanetContext", "./SkyContext", "gw/Til
 	MizarWidget.prototype.requestFits = function(featureData) {
 		featureData.isFits = true; // TODO: Refactor it
 		ImageManager.addImage(featureData);
-	}
+	};
 
 	/**************************************************************************************************************/
 
@@ -746,7 +751,7 @@ define( [ "jquery", "underscore-min", "./PlanetContext", "./SkyContext", "gw/Til
 	 */
 	MizarWidget.prototype.removeFits = function(featureData) {
 		ImageManager.removeImage(featureData);
-	}
+	};
 
 	/**************************************************************************************************************/
 
@@ -803,7 +808,7 @@ define( [ "jquery", "underscore-min", "./PlanetContext", "./SkyContext", "gw/Til
             console.log("Error displaying table:\n" +
             e.toString());
         }
-	}
+	};
 
 	/**************************************************************************************************************/
 
@@ -828,7 +833,7 @@ define( [ "jquery", "underscore-min", "./PlanetContext", "./SkyContext", "gw/Til
 		{
 			callback(mocLayer);
 		}
-	}
+	};
 
 	/**************************************************************************************************************/
 
@@ -843,7 +848,7 @@ define( [ "jquery", "underscore-min", "./PlanetContext", "./SkyContext", "gw/Til
 		}, function(layer) {
 			callback(layer.coverage);
 		});
-	}
+	};
 
 	/**************************************************************************************************************/
 
@@ -853,7 +858,7 @@ define( [ "jquery", "underscore-min", "./PlanetContext", "./SkyContext", "gw/Til
 	MizarWidget.prototype.xMatch = function( layers )
 	{
 		return MocBase.intersectLayers(layers);
-	}
+	};
 
 	/**************************************************************************************************************/
 
@@ -875,7 +880,7 @@ define( [ "jquery", "underscore-min", "./PlanetContext", "./SkyContext", "gw/Til
 			console.error("No planet with name : " + planetName + " has been found");
 		}
 			
-	}
+	};
 
 	/**************************************************************************************************************/
 
