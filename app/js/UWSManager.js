@@ -71,7 +71,7 @@ return {
  		switch(serviceName)
  		{
  			case "cutout":
- 				cutOutService.delete(jobId, options)
+ 				cutOutService.delete(jobId, options);
  				break;
  			case "healpixcut":
  				healpixCutService.delete(jobId, options);
@@ -83,6 +83,6 @@ return {
  				console.error("Not supported");
  		}
  	}
-}
+};
 
 });

@@ -31,7 +31,7 @@ var SimpleProgressBar = function(options)
 	this.$element = $('<div style="display: none;" class="progress"><div></div></div>')
     		.appendTo('#'+id)
     		.fadeIn();
-}
+};
 
 SimpleProgressBar.prototype.onprogress = function(evt)
 {
@@ -55,7 +55,7 @@ SimpleProgressBar.prototype.onprogress = function(evt)
 	{
 		this.$element.fadeOut();
 	}
-}
+};
 
 return SimpleProgressBar;
 

@@ -38,17 +38,17 @@ function generateURL()
 
 	var splitEndIndex = url.search( /[&|?]sharedParameters=/ );
 	// If url is almost a shared link
-	if ( splitEndIndex != -1 )
+	if ( splitEndIndex !== -1 )
 	{
 		// Cut it
 		url = url.substr( 0, splitEndIndex );
 	}
 
 	var splitIndex = url.indexOf( "?conf=" );
-	if ( splitIndex != -1 )
+	if ( splitIndex !== -1 )
 	{
 		// If configuration is defined by SiTools2
-		if ( url != 'undefined' && url != '' ) {
+		if ( url !== 'undefined' && url !== '' ) {
 			url += "&";
 		}
 		else
@@ -81,7 +81,7 @@ function generateURL()
 		fov: navigation.renderContext.fov,
 		visibility: visibility,
 		up: navigation.up
-	}
+	};
 
 	if ( baseUrl )
 	{
@@ -144,6 +144,6 @@ function init(options)
 
 return {
 	init: init
-}
+};
 
 });

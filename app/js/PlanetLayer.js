@@ -74,7 +74,7 @@ PlanetLayer.prototype._attach = function( g )
 	{
 		this.globe.setBaseElevation( this.elevationLayer );
 	}
-	baseImagery.visible(true)
+	baseImagery.visible(true);
 
 	for ( var i=0; i<this.layers.length; i++ )
 	{

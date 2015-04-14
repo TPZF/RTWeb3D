@@ -79,7 +79,7 @@ define( [ "jquery", "gw/Globe", "gw/AttributionHandler", "gw/Navigation", "gw/Ut
 
 		// Override position tracker visibility
 		this.components.posTracker = false;
-	}
+	};
 
 	/**************************************************************************************************************/
 
@@ -103,7 +103,7 @@ define( [ "jquery", "gw/Globe", "gw/AttributionHandler", "gw/Navigation", "gw/Ut
 		this.hide();
 		this.globe.destroy();
 		this.globe = null;
-	}
+	};
 
 	return PlanetContext;
 

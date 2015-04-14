@@ -47,7 +47,7 @@ function findUrl()
 	if ( selectedData )
 	{
 		// Data selected
-	    url = selectedData.feature.services.download.url
+	    url = selectedData.feature.services.download.url;
 	}
 	else
 	{
@@ -115,7 +115,7 @@ return {
 	}
 
 	/**************************************************************************************************************/
-}
+};
 
 
 });

@@ -58,6 +58,6 @@ return {
 			globe.renderContext.canvas.addEventListener('touchmove', updatePosition);
 		}
 	}
-}
+};
 
 });
