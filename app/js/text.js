@@ -4,9 +4,8 @@
  * see: http://github.com/requirejs/text for details
  */
 /*jslint regexp: true */
-/*global require: false, XMLHttpRequest: false, ActiveXObject: false,
-  define: false, window: false, process: false, Packages: false,
-  java: false, location: false */
+/*global define: false */
+
 
 define(['module'], function (module) {
     'use strict';
