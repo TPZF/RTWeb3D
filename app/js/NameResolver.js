@@ -87,9 +87,12 @@ function search(objectName, onSuccess, onError, onComplete)
 		
 		// Compute vertices
 		var nside = Math.pow(2, order);
+		/*jslint bitwise: true */
 		var pix=pixelIndex&(nside*nside-1);
 		var ix = HEALPixBase.compress_bits(pix);
+		/*jslint bitwise: true */
 		var iy = HEALPixBase.compress_bits(pix>>>1);
+		/*jslint bitwise: true */
 		var face = (pixelIndex>>>(2*order));
 
 		var i = 0.5;
@@ -113,7 +116,7 @@ function search(objectName, onSuccess, onError, onComplete)
 		var geoPos = [];
 		globe.coordinateSystem.fromEquatorialToGeo([word[0], word[1]], geoPos);
 
-		if ( globe.coordinateSystem.type != "EQ" )
+		if ( globe.coordinateSystem.type !== "EQ" )
 		{
 			geoPos = globe.coordinateSystem.convert(geoPos, globe.coordinateSystem.type, 'EQ');
 		}
@@ -125,7 +128,7 @@ function search(objectName, onSuccess, onError, onComplete)
 		var lat = parseFloat(matchDegree[3]);
 		var geo = [lon, lat];
 
-		if ( globe.coordinateSystem.type != "EQ" && mizar.mode == "sky" )
+		if ( globe.coordinateSystem.type !== "EQ" && mizar.mode === "sky" )
 		{
 			geo = globe.coordinateSystem.convert(geo, globe.coordinateSystem.type,  'EQ');
 		}
@@ -138,7 +141,7 @@ function search(objectName, onSuccess, onError, onComplete)
 		{
 			// Planet resolver(Mars only currently)
 			var feature = _.find(dictionary.features, function(f){
-				return f.properties.Name.toLowerCase() == objectName.toLowerCase();
+				return f.properties.Name.toLowerCase() === objectName.toLowerCase();
 			});
 
 			if ( feature )
@@ -149,8 +152,7 @@ function search(objectName, onSuccess, onError, onComplete)
 			}
 			else
 			{
-				if( onError )
-					onError();
+				if( onError ) {	onError();}
 			}
 		}
 		else
@@ -164,7 +166,7 @@ function search(objectName, onSuccess, onError, onComplete)
 				url: url,
 				success: function(response){
 					// Check if response contains features
-					if(response.type == "FeatureCollection")
+					if(response.type === "FeatureCollection")
 					{
 						var firstFeature = response.features[0];
 						zoomTo(firstFeature.geometry.coordinates[0], firstFeature.geometry.coordinates[1], onSuccess, response);
@@ -174,14 +176,12 @@ function search(objectName, onSuccess, onError, onComplete)
 					}
 				},
 				error: function (xhr, ajaxOptions, thrownError) {
-					if( onError )
-						onError();
+					if( onError ) {onError();}
 					console.error( xhr.responseText );
 				},
 				complete: function(xhr)
 				{
-					if ( onComplete )
-						onComplete(xhr);
+					if ( onComplete ){onComplete(xhr);}
 				}
 			});
 		}
@@ -202,11 +202,12 @@ function zoomTo(lon, lat, callback, args)
 	// Add target feature on animation stop
 	var addTargetCallback = function() {
 		addTarget(lon,lat);
-		if ( callback )
+		if ( callback ) {
 			callback.call(this, args);
-	}
+		}
+	};
 
-	if ( mizar.mode == "sky" )
+	if ( mizar.mode === "sky" )
 	{
 		context.navigation.zoomTo([lon, lat], zoomFov, duration, addTargetCallback);
 	}
@@ -264,13 +265,13 @@ var retrieveDictionary = function()
 			{
 				console.error(thrownError);
 			}
-		})
+		});
 	}
 	else
 	{
 		dictionary = null;
 	}
-}
+};
 
 /**************************************************************************************************************/
 
