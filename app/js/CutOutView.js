@@ -17,6 +17,8 @@
 * along with SITools2. If not, see <http://www.gnu.org/licenses/>. 
 ******************************************************************************/ 
 
+/*global clearInterval: false, clearTimeout: false, document: false, event: false, frames: false, history: false, Image: false, location: false, name: false, navigator: false, Option: false, parent: false, screen: false, setInterval: false, setTimeout: false, window: false, XMLHttpRequest: false, define: false */
+
 define( [ "jquery", "./SelectionTool", "./UWSManager", "./Samp", "./AnimatedButton", "./ErrorDialog", "underscore-min", "text!../templates/cutOut.html", "text!../templates/cutResultItem.html", "jquery.ui" ],
 		function($, SelectionTool, UWSManager, Samp, AnimatedButton, ErrorDialog, _, cutOutHTMLTemplate, cutResultHTMLTemplate) {
 
