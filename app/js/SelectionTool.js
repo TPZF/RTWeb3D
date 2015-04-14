@@ -82,8 +82,9 @@ var SelectionTool = function(options)
 		var pickPoint = [event.layerX, event.layerY];
 		var geoPickPoint = globe.getLonLatFromPixel(event.layerX, event.layerY);
 
-		if ( !self.activated && !self.selectionFeature )
+		if ( !self.activated && !self.selectionFeature ) {
 			return;
+		}
 
 		// Dragging : moving/resizing OR drawing selection
 		if ( self.activated )
@@ -99,9 +100,9 @@ var SelectionTool = function(options)
 		else
 		{
 			var pickIsInside = Utils.pointInRing( geoPickPoint, self.selectionFeature.geometry.coordinates[0] );
-			if ( !pickIsInside )
+			if ( !pickIsInside ) {
 				return;
-
+			}
 			navigation.stop();
 			dragging = true;
 			// Resize/move
@@ -129,13 +130,13 @@ var SelectionTool = function(options)
 			return;
 
 		var geoPickPoint = globe.getLonLatFromPixel( event.layerX, event.layerY );
-		if ( state == "resize" )
+		if ( state === "resize" )
 		{
 			// Update radius
 			self.radius = Math.sqrt( Math.pow(event.layerX - self.pickPoint[0], 2) + Math.pow(event.layerY - self.pickPoint[1], 2) );
 			self.computeGeoRadius( geoPickPoint );
 		}
-		else if ( state == "move" )
+		else if ( state === "move" )
 		{
 			// Update pick point position
 			self.pickPoint = [event.layerX, event.layerY];
@@ -162,7 +163,7 @@ var SelectionTool = function(options)
 		navigation.start();
 		dragging = false;
 	});
-}
+};
 
 /**********************************************************************************************/
 
@@ -175,7 +176,7 @@ SelectionTool.prototype.computeGeoRadius = function(pt)
 	var dotProduct = vec3.dot( vec3.normalize(this.coordinateSystem.fromGeoTo3D(pt)), vec3.normalize(this.coordinateSystem.fromGeoTo3D(this.geoPickPoint)) );
 	var theta = Math.acos(dotProduct);
 	this.geoRadius = Numeric.toDegree(theta);
-}
+};
 
 /**********************************************************************************************/
 
@@ -221,7 +222,7 @@ SelectionTool.prototype.computeSelection = function()
 	}
 
 	return points;
-}
+};
 
 /**************************************************************************************************************/
 
@@ -247,7 +248,7 @@ SelectionTool.prototype.updateSelection = function()
 	};
 	
 	this.selectionLayer.addFeature( this.selectionFeature );
-}
+};
 
 /**************************************************************************************************************/
 
@@ -266,7 +267,7 @@ SelectionTool.prototype.toggle = function()
 	{
 		$(this.renderContext.canvas).css('cursor', 'default');
 	}
-}
+};
 
 /**************************************************************************************************************/
 
@@ -282,7 +283,7 @@ SelectionTool.prototype.clear = function()
 	this.radius = null;
 	this.geoPickPoint = null;
 	this.geoRadius = null;
-}
+};
 
 /**************************************************************************************************************/
 
