@@ -40,10 +40,11 @@ function displayClickEvent()
 	var layer = $(this).parent().data("layer");
 
 	var serviceLayer;
-	if ( !(layer instanceof MocLayer) )
+	if ( !(layer instanceof MocLayer) ) {
 		serviceLayer = MocBase.findMocSublayer(layer);
-	else
+	} else {
 		serviceLayer = layer; 
+	}
 
 	// Change visibility
 	if ( serviceLayer )

@@ -34,6 +34,9 @@ function hsv_to_rgb(h, s, v) {
 	var p = v * (1 - s);
 	var q = v * (1 - f*s);
 	var t = v * (1 - (1 - f) * s);
+	var r;
+	var g;
+	var b;
 	switch (h_i)
 	{
 		case 0:
@@ -67,8 +70,9 @@ function createCoordinate( x, y )
 {
 	var coordinate = wcs.pixelToCoordinate([x,y]);
 	// Convert to geographic representation
-	if ( coordinate.ra > 180 )
+	if ( coordinate.ra > 180 ) {
 		coordinate.ra -= 360;
+	}
 	return [coordinate.ra, coordinate.dec];
 }
 
@@ -111,7 +115,7 @@ return {
 	formatCoordinates : function(geo)
 	{
 		var astro = [];
-		if ( mizar.sky.coordinateSystem.type == "EQ" )
+		if ( mizar.sky.coordinateSystem.type === "EQ" )
 		{
 			mizar.sky.coordinateSystem.fromGeoToEquatorial([geo[0], geo[1]], astro);	
 		}
@@ -120,13 +124,13 @@ return {
 			geo = mizar.sky.coordinateSystem.convert( geo, 'EQ', mizar.sky.coordinateSystem.type );
 
 			// convert longitude to positive [0..360]
-			if (geo[0] < 0)
+			if (geo[0] < 0) {
 				geo[0]+=360;
-			
+			}
 			astro[0] = this.roundNumber(geo[0],4);
-			astro[0]+="°";
+			astro[0]+="&deg;";
 			astro[1] = this.roundNumber(geo[1],4);
-			astro[1]+="°";
+			astro[1]+="&deg;";
 		}
 		return astro;
 	},
@@ -170,26 +174,28 @@ return {
 	 */
 	computeGeometryBarycenter: function(geometry)
 	{
+		var sLonBarycenter;
+		var sLatBarycenter;
+		var sLon = 0;
+		var sLat = 0;
+		var nbPoints = 0;
 		switch (geometry.type)
 		{
 			case "Point":
-				return [ geometry.coordinates[0], geometry.coordinates[1] ];
+				sLonBarycenter = geometry.coordinates[0];
+				sLatBarycenter = geometry.coordinates[1]; 
 				break;
 			case "Polygon":
-				var sLon = 0;
-				var sLat = 0;
-				var nbPoints = 0;
 				for( var i=0; i<geometry.coordinates[0].length-1; i++ )
 				{
 					sLon+=geometry.coordinates[0][i][0];
 					sLat+=geometry.coordinates[0][i][1];
 					nbPoints++;
 				}
+				sLonBarycenter = sLon/nbPoints;
+				sLatBarycenter = sLat/nbPoints;	
 				break;
 			case "MultiPolygon":
-				var sLon = 0;
-				var sLat = 0;
-				var nbPoints = 0;
 				for ( var i=0; i<geometry.coordinates.length; i++ )
 				{
 					var polygon = geometry.coordinates[i][0];
@@ -200,13 +206,14 @@ return {
 						nbPoints++;
 					}
 				}
+				sLonBarycenter = sLon/nbPoints;
+				sLatBarycenter = sLat/nbPoints;	
 				break;
 			default:
 				return;
-				break;
 		}
 
-		return [sLon/nbPoints, sLat/nbPoints];
+		return [sLonBarycenter, sLatBarycenter];
 	},
 
 	/**
@@ -218,7 +225,7 @@ return {
 	pointInRing: function( point, ring )
 	{
 		var nvert = ring.length;
-		if ( ring[0][0] == ring[nvert-1][0] && ring[0][1] == ring[nvert-1][1] )
+		if ( ring[0][0] === ring[nvert-1][0] && ring[0][1] === ring[nvert-1][1] )
 		{
 			nvert--;
 		}
@@ -226,7 +233,7 @@ return {
 		var j = nvert-1;
 		for (var i = 0; i < nvert; j = i++)
 		{
-			if ( ((ring[i][1] > point[1]) != (ring[j][1] > point[1])) &&
+			if ( ((ring[i][1] > point[1]) !== (ring[j][1] > point[1])) &&
 				(point[0] < (ring[j][0] - ring[i][0]) * (point[1] - ring[i][1]) / (ring[j][1] - ring[i][1]) + ring[i][0]) )
 			{
 				inPoly = !inPoly;

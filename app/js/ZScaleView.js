@@ -96,7 +96,7 @@ return {
 
 	add: function(element)
 	{
-
+		/*jshint multistr: true */
 		var zScaleContent = '<div style="text-align: center;">\
 								<button id="runZScale">Run</button>\
 								<div style="display: none;" id="zscaleStatus"></div>\
