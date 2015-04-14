@@ -71,7 +71,7 @@ define( [ "jquery", "underscore-min", "gw/Sky", "gw/AstroNavigation", "gw/Utils"
 
 		// Eye position tracker initialization
 		PositionTracker.init({ element: "posTracker", globe: this.globe, navigation : this.navigation, isMobile: this.isMobile, positionTracker: options.positionTracker });
-	}
+	};
 	
 	/**************************************************************************************************************/
 
@@ -84,7 +84,7 @@ define( [ "jquery", "underscore-min", "gw/Sky", "gw/AstroNavigation", "gw/Utils"
 	 */
 	SkyContext.prototype.getAdditionalLayers = function() {
 		return _.filter(LayerManager.getLayers(), function(layer) {
-			return layer.category != "background";
+			return layer.category !== "background";
 		});
 	};
 
