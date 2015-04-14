@@ -16,6 +16,7 @@
 * You should have received a copy of the GNU General Public License 
 * along with SITools2. If not, see <http://www.gnu.org/licenses/>. 
 ******************************************************************************/ 
+/*global define: false */
 
 define(['gw/Utils', 'gw/HEALPixTiling', 'gw/RasterLayer', 'gw/DynamicImage', './FitsLoader', 'gzip', 'gw/ImageRequest', './FitsRequest'], 
 	function(Utils, HEALPixTiling, RasterLayer, DynamicImage, FitsLoader, gZip, ImageRequest) {

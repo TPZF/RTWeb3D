@@ -17,6 +17,7 @@
 * along with SITools2. If not, see <http://www.gnu.org/licenses/>. 
 ******************************************************************************/ 
 
+/*global define: false */
 
 /**
  * 	UWS CutOutViewFactory

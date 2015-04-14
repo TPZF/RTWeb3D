@@ -16,6 +16,7 @@
 * You should have received a copy of the GNU General Public License 
 * along with SITools2. If not, see <http://www.gnu.org/licenses/>. 
 ******************************************************************************/ 
+/*global define: false */
 
 define(["require", "jquery", "gw/FeatureStyle", "./PickingManager", "./ImageManager", "./ImageProcessing", "./SimpleProgressBar", "./Utils", "./Samp", "./ErrorDialog", "underscore-min", "text!../templates/imageViewer.html", "text!../templates/imageViewerLayerItem.html", "text!../templates/imageViewerImageItem.html", "jquery.ui"],
 	function(require, $, FeatureStyle, PickingManager, ImageManager, ImageProcessing, SimpleProgressBar, Utils, Samp, ErrorDialog, _, imageViewerHTML, imageViewerLayerItemHTMLTemplate, imageViewerImageItemHTMLTemplate){
