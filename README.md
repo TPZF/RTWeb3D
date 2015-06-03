@@ -1,9 +1,21 @@
-RTWeb3D
+MIZAR
 =======
 
-Contient le module Mizar pour SiTools2 
 
-Installation du module à partir du dépôt Git :
+Installation de MIZAR sans SITools2
+---
+ * Récupérer le dépôt :
+  * `git clone https://github.com/SITools2/MIZAR.git mizar`
+ * Initializer et mettre à jour le submodule [GlobWeb](https://github.com/TPZF/GlobWeb) qui assure le rendu:
+  * `cd mizar`
+  * `git submodule init`
+  * `git submodule update`
+ * Copier le répertoire app sur un serveur web
+  * `cp -R app <chemin vers mon serveur web>`
+ * Accéder à l'application (http://.../app/index.html)
+ 
+
+Installation de MIZAR comme un module de SITools2 :
 ---
  * Télécharger [SiTools2](http://sitools2.sourceforge.net/) ([lien direct vers la dernière version](http://sourceforge.net/projects/sitools2/files/latest/download))
  * Installer SiTools2 (voire la [documentation de Sitools2](http://sourceforge.net/projects/sitools2/files/Documentation/V2.0/DG-SITOOLS2-V2-1.2.pdf/download))
@@ -63,6 +75,12 @@ Ajouter les services dans le projet
       * Cliquer sur Access Managements/Projects/Projects, choisir votre projet, mettre `/sitools/%uri de votre projet%/plugin/globWeb` dans le champ "Module Parameters" de Mizar
    * Couverage Service, qui permet de visualiser les données qui répresentent la couverture du ciel(fichiers MOC)
    * VOTable2GeoJson, qui permet d'afficher les VOTables reçu via protocole SAMP
+
+Configuration par défaut
+---
+Le fichier de configuration se trouve ici : app/js/conf.json
+Voir la doc sur [l'API JavaScript](https://github.com/SITools2/MIZAR/wiki/Client's-API) pour comprendre le fichier de configuration
+
 
 Build
 ---
