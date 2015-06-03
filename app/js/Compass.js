@@ -52,21 +52,18 @@ var updateNorth = function() {
 	var north = [LHV[4],LHV[5],LHV[6]];
 	var vertical = [LHV[8], LHV[9], LHV[10]];
 
+	var up = vec3.create(navigation.up);
 	if ( coordinateSystem.type != "EQ" )
 	{
-		north = coordinateSystem.transformVec( [LHV[4],LHV[5],LHV[6]] );
-		coordinateSystem.from3DToGeo(north, temp);
+		// Compute up in galactic coordinate system
+		coordinateSystem.from3DToGeo(up, temp);
 		temp = coordinateSystem.convert(temp, 'EQ', 'GAL');
-		coordinateSystem.fromGeoTo3D(temp, north);
-
-		vertical = coordinateSystem.transformVec( [LHV[8],LHV[9],LHV[10]] );
-		coordinateSystem.from3DToGeo(vertical, temp);
-		temp = coordinateSystem.convert(temp, 'EQ', 'GAL');
-		coordinateSystem.fromGeoTo3D(temp, vertical);
+		coordinateSystem.fromGeoTo3D(temp, up);
+		vec3.normalize(up);
 	}
 
 	// Find angle between up and north
-	var cosNorth = vec3.dot(navigation.up, north);
+	var cosNorth = vec3.dot(up, north) / (vec3.length(up) * vec3.length(north));
 	var radNorth = Math.acos(cosNorth);
 	if ( isNaN(radNorth) )
 		return;
@@ -74,7 +71,7 @@ var updateNorth = function() {
 	
 	// Find sign between up and north
 	var sign;
-	vec3.cross( navigation.up, north, temp );
+	vec3.cross( up, north, temp );
 	sign = vec3.dot( temp, [vertical[0], vertical[1], vertical[2]] );
     if ( sign < 0 )
     {

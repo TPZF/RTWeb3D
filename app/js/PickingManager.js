@@ -411,6 +411,10 @@ function computePickSelection( pickPoint )
 				}
 			}
 		}
+
+		// Add selected tile to selection to be able to make the requests by tile
+		// (actually used for asteroids search)
+		newSelection.selectedTile = selectedTile;
 	}
 	
 	return newSelection;
