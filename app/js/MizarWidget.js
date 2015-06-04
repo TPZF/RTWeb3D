@@ -924,6 +924,7 @@ define( [ "jquery", "underscore-min", "./PlanetContext", "./SkyContext", "gw/Til
 			var planetConfiguration = {
 				planetLayer: gwLayer,
 				renderContext: this.sky.renderContext,
+				initTarget: options.navigation.initTarget,
 				nameResolver: {
 					"zoomFov": 200000, // in fact it must be distance, to be improved
 					"baseUrl": gwLayer.nameResolverURL

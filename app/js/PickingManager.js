@@ -133,7 +133,7 @@ function _handleMouseUp(event)
 				}
 				else
 				{
-					navigation.zoomTo( pickPoint, 18000, 3000, null, showPopup );
+					navigation.zoomTo( pickPoint, 1800000, 3000, null, showPopup );
 				}
 			});
 		} else {

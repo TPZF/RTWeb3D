@@ -186,6 +186,9 @@ function createLayerFromConf(layerDesc) {
 		case "Planet":
 			gwLayer = new PlanetLayer( layerDesc );
 			break;
+                case "WMS":
+                        gwLayer = new WMSLayer( layerDesc );
+                        break;
 		default:
 			console.error(layerDesc.type+" isn't not implemented");
 			return null;
