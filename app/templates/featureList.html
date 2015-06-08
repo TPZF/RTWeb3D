@@ -12,7 +12,7 @@
 			for ( var i=0; i<selection.length; i++ )
 			{ 
 				var properties = selection[i].feature.properties;
-				title = ( properties.title ) ? properties.title : ( properties.identifier ) ? properties.identifier : properties.name;
+				title = ( properties.title ) ? selection[i].feature.id : ( properties.identifier ) ? properties.identifier : properties.title;
 			%>
 				<div title=<%= title %> class="featureTitle"> <%= title %> <br/></div>
 			<%
