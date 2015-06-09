@@ -100,7 +100,7 @@ function _handleMouseUp(event)
 	{
 		var equatorial = [];
 		geoPick = context.globe.getLonLatFromPixel(event.clientX, event.clientY);
-		_onCoordinatePicked();
+		_onCoordinatePicked(event);
 	}
 }
 
@@ -110,7 +110,7 @@ function _handleMouseUp(event)
  *	Mouse up handler
  *	Opens reverse name resolver popup if mouse has been clicked at least 0.5s and hasn't been moved
  */
-function _onCoordinatePicked(pick)
+function _onCoordinatePicked(event)
 {
 	var padding = 15;
 	var mHeight = window.innerHeight - event.clientY - padding*2;
