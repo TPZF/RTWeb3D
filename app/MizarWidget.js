@@ -532,9 +532,9 @@ define( [ "jquery", "underscore-min", "./PlanetContext", "./SkyContext", "gw/Til
 	 */
 	MizarWidget.prototype.setShowCredits = function(visible) {
 		skyContext.showCredits(visible);
-		if(this.planetContext) {
- 			this.planetContext.showCredits(visible);
-		}	
+		//if(this.planetContext) {
+ 		//	this.planetContext.showCredits(visible);
+		//}	
 	};
 
 	/**************************************************************************************************************/
@@ -924,6 +924,7 @@ define( [ "jquery", "underscore-min", "./PlanetContext", "./SkyContext", "gw/Til
 			var planetConfiguration = {
 				planetLayer: gwLayer,
 				renderContext: this.sky.renderContext,
+				initTarget: options.navigation.initTarget,
 				nameResolver: {
 					"zoomFov": 200000, // in fact it must be distance, to be improved
 					"baseUrl": gwLayer.nameResolverURL
@@ -936,6 +937,8 @@ define( [ "jquery", "underscore-min", "./PlanetContext", "./SkyContext", "gw/Til
 			this.planetContext = new PlanetContext(parentElement, planetConfiguration);
 			this.planetContext.setComponentVisibility("categoryDiv", true);
 			this.planetContext.setComponentVisibility("searchDiv", true);
+			this.planetContext.setComponentVisibility("posTracker",this.activatedContext.components.posTracker);
+                        this.planetContext.setComponentVisibility("compassDiv",false);
 			// Propagate user-defined wish for displaying credits window			
 			this.planetContext.credits = skyContext.credits;
 
