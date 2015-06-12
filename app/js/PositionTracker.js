@@ -40,6 +40,8 @@ function updatePosition(event)
 	{
 		var astro = Utils.formatCoordinates([ geoPos[0], geoPos[1] ]);
 		document.getElementById(element).innerHTML = astro[0] + " x " + astro[1];
+	} else {
+		document.getElementById(element).innerHTML="";
 	}
 }
 

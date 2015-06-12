@@ -21,8 +21,8 @@
 /**
  * Planet context
  */
-define( [ "jquery", "gw/Globe", "gw/AttributionHandler", "gw/Navigation", "gw/Utils", "./MizarContext", "jquery.ui"],
-	function($, Globe, AttributionHandler, Navigation, Utils, MizarContext) {
+define( [ "jquery", "gw/Globe", "gw/AttributionHandler", "gw/Navigation", "gw/Utils", "./MizarContext", "./PositionTracker","jquery.ui"],
+	function($, Globe, AttributionHandler, Navigation, Utils, MizarContext, PositionTracker) {
 
 	/**************************************************************************************************************/
 
@@ -75,10 +75,11 @@ define( [ "jquery", "gw/Globe", "gw/AttributionHandler", "gw/Navigation", "gw/Ut
 		}
 		// Don't update view matrix on creation, since we want to use animation on context change
 		options.navigation.updateViewMatrix = false;
+                // Eye position tracker initialization
+  		PositionTracker.init({ element: "posTracker", globe: this.globe, navigation : this.navigation, isMobile: this.isMobile, positionTracker: options.positionTracker });
+ 
 		this.navigation = new Navigation(this.globe, options.navigation);
 		this.navigation.zoomTo(options.initTarget,18000000);
-		// Override position tracker visibility
-		this.components.posTracker = false;
 	};
 
 	/**************************************************************************************************************/

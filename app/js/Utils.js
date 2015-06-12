@@ -116,23 +116,37 @@ return {
 	formatCoordinates : function(geo)
 	{
 		var astro = [];
-		if ( mizar.sky.coordinateSystem.type === "EQ" )
-		{
-			mizar.sky.coordinateSystem.fromGeoToEquatorial([geo[0], geo[1]], astro);	
-		}
-		else 
-		{
-			geo = mizar.sky.coordinateSystem.convert( geo, 'EQ', mizar.sky.coordinateSystem.type );
+                switch(mizar.mode) {
+                  case "planet":
+                        astro[0] = this.roundNumber(geo[0],3);
+			astro[0]+="°";
+                        astro[1] = this.roundNumber(geo[1],3);
+			astro[1]+="°";
+                        break;
+                  case "sky":
+                        if ( mizar.sky.coordinateSystem.type == "EQ" )
+                        {
+                                mizar.sky.coordinateSystem.fromGeoToEquatorial([geo[0], geo[1]], astro);
+                        }
+                        else
+                        {
+                                geo = mizar.sky.coordinateSystem.convert( geo, 'EQ', mizar.sky.coordinateSystem.type );
 
-			// convert longitude to positive [0..360]
-			if (geo[0] < 0) {
-				geo[0]+=360;
-			}
-			astro[0] = this.roundNumber(geo[0],4);
-			astro[0]+="&deg;";
-			astro[1] = this.roundNumber(geo[1],4);
-			astro[1]+="&deg;";
-		}
+                                // convert longitude to positive [0..360]
+                                if (geo[0] < 0)
+                                        geo[0]+=360;
+
+                                astro[0] = this.roundNumber(geo[0],4);
+                                astro[0]+="°";
+                                astro[1] = this.roundNumber(geo[1],4);
+                                astro[1]+="°";
+                        }
+                        break;
+                  default:
+                        console.error("This mode "+mizar.mode+" is not supported");
+
+                }
+
 		return astro;
 	},
 
