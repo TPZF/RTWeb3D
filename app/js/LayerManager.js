@@ -21,10 +21,9 @@
 /**
  * LayerManager module
  */
-define( [ "jquery", "underscore-min", "gw/FeatureStyle", "gw/HEALPixLayer", "gw/VectorLayer", "gw/CoordinateGridLayer", "gw/TileWireframeLayer", "gw/OpenSearchLayer", "gw/WMSLayer",
-		 "./ClusterOpenSearchLayer", "./MocLayer", "./PlanetLayer", "./HEALPixFITSLayer", "./PickingManager", "./Utils", "./JsonProcessor", "jquery.ui"], 
+define( [ "jquery", "underscore-min", "gw/FeatureStyle", "gw/HEALPixLayer", "gw/VectorLayer", "gw/CoordinateGridLayer", "gw/TileWireframeLayer", "gw/OpenSearchLayer", "gw/WMSLayer", "./ClusterOpenSearchLayer", "./MocLayer", "./PlanetLayer", "./HEALPixFITSLayer", "./PickingManager", "./Utils", "./JsonProcessor", "gw/TileWireframeLayer","gw/AtmosphereLayer","jquery.ui"], 
 	function($, _, FeatureStyle, HEALPixLayer, VectorLayer, CoordinateGridLayer, TileWireframeLayer, OpenSearchLayer, WMSLayer,
-			ClusterOpenSearchLayer, MocLayer, PlanetLayer, HEALPixFITSLayer, PickingManager, Utils, JsonProcessor) {
+			ClusterOpenSearchLayer, MocLayer, PlanetLayer, HEALPixFITSLayer, PickingManager, Utils, JsonProcessor, TileWireframeLayer, AtmosphereLayer) {
 
 /**
  * Private variables
@@ -122,6 +121,12 @@ function createLayerFromConf(layerDesc) {
 
 	// Depending on type of layer, create layer
 	switch(layerDesc.type){
+		case "atmosphere":
+			gwLayer = new AtmosphereLayer( layerDesc);
+			break;
+		case "tileWireframe":
+			gwLayer = new TileWireframeLayer( layerDesc );
+			break;
 		case "healpix":
 
 			if ( layerDesc.fitsSupported )

@@ -67,7 +67,7 @@ require.config({
 require(["./MizarWidget"], function(MizarWidget) {
 	
 	var mizar = new MizarWidget('#mizarWidget-div', {
-		debug: true,
+		debug: false,
 		navigation: {
 			"initTarget": [0,0]
 		},
@@ -93,4 +93,24 @@ require(["./MizarWidget"], function(MizarWidget) {
 	mizar.setCompassGui(true);
 	mizar.setShowCredits(true);
 	mizar.setImageViewerGui(true);
+        var atmosLayer = {
+           "category": "Other",
+           "type": "atmosphere",
+           "exposure": 1.4,
+           "wavelength" : [0.56,0.66,0.78],
+           "name": "Atmosphere",
+           "visible": true
+        };
+        var coordLayer = {
+           "category": "Other",
+           "type": "tileWireframe",
+           "name": "Coordinates Grid",
+           "outline": true,
+           "visible": false
+        };
+
+        var marsLayer = mizar.getLayer("Mars");
+        mizar.addLayer(atmosLayer,marsLayer);
+        mizar.addLayer(coordLayer,marsLayer);
+
 });
