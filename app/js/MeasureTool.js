@@ -68,10 +68,11 @@ var MeasureTool = function(options)
 	var _handleMouseDown = function(event)
 	{
 		event.preventDefault();
-		if ( !self.activated )
+		if ( !self.activated ) {
 			return;
+		}
 
-		self.distance = 0.;
+		self.distance = 0;
 		// Desactivate standard navigation events
 		navigation.stop();
 
@@ -87,13 +88,14 @@ var MeasureTool = function(options)
 		}
 
 		self.geoPickPoint = globe.getLonLatFromPixel(self.pickPoint[0], self.pickPoint[1]);
-	}
+	};
 
 	var _handleMouseUp = function(event)
 	{
 		event.preventDefault();
-		if ( !self.activated )
+		if ( !self.activated ) {
 			return;
+		}
 
 		// Compute geo radius
 		var stopPickPoint;
@@ -104,7 +106,7 @@ var MeasureTool = function(options)
 		else
 		{
 
-			var stopPickPoint = globe.getLonLatFromPixel(event.layerX, event.layerY);
+			stopPickPoint = globe.getLonLatFromPixel(event.layerX, event.layerY);
 		}
 
 
@@ -121,14 +123,14 @@ var MeasureTool = function(options)
 		// Reactivate standard navigation events
 		navigation.start();
 		dragging = false;
-	}
+	};
 
 	var _handleMouseMove = function(event)
 	{
 		event.preventDefault();
-		if ( !self.activated || !dragging )
+		if ( !self.activated || !dragging ) {
 			return;
-
+		}
 		if ( event.type.search("touch") >= 0 )
 		{
 			self.secondPickPoint = [ event.changedTouches[0].clientX, event.changedTouches[0].clientY ];
@@ -146,7 +148,7 @@ var MeasureTool = function(options)
 		self.geoDistance = Numeric.toDegree(theta);
 
 		self.updateMeasure();
-	}
+	};
 
 	this.renderContext.canvas.addEventListener("mousedown", $.proxy(_handleMouseDown, this));
 	this.renderContext.canvas.addEventListener("mousemove", $.proxy(_handleMouseMove, this));
@@ -165,7 +167,7 @@ var MeasureTool = function(options)
 	}, function() {
 		$(this).animate({left: '-20px'}, 100);
 	});
-}
+};
 
 /**********************************************************************************************/
 
@@ -198,7 +200,7 @@ MeasureTool.prototype.computeIntersection = function(points)
 	}
 
 	return points;
-}
+};
 
 /**********************************************************************************************/
 
@@ -252,21 +254,21 @@ MeasureTool.prototype.computeMeasure = function()
 	arrow4 = [ this.secondPickPoint[0] + 10*arrow4[0], this.secondPickPoint[1] + 10*arrow4[1] ];
 
 	var points = [
-		[ this.pickPoint[0]*widthScale-1., (rc.canvas.height-this.pickPoint[1])*heightScale-1., 1, 1 ],
-		[ arrow[0]*widthScale-1., (rc.canvas.height-arrow[1])*heightScale-1., 1, 1 ],
-		[ this.pickPoint[0]*widthScale-1., (rc.canvas.height-this.pickPoint[1])*heightScale-1., 1, 1 ],
-		[ arrow2[0]*widthScale-1., (rc.canvas.height-arrow2[1])*heightScale-1., 1, 1 ],
-		[ this.pickPoint[0]*widthScale-1., (rc.canvas.height-this.pickPoint[1])*heightScale-1., 1, 1 ],
-		[ this.secondPickPoint[0]*widthScale-1., (rc.canvas.height-this.secondPickPoint[1])*heightScale-1., 1, 1 ],
-		[ arrow3[0]*widthScale-1., (rc.canvas.height-arrow3[1])*heightScale-1., 1, 1 ],
-		[ this.secondPickPoint[0]*widthScale-1., (rc.canvas.height-this.secondPickPoint[1])*heightScale-1., 1, 1 ],
-		[ arrow4[0]*widthScale-1., (rc.canvas.height-arrow4[1])*heightScale-1., 1, 1 ],
-		[ this.secondPickPoint[0]*widthScale-1., (rc.canvas.height-this.secondPickPoint[1])*heightScale-1., 1, 1 ]
+		[ this.pickPoint[0]*widthScale-1, (rc.canvas.height-this.pickPoint[1])*heightScale-1, 1, 1 ],
+		[ arrow[0]*widthScale-1, (rc.canvas.height-arrow[1])*heightScale-1, 1, 1 ],
+		[ this.pickPoint[0]*widthScale-1, (rc.canvas.height-this.pickPoint[1])*heightScale-1, 1, 1 ],
+		[ arrow2[0]*widthScale-1, (rc.canvas.height-arrow2[1])*heightScale-1, 1, 1 ],
+		[ this.pickPoint[0]*widthScale-1, (rc.canvas.height-this.pickPoint[1])*heightScale-1, 1, 1 ],
+		[ this.secondPickPoint[0]*widthScale-1, (rc.canvas.height-this.secondPickPoint[1])*heightScale-1, 1, 1 ],
+		[ arrow3[0]*widthScale-1, (rc.canvas.height-arrow3[1])*heightScale-1, 1, 1 ],
+		[ this.secondPickPoint[0]*widthScale-1, (rc.canvas.height-this.secondPickPoint[1])*heightScale-1, 1, 1 ],
+		[ arrow4[0]*widthScale-1, (rc.canvas.height-arrow4[1])*heightScale-1, 1, 1 ],
+		[ this.secondPickPoint[0]*widthScale-1, (rc.canvas.height-this.secondPickPoint[1])*heightScale-1, 1, 1 ]
 	];
 
 	this.computeIntersection(points);
 	return points;
-}
+};
 
 /**************************************************************************************************************/
 
@@ -298,7 +300,7 @@ MeasureTool.prototype.updateMeasure = function()
 		"properties": {
 			"style": new FeatureStyle({
 				zIndex: 2,
-				fillColor: [1.,0.,0.,1.]
+				fillColor: [1,0,0,1]
 			})
 		},
 		"type": "Feature"
@@ -318,7 +320,7 @@ MeasureTool.prototype.updateMeasure = function()
 		properties: {
 			style: new FeatureStyle({
 				label: globe.coordinateSystem.fromDegreesToDMS(this.geoDistance),
-				fillColor: [1.,1.,1.,1.],
+				fillColor: [1,1,1,1],
 				zIndex: 2
 			})
 		}
@@ -326,7 +328,7 @@ MeasureTool.prototype.updateMeasure = function()
 	
 	this.measureLayer.addFeature( this.measureFeature );
 	this.measureLayer.addFeature( this.measureLabel );
-}
+};
 
 /**************************************************************************************************************/
 
@@ -346,7 +348,7 @@ MeasureTool.prototype.toggle = function()
 		$(this.renderContext.canvas).css('cursor', 'default');
 	}
 	$('#measureInvoker').toggleClass('selected');
-}
+};
 
 /**************************************************************************************************************/
 
@@ -360,7 +362,7 @@ MeasureTool.prototype.clear = function()
 
 	this.pickPoint = null;
 	this.geoPickPoint = null;
-}
+};
 
 /**************************************************************************************************************/
 

@@ -20,8 +20,8 @@
 /**
  * Name resolver module : API allowing to search object name and zoom to it
  */
-define(["jquery", "underscore-min", "gw/FeatureStyle", "gw/VectorLayer", "gw/HEALPixBase", "./Utils", "text!../data/mars_resolver.json", "jquery.ui"],
-	function($, _, FeatureStyle, VectorLayer, HEALPixBase, Utils, marsResolverJSON) {
+define(["jquery", "underscore-min", "gw/FeatureStyle", "gw/VectorLayer", "gw/HEALPixBase", "text!../data/mars_resolver.json", "jquery.ui"],
+	function($, _, FeatureStyle, VectorLayer, HEALPixBase, marsResolverJSON) {
 
 // Name resolver globals
 var mizar;
@@ -175,7 +175,7 @@ function search(objectName, onSuccess, onError, onComplete)
 						onError();
 					}
 				},
-				error: function (xhr, ajaxOptions, thrownError) {
+				error: function (xhr) {
 					if( onError ) {onError();}
 					console.error( xhr.responseText );
 				},
@@ -255,7 +255,7 @@ var retrieveDictionary = function()
 					var feature = response.features[i];
 					feature.properties.style = new FeatureStyle({
 						label : feature.properties.Name,
-						fillColor: [1.,0.7,0.,1.]
+						fillColor: [1,0.7,0,1]
 					});
 				}
 				nameResolverLayer.addFeatureCollection(response);
@@ -318,7 +318,7 @@ return {
 		retrieveDictionary();
 		var style = new FeatureStyle({
 			iconUrl: ctx.configuration.mizarBaseUrl + "css/images/target.png",
-			fillColor: [1., 1., 1., 1.]
+			fillColor: [1, 1, 1, 1]
 		});
 		targetLayer = new VectorLayer({ style: style });
 

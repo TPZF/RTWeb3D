@@ -358,21 +358,21 @@ function mod2pi( x )
 //}
 
 // format an integer
-function cintstr( num, width )
-{
-    var str = num.toString(10);
-    var len = str.length;
-    var intgr = "";
-    var i;
-
-    for (i = 0; i < width - len; i++) {    // append leading spaces
-        intgr += ' ';
-    }
-    for (i = 0; i < len; i++) {           // append digits
-        intgr += str.charAt(i);
-    }
-    return intgr;
-}
+//function cintstr( num, width )
+//{
+//    var str = num.toString(10);
+//    var len = str.length;
+//    var intgr = "";
+//    var i;
+//
+//    for (i = 0; i < width - len; i++) {    // append leading spaces
+//        intgr += ' ';
+//    }
+//    for (i = 0; i < len; i++) {           // append digits
+//        intgr += str.charAt(i);
+//    }
+//    return intgr;
+//}
 
 
 // converts angle in degrees into string

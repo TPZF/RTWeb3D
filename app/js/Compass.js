@@ -40,7 +40,7 @@ var updateNorth = function() {
 	var coordinateSystem = globe.coordinateSystem;
 	coordinateSystem.from3DToGeo(navigation.center3d, geo);
 
-	if ( coordinateSystem.type != "EQ" )
+	if ( coordinateSystem.type !== "EQ" )
 	{
 		geo = coordinateSystem.convert(geo, 'EQ', 'GAL');
 	}
@@ -53,7 +53,7 @@ var updateNorth = function() {
 	var vertical = [LHV[8], LHV[9], LHV[10]];
 
 	var up = vec3.create(navigation.up);
-	if ( coordinateSystem.type != "EQ" )
+	if ( coordinateSystem.type !== "EQ" )
 	{
 		// Compute up in galactic coordinate system
 		coordinateSystem.from3DToGeo(up, temp);
@@ -65,8 +65,9 @@ var updateNorth = function() {
 	// Find angle between up and north
 	var cosNorth = vec3.dot(up, north) / (vec3.length(up) * vec3.length(north));
 	var radNorth = Math.acos(cosNorth);
-	if ( isNaN(radNorth) )
+	if ( isNaN(radNorth) ) {
 		return;
+	}
 	var degNorth = radNorth * 180/Math.PI;
 	
 	// Find sign between up and north
@@ -97,8 +98,8 @@ var Compass = function(options){
 			svgDoc = document.importNode(response.documentElement,true);
 
 			// Update width/height
-			svgDoc.height.baseVal.value = 100
-			svgDoc.width.baseVal.value = 100
+			svgDoc.height.baseVal.value = 100;
+			svgDoc.width.baseVal.value = 100;
 			// Append the imported SVG root element to the appropriate HTML element
 			$("#objectCompass").append(svgDoc);
 
@@ -114,7 +115,7 @@ var Compass = function(options){
 	 */
 	var initialize = function() {
 		/* Svg interactive elements */
-		var compass = document.getElementById("objectCompass");
+		
 	    var east = svgDoc.getElementById("East"); //get the inner element by id
 	    var west = svgDoc.getElementById("West"); //get the inner element by id
 	    var south = svgDoc.getElementById("South"); //get the inner element by id
@@ -122,8 +123,7 @@ var Compass = function(options){
 	    var northText = svgDoc.getElementById("NorthText");
 	    var outerCircle = svgDoc.getElementById("OuterCircle");
 
-	    var rotationFactor = options.rotationFactor ? options.rotationFactor : 8.;
-	    var panFactor = options.panFactor ? options.panFactor : 30.;
+	    var panFactor = options.panFactor ? options.panFactor : 30;
 	    
 		var _lastMouseX = -1;
 		var _lastMouseY = -1;
@@ -146,7 +146,7 @@ var Compass = function(options){
 			_lastMouseY = event.layerY - _outerCircleRadius;
 			_dx = 0;
 			_dy = 0;
-		}
+		};
 
 	    svgDoc.addEventListener('mousedown', _handleMouseDown);
 
@@ -160,8 +160,9 @@ var Compass = function(options){
 				event.layerY = event.changedTouches[0].clientY;
 			}
 
-	    	if (!dragging)
+	    	if (!dragging) {
 	    		return;
+		}
 
 			var c = _lastMouseX*(event.layerY -_outerCircleRadius) - _lastMouseY*(event.layerX - _outerCircleRadius); // c>0 -> clockwise, counterclockwise otherwise
 			navigation.rotate(c, 0);
@@ -170,7 +171,7 @@ var Compass = function(options){
 			_lastMouseY = event.layerY - _outerCircleRadius;
 
 	    	updateNorth();
-	    }
+	    };
 
 	    svgDoc.addEventListener('mousemove', _handleMouseMove);
 
@@ -179,7 +180,7 @@ var Compass = function(options){
 	    	event.preventDefault();
 	    	dragging = false;
 	    	// TODO add inertia
-	    }
+	    };
 
 		svgDoc.addEventListener('mouseup', _handleMouseUp);
 
@@ -207,7 +208,7 @@ var Compass = function(options){
 		{
 			var up = [0,0,1];
 			var coordinateSystem = globe.coordinateSystem;
-			if ( coordinateSystem.type != "EQ" )
+			if ( coordinateSystem.type !== "EQ" )
 			{
 				var temp = [];
 				coordinateSystem.from3DToGeo(up, temp);
@@ -215,7 +216,7 @@ var Compass = function(options){
 				coordinateSystem.fromGeoTo3D(temp, up);
 			}
 			navigation.moveUpTo(up);
-		}
+		};
 
 		northText.addEventListener("click", _alignWithNorth);
 
@@ -229,7 +230,7 @@ var Compass = function(options){
 
 	    // Update fov when moving
 		navigation.subscribe("modified", updateNorth);
-	}
+	};
 };
 
 /**

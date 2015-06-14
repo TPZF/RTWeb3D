@@ -91,9 +91,9 @@ return {
 
 	inherits : function(base, sub) 
 	{
-		function tempCtor() {}
-		tempCtor.prototype = base.prototype;
-		sub.prototype = new tempCtor();
+		function TempCtor() {}
+		TempCtor.prototype = base.prototype;
+		sub.prototype = new TempCtor();
 		sub.prototype.constructor = sub;
 	},
 
@@ -119,12 +119,12 @@ return {
                 switch(mizar.mode) {
                   case "planet":
                         astro[0] = this.roundNumber(geo[0],3);
-			astro[0]+="°";
+			astro[0]+="&deg;";
                         astro[1] = this.roundNumber(geo[1],3);
-			astro[1]+="°";
+			astro[1]+="&deg;";
                         break;
                   case "sky":
-                        if ( mizar.sky.coordinateSystem.type == "EQ" )
+                        if ( mizar.sky.coordinateSystem.type === "EQ" )
                         {
                                 mizar.sky.coordinateSystem.fromGeoToEquatorial([geo[0], geo[1]], astro);
                         }
@@ -133,13 +133,13 @@ return {
                                 geo = mizar.sky.coordinateSystem.convert( geo, 'EQ', mizar.sky.coordinateSystem.type );
 
                                 // convert longitude to positive [0..360]
-                                if (geo[0] < 0)
+                                if (geo[0] < 0) {
                                         geo[0]+=360;
-
+				}
                                 astro[0] = this.roundNumber(geo[0],4);
-                                astro[0]+="°";
+                                astro[0]+="&deg;";
                                 astro[1] = this.roundNumber(geo[1],4);
-                                astro[1]+="°";
+                                astro[1]+="&deg;";
                         }
                         break;
                   default:
@@ -171,8 +171,8 @@ return {
 		var coords = [];
 
 		// Debug test: isn't working currently
-		var test = wcs.coordinateToPixel(99.77120833333333, 5.540722222222222);
-		var iTest = wcs.pixelToCoordinate([4844.563607341353, 0.46768419804220684]);
+		//var test = wcs.coordinateToPixel(99.77120833333333, 5.540722222222222);
+		//var iTest = wcs.pixelToCoordinate([4844.563607341353, 0.46768419804220684]);
 
 		// Find coordinates of coming fits
 		coords.push( createCoordinate(0,fitsData.height) );

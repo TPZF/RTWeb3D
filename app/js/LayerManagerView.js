@@ -31,7 +31,6 @@ var mizar;
 var configuration;
 
 // GeoJSON data providers
-var dataProviders = {};
 var votable2geojsonBaseUrl;
 var parentElement;
 var $el;
@@ -58,7 +57,7 @@ function handleDrop(evt) {
 		var reader = new FileReader();
 		$('#loading').show();
 
-		if ( f.type == "image/fits" )
+		if ( f.type === "image/fits" )
 		{
 			// Handle fits image
 			reader.onloadend = function(e) {
@@ -95,16 +94,17 @@ function handleDrop(evt) {
 				else
 				{
 					// Handle as json if possible
+					var response;
 					try {
-						var response = $.parseJSON(this.result);
+						response = $.parseJSON(this.result);
+						LayerManager.createLayerFromGeoJson(name, response);
+						$('#loading').hide();
 					} catch (e) {
 						ErrorDialog.open("JSON parsing error : " + e.type + "<br/> For more details see http://jsonlint.com/.");
 						$('#loading').hide();
 						return false;
 					}
-
-					var gwLayer = LayerManager.createLayerFromGeoJson(name, response);
-					$('#loading').hide();
+										
 				}
 				
 			};
@@ -139,7 +139,7 @@ function initLayers()
 	for ( var i=0; i<layers.length; i++ )
 	{
 		var layer = layers[i];
-		if ( layer.category == "background" )
+		if ( layer.category === "background" )
 		{
 			BackgroundLayersView.addView( layer );
 		}
@@ -270,7 +270,7 @@ return {
 	 *		Planet layer if toggled in globe mode
 	 */
 	toggleMode: function(planetLayer) {
-		if ( mizar.mode == "sky" ) {
+		if ( mizar.mode === "sky" ) {
 			// Reinit background&additional views
 			BackgroundLayersView.remove();
 			AdditionalLayersView.remove();
@@ -295,7 +295,7 @@ return {
 	 */
 	isInitialized: function()
 	{
-		return (mizar.sky != null)
+		return (mizar.sky !== null)
 	}
 };
 

@@ -35,7 +35,6 @@ var configuration;
 
 // GeoJSON data providers
 var dataProviders = {};
-var votable2geojsonBaseUrl;
 
 
 /**
@@ -101,11 +100,13 @@ function createLayerFromConf(layerDesc) {
 	}
 
 	// Layer opacity must be in range [0, 1] 
-	if ( layerDesc.opacity )
+	if ( layerDesc.opacity ) {
 		layerDesc.opacity /= 100;
+	}
 	// Layers are not visible by default
-	if ( !layerDesc.visible )
+	if ( !layerDesc.visible ) {
 		layerDesc.visible = false;
+	}
 
 	// Create style if needed
 	if ( !layerDesc.style ) {
@@ -154,7 +155,6 @@ function createLayerFromConf(layerDesc) {
 			break;
 			
 		case "GeoJSON":
-
 			gwLayer = new VectorLayer(layerDesc);
 			gwLayer.pickable = layerDesc.hasOwnProperty('pickable') ? layerDesc.pickable : true;
 
@@ -171,15 +171,16 @@ function createLayerFromConf(layerDesc) {
 				gwLayer = new OpenSearchLayer( layerDesc );
 			}
 
-			if (layerDesc.displayProperties)
+			if (layerDesc.displayProperties) {
 				gwLayer.displayProperties = layerDesc.displayProperties;
+			}
 			gwLayer.pickable = layerDesc.hasOwnProperty('pickable') ? layer.pickable : true;
 			gwLayer.availableServices = layerDesc.availableServices;
 			break;
 
 		case "Moc":
 			layerDesc.style.fill = true;
-			layerDesc.style.fillColor[3] = 0.3 // make transparent
+			layerDesc.style.fillColor[3] = 0.3; // make transparent
 			gwLayer = new MocLayer( layerDesc );
 			gwLayer.dataType = "line";
 			break;
@@ -269,7 +270,7 @@ return {
 	 addLayerToGlobe: function(gwLayer)
 	 {
 	 	var globe = this.mizar.activatedContext.globe;
-	 	if( gwLayer.category == "background" )
+	 	if( gwLayer.category === "background" )
 		{
 			// Add to engine
 			if ( gwLayer.visible() )
@@ -290,8 +291,9 @@ return {
 		else
 		{
 			// Add to engine
-			if ( !(gwLayer instanceof PlanetLayer) )
+			if ( !(gwLayer instanceof PlanetLayer) ) {
 				globe.addLayer( gwLayer );
+			}
 
 			// Publish the event
 			this.mizar.publish("additionalLayer:add", gwLayer);
@@ -312,7 +314,7 @@ return {
 		{
 			// Add layer to planet
 			planetLayer.layers.push(gwLayer);
-		 	if ( this.mizar.mode == "planet" )
+		 	if ( this.mizar.mode === "planet" )
 		 	{
 		 		this.addLayerToGlobe( gwLayer );
 		 	}
@@ -324,11 +326,11 @@ return {
 				for (var i=0; i<gwLayer.baseImageries.length; i++) {
 					planetLayers.push( gwLayer.baseImageries[i] );
 				}
-			};
+			}
 
 			// Add layer to sky
 			gwLayers.push(gwLayer);
-		 	if ( this.mizar.mode == "sky" )
+		 	if ( this.mizar.mode === "sky" )
 		 	{
 		 		this.addLayerToGlobe( gwLayer );
 		 	}
@@ -363,8 +365,9 @@ return {
 				var data = callback(gwLayer, layerDesc.data);
 			}
 
-			if ( gwLayer.pickable )
+			if ( gwLayer.pickable ) {
 				PickingManager.addPickableLayer(gwLayer);
+			}
 		}
 
 		return gwLayer;
@@ -379,8 +382,9 @@ return {
 
 	 	var index = gwLayers.indexOf(gwLayer);
 	 	gwLayers.splice( index, 1 );
-	 	if ( gwLayer.pickable )
+	 	if ( gwLayer.pickable ) {
 			PickingManager.removePickableLayer(gwLayer);
+		}
 
 		this.mizar.publish("layer:remove", gwLayer);
 	 	sky.removeLayer(gwLayer);
@@ -394,18 +398,20 @@ return {
 	 setBackgroundSurvey: function(survey) {
 		
 		var globe = this.mizar.activatedContext.globe;
-	 	if ( this.mizar.mode == "sky" )
+		var gwLayer;
+	 	if ( this.mizar.mode === "sky" )
 	 	{
 			// Find the layer by name among all the layers
-		 	var gwLayer = _.findWhere(gwLayers, {name: survey});
+		 	gwLayer = _.findWhere(gwLayers, {name: survey});
 		 	if ( gwLayer )
 		 	{
 				// Check if is not already set
-			 	if ( gwLayer != globe.baseImagery )
+			 	if ( gwLayer !== globe.baseImagery )
 			 	{
 				 	// Change visibility's of previous layer, because visibility is used to know the active background layer in the layers list (layers can be shared)
-				 	if ( globe.baseImagery )
+				 	if ( globe.baseImagery ) {
 						globe.baseImagery.visible(false);
+					}
 					globe.setBaseImagery( gwLayer );
 					gwLayer.visible(true);
 
@@ -421,7 +427,7 @@ return {
 							for ( var j=0; j<len; j++ )
 							{
 								var subLayer = currentLayer.subLayers[j];
-								if (subLayer.name == "SolarObjectsSublayer" )
+								if (subLayer.name === "SolarObjectsSublayer" )
 								{
 									PickingManager.removePickableLayer( subLayer );
 									globe.removeLayer( subLayer );
@@ -439,9 +445,10 @@ return {
 	 	else
 	 	{
 	 		// Planet mode
-		 	var gwLayer = _.findWhere(planetLayers, {name: survey});
-		 	if ( globe.baseImagery )
+		 	gwLayer = _.findWhere(planetLayers, {name: survey});
+		 	if ( globe.baseImagery ) {
 				globe.baseImagery.visible(false);
+			}
 			globe.setBaseImagery( gwLayer );
 			gwLayer.visible(true);
 			this.mizar.publish("backgroundLayer:change", gwLayer);
