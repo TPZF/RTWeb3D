@@ -295,82 +295,6 @@
 		"outline": true
 	},
 	/**
-	 *	IAS PLWSAG Healpix imagery
-	 *
-	 *	Plugin: Proxy Healpix Image cache
-	 *	urlClient: http://healpix.ias.u-psud.fr/PLWSAG-4ALLSKY
-	 */
-	{
-		"category": "Herschel-SAG4",
-		"type": "healpix",
-		"name": "PLWSAG-4ALL",
-		"baseUrl": "http://demonstrator.telespazio.com/sitools/ias-Alasky/PLWSAG-4ALLSKY/",
-		"description": "PLWSAG-4ALL",
-		"attribution": "PLWSAG-4ALLSKY provided by <a href=\"http://idoc-herschel.ias.u-psud.fr/\" target=\"_blank\"><img width='28' height='16' src=\"http://demonstrator.telespazio.com/sitools/upload/idoc.svg\" /></a>",
-		"visible": false,
-		"background": false,
-		"format": "jpg",
-        "numberOfLevels": 5,
-        "fitsSupported": true
-	},
-	/**
-	 *	IAS PMWSAG Healpix imagery
-	 *
-	 *	Plugin: Proxy Healpix Image cache
-	 *	urlClient: http://healpix.ias.u-psud.fr/PMWSAG-4ALLSKY/
-	 */
-	{
-		"category": "Herschel-SAG4",
-		"type": "healpix",
-		"name": "PMWSAG-4ALLSKY",
-		"baseUrl": "http://demonstrator.telespazio.com/sitools/ias-Alasky/PMWSAG-4ALLSKY/",
-		"description": "PLWSAG-4ALL",
-		"attribution": "PLWSAG-4ALL provided by <a href=\"http://idoc-herschel.ias.u-psud.fr/\" target=\"_blank\"><img width='28' height='16' src=\"http://demonstrator.telespazio.com/sitools/upload/idoc.svg\" /></a>",
-		"visible": false,
-		"background": false,
-		"format": "jpg",
-        "numberOfLevels": 5,
-        "fitsSupported": true
-	},
-	/**
-	 *	IAS PSWSAG Healpix imagery
-	 *
-	 *	Plugin: Proxy Healpix Image cache
-	 *	urlClient: http://healpix.ias.u-psud.fr/PSWSAG-4ALLSKY/
-	 */
-	{
-		"category": "Herschel-SAG4",
-		"type": "healpix",
-		"name": "PSWSAG-4ALLSKY",
-		"baseUrl": "http://demonstrator.telespazio.com/sitools/ias-Alasky/PSWSAG-4ALLSKY/",
-		"description": "PSWSAG-4ALLSKY",
-		"attribution": "PSWSAG-4ALLSKY provided by <a href=\"http://idoc-herschel.ias.u-psud.fr/\" target=\"_blank\"><img width='28' height='16' src=\"http://demonstrator.telespazio.com/sitools/upload/idoc.svg\" /></a>",
-		"visible": false,
-		"background": false,
-		"format": "jpg",
-        "numberOfLevels": 5,
-        "fitsSupported": true
-	},
-	/**
-	 *	IAS RGBSAG-4ALLSKYfromPNG Healpix imagery
-	 *
-	 *	Plugin: Proxy Healpix Image cache
-	 *	urlClient: http://healpix.ias.u-psud.fr/SAG-4_RGB/
-	 */
-	{
-		"category": "Herschel-SAG4",
-		"type": "healpix",
-		"name": "SAG4-Herschel-RGB",
-		"baseUrl": "http://demonstrator.telespazio.com/sitools/ias-Alasky/SAG-4_RGB",
-		"description": "combined bands (PSW, PMW, PLW)",
-		"attribution": "SAG4-Herschel-RGB provided by <a href=\"http://idoc-herschel.ias.u-psud.fr/\" target=\"_blank\"><img width='28' height='16' src=\"http://demonstrator.telespazio.com/sitools/upload/idoc.svg\" /></a>",
-		"visible": false,
-		"background": false,
-		"format": "png",
-        "numberOfLevels": 5,
-        "fitsSupported": true
-	},
-	/**
 	 *	OpenSearch SOLR Herschel layer
 	 *
 	 *	Plugin: OpenSearch Application
@@ -409,24 +333,6 @@
         "description": "SAG-4 : Evolution of interstellar dust (Herschel Guaranteed Time Key Project prepared by the ISM Specialist Astronomy Group of the SPIRE consortium) ",
 		"attribution": "SAG4 provided by <a href=\"http://idoc-herschel.ias.u-psud.fr/\" target=\"_blank\"><img width='28' height='16' src=\"http://demonstrator.telespazio.com/sitools/upload/idoc.svg\" /></a>",
 		"availableServices": [ "OpenSearch", "Moc", "XMatch" ]
-	},
-	/**
-	 *	OpenSearch SIA ESO layer
-	 *
-	 *	Plugin: VO OpenSearchApplication for Sia
-	 *	siaSearchUrl: http://archive.eso.org/apps/siaserver/EsoProxySiap?
-	 */
-	{
-		"category": "Image",
-		"type": "DynamicOpenSearch",
-		"dataType": "line",
-		"name": "ESO",
-		"serviceUrl": "http://demonstrator.telespazio.com/sitools/eso/siap",
-        "displayProperties": [ "identifier","Instrument","Telescope name","quicklook"],
-		"visible": false,
-        "attribution":"<a href=\"http://archive.eso.org/cms.html\" target=\"_blank\"><img width='28' height='28' src=\"http://demonstrator.telespazio.com/sitools/upload/eso.svg\"></a>Science Archive Facility",
-		"minOrder": 4,
-		"invertY": true
 	},
 	/**
 	 *	OpenSearch Sia HST layer

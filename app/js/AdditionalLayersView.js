@@ -103,11 +103,11 @@ function initNiceScroll(categoryId)
 		autohidemode: false
 	});
 	// Hide scroll while accordion animation
-	$(parentElement).on( "accordionbeforeactivate", function(event, ui) {
+	$(parentElement).on( "accordionbeforeactivate", function() {
 		$('#'+categoryId).niceScroll().hide();
 	} );
 	// Show&resize scroll on the end of accordion animation
-	$(parentElement).on( "accordionactivate", function( event, ui ) {
+	$(parentElement).on( "accordionactivate", function() {
 		$('#'+categoryId).niceScroll().show();
 		updateScroll(categoryId);
 	} );
@@ -259,7 +259,7 @@ function createDynamicImageDialog( gwLayer )
 		resizable: false,
 		width: 'auto',
 		minHeight: 'auto',
-		close: function(event, ui)
+		close: function()
 		{
 			$('#addFitsView_'+shortName).removeAttr("checked").button("refresh");
 			$(this).dialog("close");
@@ -400,7 +400,6 @@ function setSublayersVisibility(gwLayer, isOn)
  */
 function createHtmlForAdditionalLayer( gwLayer, categoryId )
 {
-	var currentIndex = gwLayer.id;
 	var shortName = Utils.formatId( gwLayer.name );
 	var layerDiv = additionalLayerTemplate( {
 		layer: gwLayer,
@@ -565,7 +564,7 @@ function exportLayer()
 	{
 		var layer = $(this).closest(".addLayer").data("layer");
 		var url = buildVisibleTilesUrl(layer);
-		var message = Samp.sendVOTable(layer, url);
+		Samp.sendVOTable(layer, url);
 	}
 	else
 	{
@@ -700,7 +699,7 @@ return {
 
 		// Select default coordinate system event
 		$('#defaultCoordSystem').selectmenu({
-			select: function(e)
+			select: function()
 			{
 				var newCoordSystem = $(this).children('option:selected').val();				
 				options.mizar.setCoordinateSystem(newCoordSystem);
