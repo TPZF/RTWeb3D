@@ -174,7 +174,6 @@ return {
 	init: function(m)
 	{
 		mizar = m;
-		var self = this;
 		mizar.subscribe("image:add", this.addView);
 		mizar.subscribe("image:remove", this.removeView);
 		mizar.subscribe("image:download", this.addProgressBar);

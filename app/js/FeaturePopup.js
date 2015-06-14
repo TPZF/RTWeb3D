@@ -162,8 +162,8 @@ function addPropertyDescription(describeUrl, property, dictionary)
 			dictionary[property] = response;
 			$('#'+property).attr("title", response);
 		},
-		error: function (xhr, ajaxOptions, thrownError) {
-			// console.error(xhr);
+		error: function (xhr) {
+			console.error(xhr);
 		}
 	});
 }
@@ -200,13 +200,14 @@ function createDictionary( layer, properties )
 					addPropertyDescription(describeUrl, key, layer.dictionary);
 				}
 			}
-			else
-			{
+			//else
+			//{
 				// No dico found
-			}
+			//}
 		},
 		error: function(xhr){
 			// No dico found
+			//console.error(xhr);
 		}
 	});
 }
@@ -273,7 +274,7 @@ return {
 		});
 
 		// Show/hide quicklook
-		$selectedFeatureDiv.on("click", '#quicklook', function(event){
+		$selectedFeatureDiv.on("click", '#quicklook', function(){
 			var selectedData = pickingManager.getSelectedData();
 
 			var otherQuicklookOn = selectedData.feature.properties.style.fill && !selectedData.feature.properties.style.fillTextureUrl;
@@ -294,7 +295,7 @@ return {
 			}
 		});
 
-		$selectedFeatureDiv.on('click', "#quicklookFits", function(event){
+		$selectedFeatureDiv.on('click', "#quicklookFits", function(){
 			var selectedData = pickingManager.getSelectedData();
 
 			var otherQuicklookOn = selectedData.feature.properties.style.fill && selectedData.feature.properties.style.fillTextureUrl;
@@ -316,14 +317,14 @@ return {
 		});
 
 		// Show/hide Dynamic image service
-		$selectedFeatureDiv.on("click", '#dynamicImageView', function(event){
+		$selectedFeatureDiv.on("click", '#dynamicImageView', function(){
 			$(this).toggleClass('selected');
 			var selectedData = pickingManager.getSelectedData();
 			ImageProcessing.setData(selectedData);
 		});
 
 		// Send image by Samp
-		$selectedFeatureDiv.on("click", '#sendImage', function(event){
+		$selectedFeatureDiv.on("click", '#sendImage', function(){
 			var selectedData = pickingManager.getSelectedData();
 			var message = Samp.sendImage(selectedData.feature.services.download.url);
 			$('#serviceStatus').html(message).slideDown().delay(1500).slideUp();
@@ -347,7 +348,7 @@ return {
 		});
 
 		// Show/hide Solar object service
-		$selectedFeatureDiv.on("click", '#solarObjects', function(event){
+		$selectedFeatureDiv.on("click", '#solarObjects', function(){
 			var selectedData = pickingManager.getSelectedData();
 			var selection = pickingManager.getSelection();
 
@@ -400,10 +401,10 @@ return {
 						$('#serviceStatus').html(response.totalResults + ' objects found').slideDown().delay(400).slideUp();
 						solarObjectsLayer.addFeatureCollection(response);
 					},
-					complete: function(xhr){
+					complete: function(){
 						$('#solarObjectsSpinner').hide();
 					},
-					error: function(xhr)
+					error: function()
 					{
 						$('#serviceStatus').html('No data found').slideDown().delay(400).slideUp();
 					}
@@ -432,7 +433,7 @@ return {
 		});
 
 		// Arrow scroll events
-		$selectedFeatureDiv.on("mousedown", '#scroll-arrow-down.clickable', function(event){
+		$selectedFeatureDiv.on("mousedown", '#scroll-arrow-down.clickable', function(){
 			$('#selectedFeatureDiv #scroll-arrow-up').css("border-bottom-color", "orange").addClass("clickable");
 			var $featureList = $('#featureList');
 			var animationStep = parseInt($('#featureListDiv').css('max-height'))/2;
@@ -447,7 +448,7 @@ return {
 			$featureList.stop().animate({top: topValue +"px"}, 300);
 		}).disableSelection();
 		
-		$selectedFeatureDiv.on("mousedown", '#scroll-arrow-up.clickable', function(event){
+		$selectedFeatureDiv.on("mousedown", '#scroll-arrow-up.clickable', function(){
 			$('#selectedFeatureDiv #scroll-arrow-down').css("border-top-color", "orange").addClass("clickable");
 			var $featureList = $('#featureList');
 			var animationStep = parseInt($('#featureListDiv').css('max-height'))/2;
@@ -461,7 +462,7 @@ return {
 		}).disableSelection();
 
 		// Show/hide subsection properties
-		$selectedFeatureDiv.on("click", '.section', function(event){
+		$selectedFeatureDiv.on("click", '.section', function(){
 
 			$selectedFeatureDiv.find('.featureProperties').getNiceScroll().hide();
 			// TODO slideToggle works with div -> add div to the tab generation
