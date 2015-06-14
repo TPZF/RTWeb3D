@@ -93,12 +93,13 @@ require(["./MizarWidget"], function(MizarWidget) {
 	mizar.setCompassGui(true);
 	mizar.setShowCredits(true);
 	mizar.setImageViewerGui(true);
-        var atmosLayer = {
+        var atmosMarsLayer = {
            "category": "Other",
            "type": "atmosphere",
            "exposure": 1.4,
            "wavelength" : [0.56,0.66,0.78],
            "name": "Atmosphere",
+	   "lightDir": [0, 1, 0],
            "visible": true
         };
         var coordLayer = {
@@ -110,7 +111,8 @@ require(["./MizarWidget"], function(MizarWidget) {
         };
 
         var marsLayer = mizar.getLayer("Mars");
-        mizar.addLayer(atmosLayer,marsLayer);
+        mizar.addLayer(atmosMarsLayer,marsLayer);
         mizar.addLayer(coordLayer,marsLayer);
+
 
 });
