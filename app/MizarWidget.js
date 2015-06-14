@@ -30,8 +30,6 @@ define( [ "jquery", "underscore-min", "./PlanetContext", "./SkyContext", "gw/Til
 	/**
 	 *	Private variables
 	 */
-	var aboutShowed = false;
-	var showCredits = true;
 	var parentElement;
 	var options;
 	var planetContext;
@@ -73,38 +71,6 @@ define( [ "jquery", "underscore-min", "./PlanetContext", "./SkyContext", "gw/Til
 				_mergeWithOptions(sharedParameters);
 			}
 		}
-	};
-
-	/**************************************************************************************************************/
-
-	/**
-	 *	Retrieve SiTools2 configuration from URI
-	 *	(to be removed ?)
-	 */
-	var _retrieveConfiguration = function() {
-		var confURL = 'js/conf.json'; // default
-		var documentURI =  window.document.documentURI;
-
-		// If configuration is defined by SiTools2
-		var splitStartIndex = documentURI.indexOf( "?conf=" );
-		if ( splitStartIndex !== -1 )
-		{
-			// Shared url exist
-			var splitEndIndex = documentURI.search( /[&|?]sharedParameters=/ );
-			var url;
-			if ( splitEndIndex !== -1 )
-			{
-				// Compute length of configuration url
-				var confURLLength = splitEndIndex - splitStartIndex - "?conf=".length;
-				url = documentURI.substr( splitStartIndex + "?conf=".length, confURLLength );
-			}
-
-			
-			if ( url !== 'undefined' && url !== '' ) {
-				confURL = url;
-			}
-		}
-		return confURL;
 	};
 
 	/**************************************************************************************************************/
@@ -252,7 +218,6 @@ define( [ "jquery", "underscore-min", "./PlanetContext", "./SkyContext", "gw/Til
 		this.sky = null;
 		this.navigation = null;
 
-		var confURL = _retrieveConfiguration();
 		_applySharedParameters();
 		
 		// Initialize sky&globe contexts
@@ -399,7 +364,7 @@ define( [ "jquery", "underscore-min", "./PlanetContext", "./SkyContext", "gw/Til
 		});
 
 		// Close button event
-		$('body').on("click",'.closeBtn', function(event){
+		$('body').on("click",'.closeBtn', function(){
 			switch($(this).parent().attr("id"))
 			{
 				case "externalIFrame":
@@ -531,10 +496,7 @@ define( [ "jquery", "underscore-min", "./PlanetContext", "./SkyContext", "gw/Til
 	 *	Set the credits popup
 	 */
 	MizarWidget.prototype.setShowCredits = function(visible) {
-		skyContext.showCredits(visible);
-		//if(this.planetContext) {
- 		//	this.planetContext.showCredits(visible);
-		//}	
+		skyContext.showCredits(visible);	
 	};
 
 	/**************************************************************************************************************/
@@ -894,19 +856,19 @@ define( [ "jquery", "underscore-min", "./PlanetContext", "./SkyContext", "gw/Til
 		if ( this.mode === "sky" ) {
 			console.log("Change planet to sky context");
 			// Hide planet
-			this.planetContext.hide();
+			planetContext.hide();
 
 			this.activatedContext = skyContext;
 			// Add smooth animation from planet context to sky context
-			this.planetContext.navigation.toViewMatrix(this.oldVM, this.oldFov, 2000, function() {
+			planetContext.navigation.toViewMatrix(this.oldVM, this.oldFov, 2000, function() {
 				// Show all additional layers
 				skyContext.showAdditionalLayers();
 				self.sky.renderContext.tileErrorTreshold = 1.5;
 				self.publish("mizarMode:toggle", gwLayer);
 				
 				// Destroy planet context
-				self.planetContext.destroy();
-				self.planetContext = null;
+				planetContext.destroy();
+				planetContext = null;
 				// Show sky
 				skyContext.show();
 				self.sky.refresh();
@@ -933,22 +895,20 @@ define( [ "jquery", "underscore-min", "./PlanetContext", "./SkyContext", "gw/Til
 					"baseUrl": gwLayer.revereseNameResolverURL	// TODO: define protocol for reverse name resolver
 				}
 			};
+			planetConfiguration.renderContext['shadersPath'] ="externals/GlobWeb/shaders/";
 			planetConfiguration = $.extend({}, options, planetConfiguration);
-			this.planetContext = new PlanetContext(parentElement, planetConfiguration);
-			this.planetContext.setComponentVisibility("categoryDiv", true);
-			this.planetContext.setComponentVisibility("searchDiv", true);
-			this.planetContext.setComponentVisibility("posTracker",this.activatedContext.components.posTracker);
-                        this.planetContext.setComponentVisibility("compassDiv",false);
+			planetContext = new PlanetContext(parentElement, planetConfiguration);
+			planetContext.setComponentVisibility("categoryDiv", true);
+			planetContext.setComponentVisibility("searchDiv", true);
+			planetContext.setComponentVisibility("posTracker",this.activatedContext.components.posTracker);
+                        planetContext.setComponentVisibility("compassDiv",false);
 			// Propagate user-defined wish for displaying credits window			
-			this.planetContext.credits = skyContext.credits;
+			planetContext.credits = skyContext.credits;
 
 			// Planet tile error treshold is less sensetive than sky's one
 			this.sky.renderContext.tileErrorTreshold = 3;
-	
-			// Used for debug
-			//this.planetContext.globe.addLayer( new TileWireframeLayer({outline: true}) );
 
-			this.activatedContext = this.planetContext;
+			this.activatedContext = planetContext;
 
 			// Store old view matrix & fov to be able to rollback to sky context
 			this.oldVM = this.sky.renderContext.viewMatrix;
@@ -956,13 +916,13 @@ define( [ "jquery", "underscore-min", "./PlanetContext", "./SkyContext", "gw/Til
 			
 			// Compute planet view matrix
 			var planetVM = mat4.create();
-			this.planetContext.navigation.computeInverseViewMatrix();
-			mat4.inverse( this.planetContext.navigation.inverseViewMatrix, planetVM );
+			planetContext.navigation.computeInverseViewMatrix();
+			mat4.inverse( planetContext.navigation.inverseViewMatrix, planetVM );
 			
 			// Add smooth animation from sky context to planet context
 			this.navigation.toViewMatrix(planetVM, 45, 2000, function() {
-				self.planetContext.show();
-				self.planetContext.globe.refresh();
+				planetContext.show();
+				planetContext.globe.refresh();
 				self.publish("mizarMode:toggle", gwLayer);
 			});
 		}
