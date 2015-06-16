@@ -114,20 +114,11 @@ var MollweideViewer = function(options) {
      */
     function computeMollweidePosition( pos )
     {
-		var coordinateSystem = self.globe.coordinateSystem;
-        var geoPos = coordinateSystem.from3DToGeo(pos);
-
-        if ( coordinateSystem.type != "EQ" )
-        {
-            geoPos = coordinateSystem.convert(geoPos, 'EQ', coordinateSystem.type)
-            // Convert to geographic
-            if ( geoPos[0]>180 )
-            {
-                geoPos[0]-=360;
-            }
-        }
-
-
+	var coordinateSystem = self.globe.coordinateSystem;
+        var geoPos = coordinateSystem.from3DToEquatorial(pos,null,false);
+        geoPos = coordinateSystem.convert(geoPos, 'EQ', coordinateSystem.type)
+	geoPos = coordinateSystem.fromEquatorialToGeo(geoPos,null,false);
+        
         var lambda = geoPos[0] * Math.PI/180 ; // longitude
         var theta0 = geoPos[1] * Math.PI/180;  // latitude
 
@@ -165,10 +156,7 @@ var MollweideViewer = function(options) {
         var lambda = (Math.PI * center3d.x) / ( 2 * Math.sqrt(2) * Math.cos(auxTheta));
 
         var geo = [lambda*180/Math.PI, phi*180/Math.PI];
-        if ( self.globe.coordinateSystem.type != "EQ" )
-        {
-            geo = self.globe.coordinateSystem.convert(geo, self.globe.coordinateSystem.type, "EQ");
-        }
+        geo = self.globe.coordinateSystem.convert(geo, self.globe.coordinateSystem.type, "EQ");
 
         // Update navigation
         self.globe.coordinateSystem.fromGeoTo3D(geo, navigation.center3d);
