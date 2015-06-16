@@ -115,12 +115,7 @@ function search(objectName, onSuccess, onError, onComplete)
 		// Convert to geo and zoom
 		var geoPos = [];
 		globe.coordinateSystem.fromEquatorialToGeo([word[0], word[1]], geoPos);
-
-		if ( globe.coordinateSystem.type !== "EQ" )
-		{
-			geoPos = globe.coordinateSystem.convert(geoPos, globe.coordinateSystem.type, 'EQ');
-		}
-
+		geoPos = globe.coordinateSystem.convert(geoPos, globe.coordinateSystem.type, 'EQ');
 		zoomTo(geoPos[0], geoPos[1], onSuccess);
 	}
 	else if ( matchDegree ) {
@@ -128,7 +123,7 @@ function search(objectName, onSuccess, onError, onComplete)
 		var lat = parseFloat(matchDegree[3]);
 		var geo = [lon, lat];
 
-		if ( globe.coordinateSystem.type !== "EQ" && mizar.mode === "sky" )
+		if (mizar.mode === "sky" )
 		{
 			geo = globe.coordinateSystem.convert(geo, globe.coordinateSystem.type,  'EQ');
 		}
