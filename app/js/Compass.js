@@ -38,12 +38,8 @@ var updateNorth = function() {
 
 	var geo = [];
 	var coordinateSystem = globe.coordinateSystem;
-	coordinateSystem.from3DToGeo(navigation.center3d, geo);
-
-	if ( coordinateSystem.type !== "EQ" )
-	{
-		geo = coordinateSystem.convert(geo, 'EQ', 'GAL');
-	}
+	coordinateSystem.from3DToEquatorial(navigation.center3d, geo, false);
+	geo = coordinateSystem.convert(geo, 'EQ', coordinateSystem.type);	
 
 	var LHV = [];
 	coordinateSystem.getLHVTransform(geo, LHV);
@@ -53,14 +49,10 @@ var updateNorth = function() {
 	var vertical = [LHV[8], LHV[9], LHV[10]];
 
 	var up = vec3.create(navigation.up);
-	if ( coordinateSystem.type !== "EQ" )
-	{
-		// Compute up in galactic coordinate system
-		coordinateSystem.from3DToGeo(up, temp);
-		temp = coordinateSystem.convert(temp, 'EQ', 'GAL');
-		coordinateSystem.fromGeoTo3D(temp, up);
-		vec3.normalize(up);
-	}
+	coordinateSystem.from3DToEquatorial(up, temp, false);
+	temp = coordinateSystem.convert(temp, 'EQ', coordinateSystem.type);
+	coordinateSystem.fromEquatorialTo3D(temp,up, false);
+	vec3.normalize(up);
 
 	// Find angle between up and north
 	var cosNorth = vec3.dot(up, north) / (vec3.length(up) * vec3.length(north));
@@ -208,13 +200,10 @@ var Compass = function(options){
 		{
 			var up = [0,0,1];
 			var coordinateSystem = globe.coordinateSystem;
-			if ( coordinateSystem.type !== "EQ" )
-			{
-				var temp = [];
-				coordinateSystem.from3DToGeo(up, temp);
-				temp = coordinateSystem.convert(temp, 'GAL', 'EQ');
-				coordinateSystem.fromGeoTo3D(temp, up);
-			}
+			var temp = [];
+			coordinateSystem.from3DToEquatorial(up, temp, false);
+			temp = coordinateSystem.convert(temp, coordinateSystem.type, 'EQ')
+			coordinateSystem.fromEquatorialTo3D(temp, up, false);
 			navigation.moveUpTo(up);
 		};
 
