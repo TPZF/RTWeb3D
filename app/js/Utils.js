@@ -131,11 +131,6 @@ return {
                         else
                         {
                                 geo = mizar.sky.coordinateSystem.convert( geo, 'EQ', mizar.sky.coordinateSystem.type );
-
-                                // convert longitude to positive [0..360]
-                                if (geo[0] < 0) {
-                                        geo[0]+=360;
-				}
                                 astro[0] = this.roundNumber(geo[0],4);
                                 astro[0]+="&deg;";
                                 astro[1] = this.roundNumber(geo[1],4);
