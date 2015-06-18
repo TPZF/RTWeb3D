@@ -34,7 +34,7 @@ require.config({
 		"inflate-js": "../externals/inflate",
 		"wcs": "../externals/wcs",
 		"jquery.ui.timepicker": "../externals/jquery.ui.timepicker",
-		"gw": "../externals/GlobWeb/src/"
+		"gw": "../externals/GlobWeb/src"
 	},
 	shim: {
 		'jquery': {
