@@ -29,8 +29,6 @@ Ext.define('sitools.user.view.modules.mizarModule.MizarModuleView', {
 	requires : ['sitools.user.model.MizarModuleModel'], 	
 	
 	initComponent : function () {
-		console.log("Je suis dans le initComponent de la view !");
-		console.log("listProj : "+this.listProjectModulesConfig);
 
                 Ext.each(this.moduleModel.listProjectModulesConfigStore.data.items, function (config) {
 		switch (config.get('name')){
@@ -39,18 +37,15 @@ Ext.define('sitools.user.view.modules.mizarModule.MizarModuleView', {
                                 break;
                         }
                 }, this);
-		console.log("THIS.configFILE = "+this.configFile);
+
 		this.items = [ { layout: 'fit',
                         region : 'center',
                         autoEl: { tag: 'iframe',
-				//src: 'http://plis.ias.u-psud.fr:8283/sitools/client-user/controller/modules/mizarModule/app/index.html?conf=undefined'
-				src: 'http://plis.ias.u-psud.fr:8283/sitools/client-user/app/controller/modules/mizarModule/app/index.html?conf=undefined'
+				  src: '/sitools/client-user/app/controller/modules/mizarModule/app/index.html?conf='+this.configFile
                         },
                         xtype: 'box'}
                 ];
 		
-//		this.items = [this.containerPanel];
-
 	        this.callParent(arguments);	
 
 	},

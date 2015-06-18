@@ -6,7 +6,6 @@ Ext.define('sitools.user.modules.MizarModule', {
 	controllers : [],
 
 	init : function () {
-		//console.log("Je suis dans le init de MizarModule.js ! ");
         	var view = Ext.create('sitools.user.view.modules.mizarModule.MizarModuleView', {
             		moduleModel : this.getModuleModel()
         	});
