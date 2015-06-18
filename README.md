@@ -99,3 +99,7 @@ Les fichiers intéressants à récupérer sont:
   * index.html
 
 Il suffit donc de placer ces fichiers dans le repertoire de production `mizarModule/app/`
+
+
+[![Bitdeli Badge](https://d2weczhvl823v0.cloudfront.net/SITools2/mizar/trend.png)](https://bitdeli.com/free "Bitdeli Badge")
+
