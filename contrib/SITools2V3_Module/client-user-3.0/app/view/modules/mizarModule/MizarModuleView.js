@@ -41,7 +41,7 @@ Ext.define('sitools.user.view.modules.mizarModule.MizarModuleView', {
 		this.items = [ { layout: 'fit',
                         region : 'center',
                         autoEl: { tag: 'iframe',
-				  src: '/sitools/client-user/app/controller/modules/mizarModule/app/index.html?conf='+this.configFile
+				  src: '/sitools/client-user/app/controller/modules/mizarModule/src/mizar/index.html?conf='+this.configFile
                         },
                         xtype: 'box'}
                 ];
