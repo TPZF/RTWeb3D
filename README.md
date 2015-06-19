@@ -1,27 +1,72 @@
-MIZAR
-=======
+![](src/mizar/css/images/mizar.png)
 
+# MIZAR
 
-Installation de MIZAR sans SITools2
----
- * Récupérer le dépôt :
-  * `git clone https://github.com/SITools2/MIZAR.git mizar`
- * Initializer et mettre à jour le submodule [GlobWeb](https://github.com/TPZF/GlobWeb) qui assure le rendu:
+## 1 - Description
+MIZAR is a 3D application in a browser for discovering and visualizing geospatial data for sky and planets. It supports natively some protocols coming from OGC and IVOA :
+
+| OGC           | IVOA          | Remarks about the support in MIZAR                          |
+| ------------- |:-------------:| ----------------------------------------------------------- |
+| WMS           | HIPS          | Do not read the WMS capabilities and the HIPS property file |
+|               | MOC           | Supported                                                   |
+| GeoJSON       | VOTable       | GeoJSON is only supported. A profile has been extended to define other keywords (see wiki). About VOTable, a service is needed to convert it in a GeoJSON format|
+| WCS           |               | Elevation is supported                                      |
+| OpenSearch    | SIAP / SSAP   | Need a service to convert the Healpix request and the response as GeoJSON |
+|               | SAMP          | Supported but need a service to convert the VOTable to GeoJSON |
+| WPS           | UWS           | WPS is not supported. UWS is partially supported and under some conditions |
+
+Many name resolver / reverse name resolver can be plugged easily. In the current version, we have interface with the name resolver from CDS and this one from IMCCE by wrapping them into our API
+
+In addition, MIZAR supports drag n drop of file : GeoJSON and FITS File (Read the first IMAGE extension ; can only represent the data when WCS keywords exist)
+
+## 2 - Architecture
+
+TODO
+
+## 3 - Installation
+
+It exists different ways to install MIZAR
+
+### 3.1 - MIZAR
+
+#### Getting the sources
+	 `git clone https://github.com/SITools2/MIZAR.git mizar`
+  
+#### Getting the submodule [GlobWeb](https://github.com/TPZF/GlobWeb)
   * `cd mizar`
   * `git submodule init`
   * `git submodule update`
- * Copier le répertoire app sur un serveur web
-  * `cp -R app <chemin vers mon serveur web>`
- * Accéder à l'application (http://.../app/index.html)
- 
+  
+#### Copy the directory mizar in your web server
+  `cp -R src/mizar <path to your web server>`
 
-Installation de MIZAR comme un module de SITools2 :
----
- * Télécharger [SiTools2](http://sitools2.sourceforge.net/) ([lien direct vers la dernière version](http://sourceforge.net/projects/sitools2/files/latest/download))
- * Installer SiTools2 (voire la [documentation de Sitools2](http://sourceforge.net/projects/sitools2/files/Documentation/V2.0/DG-SITOOLS2-V2-1.2.pdf/download))
- * Récupérer le module et le placer dans SiTools2 :
-    * `cd %SITOOLS%/workspace/client-user/js/modules`
-  * `git clone https://github.com/TPZF/RTWeb3D.git mizarModule`
+#### Run the application
+  Go to http://..../mizar/index.html
+
+In this mode, you will use a SITools2 server, installed somewhere,  that wraps the response coming from pre-defined sources (See wiki)
+
+### 3.2 -MIZAR-lite
+No installation, just import the javaScript (see Wiki) in your own web page
+
+### 3.3 - MIZAR as SITools2V2 module
+SITools2 is a data access layer server. It provides services and user interface to handle data published through SITools2. In this mode, MIZAR is added as an application in the SITools2 user interface. 
+
+#### Install SITools2
+ Download and install the packager https://github.com/SITools2/SITools2-core/releases/tag/v2.5
+ 
+#### Install mizar 
+  * `cd %SITOOLS%/workspace/client-user/js/modules`
+  * `git clone https://github.com/SITools2/MIZAR.git mizarModule`
+  * `cd mizarModule`
+  * `git submodule init`
+  * `git submodule update`
+  
+  TODO
+  
+  Run SiTools2 with the following command : `%SiTools2%/sitools.sh start` for Unix or `%SiTools2%/sitools.bat start` for Windows
+  
+  Configure the module
+  
  * Initializer et mettre à jour le submodule [GlobWeb](https://github.com/TPZF/GlobWeb) qui assure le rendu:
   * `cd mizarModule`
   * `git submodule init`
