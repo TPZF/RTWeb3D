@@ -30,15 +30,15 @@ It exists different ways to install MIZAR
 ### 3.1 - MIZAR
 
 #### Getting the sources
-	 `git clone https://github.com/SITools2/MIZAR.git mizar`
+	$ git clone https://github.com/SITools2/MIZAR.git mizar
   
 #### Getting the submodule [GlobWeb](https://github.com/TPZF/GlobWeb)
-  * `cd mizar`
-  * `git submodule init`
-  * `git submodule update`
+  	$ cd mizar
+  	$ git submodule init
+  	$ git submodule update
   
 #### Copy the directory mizar in your web server
-  `cp -R src/mizar <path to your web server>`
+  	$ cp -R src/mizar <path to your web server>`
 
 #### Run the application
   Go to http://..../mizar/index.html
@@ -48,18 +48,38 @@ In this mode, you will use a SITools2 server, installed somewhere,  that wraps t
 ### 3.2 -MIZAR-lite
 No installation, just import the javaScript (see Wiki) in your own web page
 
-### 3.3 - MIZAR as SITools2V2 module
+### 3.3 - MIZAR as module
 SITools2 is a data access layer server. It provides services and user interface to handle data published through SITools2. In this mode, MIZAR is added as an application in the SITools2 user interface. 
+
+TODO ==> link to README-SITools2V2-contrib.md describing the processus
+TODO ==> link to README-SITools2V3-contrib.md describing the processus
+
+### 3.4 - Optimization
+To build a minify version, [NodeJS](http://nodejs.org/download/) must be installed
+Once installed, run `build/build.bat` for Windows users or `cd build` following of `node r.js -o buildMizar.js` for Unix. The script will then create a minify file "MizarWidget.min.js" in src/mizar directory.
+
+To build a minify CSS file, use the following command:
+`node r.js -o cssIn=../src/mizar/css/style.css out=../src/mizar/css/style.min.css`
+
+TODO : explain how to use them
+
+
+
+------------------------------------
+TO BO removed
+
+
+
 
 #### Install SITools2
  Download and install the packager https://github.com/SITools2/SITools2-core/releases/tag/v2.5
  
 #### Install mizar 
-  * `cd %SITOOLS%/workspace/client-user/js/modules`
-  * `git clone https://github.com/SITools2/MIZAR.git mizarModule`
-  * `cd mizarModule`
-  * `git submodule init`
-  * `git submodule update`
+	$ cd %SITOOLS%/workspace/client-user/js/modules
+	$ git clone https://github.com/SITools2/MIZAR.git mizarModule
+	$ cd mizarModule
+	$ git submodule init
+	$ git submodule update
   
   TODO
   
@@ -127,23 +147,7 @@ Le fichier de configuration se trouve ici : app/js/conf.json
 Voir la doc sur [l'API JavaScript](https://github.com/SITools2/MIZAR/wiki/Client's-API) pour comprendre le fichier de configuration
 
 
-Build
----
-Pour générer une version minifiée, il est nécessaire d'avoir installé [NodeJS](http://nodejs.org/download/).
 
-Une fois installé, lancez `app/build/build.bat` pour les utilisateurs de Windows ou `cd app/build` suivi de `node r.js -o buildMizar.js` pour les utilisateurs d'OS de type Unix.
-Le script va générer un fichier minifié "MizarWidget.min.js" dans le répertoire parent.
-Pour générer la feuille de style minifié utilisez la commande:
-`node r.js -o cssIn=../css/style.css out=../css/style.min.css`
-
-TODO: découpage en modules:
-Pour générer tout, utilisez: `node r.js -o buildMizar.js`
-Les fichiers intéressants à récupérer sont:
-  * css
-  * js
-  * index.html
-
-Il suffit donc de placer ces fichiers dans le repertoire de production `mizarModule/app/`
 
 
 [![Bitdeli Badge](https://d2weczhvl823v0.cloudfront.net/SITools2/mizar/trend.png)](https://bitdeli.com/free "Bitdeli Badge")
