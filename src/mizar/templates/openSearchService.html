@@ -1,0 +1,19 @@
+<div id="openSearchTabs">
+	<ul>
+		<% for ( var i=0; i<layers.length; i++ )
+		{
+		%>
+			<li><a href="#osForm_<%=layers[i].id%>"><%= layers[i].name %></a></li>
+		<%
+		}
+		%>
+	</ul>
+
+<% for ( var i=0; i<layers.length; i++)
+{
+%>
+	<div id="osForm_<%= layers[i].id %>"> <%= layers[i].openSearchForm %> </div>
+<%
+}
+%>
+</div>

@@ -1,0 +1,22 @@
+<div id="HEALPixCut">
+	Arcsec per pixel of result:
+	<div style="margin-left: 20px; margin-bottom: 10px;" class="imageProperties">
+		<label for="cdelt1">X axis: </label><input type="text" id="cdelt1" /><br/>
+		<label for="cdelt2">Y axis: </label><input type="text" id="cdelt2" />
+	</div>
+	<button style="margin-left: auto; margin-right: auto; display: block;" id="HEALPixCutBtn">Cut viewport</button>
+	<div style="display: inline-block; width: auto; height: 1em;" class="status"></div>
+	<div style="margin-top: 15px;">
+		<em style="font-size: 14px;">Results</em>
+		<div class="HEALPixCutResults">
+			<ul style="list-style-type: none;">
+				<% 
+				for ( var i=0; i<results.length; i++ )
+				{
+					print( itemTemplate( { result: results[i] } ) );
+				}
+				%>
+			</ul>
+		</div>
+	</div>
+</div>

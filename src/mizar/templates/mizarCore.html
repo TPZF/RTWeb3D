@@ -1,0 +1,70 @@
+<div id="webGLNotAvailable">
+	If you see this message, WebGL is not supported in your browser.<br/>
+	Please install a recent version of <a href="http://www.mozilla.com">Firefox</a> or <a href="http://www.google.com/chrome">Google Chrome</a>.<br/>
+	If you already have a recent version of Firefox or Google Chrome, your graphics driver are too old, please update it.<br/>
+	On Google Chrome, you can check why it is not working by entering "about:gpu" in the url bar.
+</div>
+
+<div id="webGLContextLost">
+	If you see this message, WebGL context was lost.<br/>
+	Please re-launch your browser. We are working on restoring without relaunching.
+</div>
+
+<div id="loading"></div>
+
+<div class="canvas">
+
+	<!-- Side bar will contain available layers -->
+	<div id="categoryDiv">
+	</div>
+	
+	<div class="noSelect" id="navigationDiv">
+		<div id="searchDiv">
+		</div>
+
+		<div id="compassDiv">
+		</div>
+
+		<div id="imageViewerDiv">
+		</div>
+	</div>
+	
+	<!-- Left-Bottom-section -->
+	<div class="noSelect" id="leftBottomDiv">
+		<!-- Div for relative position 164 = define height of mollweideContent-->
+		<div id="2dMapContainer" style="display: none; position: relative; height: 164px; margin-bottom: 5px;">
+			<div id="mollweideDiv">
+				<span id="mollweideContent">
+					<canvas id="mollweideCanvas" class="noSelect" width="232px" height="116px"></canvas>
+					<div id="fov" class="ui-widget">Fov : 45 x 45</div>
+				</span>
+				
+				<span id="slideArrow"></span>
+			</div>
+		</div>
+		<div id="shareContainer" style="display: none;" class="leftBottomButton">
+			<input type="button" id="share" />
+			<div id="shareResult" style="pointer-events : auto;">
+				<input type="text" id="shareInput" />
+				<input type="button" id="shareClear" />
+			</div>
+		</div>
+		<div id="sampContainer" style="display: none;" class="leftBottomButton">
+			<input type="button" id="sampInvoker" />
+		</div>
+		<div id="measureContainer" style="display: none;" class="leftBottomButton">
+			<input type="button" id="measureInvoker" />
+		</div>
+		<div style="display: none;" id="fps" class="statBox ui-widget">FPS : 0</div>	
+	</div>
+	
+	<div id="attributions">
+		<div class="noSelect" id="skyAttributions"></div>
+		<div class="noSelect" id="globeAttributions"></div>
+	</div>
+	<div id="posTracker" class="noSelect"></div>
+
+	<canvas class="noSelect" id="GlobWebCanvas" style="border: none; margin: 0; padding: 0;" width="0" height="0">
+	</canvas>
+
+</div>

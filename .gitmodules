@@ -1,0 +1,3 @@
+[submodule "src/mizar/externals/GlobWeb"]
+	path = src/mizar/externals/GlobWeb
+	url = https://github.com/TPZF/GlobWeb.git

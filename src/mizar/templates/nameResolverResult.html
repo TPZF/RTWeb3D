@@ -1,0 +1,9 @@
+<div class="nameResolverResult">
+	<% if (properties.type)
+	{ %>
+		<em>Type:</em> <%= properties.type %><br/>
+	<% } %>
+	<em><% (type == "EQ") ? print("RA: ") : print("Longitude: ") %></em><%= lon %><br/>
+	<em><% (type == "EQ") ? print("Dec: ") : print("Latitude: ") %></em><%= lat %><br/>
+	Found in <%= properties.credits %> database</br>
+</div>

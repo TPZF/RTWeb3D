@@ -1,6 +1,6 @@
 ({
-	baseUrl: "../src/js",
-	name: "../../build/almond",
+	baseUrl: "../src/mizar/js",
+	name: "../../../build/almond",
 	include: ['MizarWidget'],
 	out: "../src/mizar/MizarWidget.min.js",
 	wrap: {

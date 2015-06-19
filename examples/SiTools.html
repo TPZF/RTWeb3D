@@ -3,7 +3,7 @@
 <head>
 <title>AstroWeb example</title>
 <meta http-equiv="content-type" content="text/html; charset=ISO-8859-1">
-<script  src="../src/js/require.min.js"></script>
+<script  src="../src/mizar/js/require.min.js"></script>
 <script type="text/javascript" src="http://code.jquery.com/jquery-1.7.1.min.js"></script>
 
 <style>
@@ -41,7 +41,7 @@ li.poi:hover
 
 <script type="text/javascript">
 	
-	require(['../src/externals/GlobWeb/src/AstroWeb'], function (AstroWeb) 
+	require(['../src/mizar/externals/GlobWeb/src/AstroWeb'], function (AstroWeb) 
 	{	
 		// Init globe
 		// - canvas: Id of canvas HTML element
@@ -71,7 +71,7 @@ li.poi:hover
 		// - iconUrl: Url of image for texture
 		var layerStyle = new AstroWeb.FeatureStyle({ 
 			fillColor: [255, 204, 0,06, 1.],
-			iconUrl: "../src/css/images/star.png"
+			iconUrl: "../src/mizar/css/images/star.png"
 		});
 
 		// OpenSearch options

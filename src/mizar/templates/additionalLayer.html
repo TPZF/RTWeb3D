@@ -1,0 +1,67 @@
+<div class="ui-widget addLayer" id="addLayer_<%= shortName %>" >
+
+	<span id="visible_<%= shortName %>" class="<% if (layer.visible()) print('ui-state-active'); else print('ui-state-default'); %> ui-corner-all ui-button">
+		<span class="ui-icon <% if (layer.visible()) print('ui-icon-check'); else print('ui-icon-empty'); %>"></span>
+	</span>
+
+	<canvas width="20" height="10" class="legend"></canvas>
+
+	<label title="<%= layer.description %>" for="addLayerInput_<%= shortName %>"><%= layer.name %></label>
+
+	<span style="display: none;" class="spinner"></span>
+
+	<div style="display: none;" class="layerTools" class="ui-widget-header ui-corner-all">
+		
+		<%
+		if( layer.deletable )
+		{
+		%>
+			
+			<button class="deleteLayer">Delete</button>
+		<%
+		}
+		%>
+
+
+		<% if ( layer.type == "GeoJSON" )
+		{
+		%>
+			
+			<button class="zoomTo">zoomTo</button>
+		<%
+		}
+
+		if ( layer.availableServices )
+		{
+		%>
+			<button class="layerServices">Available services</button>
+		<%
+		}
+		if ( layer instanceof OpenSearchLayer )
+		{
+		%>
+			<button class="exportLayer">Export visible tiles by SAMP</button>
+			<a href="" download=""><button class="downloadAsVO">Download visible tiles as VOTable</button></a>
+		<%
+		}
+		%>
+
+		<% if ( layer instanceof HEALPixFITSLayer && !isMobile )
+		{
+		%>
+			<input type="checkbox" class="isFits" id="isFits_<%= shortName %>" /><label for="isFits_<%= shortName %>">Fits</label>
+			<input type="checkbox" class="addFitsView" id="addFitsView_<%= shortName %>" disabled="disabled" /><label for="addFitsView_<%= shortName %>"></label>
+		<%
+		}
+		%>
+
+		<div id="opacity_<%= shortName %>">
+			<div>
+				<label for="percentInput_<%= shortName %>">Opacity: </label>
+				<input class="percentInput" type="text" id="percentInput_<%= shortName %>" />
+			</div>
+			<div class="slider" id="slider_<%= shortName %>"></div>
+		</div>
+	</div>
+
+</div>
