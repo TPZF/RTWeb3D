@@ -1,0 +1,158 @@
+<html>
+
+<head>
+<title>Image</title>
+<meta http-equiv="content-type" content="text/html; charset=ISO-8859-1">
+<script  src="../src/js/require.min.js"></script>
+<link rel="stylesheet" href="../src/css/jquery-ui-1.9.2.custom.css">
+<link rel="stylesheet" href="../src/css/jquery.ui.selectmenu.css">
+<link rel="stylesheet" href="../src/css/imageProcessing.css">
+
+
+<script type="text/javascript">
+
+	require.config({
+		paths: {
+			"jquery": "../src/externals/jquery-1.8.2.min",
+			"jquery.ui": "../src/externals/jquery-ui-1.9.2.custom.min",
+			"jquery.ui.selectmenu": "../src/externals/jquery.ui.selectmenu",
+			"fits": "../src/externals/fits",
+			"gw": "../src/externals/GlobWeb/src",
+			"underscore-min": "../src/externals/underscore-min",
+		},
+		shim: {
+			'jquery': {
+				deps: [],
+				exports: 'jQuery'
+			},
+			'jquery.ui': {
+				deps: ['jquery'],
+				exports: 'jQuery'
+			},
+			'jquery.ui.selectmenu': {
+				deps: ['jquery.ui'],
+				exports: 'jQuery'
+			},
+			'underscore-min': {
+				deps: ['jquery'],
+				exports: '_'
+			},
+		},
+		waitSeconds: 0
+	});
+	
+require(['jquery.ui', 'ImageRenderer', 'gw/RenderContext', 'gw/DynamicImage', '../src/js/DynamicImageView', '../src/js/FitsLoader', 'fits'], function ($, ImageRenderer, RenderContext, DynamicImage, DynamicImageView, FitsLoader)
+{
+
+	var renderContext = new RenderContext( { canvas: "imgCanvas", backgroundColor: [1.0,1.0,1.0,1.0], continuousRendering: false  });
+
+	// Properties for image initialization with ImageRenderer shaders
+	var fragmentCode = "\
+				precision highp float; \n\
+				varying vec2 texCoord;\n\
+				uniform sampler2D texture; \n\
+				uniform sampler2D colormap; \n\
+				uniform float min; \n\
+				uniform float max; \n\
+				void main(void)\n\
+				{\n\
+					float i = texture2D(texture,texCoord).r;\n\
+					float d = clamp( ( i - min ) / (max - min), 0.0, 1.0 );\n\
+					vec4 cmValue = texture2D(colormap, vec2(d,0.));\n\
+					gl_FragColor = vec4(cmValue.r,cmValue.g,cmValue.b,1.);\n\
+				}\n";
+	var updateUniforms = function(gl, renderable, program)
+	{
+		if ( !program )
+			program = renderable.polygonProgram;
+		gl.uniform1f(program.uniforms["max"], renderable.tmax );
+		gl.uniform1f(program.uniforms["min"], renderable.tmin );
+
+		gl.activeTexture(gl.TEXTURE1);
+		gl.bindTexture(gl.TEXTURE_2D, renderable.colormapTex);
+		gl.uniform1i(program.uniforms["colormap"], 1);
+	};
+
+	/**
+	 *	Handle fits data
+	 */
+	function handleFits(fitsData)
+	{
+		// Enable float texture extension to have higher luminance range
+		var ext = renderContext.gl.getExtension("OES_texture_float");
+		if (!ext) {
+			// TODO 
+			alert("no OES_texture_float");
+			return;
+		}
+
+		var pixels = new Float32Array( fitsData.view.buffer, fitsData.begin, fitsData.length/4 ); // with gl.FLOAT
+
+		// Create new image
+		var gl = renderContext.gl;
+		var image = new DynamicImage(renderContext, pixels, gl.LUMINANCE, gl.FLOAT, fitsData.width, fitsData.height, {
+			fragmentCode : fragmentCode,
+			updateUniforms : updateUniforms
+		});
+
+		// Set to "raw" rendering
+		image.fragmentCode = null;
+		image.updateUniforms = null;
+
+		// Create dynamic image view
+		$('#imageDynamic').button();
+		var div = new DynamicImageView({
+			image : image,
+			activator: 'imageDynamic',
+			id: "unique",
+			changeShaderCallback: function(contrast){
+				if ( contrast == "raw" )
+				{
+					image.fragmentCode = null;
+					image.updateUniforms = null;
+				}
+				else
+				{
+					image.fragmentCode = fragmentCode;
+					image.updateUniforms = updateUniforms;
+				}
+			},
+			enable : function(){
+				$('#fitsView').button("enable");
+			},
+			disable : function(){
+				$('#fitsView').button("disable");
+			},
+			unselect: function(){
+				$('#fitsView').removeAttr("checked").button("refresh");
+			}
+		});
+
+		$("#imageDynamic").click(function(){
+			div.toggle();
+		});
+
+		// 
+		var imgRenderer = new ImageRenderer(renderContext,image);
+	}
+
+	renderContext.canvas.addEventListener("webglcontextlost", function(event) {
+		console.log('context lost');
+	}, false);
+
+	FitsLoader.loadFits("data/hst_11548_12_nic_nic2_f160w_drz.fits", handleFits);
+});
+
+
+</script>
+
+</head>
+
+
+<body>
+	<input  type="checkbox" id="imageDynamic" /><label style="display: inline-block; vertical-align: top;" for="imageDynamic">Image dynamic</label>
+	<canvas id="imgCanvas" width="800" height="600"></canvas>
+ </body>
+
+</html>
+
