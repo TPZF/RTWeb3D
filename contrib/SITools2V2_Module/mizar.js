@@ -34,7 +34,7 @@ sitools.component.mizarModule = Ext.extend(Ext.Panel, {
         this.items = [ { layout: 'fit', 
                         region : 'center',
                         autoEl: { tag: 'iframe',
-                        src: '../js/modules/mizarModule/app/index.html?conf='+this.configFile
+                        src: '../js/modules/mizarModule/src/mizar/index.html?conf='+this.configFile
                         }, 
                     xtype: 'box'}
                     ];
