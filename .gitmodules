@@ -1,3 +1,3 @@
-[submodule "app/externals/GlobWeb"]
-	path = app/externals/GlobWeb
-	url = https://github.com/TPZF/GlobWeb.git
+[submodule "src/mizar/externals/GlobWeb"]
+	path = src/mizar/externals/GlobWeb
+	url = https://github.com/SITools2/GlobWeb.git

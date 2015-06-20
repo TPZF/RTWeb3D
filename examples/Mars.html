@@ -1,0 +1,48 @@
+<html>
+
+<head>
+<title>Mars</title>
+<meta http-equiv="content-type" content="text/html; charset=ISO-8859-1">
+<link rel="stylesheet" href="../src/mizar/css/style.min.css" />
+
+<!-- Prod -->
+<script type="text/javascript" charset="UTF-8" src="../src/mizar/MizarWidget.min.js"></script>
+
+
+<script type="text/javascript">
+	window.onload = function() {
+		var mizar = new MizarWidget('#mizarWidget-div', {
+			debug: true,
+			navigation: {
+				"initTarget": [0,0]
+			},
+			nameResolver: {
+				"zoomFov": 2
+			},
+			stats: {
+				visible: true
+			}
+		});
+		
+		// Set different GUIs
+		mizar.setNameResolverGui(true);
+		mizar.setCategoryGui(true);
+		mizar.setCompassGui(true);
+
+		// Go to Mars
+		mizar.viewPlanet("Mars");
+	};
+
+</script>
+
+</head>
+
+
+<body>
+
+<div id="mizarWidget-div">
+</div>
+
+</body>
+
+</html>
